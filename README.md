@@ -15,61 +15,57 @@
   <a href="https://modrinth.com/mod/hbm-ntm-reforged">
     <img src="https://img.shields.io/badge/Modrinth-HBM%20NTM%20Reforged-00AF5C?style=flat&logo=modrinth&logoColor=white" alt="Modrinth">
   </a>
+  <a href="https://www.curseforge.com/minecraft/mc-mods/hbm-ntm-reforged">
+    <img src="https://img.shields.io/badge/CurseForge-HBM%20NTM%20Reforged-f16436?style=flat&logo=curseforge&logoColor=white" alt="CurseForge">
+  </a>
 </p>
 
-HBM NTM Reforged is an unofficial Minecraft Forge 1.12.2 port and continuation of HBM's Nuclear Tech Mod.
+HBM NTM Reforged is a Minecraft Forge 1.12.2 port of the original HBM's Nuclear Tech Mod.
 
-The main foundation of this project is the original HBM Nuclear Tech Mod for Minecraft 1.7.10. The goal is to preserve and restore the original HBM NTM experience on Minecraft Forge 1.12.2 as accurately as possible.
+The main idea behind this project is simple: bring the original mod to 1.12.2 and combine it with content from Extended Edition, so players get the best possible experience in one place. I wanted the things I liked from Extended Edition, the things I missed from the original mod, and space content as well, all in a single mod instead of juggling separate forks and editions.
 
-Selected content from Extended Edition may also be added as extra or expanded content when it improves the experience, adds useful features, or brings high-quality content that is not present in the original 1.7.10 version.
+That is what Reforged is aiming for. I am also working on my own additions on top of that, things I personally want to see in the mod that are not in the other versions.
 
-## Status
+## Discord
 
-This project is currently in alpha.
+Join the Discord community for bug reports, suggestions, development updates, modded Minecraft discussion, and future public server plans.
 
-Bugs, crashes, missing content, unfinished mechanics, and balance issues are expected.
+[Join the Discord](https://discord.gg/BgrqdWEK)
 
-## Goals
+## Dependencies
 
-- Restore and preserve the original HBM NTM 1.7.10 experience on Minecraft Forge 1.12.2
-- Keep the original 1.7.10 mod as the main foundation of the project
-- Add selected Extended Edition content as optional/expanded content where it makes sense
-- Improve stability and compatibility
-- Fix broken or unfinished mechanics
-- Add missing machines, weapons, blocks, items, resources, and world generation
-- Work toward a complete and polished 1.12.2 version
-- Prepare the project for a future port to newer Minecraft versions
+### Required
 
-## Future plans
-
-After the 1.12.2 version is completed, the next goal is to begin work on a newer Minecraft version, possibly 1.20+.
-
-A public modded Minecraft community/server is also planned for the future when the mod and community are ready.
+- [MixinBooter](https://modrinth.com/mod/mixinbooter) - required library for Minecraft 1.12.2 mod compatibility.
+- [ConnectedTexturesMod / CTM](https://www.curseforge.com/minecraft/mc-mods/ctm/files/2915363) - required for connected texture/model support.
 
 ## Bug reports
 
 Found a crash, broken recipe, or visual bug?
 
-1. [Open a GitHub Issue](https://github.com/alexsander55455455-cmyk/HBM-NTM-Reforged/issues/new?template=bug_report.yml) (Bug report form)
-2. Or ask on [Discord](https://discord.gg/BgrqdWEK)
+[Open a GitHub Issue](https://github.com/alexsander55455455-cmyk/HBM-NTM-Reforged/issues/new?template=bug_report.yml)
 
 Please include your mod version, Forge version, steps to reproduce, and `latest.log` or crash report if possible.
 
-## Discord
+## CurseForge
 
-Join the Discord community for suggestions, development updates, modded Minecraft discussion, and future public server plans.
+https://www.curseforge.com/minecraft/mc-mods/hbm-ntm-reforged
 
-[Join the Discord](https://discord.gg/BgrqdWEK)
+## Credits
 
-## Disclaimer
+This project was inspired by the work of the HBM NTM community and the people behind these mods. Thank you to everyone who built, maintained, and contributed to them.
 
-This is an unofficial fan/community project.
+### Main foundation
+
+- [HBM's Nuclear Tech Mod](https://www.curseforge.com/minecraft/mc-mods/hbms-nuclear-tech-mod) - the original mod and the core basis of Reforged
+
+### Also inspired by
+
+- [HBM's Nuclear Tech Mod Extended Edition](https://www.curseforge.com/minecraft/mc-mods/hbms-nuclear-tech-mod-extended-edition)
+- [HBM Nuclear Tech Mod Community Edition](https://www.curseforge.com/minecraft/mc-mods/hbm-nuclear-tech-mod-community-edition)
+- [HBM's NTM CE Space](https://www.curseforge.com/minecraft/mc-mods/hbms-ntm-ce-space)
 
 Original HBM's Nuclear Tech Mod belongs to its original creators.
-
-This project is not an official release from the original HBM NTM creators. It is made to preserve, restore, and continue the mod for the community.
-
-Extended Edition content is used only as selected additional/expanded content where appropriate. The original HBM NTM 1.7.10 experience remains the main foundation.
 
 ## License
 
