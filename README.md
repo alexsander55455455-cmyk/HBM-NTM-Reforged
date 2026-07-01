@@ -23,19 +23,6 @@ The main foundation of this project is the original HBM Nuclear Tech Mod for Min
 
 Selected content from Extended Edition may also be added as extra or expanded content when it improves the experience, adds useful features, or brings high-quality content that is not present in the original 1.7.10 version.
 
-## CurseForge
-
-https://www.curseforge.com/minecraft/mc-mods/hbm-ntm-reforged
-
-https://url-shortener.curseforge.com/cLrqu
-
-## Dependencies
-
-### Required
-
-- [MixinBooter](https://modrinth.com/mod/mixinbooter) - required library for Minecraft 1.12.2 mod compatibility.
-- [ConnectedTexturesMod / CTM](https://www.curseforge.com/minecraft/mc-mods/ctm/files/2915363) - required for connected texture/model support.
-
 ## Status
 
 This project is currently in alpha.
@@ -76,9 +63,11 @@ Join the Discord community for suggestions, development updates, modded Minecraf
 
 ## Disclaimer
 
+This is an unofficial fan/community project.
+
 Original HBM's Nuclear Tech Mod belongs to its original creators.
 
-This project is a port and continuation for Minecraft Forge 1.12.2, focused on preserving, restoring, and continuing the mod.
+This project is not an official release from the original HBM NTM creators. It is made to preserve, restore, and continue the mod for the community.
 
 Extended Edition content is used only as selected additional/expanded content where appropriate. The original HBM NTM 1.7.10 experience remains the main foundation.
 
