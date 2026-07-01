@@ -15,17 +15,29 @@ public abstract class HBMCreativeTab extends CreativeTabs {
 		this.tabKey = tabKey;
 	}
 
+	public String getTabKey() {
+		return tabKey;
+	}
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void displayAllRelevantItems(NonNullList<ItemStack> list) {
-		collectItems(list);
-		sortStacks(list);
-		appendTabExtras(list);
+		NonNullList<ItemStack> tabItems = NonNullList.create();
+		collectItems(tabItems);
+		sortStacks(tabItems);
+		appendTabExtras(tabItems);
+		list.addAll(tabItems);
 	}
 
 	@SideOnly(Side.CLIENT)
 	protected void collectItems(NonNullList<ItemStack> list) {
-		super.displayAllRelevantItems(list);
+		NonNullList<ItemStack> raw = NonNullList.create();
+		super.displayAllRelevantItems(raw);
+		for (ItemStack stack : raw) {
+			if (!CreativeTabExclusions.isExcluded(stack)) {
+				list.add(stack);
+			}
+		}
 	}
 
 	@SideOnly(Side.CLIENT)

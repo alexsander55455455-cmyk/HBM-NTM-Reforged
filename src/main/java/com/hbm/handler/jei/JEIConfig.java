@@ -12,6 +12,7 @@ import com.hbm.inventory.gui.*;
 import com.hbm.inventory.recipes.DFCRecipes;
 import com.hbm.items.EffectItem;
 import com.hbm.items.ItemEnums;
+import com.hbm.items.ItemEnums;
 import com.hbm.items.ModItems;
 import com.hbm.items.machine.ItemBatterySC;
 import com.hbm.items.machine.ItemFELCrystal.EnumWavelengths;
@@ -179,6 +180,9 @@ public class JEIConfig implements IModPlugin {
     public void register(@NotNull IModRegistry registry) {
         if (!GeneralConfig.jei)
             return;
+
+        HbmJeiIngredientOrder.logSortOrderHealth();
+        HbmJeiIngredientOrder.seedRegistrationOrder(registry);
 
         registry.addRecipeRegistryPlugin(fluidIconRecipeRegistryPlugin);
 
@@ -494,21 +498,11 @@ public class JEIConfig implements IModPlugin {
             blacklist.addIngredientToBlacklist(new ItemStack(ModItems.book_secret));
             blacklist.addIngredientToBlacklist(new ItemStack(ModItems.ams_core_thingy));
         }
-        blacklist.addIngredientToBlacklist(new ItemStack(ModItems.ore_bedrock));
-        blacklist.addIngredientToBlacklist(new ItemStack(ModItems.ore_bedrock_centrifuged));
-        blacklist.addIngredientToBlacklist(new ItemStack(ModItems.ore_bedrock_cleaned));
-        blacklist.addIngredientToBlacklist(new ItemStack(ModItems.ore_bedrock_deepcleaned));
-        blacklist.addIngredientToBlacklist(new ItemStack(ModItems.ore_bedrock_enriched));
-        blacklist.addIngredientToBlacklist(new ItemStack(ModItems.ore_bedrock_exquisite));
-        blacklist.addIngredientToBlacklist(new ItemStack(ModItems.ore_bedrock_nitrated));
-        blacklist.addIngredientToBlacklist(new ItemStack(ModItems.ore_bedrock_nitrocrystalline));
-        blacklist.addIngredientToBlacklist(new ItemStack(ModItems.ore_bedrock_perfect));
-        blacklist.addIngredientToBlacklist(new ItemStack(ModItems.ore_bedrock_purified));
-        blacklist.addIngredientToBlacklist(new ItemStack(ModItems.ore_bedrock_seared));
-        blacklist.addIngredientToBlacklist(new ItemStack(ModItems.ore_bedrock_separated));
         blacklist.addIngredientToBlacklist(new ItemStack(ModItems.achievement_icon));
         blacklist.addIngredientToBlacklist(new ItemStack(ModBlocks.dummy_block_uf6));
         blacklist.addIngredientToBlacklist(new ItemStack(ModBlocks.dummy_block_puf6));
+        blacklist.addIngredientToBlacklist(new ItemStack(ModBlocks.dummy_block_ams_emitter));
+        blacklist.addIngredientToBlacklist(new ItemStack(ModBlocks.dummy_port_ams_emitter));
         blacklist.addIngredientToBlacklist(new ItemStack(ModBlocks.dummy_block_vault));
         blacklist.addIngredientToBlacklist(new ItemStack(ModBlocks.dummy_block_blast));
         blacklist.addIngredientToBlacklist(new ItemStack(ModBlocks.dummy_plate_compact_launcher));
@@ -517,6 +511,13 @@ public class JEIConfig implements IModPlugin {
         blacklist.addIngredientToBlacklist(new ItemStack(ModBlocks.dummy_port_launch_table));
         blacklist.addIngredientToBlacklist(new ItemStack(ModBlocks.dummy_plate_cargo));
         blacklist.addIngredientToBlacklist(new ItemStack(ModBlocks.dummy_block_silo_hatch));
+        blacklist.addIngredientToBlacklist(new ItemStack(ModBlocks.sliding_blast_door_keypad));
+        blacklist.addIngredientToBlacklist(new ItemStack(ModItems.board_copper));
+        blacklist.addIngredientToBlacklist(new ItemStack(ModItems.magnet_circular));
+
+        for (int i = 0; i < ItemEnums.EnumDepletedRTGMaterial.VALUES.length; i++) {
+            blacklist.addIngredientToBlacklist(new ItemStack(ModItems.pellet_rtg_depleted, 1, i));
+        }
 
         for (int i = 0; i < ItemBatterySC.EnumBatterySC.VALUES.length; i++) {
             blacklist.addIngredientToBlacklist(new ItemStack(ModItems.battery_sc, 1, i));

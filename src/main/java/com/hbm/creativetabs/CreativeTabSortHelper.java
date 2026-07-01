@@ -1,5 +1,6 @@
 package com.hbm.creativetabs;
 
+import com.hbm.handler.jei.HbmJeiIngredientSort;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
@@ -15,27 +16,30 @@ public final class CreativeTabSortHelper {
 	}
 
 	public static int compareStacks(ItemStack a, ItemStack b, String tabKey) {
+		if (HbmJeiIngredientSort.isHbmSortedNamespace(a) && HbmJeiIngredientSort.isHbmSortedNamespace(b)) {
+			return HbmJeiIngredientSort.compareForTab(a, b, tabKey);
+		}
 		return compareSortKeys(
 				CreativeTabSortOrder.getSortIndex(a, tabKey),
-				a.getMetadata(),
+				variantSortKey(a),
 				registrySortKey(a),
 				CreativeTabSortOrder.getSortIndex(b, tabKey),
-				b.getMetadata(),
+				variantSortKey(b),
 				registrySortKey(b));
 	}
 
 	public static int compareSortKeys(
 			int idxA,
-			int metaA,
+			long variantA,
 			String registryA,
 			int idxB,
-			int metaB,
+			long variantB,
 			String registryB) {
 		int cmp = Integer.compare(idxA, idxB);
 		if (cmp != 0) {
 			return cmp;
 		}
-		cmp = Integer.compare(metaA, metaB);
+		cmp = Long.compare(variantA, variantB);
 		if (cmp != 0) {
 			return cmp;
 		}
@@ -52,10 +56,10 @@ public final class CreativeTabSortHelper {
 			ResourceLocation regB = parseRegistryKey(b);
 			return compareSortKeys(
 					CreativeTabSortOrder.getSortIndex(regA, tabKey),
-					0,
+					0L,
 					registryKeyString(regA),
 					CreativeTabSortOrder.getSortIndex(regB, tabKey),
-					0,
+					0L,
 					registryKeyString(regB));
 		});
 	}
@@ -80,6 +84,13 @@ public final class CreativeTabSortHelper {
 		Collections.sort(sorted, (a, b) -> compareStacks(a, b, tabKey));
 		list.clear();
 		list.addAll(sorted);
+	}
+
+	private static long variantSortKey(ItemStack stack) {
+		if (HbmJeiIngredientSort.isHbmSortedNamespace(stack)) {
+			return HbmJeiIngredientSort.variantSortOffset(stack);
+		}
+		return stack.getMetadata() & 0xFFFFL;
 	}
 
 	static String registrySortKey(ItemStack stack) {

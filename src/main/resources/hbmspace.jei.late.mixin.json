@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "com.hbmspace.mixin.mod.hbm.jei",
+  "refmap": "mixins.hbmspace.refmap.json",
+  "plugin": "com.hbmspace.lib.ModMixinConfigPlugin",
+  "compatibilityLevel": "JAVA_8",
+  "target": "@env(MOD)",
+  "mixins": [
+    "MixinIngredientListElement"
+  ],
+  "setSourceFile": true,
+  "minVersion": "0.8.7"
+}

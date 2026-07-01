@@ -6,6 +6,8 @@
   "target": "@env(DEFAULT)",
   "client": [
     "MixinCompiledChunk",
+    "MixinCreativeTabsSearchSort",
+    "MixinGuiContainerCreativeSearchSort",
     "MixinSetVisibility",
     "MixinRenderChunk",
     "MixinRenderGlobal",
