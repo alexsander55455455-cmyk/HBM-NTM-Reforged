@@ -142,10 +142,10 @@ public class CraftingManagerTweaker extends CraftingManager {
 
         /* RodRecipes */
 
-        RodRecipes.addRBMKRod(BK247, ModItemsSpace.rbmk_fuel_bk247);
+        RodRecipes.addRBMKRod(ModItemsSpace.billet_bk247, ModItemsSpace.rbmk_fuel_bk247);
         RodRecipes.addRBMKRod(ModItemsSpace.billet_cm_fuel, ModItemsSpace.rbmk_fuel_lecm);
-        RodRecipes.addRBMKRod(CMRG, ModItemsSpace.rbmk_fuel_mecm);
-        RodRecipes.addRBMKRod(CM245, ModItemsSpace.rbmk_fuel_hecm);
+        RodRecipes.addRBMKRod(ModItemsSpace.billet_cm_mix, ModItemsSpace.rbmk_fuel_mecm);
+        RodRecipes.addRBMKRod(ModItemsSpace.billet_cm245, ModItemsSpace.rbmk_fuel_hecm);
         addPellet(PU241, EnumAddonWatzTypes.PU241);
         addPellet(AMF, EnumAddonWatzTypes.AMF);
         addPellet(AMRG, EnumAddonWatzTypes.AMRG);

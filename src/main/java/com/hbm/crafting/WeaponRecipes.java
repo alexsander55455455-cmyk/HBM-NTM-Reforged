@@ -79,6 +79,7 @@ public class WeaponRecipes {
         CraftingManager.addRecipeAuto(new ItemStack(ModItems.gun_spas12, 1), "BRM", "BGS", 'B', DESH.lightBarrel(), 'R', DESH.lightReceiver(), 'M', GUNMETAL.mechanism(), 'G', ANY_PLASTIC.grip(), 'S', DESH.stock() );
         CraftingManager.addRecipeAuto(new ItemStack(ModItems.gun_panzerschreck, 1), "BBB", "PGM", 'B', DESH.heavyBarrel(), 'P', STEEL.plateCast(), 'G', DESH.grip(), 'M', GUNMETAL.mechanism() );
         CraftingManager.addRecipeAuto(new ItemStack(ModItems.gun_g3, 1), "BRM", "WGS", 'B', WEAPONSTEEL.lightBarrel(), 'R', WEAPONSTEEL.lightReceiver(), 'M', WEAPONSTEEL.mechanism(), 'W', WOOD.grip(), 'G', RUBBER.grip(), 'S', WOOD.stock() );
+        CraftingManager.addRecipeAuto(new ItemStack(ModItems.gun_g3_zebra, 1), " M ", "MPM", " M ", 'M', BIGMT.mechanism(), 'P', ModItems.gun_g3);
         CraftingManager.addRecipeAuto(new ItemStack(ModItems.gun_stinger, 1), "BBB", "PGM", 'B', WEAPONSTEEL.heavyBarrel(), 'P', DictFrame.fromOne(ModItems.circuit, EnumCircuitType.ADVANCED), 'G', WEAPONSTEEL.grip(), 'M', WEAPONSTEEL.mechanism() );
         CraftingManager.addRecipeAuto(new ItemStack(ModItems.gun_chemthrower, 1), "MHW", "PSS", 'M', WEAPONSTEEL.mechanism(), 'H', RUBBER.pipe(), 'W', ModItems.wrench, 'P', WEAPONSTEEL.heavyBarrel(), 'S', WEAPONSTEEL.shell() );
         CraftingManager.addRecipeAuto(new ItemStack(ModItems.gun_amat, 1)," C ", "BRS", " MG", 'G', WOOD.grip(), 'B', FERRO.heavyBarrel(), 'R', FERRO.heavyReceiver(), 'M', WEAPONSTEEL.mechanism(), 'C', DictFrame.fromOne(ModItems.weapon_mod_special, GunFactory.EnumModSpecial.SCOPE), 'S', WOOD.stock() );
@@ -382,7 +383,15 @@ public class WeaponRecipes {
         CraftingManager.addRecipeAuto(new ItemStack(ModItems.gun_deagle, 1), "PPM", " BI", 'P', STEEL.plate(), 'B', new ItemStack(ModItems.bolt, 1, Mats.MAT_STEEL.id), 'I', ANY_PLASTIC.ingot(), 'M', ModItems.mechanism_rifle_1);
         CraftingManager.addRecipeAuto(new ItemStack(ModItems.gun_thompson, 1), "IIM", " SW", " S ", 'S', STEEL.plate(), 'I', IRON.plate(), 'W', "plankWood", 'M', ModItems.mechanism_rifle_2);
         CraftingManager.addRecipeAuto(new ItemStack(ModItems.gun_ks23, 1), "PPM", "SWL", 'P', STEEL.plate(), 'M', ModItems.mechanism_rifle_1, 'S', Items.STICK, 'W', new ItemStack(ModItems.wire, 1, Mats.MAT_TUNGSTEN.id), 'L', "logWood");
-        CraftingManager.addRecipeAuto(new ItemStack(ModItems.alloy_shield, 1), "IAI", "III", "  I", 'A', ALLOY.ingot(), 'I', IRON.ingot());
+        CraftingManager.addRecipeAuto(new ItemStack(ModItems.steel_shield, 1), "IAI", "III", " I ", 'I', STEEL.ingot(), 'A', IRON.ingot());
+        CraftingManager.addRecipeAuto(new ItemStack(ModItems.titanium_shield, 1), "IAI", "III", " I ", 'I', TI.ingot(), 'A', IRON.ingot());
+        CraftingManager.addRecipeAuto(new ItemStack(ModItems.cobalt_shield, 1), "IAI", "III", " I ", 'I', CO.ingot(), 'A', IRON.ingot());
+        CraftingManager.addRecipeAuto(new ItemStack(ModItems.alloy_shield, 1), "IAI", "III", " I ", 'I', ALLOY.ingot(), 'A', IRON.ingot());
+        CraftingManager.addRecipeAuto(new ItemStack(ModItems.cmb_shield, 1), "IAI", "III", " I ", 'I', CMB.ingot(), 'A', IRON.ingot());
+        CraftingManager.addRecipeAuto(new ItemStack(ModItems.desh_shield, 1), "IAI", "III", " I ", 'I', DESH.ingot(), 'A', POLYMER.ingot());
+        CraftingManager.addRecipeAuto(new ItemStack(ModItems.elec_shield, 1), "IAI", "IAI", "IAI", 'I', POLYMER.ingot(), 'A', KEY_ANYPANE);
+        CraftingManager.addRecipeAuto(new ItemStack(ModItems.starmetal_shield, 1), "IAI", "III", " I ", 'I', STAR.ingot(), 'A', CO.ingot());
+        CraftingManager.addRecipeAuto(new ItemStack(ModItems.schrabidium_shield, 1), "IAI", "III", " I ", 'I', SA326.ingot(), 'A', DESH.ingot());
         CraftingManager.addRecipeAuto(new ItemStack(ModItems.battery_sc_yharonite), "NBN", "PCP", "NBN", 'N', DNT.nugget(), 'B', ModItems.billet_yharonite, 'P', ANY_PLASTIC.ingot(), 'C', ModItems.battery_sc_schrabidium);
         CraftingManager.addRecipeAuto(new ItemStack(ModItems.battery_sc_electronium), "NBN", "PCP", "NBN", 'N', ModItems.nugget_u238m2, 'B', ModItems.glitch, 'P', ModItems.ingot_electronium, 'C', ModItems.battery_sc_yharonite);
         CraftingManager.addRecipeAuto(new ItemStack(ModItems.gun_hk69, 1), "SSI", " MB", 'S', ModItems.hull_small_steel, 'I', IRON.ingot(), 'M', ModItems.mechanism_launcher_1, 'B', new ItemStack(ModItems.bolt, 1, Mats.MAT_STEEL.id));
@@ -391,6 +400,10 @@ public class WeaponRecipes {
         CraftingManager.addShapelessAuto(new ItemStack(ModItems.gun_sauer, 1), ModItems.ducttape, ModItems.gun_ks23, Blocks.CRAFTING_TABLE, ModItems.gun_ks23);
 
         // Extended Edition Shapeless Ammo Clip Uncrafting
+        CraftingManager.addShapelessAuto(new ItemStack(ModItems.gun_revolver_iron_ammo, 24), new ItemStack(ModItems.clip_revolver_iron));
+        CraftingManager.addShapelessAuto(new ItemStack(ModItems.gun_revolver_ammo, 12), new ItemStack(ModItems.clip_revolver));
+        CraftingManager.addShapelessAuto(new ItemStack(ModItems.gun_revolver_gold_ammo, 12), new ItemStack(ModItems.clip_revolver_gold));
+        CraftingManager.addShapelessAuto(new ItemStack(ModItems.gun_revolver_lead_ammo, 12), new ItemStack(ModItems.clip_revolver_lead));
         CraftingManager.addShapelessAuto(new ItemStack(ModItems.gun_revolver_schrabidium_ammo, 12), new ItemStack(ModItems.clip_revolver_schrabidium));
         CraftingManager.addShapelessAuto(new ItemStack(ModItems.gun_revolver_cursed_ammo, 17), new ItemStack(ModItems.clip_revolver_cursed));
         CraftingManager.addShapelessAuto(new ItemStack(ModItems.gun_revolver_nightmare_ammo, 6), new ItemStack(ModItems.clip_revolver_nightmare));

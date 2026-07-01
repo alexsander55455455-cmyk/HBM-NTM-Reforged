@@ -63,6 +63,21 @@ public class MagicRecipes {
 				new ComparableStack(ModItems.powder_dineutronium),
 				new ComparableStack(ModItems.plate_desh),
 				new OreDictStack(GOLD.ingot())));
+		recipes.add(new MagicRecipe(new ItemStack(ModItems.ammo_44_bj),
+				new ComparableStack(ModItems.ammo_44),
+				new ComparableStack(ModItems.powder_magic),
+				new ComparableStack(ModItems.powder_magic),
+				new ComparableStack(ModItems.powder_desh)));
+		recipes.add(new MagicRecipe(new ItemStack(ModItems.ammo_44_silver),
+				new ComparableStack(ModItems.ammo_44),
+				new ComparableStack(ModItems.powder_magic),
+				new ComparableStack(ModItems.powder_magic),
+				new ComparableStack(ModItems.ingot_starmetal)));
+		recipes.add(new MagicRecipe(new ItemStack(ModItems.gun_darter),
+				new OreDictStack(STEEL.plate()),
+				new OreDictStack(STEEL.plate()),
+				new ComparableStack(ModItems.ingot_polymer),
+				new OreDictStack(GOLD.plate())));
 	}
 
 	public static List<MagicRecipe> getRecipes() {

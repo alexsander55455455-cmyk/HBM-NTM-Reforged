@@ -58,6 +58,48 @@ public class OutgasserRecipes extends SerializableRecipe {
 
 		recipes.put(new ComparableStack(DictFrame.fromOne(ModItems.oil_tar, ItemEnums.EnumTarType.COAL)),	new OutgasserRecipe(null, new FluidStack(Fluids.COALOIL, 100)));
 		recipes.put(new ComparableStack(DictFrame.fromOne(ModItems.oil_tar, ItemEnums.EnumTarType.WAX)),	new OutgasserRecipe(null, new FluidStack(Fluids.RADIOSOLVENT, 100)));
+		/* EE outgasser parity */
+		recipes.put(new RecipesCommon.OreDictStack(GOLD.dustTiny()), new OutgasserRecipe(new ItemStack(ModItems.powder_au198_tiny, 1), null));
+		recipes.put(new RecipesCommon.OreDictStack(U233.billet()), new OutgasserRecipe(new ItemStack(ModItems.billet_u235, 1), null));
+		recipes.put(new RecipesCommon.OreDictStack(U235.ingot()), new OutgasserRecipe(new ItemStack(ModItems.ingot_neptunium_fuel, 1), null));
+		recipes.put(new RecipesCommon.OreDictStack(NP237.billet()), new OutgasserRecipe(new ItemStack(ModItems.billet_pu238, 1), null));
+		recipes.put(new RecipesCommon.OreDictStack(PU239.billet()), new OutgasserRecipe(new ItemStack(ModItems.billet_pu240, 1), null));
+		recipes.put(new RecipesCommon.OreDictStack(PU240.billet()), new OutgasserRecipe(new ItemStack(ModItems.billet_pu241, 1), null));
+		recipes.put(new RecipesCommon.OreDictStack(PU241.billet()), new OutgasserRecipe(new ItemStack(ModItems.billet_am241, 1), null));
+		recipes.put(new RecipesCommon.OreDictStack(AM241.billet()), new OutgasserRecipe(new ItemStack(ModItems.billet_am242, 1), null));
+		recipes.put(new RecipesCommon.OreDictStack(SA326.billet()), new OutgasserRecipe(new ItemStack(ModItems.billet_solinium, 1), null));
+		recipes.put(new RecipesCommon.OreDictStack(CO.dustTiny()), new OutgasserRecipe(new ItemStack(ModItems.powder_co60_tiny, 1), null));
+		recipes.put(new RecipesCommon.OreDictStack(CO.ingot()), new OutgasserRecipe(new ItemStack(ModItems.ingot_co60, 1), null));
+		recipes.put(new RecipesCommon.OreDictStack(CO.dust()), new OutgasserRecipe(new ItemStack(ModItems.powder_co60, 1), null));
+		recipes.put(new RecipesCommon.OreDictStack(SR.nugget()), new OutgasserRecipe(new ItemStack(ModItems.nugget_sr90, 1), null));
+		recipes.put(new RecipesCommon.OreDictStack(SR.ingot()), new OutgasserRecipe(new ItemStack(ModItems.powder_sr90, 1), null));
+		recipes.put(new RecipesCommon.OreDictStack(SR.dust()), new OutgasserRecipe(new ItemStack(ModItems.powder_sr90, 1), null));
+		recipes.put(new RecipesCommon.OreDictStack(I.ingot()), new OutgasserRecipe(new ItemStack(ModItems.ingot_i131, 1), null));
+		recipes.put(new RecipesCommon.OreDictStack(I.dust()), new OutgasserRecipe(new ItemStack(ModItems.powder_i131, 1), null));
+		recipes.put(new RecipesCommon.OreDictStack(AC.nugget()), new OutgasserRecipe(new ItemStack(ModItems.nugget_ac227, 1), null));
+		recipes.put(new RecipesCommon.OreDictStack(AC.ingot()), new OutgasserRecipe(new ItemStack(ModItems.ingot_ac227, 1), null));
+		recipes.put(new RecipesCommon.OreDictStack(AC.dust()), new OutgasserRecipe(new ItemStack(ModItems.powder_ac227, 1), null));
+		recipes.put(new RecipesCommon.OreDictStack(CS.dust()), new OutgasserRecipe(new ItemStack(ModItems.powder_cs137, 1), null));
+		recipes.put(new RecipesCommon.OreDictStack(AT.dust()), new OutgasserRecipe(new ItemStack(ModItems.powder_at209, 1), null));
+		recipes.put(new ComparableStack(ModItems.billet_australium), new OutgasserRecipe(new ItemStack(ModItems.billet_australium_lesser, 1), null));
+		recipes.put(new RecipesCommon.OreDictStack(PB.dustTiny()), new OutgasserRecipe(new ItemStack(ModItems.powder_pb209_tiny, 1), null));
+		recipes.put(new RecipesCommon.OreDictStack(PB.ingot()), new OutgasserRecipe(new ItemStack(ModItems.ingot_pb209, 1), null));
+		recipes.put(new RecipesCommon.OreDictStack(PB.dust()), new OutgasserRecipe(new ItemStack(ModItems.powder_pb209, 1), null));
+		recipes.put(new RecipesCommon.OreDictStack(GOLD.block()), new OutgasserRecipe(new ItemStack(ModBlocks.block_au198, 1), null));
+		recipes.put(new ComparableStack(ModItems.meteorite_sword_bred), new OutgasserRecipe(new ItemStack(ModItems.meteorite_sword_irradiated), null));
+
+		recipes.put(new ComparableStack(ModBlocks.sand_gold), new OutgasserRecipe(new ItemStack(ModBlocks.sand_gold198, 1), null));
+		recipes.put(new ComparableStack(ModItems.scrap), new OutgasserRecipe(new ItemStack(ModItems.fallout, 1), null));
+		recipes.put(new ComparableStack(ModBlocks.block_scrap), new OutgasserRecipe(new ItemStack(ModBlocks.block_fallout, 1), null));
+		recipes.put(new ComparableStack(Blocks.STONE), new OutgasserRecipe(new ItemStack(ModBlocks.sellafield_slaked, 1), null));
+		recipes.put(new ComparableStack(ModBlocks.sellafield_slaked), new OutgasserRecipe(new ItemStack(ModBlocks.sellafield_0, 1), null));
+		recipes.put(new ComparableStack(ModBlocks.sellafield_0), new OutgasserRecipe(new ItemStack(ModBlocks.sellafield_1, 1), null));
+		recipes.put(new ComparableStack(ModBlocks.sellafield_1), new OutgasserRecipe(new ItemStack(ModBlocks.sellafield_2, 1), null));
+		recipes.put(new ComparableStack(ModBlocks.sellafield_2), new OutgasserRecipe(new ItemStack(ModBlocks.sellafield_3, 1), null));
+		recipes.put(new ComparableStack(ModBlocks.sellafield_3), new OutgasserRecipe(new ItemStack(ModBlocks.sellafield_4, 1), null));
+		recipes.put(new ComparableStack(ModBlocks.sellafield_4), new OutgasserRecipe(new ItemStack(ModBlocks.sellafield_core, 1), null));
+		recipes.put(new ComparableStack(ModBlocks.block_corium_cobble), new OutgasserRecipe(new ItemStack(ModBlocks.block_corium, 1), null));
+
 	}
 
 	public static OutgasserRecipe getRecipe(ItemStack input) {

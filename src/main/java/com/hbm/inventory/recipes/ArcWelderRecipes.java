@@ -360,7 +360,31 @@ public class ArcWelderRecipes extends SerializableRecipe {
             new ComparableStack(ModItems.warhead_buster_large),
             new ComparableStack(ModItems.fuel_tank_medium, 2),
             new ComparableStack(ModItems.thruster_medium, 4)));
+    recipes.add(
+        new ArcWelderRecipe(
+            new ItemStack(ModItems.missile_endo),
+            300,
+            25_000L,
+            new ComparableStack(ModBlocks.therm_endo),
+            new ComparableStack(ModItems.fuel_tank_medium, 2),
+            new ComparableStack(ModItems.thruster_medium, 4)));
+    recipes.add(
+        new ArcWelderRecipe(
+            new ItemStack(ModItems.missile_exo),
+            300,
+            25_000L,
+            new ComparableStack(ModBlocks.therm_exo),
+            new ComparableStack(ModItems.fuel_tank_medium, 2),
+            new ComparableStack(ModItems.thruster_medium, 4)));
 
+    recipes.add(
+        new ArcWelderRecipe(
+            new ItemStack(ModItems.missile_n2),
+            600,
+            50_000L,
+            new ComparableStack(ModItems.warhead_n2),
+            new ComparableStack(ModItems.fuel_tank_large),
+            new ComparableStack(ModItems.thruster_large, 3)));
     recipes.add(
         new ArcWelderRecipe(
             new ItemStack(ModItems.missile_nuclear),

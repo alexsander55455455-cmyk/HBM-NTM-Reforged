@@ -632,6 +632,8 @@ public class AssemblyMachineRecipes extends GenericRecipes<GenericRecipe> {
                 .inputItems(new ComparableStack(ModBlocks.block_meteor, 1), new ComparableStack(ModItems.wire, 16, Mats.MAT_MAGTUNG.id), new OreDictStack(SBD.dust(), 4), new ComparableStack(ModItems.circuit, 2, EnumCircuitType.BISMOID)));
         this.register(new GenericRecipe("ass.fwatz_core").setup(450, 100).outputItems(new ItemStack(ModBlocks.fwatz_core, 1))
                 .inputItems(new ComparableStack(ModBlocks.block_meteor, 1), new ComparableStack(ModItems.wire, 24, Mats.MAT_MAGTUNG.id), new OreDictStack(DIAMOND.dust(), 8), new OreDictStack(MAGTUNG.dust(), 12), new OreDictStack(DESH.heavyComp()), new ComparableStack(ModItems.upgrade_screm, 1), new ComparableStack(ModItems.upgrade_overdrive_3, 1), new ComparableStack(ModItems.circuit, 8, EnumCircuitType.QUANTUM)));
+        this.register(new GenericRecipe("ass.ams_emitter").setup(6000, 100_000).outputItems(new ItemStack(ModBlocks.ams_emitter, 1))
+                .inputItems(new ComparableStack(ModItems.component_emitter, 16), new OreDictStack(W.heavyComp(), 1), new OreDictStack(TI.heavyComp(), 2), new ComparableStack(ModItems.plate_dineutronium, 32), new ComparableStack(ModItems.circuit, 12, EnumCircuitType.CONTROLLER_ADVANCED), new ComparableStack(ModItems.coil_advanced_torus, 24), new ComparableStack(ModItems.entanglement_kit, 3), new ComparableStack(ModItems.crystal_horn, 1), new ComparableStack(ModBlocks.fwatz_core, 1)));
 
         // upgrades
         if(no528) {
@@ -1075,6 +1077,14 @@ public class AssemblyMachineRecipes extends GenericRecipes<GenericRecipe> {
                         new ComparableStack(ModItems.laser_crystal_dem, 1),
                         new ComparableStack(ModItems.plate_dalekanium, 3)
                 ));
+        this.register(new GenericRecipe("ass.cliprevolveriron").setup(40, 100).outputItems(new ItemStack(ModItems.clip_revolver_iron, 1))
+                .inputItems(new ComparableStack(ModItems.plate_polymer), new ComparableStack(ModItems.gun_revolver_iron_ammo, 24)));
+        this.register(new GenericRecipe("ass.cliprevolver").setup(40, 100).outputItems(new ItemStack(ModItems.clip_revolver, 1))
+                .inputItems(new ComparableStack(ModItems.plate_polymer), new ComparableStack(ModItems.gun_revolver_ammo, 12)));
+        this.register(new GenericRecipe("ass.cliprevolvergold").setup(40, 100).outputItems(new ItemStack(ModItems.clip_revolver_gold, 1))
+                .inputItems(new ComparableStack(ModItems.plate_polymer), new ComparableStack(ModItems.gun_revolver_gold_ammo, 12)));
+        this.register(new GenericRecipe("ass.cliprevolverlead").setup(40, 100).outputItems(new ItemStack(ModItems.clip_revolver_lead, 1))
+                .inputItems(new ComparableStack(ModItems.plate_polymer), new ComparableStack(ModItems.gun_revolver_lead_ammo, 12)));
         this.register(new GenericRecipe("ass.clipdefabricator").setup(40, 100).outputItems(new ItemStack(ModItems.clip_defabricator, 1))
                 .inputItems(new ComparableStack(ModItems.plate_polymer), new ComparableStack(ModItems.gun_defabricator_ammo, 16)));
         this.register(new GenericRecipe("ass.clipspark").setup(40, 100).outputItems(new ItemStack(ModItems.clip_spark, 1))

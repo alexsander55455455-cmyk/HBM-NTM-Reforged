@@ -54,6 +54,14 @@ public class HadronRecipes {
 				true
 				));
 		recipes.add(new HadronRecipe(
+				new ItemStack(ModItems.particle_aschrab),
+				new ItemStack(ModItems.capsule_xen),
+				4000,
+				new ItemStack(ModItems.particle_empty),
+				new ItemStack(ModItems.tiny_singularity),
+				true
+				));
+		recipes.add(new HadronRecipe(
 				new ItemStack(ModItems.particle_hydrogen),
 				new ItemStack(ModItems.particle_lead),
 				5000,
@@ -71,10 +79,26 @@ public class HadronRecipes {
 				));
 		recipes.add(new HadronRecipe(
 				new ItemStack(ModItems.particle_muon),
+				new ItemStack(ModItems.singularity),
+				8000,
+				new ItemStack(ModItems.particle_empty),
+				new ItemStack(ModItems.tiny_singularity_counter_resonant),
+				true
+				));
+		recipes.add(new HadronRecipe(
+				new ItemStack(ModItems.particle_muon),
 				new ItemStack(ModItems.particle_higgs),
 				10000,
 				new ItemStack(ModItems.particle_tachyon),
 				new ItemStack(ModItems.particle_empty),
+				true
+				));
+		recipes.add(new HadronRecipe(
+				new ItemStack(ModItems.particle_tachyon),
+				new ItemStack(ModItems.singularity_counter_resonant),
+				20000,
+				new ItemStack(ModItems.particle_empty),
+				new ItemStack(ModItems.tiny_singularity_super_heated),
 				true
 				));
 		recipes.add(new HadronRecipe(
@@ -92,6 +116,14 @@ public class HadronRecipes {
 				new ItemStack(ModItems.particle_dark),
 				new ItemStack(ModItems.particle_empty),
 				false
+				));
+		recipes.add(new HadronRecipe(
+				new ItemStack(ModItems.particle_dark),
+				new ItemStack(ModItems.singularity_super_heated),
+				100000,
+				new ItemStack(ModItems.particle_empty),
+				new ItemStack(ModItems.tiny_black_hole),
+				true
 				));
 		recipes.add(new HadronRecipe(
 				new ItemStack(ModItems.particle_muon),

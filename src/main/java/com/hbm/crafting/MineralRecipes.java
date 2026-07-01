@@ -5,7 +5,7 @@ import com.hbm.blocks.ModBlocks;
 import com.hbm.inventory.fluid.Fluids;
 import com.hbm.inventory.material.MaterialShapes;
 import com.hbm.items.ItemEnums;
-import com.hbm.items.ItemEnums.EnumDepletedRTGMaterial;
+
 import com.hbm.items.ModItems;
 import com.hbm.items.special.ItemWasteLong;
 import com.hbm.items.special.ItemWasteShort;
@@ -209,20 +209,11 @@ public class MineralRecipes {
         CraftingManager.addRecipeAutoOreShapeless(new ItemStack(ModItems.pellet_rtg_gold), ModItems.billet_au198, ModItems.billet_au198, ModItems.billet_au198, IRON.plate() );
         CraftingManager.addRecipeAutoOreShapeless(new ItemStack(ModItems.pellet_rtg_americium), ModItems.billet_am241, ModItems.billet_am241, ModItems.billet_am241, IRON.plate() );
 
-        //There's no need for anvil recycling recipes if you simply set the container item
-        CraftingManager.addShapelessAuto(new ItemStack(ModItems.billet_bismuth, 3), new ItemStack(ModItems.pellet_rtg_depleted, 1, EnumDepletedRTGMaterial.BISMUTH.ordinal()) );
-        CraftingManager.addShapelessAuto(new ItemStack(ModItems.ingot_lead, 2), new ItemStack(ModItems.pellet_rtg_depleted, 1, EnumDepletedRTGMaterial.LEAD.ordinal()) );
-        CraftingManager.addShapelessAuto(new ItemStack(ModItems.ingot_mercury, 2), new ItemStack(ModItems.pellet_rtg_depleted, 1, EnumDepletedRTGMaterial.MERCURY.ordinal()) );
-        CraftingManager.addShapelessAuto(new ItemStack(ModItems.billet_neptunium, 3), new ItemStack(ModItems.pellet_rtg_depleted, 1, EnumDepletedRTGMaterial.NEPTUNIUM.ordinal()) );
-        CraftingManager.addShapelessAuto(new ItemStack(ModItems.billet_zirconium, 3), new ItemStack(ModItems.pellet_rtg_depleted, 1, EnumDepletedRTGMaterial.ZIRCONIUM.ordinal()) );
-        if (OreDictionary.doesOreNameExist("ingotNickel")) {
-            NonNullList<ItemStack> ores = OreDictionary.getOres("ingotNickel");
-            if (!ores.isEmpty()) {
-                ItemStack out = ores.get(0).copy();
-                out.setCount(2);
-                CraftingManager.addShapelessAuto(out, new ItemStack(ModItems.pellet_rtg_depleted, 1, EnumDepletedRTGMaterial.NICKEL.ordinal()));
-            }
-        }
+        CraftingManager.addShapelessAuto(new ItemStack(ModItems.billet_bismuth, 3), ModItems.pellet_rtg_depleted_bismuth);
+        CraftingManager.addShapelessAuto(new ItemStack(ModItems.ingot_lead, 2), ModItems.pellet_rtg_depleted_lead);
+        CraftingManager.addShapelessAuto(new ItemStack(ModItems.nugget_mercury, 12), ModItems.pellet_rtg_depleted_mercury);
+        CraftingManager.addShapelessAuto(new ItemStack(ModItems.billet_neptunium, 3), ModItems.pellet_rtg_depleted_neptunium);
+        CraftingManager.addShapelessAuto(new ItemStack(ModItems.billet_zirconium, 3), ModItems.pellet_rtg_depleted_zirconium);
 
         CraftingManager.addRecipeAuto(new ItemStack(Item.getItemFromBlock(ModBlocks.block_copper), 1), "###", "###", "###", '#', ModItems.ingot_copper );
         CraftingManager.addRecipeAuto(new ItemStack(Item.getItemFromBlock(ModBlocks.block_fluorite), 1), "###", "###", "###", '#', ModItems.fluorite );

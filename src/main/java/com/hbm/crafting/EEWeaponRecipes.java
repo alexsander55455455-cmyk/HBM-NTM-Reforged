@@ -77,6 +77,7 @@ public class EEWeaponRecipes {
         CraftingManager.addRecipeAuto(new ItemStack(ModItems.gun_emp, 1), "CPG", "CMF", "CPI", 'C', ModItems.coil_copper, 'P', PB.plate(), 'G', DictFrame.fromOne(ModItems.circuit, EnumCircuitType.CONTROLLER), 'M', ModItems.magnetron, 'I', W.ingot(), 'F', ModItems.mechanism_special);
         CraftingManager.addRecipeAuto(new ItemStack(ModItems.gun_b93, 1), "PCE", "SEB", "PCE", 'P', ModItems.plate_dineutronium, 'C', ModItems.weaponized_starblaster_cell, 'E', ModItems.component_emitter, 'B', ModItems.gun_b92, 'S', ModItems.singularity_spark);
         CraftingManager.addRecipeAuto(new ItemStack(ModItems.jshotgun, 1), "LPP", "SSW", "PPD", 'S', ModItems.gun_uboinik, 'P', STEEL.plate(), 'D', new ItemStack(Items.DYE, 1, EnumDyeColor.GREEN.getDyeDamage()), 'L', ModBlocks.spinny_light, 'W', ModItems.mechanism_rifle_2);
+        CraftingManager.addShapelessAuto(new ItemStack(ModItems.gun_moist_nugget, 12), Items.BREAD, Items.WHEAT, Items.COOKED_CHICKEN, Items.EGG);
 
     }
 }

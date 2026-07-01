@@ -86,6 +86,7 @@ public class RodRecipes {
 
         //Pile fuel
         CraftingManager.addRecipeAuto(new ItemStack(ModItems.pile_rod_uranium, 1), " U ", "PUP", " U ", 'P', IRON.plate(), 'U', U.billet() );
+        CraftingManager.addRecipeAuto(new ItemStack(ModItems.pile_rod_plutonium, 1), " U ", "PUP", " U ", 'P', IRON.plate(), 'U', PU.billet() );
         CraftingManager.addRecipeAuto(new ItemStack(ModItems.pile_rod_source, 1), " U ", "PUP", " U ", 'P', IRON.plate(), 'U', ModItems.billet_ra226be );
         CraftingManager.addRecipeAuto(new ItemStack(ModItems.pile_rod_boron, 1), " B ", " W ", " B ", 'B', B.ingot(), 'W', KEY_PLANKS );
         CraftingManager.addShapelessAuto(new ItemStack(ModItems.pile_rod_lithium, 1), new ItemStack(ModItems.cell), LI.ingot() );

@@ -6,7 +6,7 @@ import com.hbm.inventory.fluid.Fluids;
 import com.hbm.inventory.material.Mats;
 import com.hbm.items.ItemEnums;
 import com.hbm.items.ItemEnums.EnumCircuitType;
-import com.hbm.items.ItemEnums.EnumDepletedRTGMaterial;
+
 import com.hbm.items.ModItems;
 import com.hbm.items.machine.ItemBatteryPack;
 import com.hbm.items.tool.ItemBlowtorch;
@@ -214,7 +214,7 @@ public class ItemPoolsComponent {
 
         new ItemPool(POOL_RTG) {{
             this.pool = new WeightedRandomChestContentFrom1710[] {
-                    weighted(ModItems.pellet_rtg_depleted, EnumDepletedRTGMaterial.LEAD.ordinal(), 1, 1, 40),
+                    weighted(ModItems.pellet_rtg_depleted_lead, 0, 1, 1, 40),
                     weighted(ModItems.pellet_rtg_weak, 0, 0, 1, 1),
             };
         }};
