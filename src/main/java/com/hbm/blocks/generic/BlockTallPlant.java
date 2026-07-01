@@ -194,20 +194,29 @@ public class BlockTallPlant extends BlockPlantEnumMeta<EnumTallPlantType> implem
     @Override
     public void grow(World worldIn, Random rand, BlockPos pos, IBlockState state) {
         if (!canGrow(worldIn, pos, state, false)) return;
-        var type = (PlantEnums.EnumTallPlantType) this.getEnumFromState(state);
+        EnumTallPlantType type = (EnumTallPlantType) this.getEnumFromState(state);
 
-        switch (type) {
+        EnumTallPlantType base;
+        BlockPos lowerPos;
+        if (type.name().endsWith("_UPPER")) {
+            base = EnumTallPlantType.valueOf(type.name().replace("_UPPER", "_LOWER"));
+            lowerPos = pos.down();
+        } else {
+            base = type;
+            lowerPos = pos;
+        }
+
+        switch (base) {
             case MUSTARD_WILLOW_2_LOWER:
-                worldIn.setBlockState(pos, ModBlocks.plant_tall.getDefaultState().withProperty(META, MUSTARD_WILLOW_3_LOWER.ordinal()), 2);
-
-                worldIn.setBlockState(pos.up(), ModBlocks.plant_tall.getDefaultState().withProperty(META, MUSTARD_WILLOW_3_UPPER.ordinal()), 2);
+                worldIn.setBlockState(lowerPos, ModBlocks.plant_tall.getDefaultState().withProperty(META, MUSTARD_WILLOW_3_LOWER.ordinal()), 2);
+                worldIn.setBlockState(lowerPos.up(), ModBlocks.plant_tall.getDefaultState().withProperty(META, MUSTARD_WILLOW_3_UPPER.ordinal()), 2);
                 break;
             case MUSTARD_WILLOW_3_LOWER:
-                worldIn.setBlockState(pos, ModBlocks.plant_tall.getDefaultState().withProperty(META, MUSTARD_WILLOW_4_LOWER.ordinal()), 2);
-
-                worldIn.setBlockState(pos.up(), ModBlocks.plant_tall.getDefaultState().withProperty(META, MUSTARD_WILLOW_4_UPPER.ordinal()), 2);
-
-                worldIn.setBlockState(pos.down(), Blocks.DIRT.getDefaultState(), 3);
+                worldIn.setBlockState(lowerPos, ModBlocks.plant_tall.getDefaultState().withProperty(META, MUSTARD_WILLOW_4_LOWER.ordinal()), 2);
+                worldIn.setBlockState(lowerPos.up(), ModBlocks.plant_tall.getDefaultState().withProperty(META, MUSTARD_WILLOW_4_UPPER.ordinal()), 2);
+                worldIn.setBlockState(lowerPos.down(), Blocks.DIRT.getDefaultState(), 3);
+                break;
+            default:
                 break;
         }
     }

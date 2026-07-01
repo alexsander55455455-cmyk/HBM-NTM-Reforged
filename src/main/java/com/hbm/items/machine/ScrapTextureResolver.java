@@ -124,6 +124,36 @@ public final class ScrapTextureResolver {
         ALIASES.put("stainlesssteel", "steel");
         ALIASES.put("gallium", "aluminum");
         ALIASES.put("gaas", "anybismoid");
+        ALIASES.put("galliumarsenide", "anybismoid");
+        ALIASES.put("conglomerate", "slag");
+        ALIASES.put("iridium", "osmiridium");
+        ALIASES.put("zinc", "aluminum");
+        ALIASES.put("hafnium", "tungsten");
+        ALIASES.put("bromine", "arsenic");
+        ALIASES.put("iodine", "niobium");
+        ALIASES.put("glowstone", "redstone");
+        ALIASES.put("netherquartz", "stone");
+        ALIASES.put("p_white", "stone");
+        ALIASES.put("australium", "gold");
+        ALIASES.put("tasmanite", "gold");
+        ALIASES.put("ayerite", "gold");
+        ALIASES.put("richmagma", "watzmud");
+        ALIASES.put("semtex", "saturnite");
+        ALIASES.put("galliumarsenide", "anybismoid");
+        ALIASES.put("conglomerate", "slag");
+        ALIASES.put("iridium", "osmiridium");
+        ALIASES.put("zinc", "aluminum");
+        ALIASES.put("hafnium", "tungsten");
+        ALIASES.put("bromine", "arsenic");
+        ALIASES.put("iodine", "niobium");
+        ALIASES.put("glowstone", "redstone");
+        ALIASES.put("netherquartz", "stone");
+        ALIASES.put("p_white", "stone");
+        ALIASES.put("australium", "gold");
+        ALIASES.put("tasmanite", "gold");
+        ALIASES.put("ayerite", "gold");
+        ALIASES.put("richmagma", "watzmud");
+        ALIASES.put("semtex", "saturnite");
     }
 
     private ScrapTextureResolver() {

@@ -1,3 +1,11 @@
 {
-	"parent": "hbm:block/waste_leaves_oak"
+	"parent": "hbm:block/waste_leaves_oak",
+	"overrides": [
+		{ "predicate": { "damage": 0 }, "model": "hbm:waste_leaves_oak" },
+		{ "predicate": { "damage": 1 }, "model": "hbm:waste_leaves_spruce" },
+		{ "predicate": { "damage": 2 }, "model": "hbm:waste_leaves_birch" },
+		{ "predicate": { "damage": 3 }, "model": "hbm:waste_leaves_jungle" },
+		{ "predicate": { "damage": 4 }, "model": "hbm:waste_leaves_acacia" },
+		{ "predicate": { "damage": 5 }, "model": "hbm:waste_leaves_dark_oak" }
+	]
 }

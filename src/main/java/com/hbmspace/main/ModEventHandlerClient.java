@@ -232,91 +232,15 @@ public class ModEventHandlerClient {
             }
         }
     }
-    // this probably can be debloated, so
-    // TODO deal with that shit later
     @SubscribeEvent
     public static void onModelRegistry(ModelRegistryEvent event) {
         registerReplacedBlockItemModel(ModBlocks.ore_oil_empty);
-
-        List<ResourceLocation> extraVariants = new ArrayList<>();
-        for (NTMMaterial mat : MatsSpace.SPACE_MATERIALS) {
-            if (mat.smeltable == NTMMaterial.SmeltingBehavior.SMELTABLE
-                    || mat.smeltable == NTMMaterial.SmeltingBehavior.ADDITIVE) {
-
-                ModelResourceLocation mrl = new ModelResourceLocation(
-                        new ResourceLocation("hbm", "items/scraps-" + mat.names[0]),
-                        "inventory"
-                );
-                extraVariants.add(new ResourceLocation("hbm:items/scraps-" + mat.names[0]));
-            }
-        }
-
-        extraVariants.add(new ResourceLocation("hbm", "items/scraps_liquid"));
-        extraVariants.add(new ResourceLocation("hbm", "items/scraps_additive"));
-        ModelBakery.registerItemVariants(ModItems.scraps, extraVariants.toArray(new ResourceLocation[0]));
     }
 
     @SubscribeEvent
     public static void onTextureStitch(TextureStitchEvent.Pre event) {
         TextureMap map = event.getMap();
         ParticleGlow.particleFlare = event.getMap().registerSprite(new ResourceLocation("hbm", "particle/yelflare"));
-
-        for (NTMMaterial mat : MatsSpace.SPACE_MATERIALS) {
-            if (mat.smeltable == NTMMaterial.SmeltingBehavior.SMELTABLE
-                    || mat.smeltable == NTMMaterial.SmeltingBehavior.ADDITIVE) {
-
-                ResourceLocation spriteLoc = new ResourceLocation(
-                        "hbm:items/scraps-" + mat.names[0]
-                );
-                TextureAtlasSprite sprite;
-                if (mat.solidColorLight != mat.solidColorDark) {
-                    sprite = new TextureAtlasSpriteMutatable(
-                            spriteLoc.toString(),
-                            new RGBMutatorInterpolatedComponentRemap(
-                                    0xFFFFFF, 0x505050,
-                                    mat.solidColorLight,
-                                    mat.solidColorDark
-                            )
-                    );
-                    ItemAutogen.iconMap.put(mat, sprite);
-                } else {
-                    sprite = new TextureAtlasSpriteMutatable(
-                            spriteLoc.toString(),
-                            new RGBMutatorInterpolatedComponentRemap(
-                                    0xFFFFFF, 0x505050,
-                                    0xFFFFFF, 0x505050
-                            )
-                    );
-                }
-                map.setTextureEntry(sprite);
-            }
-        }
-    }
-
-    @SubscribeEvent
-    public static void onModelBake(ModelBakeEvent event) {
-        try {
-            IModel baseModel = ModelLoaderRegistry.getModel(new ResourceLocation("minecraft", "item/generated"));
-
-            for (NTMMaterial mat : MatsSpace.SPACE_MATERIALS) {
-                if (mat.smeltable == NTMMaterial.SmeltingBehavior.SMELTABLE
-                        || mat.smeltable == NTMMaterial.SmeltingBehavior.ADDITIVE) {
-
-                    ResourceLocation spriteLoc = new ResourceLocation("hbm:items/scraps-" + mat.names[0]);
-                    IModel retexturedModel = baseModel.retexture(ImmutableMap.of("layer0", spriteLoc.toString()));
-                    IBakedModel bakedModel = retexturedModel.bake(
-                            ModelRotation.X0_Y0,
-                            DefaultVertexFormats.ITEM,
-                            ModelLoader.defaultTextureGetter()
-                    );
-                    ModelResourceLocation bakedModelLocation =
-                            new ModelResourceLocation(spriteLoc, "inventory");
-                    event.getModelRegistry().putObject(bakedModelLocation, bakedModel);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @SubscribeEvent

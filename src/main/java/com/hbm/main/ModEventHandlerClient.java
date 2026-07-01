@@ -256,7 +256,7 @@ public class ModEventHandlerClient {
                 player.motionX += look.x * 1.5;
                 player.motionY = 1 + MathHelper.clamp(look.y, 0, 1);
                 player.motionZ += look.z * 1.5;
-                ItemGunShotty.setHookedEntity(player, player.getHeldItemMainhand(), null);
+                ItemGunShotty.releaseMeathook(player, player.getHeldItemMainhand());
                 PacketDispatcher.wrapper.sendToServer(new MeathookJumpPacket());
                 m.jump = false;
             }
@@ -568,6 +568,7 @@ public class ModEventHandlerClient {
             }
 
             tessellator.draw();
+            buffer.setTranslation(0, 0, 0);
             GlStateManager.popMatrix();
         }
 

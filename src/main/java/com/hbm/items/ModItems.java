@@ -1312,19 +1312,24 @@ public class ModItems {
     public static final Item rod_dual = new ItemBreedingRod("rod_dual").setContainerItem(ModItems.rod_dual_empty).setCreativeTab(MainRegistry.controlTab);
     public static final Item rod_quad = new ItemBreedingRod("rod_quad").setContainerItem(ModItems.rod_quad_empty).setCreativeTab(MainRegistry.controlTab);
     //RTG
-    public static final Item pellet_rtg_depleted = new ItemEnumMulti<>("pellet_rtg_depleted", EnumDepletedRTGMaterial.VALUES, true, true).setContainerItem(ModItems.plate_iron).setCreativeTab(MainRegistry.controlTab);
+    public static final Item pellet_rtg_depleted = new ItemEnumMulti<>("pellet_rtg_depleted", EnumDepletedRTGMaterial.VALUES, true, true).setContainerItem(ModItems.plate_iron).setCreativeTab(null);
+    public static final Item pellet_rtg_depleted_bismuth = new ItemCustomLore("pellet_rtg_depleted_bismuth").setMaxStackSize(1).setCreativeTab(MainRegistry.controlTab);
+    public static final Item pellet_rtg_depleted_lead = new ItemCustomLore("pellet_rtg_depleted_lead").setMaxStackSize(1).setCreativeTab(MainRegistry.controlTab);
+    public static final Item pellet_rtg_depleted_mercury = new ItemCustomLore("pellet_rtg_depleted_mercury").setMaxStackSize(1).setCreativeTab(MainRegistry.controlTab);
+    public static final Item pellet_rtg_depleted_neptunium = new ItemCustomLore("pellet_rtg_depleted_neptunium").setMaxStackSize(1).setCreativeTab(MainRegistry.controlTab);
+    public static final Item pellet_rtg_depleted_zirconium = new ItemCustomLore("pellet_rtg_depleted_zirconium").setMaxStackSize(1).setCreativeTab(MainRegistry.controlTab);
 
-    public static final Item pellet_rtg_radium = new ItemRTGPellet(3, "pellet_rtg_radium").setDecays(EnumDepletedRTGMaterial.LEAD, 14016000000L, 1).setCreativeTab(MainRegistry.controlTab);
-    public static final Item pellet_rtg_weak = new ItemRTGPellet(5, "pellet_rtg_weak").setDecays(EnumDepletedRTGMaterial.LEAD, 876000000L, 2).setCreativeTab(MainRegistry.controlTab);
-    public static final Item pellet_rtg = new ItemRTGPellet(10, "pellet_rtg").setDecays(EnumDepletedRTGMaterial.LEAD, 768252000L, 2).setCreativeTab(MainRegistry.controlTab);
-    public static final Item pellet_rtg_strontium = new ItemRTGPellet(12, "pellet_rtg_strontium").setDecays(EnumDepletedRTGMaterial.ZIRCONIUM, 252200400L, 2).setCreativeTab(MainRegistry.controlTab);
-    public static final Item pellet_rtg_cobalt = new ItemRTGPellet(16, "pellet_rtg_cobalt").setDecays(EnumDepletedRTGMaterial.ZIRCONIUM, 46176588L, 2).setCreativeTab(MainRegistry.controlTab);
-    public static final Item pellet_rtg_actinium = new ItemRTGPellet(20, "pellet_rtg_actinium").setDecays(EnumDepletedRTGMaterial.LEAD, 190705200L, 2).setCreativeTab(MainRegistry.controlTab);
-    public static final Item pellet_rtg_americium = new ItemRTGPellet(25, "pellet_rtg_americium").setDecays(EnumDepletedRTGMaterial.NEPTUNIUM, 3786072000L, 2).setCreativeTab(MainRegistry.controlTab);
-    public static final Item pellet_rtg_polonium = new ItemRTGPellet(50, "pellet_rtg_polonium").setDecays(EnumDepletedRTGMaterial.LEAD, 3321024L, 3).setCreativeTab(MainRegistry.controlTab);
-    public static final Item pellet_rtg_gold = new ItemRTGPellet(200, "pellet_rtg_gold").setDecays(EnumDepletedRTGMaterial.MERCURY, 64728L, 4).setCreativeTab(MainRegistry.controlTab);
-    public static final Item pellet_rtg_lead = new ItemRTGPellet(600, "pellet_rtg_lead").setDecays(EnumDepletedRTGMaterial.BISMUTH, 3253L, 6).setCreativeTab(MainRegistry.controlTab);
-    public static final Item pellet_rtg_balefire = new ItemRTGPellet(6000, "pellet_rtg_balefire").setDecays(EnumDepletedRTGMaterial.NEPTUNIUM, 1000L, 12).setCreativeTab(MainRegistry.controlTab);
+    public static final Item pellet_rtg_radium = new ItemRTGPellet(3, "pellet_rtg_radium").setDecays(pellet_rtg_depleted_lead, 14016000000L, 1).setCreativeTab(MainRegistry.controlTab);
+    public static final Item pellet_rtg_weak = new ItemRTGPellet(5, "pellet_rtg_weak").setDecays(pellet_rtg_depleted_lead, 876000000L, 2).setCreativeTab(MainRegistry.controlTab);
+    public static final Item pellet_rtg = new ItemRTGPellet(10, "pellet_rtg").setDecays(pellet_rtg_depleted_lead, 768252000L, 2).setCreativeTab(MainRegistry.controlTab);
+    public static final Item pellet_rtg_strontium = new ItemRTGPellet(12, "pellet_rtg_strontium").setDecays(pellet_rtg_depleted_zirconium, 252200400L, 2).setCreativeTab(MainRegistry.controlTab);
+    public static final Item pellet_rtg_cobalt = new ItemRTGPellet(16, "pellet_rtg_cobalt").setDecays(pellet_rtg_depleted_zirconium, 46176588L, 2).setCreativeTab(MainRegistry.controlTab);
+    public static final Item pellet_rtg_actinium = new ItemRTGPellet(20, "pellet_rtg_actinium").setDecays(pellet_rtg_depleted_lead, 190705200L, 2).setCreativeTab(MainRegistry.controlTab);
+    public static final Item pellet_rtg_americium = new ItemRTGPellet(25, "pellet_rtg_americium").setDecays(pellet_rtg_depleted_neptunium, 3786072000L, 2).setCreativeTab(MainRegistry.controlTab);
+    public static final Item pellet_rtg_polonium = new ItemRTGPellet(50, "pellet_rtg_polonium").setDecays(pellet_rtg_depleted_lead, 3321024L, 3).setCreativeTab(MainRegistry.controlTab);
+    public static final Item pellet_rtg_gold = new ItemRTGPellet(200, "pellet_rtg_gold").setDecays(pellet_rtg_depleted_mercury, 64728L, 4).setCreativeTab(MainRegistry.controlTab);
+    public static final Item pellet_rtg_lead = new ItemRTGPellet(600, "pellet_rtg_lead").setDecays(pellet_rtg_depleted_bismuth, 3253L, 6).setCreativeTab(MainRegistry.controlTab);
+    public static final Item pellet_rtg_balefire = new ItemRTGPellet(6000, "pellet_rtg_balefire").setDecays(pellet_rtg_depleted_neptunium, 1000L, 12).setCreativeTab(MainRegistry.controlTab);
     //Generic Items
     public static final Item pellet_coal = new ItemFuel("pellet_coal", 320).setCreativeTab(MainRegistry.partsTab);
     public static final Item chlorine_pinwheel = new ItemFluidContainerInfinite(Fluids.CHLORINE, 1, 2, "chlorine_pinwheel").setCreativeTab(MainRegistry.partsTab);
@@ -1409,7 +1414,7 @@ public class ModItems {
     public static final Item turbine_titanium = new ItemBase("turbine_titanium").setCreativeTab(MainRegistry.partsTab);
     public static final Item blade_tungsten = new ItemBase("blade_tungsten").setCreativeTab(MainRegistry.partsTab);
     public static final Item turbine_tungsten = new ItemBase("turbine_tungsten").setCreativeTab(MainRegistry.partsTab);
-    public static final Item board_copper = new ItemBase("board_copper").setCreativeTab(MainRegistry.partsTab);
+    public static final Item board_copper = new ItemBase("board_copper").setCreativeTab(null);
     public static final Item pipes_steel = new ItemBase("pipes_steel").setCreativeTab(MainRegistry.partsTab);
     public static final Item drill_titanium = new ItemBase("drill_titanium").setCreativeTab(MainRegistry.partsTab);
     public static final Item bolt_compound = new ItemBase("bolt_compound").setCreativeTab(MainRegistry.partsTab);
@@ -1421,7 +1426,7 @@ public class ModItems {
     public static final Item rag_damp = new ItemBase("rag_damp").setCreativeTab(MainRegistry.partsTab);
     public static final Item rag_piss = new ItemBase("rag_piss").setCreativeTab(MainRegistry.partsTab);
     public static final Item filter_coal = new ItemBase("filter_coal").setCreativeTab(MainRegistry.partsTab);
-    public static final Item magnet_circular = new ItemBase("magnet_circular").setCreativeTab(MainRegistry.partsTab);
+    public static final Item magnet_circular = new ItemBase("magnet_circular").setCreativeTab(null);
     public static final Item centrifuge_element = new ItemBase("centrifuge_element").setCreativeTab(MainRegistry.partsTab);
     public static final Item reactor_core = new ItemBase("reactor_core").setCreativeTab(MainRegistry.partsTab);
     //Fuels
@@ -3366,24 +3371,7 @@ public class ModItems {
     public static final Item missile_soyuz2 = new ItemBase("missile_soyuz2").setCreativeTab(MainRegistry.partsTab);
     public static final Item nugget_ac227 = new ItemCustomLore("nugget_ac227").setCreativeTab(MainRegistry.partsTab);
     public static final Item nugget_radspice = new ItemCustomLore("nugget_radspice").setCreativeTab(MainRegistry.partsTab);
-    public static final Item ore_bedrock = new ItemBase("ore_bedrock");
-    public static final Item ore_bedrock_centrifuged = new ItemBase("ore_bedrock_centrifuged");
-    public static final Item ore_bedrock_cleaned = new ItemBase("ore_bedrock_cleaned");
-    public static final Item ore_bedrock_deepcleaned = new ItemBase("ore_bedrock_deepcleaned");
-    public static final Item ore_bedrock_enriched = new ItemBase("ore_bedrock_enriched");
-    public static final Item ore_bedrock_exquisite = new ItemBase("ore_bedrock_exquisite");
-    public static final Item ore_bedrock_nitrated = new ItemBase("ore_bedrock_nitrated");
-    public static final Item ore_bedrock_nitrocrystalline = new ItemBase("ore_bedrock_nitrocrystalline");
-    public static final Item ore_bedrock_perfect = new ItemBase("ore_bedrock_perfect");
-    public static final Item ore_bedrock_purified = new ItemBase("ore_bedrock_purified");
-    public static final Item ore_bedrock_seared = new ItemBase("ore_bedrock_seared");
-    public static final Item ore_bedrock_separated = new ItemBase("ore_bedrock_separated");
     public static final Item pellet_mercury = new ItemCustomLore("pellet_mercury").setCreativeTab(MainRegistry.controlTab);
-    public static final Item pellet_rtg_depleted_bismuth = new ItemCustomLore("pellet_rtg_depleted_bismuth").setCreativeTab(MainRegistry.controlTab);
-    public static final Item pellet_rtg_depleted_lead = new ItemCustomLore("pellet_rtg_depleted_lead").setCreativeTab(MainRegistry.controlTab);
-    public static final Item pellet_rtg_depleted_mercury = new ItemCustomLore("pellet_rtg_depleted_mercury").setCreativeTab(MainRegistry.controlTab);
-    public static final Item pellet_rtg_depleted_neptunium = new ItemCustomLore("pellet_rtg_depleted_neptunium").setCreativeTab(MainRegistry.controlTab);
-    public static final Item pellet_rtg_depleted_zirconium = new ItemCustomLore("pellet_rtg_depleted_zirconium").setCreativeTab(MainRegistry.controlTab);
     public static final Item piston_electro = new ItemBase("piston_electro").setCreativeTab(MainRegistry.partsTab);
     public static final Item piston_hydraulic = new ItemBase("piston_hydraulic").setCreativeTab(MainRegistry.partsTab);
     public static final Item piston_pneumatic = new ItemBase("piston_pneumatic").setCreativeTab(MainRegistry.partsTab);

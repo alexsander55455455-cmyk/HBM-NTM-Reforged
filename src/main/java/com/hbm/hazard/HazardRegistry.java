@@ -17,7 +17,7 @@ import com.hbm.hazard.transformer.HazardTransformerRadiationNBT;
 import com.hbm.hazard.type.*;
 import com.hbm.inventory.fluid.Fluids;
 import com.hbm.inventory.material.MaterialShapes;
-import com.hbm.items.ItemEnums.EnumDepletedRTGMaterial;
+
 import com.hbm.items.ModItems;
 import com.hbm.items.machine.ItemBreedingRod;
 import com.hbm.items.machine.ItemWatzPellet;
@@ -500,7 +500,7 @@ public class HazardRegistry {
 		HazardSystem.register(pellet_rtg_depleted_mercury, makeData(RADIATION, 4.25F));
 		HazardSystem.register(pellet_rtg_depleted_neptunium, makeData(RADIATION, 3.75F).addEntry(HOT, 5F));
 		HazardSystem.register(pellet_rtg_depleted_zirconium, makeData(RADIATION, 2F));
-		HazardSystem.register(new ItemStack(pellet_rtg_depleted, 1, EnumDepletedRTGMaterial.NEPTUNIUM.ordinal()), makeData(RADIATION, np237 * rtg));
+
 
 		HazardSystem.register(pile_rod_uranium, makeData(RADIATION, u * billet * 3));
 		HazardSystem.register(pile_rod_pu239, makeData(RADIATION, !GeneralConfig.enable528 ? purg * billet + pu239 * billet + u * billet : purg * billet + pu239 * billet + wst * billet));

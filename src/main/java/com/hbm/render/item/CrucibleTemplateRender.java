@@ -19,7 +19,7 @@ public class CrucibleTemplateRender extends TileEntityItemStackRenderer {
     @Override
     public void renderByItem(ItemStack stack) {
         try {
-            if (stack.getItem() instanceof ItemCrucibleTemplate && type == ItemCameraTransforms.TransformType.GUI) {
+            if (stack.getItem() instanceof ItemCrucibleTemplate && (type == null || type == ItemCameraTransforms.TransformType.GUI)) {
                 if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
                     GlStateManager.pushMatrix();
                     GlStateManager.pushAttrib();

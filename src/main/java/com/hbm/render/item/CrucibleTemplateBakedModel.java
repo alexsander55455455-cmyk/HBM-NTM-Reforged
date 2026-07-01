@@ -22,9 +22,10 @@ public class CrucibleTemplateBakedModel implements IBakedModel {
         if (CrucibleTemplateRender.INSTANCE.itemModel == null) {
             return Collections.emptyList();
         }
-        return type == ItemCameraTransforms.TransformType.GUI
-                ? Collections.emptyList()
-                : CrucibleTemplateRender.INSTANCE.itemModel.getQuads(state, side, rand);
+        if (type == null || type == ItemCameraTransforms.TransformType.GUI) {
+            return Collections.emptyList();
+        }
+        return CrucibleTemplateRender.INSTANCE.itemModel.getQuads(state, side, rand);
     }
 
     @Override
@@ -43,7 +44,7 @@ public class CrucibleTemplateBakedModel implements IBakedModel {
 
     @Override
     public boolean isBuiltInRenderer() {
-        return type == ItemCameraTransforms.TransformType.GUI;
+        return type == null || type == ItemCameraTransforms.TransformType.GUI;
     }
 
     @Override

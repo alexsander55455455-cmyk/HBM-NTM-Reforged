@@ -56,7 +56,7 @@ public class ModItemsSpace {
     public static final List<Item> ALL_ITEMS = new ArrayList<>();
     public static final Item rocket_custom = new ItemCustomRocket("rocket_custom").setMaxStackSize(1).setCreativeTab(null);
     public static final Item oxy_plss = new ItemModOxy("oxy_plss", 16000, 10, 1).setCreativeTab(MainRegistry.consumableTab).setMaxStackSize(1);
-    public static final Item hard_drive = new ItemBakedSpace("hard_drive", "votv_e").setMaxStackSize(64).setCreativeTab(MainRegistry.partsTab);
+    public static final Item hard_drive = new ItemBakedSpace("hard_drive", "votv_e").setMaxStackSize(64).setCreativeTab(MainRegistry.controlTab);
     public static final ItemEnumMultiSpace<SolarSystem.Body> full_drive = new ItemVOTVdrive("hard_drive_full").setCreativeTab(MainRegistry.controlTab);
     public static final Item circuit = new ItemEnumMultiSpace<>("circuit", ItemEnumsSpace.EnumCircuitType.VALUES, true, true).setCreativeTab(MainRegistry.partsTab);
     public static final Item transporter_linker = new ItemTransporterLinker("transporter_linker").setMaxStackSize(1).setCreativeTab(MainRegistry.controlTab);
@@ -207,8 +207,8 @@ public class ModItemsSpace {
 
     public static final Item pellet_rtg_americium_depleted = new ItemBakedSpace("pellet_rtg_americium_depleted").setCreativeTab(MainRegistry.controlTab);
     public static final Item pellet_rtg_berkelium = new ItemRTGPelletSpace(20, "pellet_rtg_berkelium").setDecayItem(new ItemStack(pellet_rtg_americium_depleted), (long) (RTGSpaceUtil.getLifespan(13.8F, RTGSpaceUtil.HalfLifeType.LONG, false) * 1.5), 1).setCreativeTab(MainRegistry.controlTab).setMaxStackSize(1);
-    public static final Item pellet_rtg_cf251 = new ItemRTGPelletSpace(VersatileConfig.rtgDecay() ? 600 : 200, "pellet_rtg_cf251").setDecays(ItemEnums.EnumDepletedRTGMaterial.LEAD, (long) (RTGSpaceUtil.getLifespan(1F, RTGSpaceUtil.HalfLifeType.SHORT, false) * 2.5), 1).setCreativeTab(MainRegistry.controlTab);
-    public static final Item pellet_rtg_cf252 = new ItemRTGPelletSpace(VersatileConfig.rtgDecay() ? 600 : 200, "pellet_rtg_cf252").setDecays(ItemEnums.EnumDepletedRTGMaterial.LEAD, (long) (RTGSpaceUtil.getLifespan(1F, RTGSpaceUtil.HalfLifeType.SHORT, false) * 2.5), 1).setCreativeTab(MainRegistry.controlTab);
+    public static final Item pellet_rtg_cf251 = new ItemRTGPelletSpace(VersatileConfig.rtgDecay() ? 600 : 200, "pellet_rtg_cf251").setDecayItem(new ItemStack(ModItems.pellet_rtg_depleted_lead), (long) (RTGSpaceUtil.getLifespan(1F, RTGSpaceUtil.HalfLifeType.SHORT, false) * 2.5), 1).setCreativeTab(MainRegistry.controlTab);
+    public static final Item pellet_rtg_cf252 = new ItemRTGPelletSpace(VersatileConfig.rtgDecay() ? 600 : 200, "pellet_rtg_cf252").setDecayItem(new ItemStack(ModItems.pellet_rtg_depleted_lead), (long) (RTGSpaceUtil.getLifespan(1F, RTGSpaceUtil.HalfLifeType.SHORT, false) * 2.5), 1).setCreativeTab(MainRegistry.controlTab);
 
     public static final Item rag_blood = new ItemBakedSpace("rag_blood").setCreativeTab(MainRegistry.partsTab);
     public static final Item ingot_palladium = new ItemCustomLoreSpace("ingot_palladium").setCreativeTab(MainRegistry.partsTab);

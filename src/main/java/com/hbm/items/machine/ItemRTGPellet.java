@@ -7,6 +7,7 @@ import com.hbm.util.BobMathUtil;
 import com.hbm.util.I18nUtil;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
@@ -60,6 +61,15 @@ public class ItemRTGPellet extends ItemBase {
 			"The Manhattan Project referred to refined natural uranium as tuballoy, enriched uranium as oralloy, and depleted uranium as depletalloy."
 	};
 	
+	public ItemRTGPellet setDecays(Item depleted, long halflife, int halflifes) {
+		this.doesDecay = true;
+		this.decayItem = new ItemStack(depleted);
+		this.halflife = halflife;
+		this.lifespan = halflife * halflifes;
+		pelletMap.put(this, decayItem);
+		return this;
+	}
+
 	public ItemRTGPellet setDecays(ItemEnums.EnumDepletedRTGMaterial mat, long halflife, int halflifes) {
 		this.doesDecay = true;
 		this.decayItem = new ItemStack(ModItems.pellet_rtg_depleted, 1, mat.ordinal());
