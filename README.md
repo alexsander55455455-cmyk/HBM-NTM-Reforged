@@ -50,7 +50,7 @@ A public modded Minecraft community/server is also planned for the future when t
 
 Found a crash, broken recipe, or visual bug?
 
-1. [Open a GitHub Issue](https://github.com/alexsander55455455-cmyk/HBM-NTM-Reforged/issues/new/choose) (use the **Bug report** template)
+1. [Open a GitHub Issue](https://github.com/alexsander55455455-cmyk/HBM-NTM-Reforged/issues/new?template=bug_report.yml) (Bug report form)
 2. Or ask on [Discord](https://discord.gg/BgrqdWEK)
 
 Please include your mod version, Forge version, steps to reproduce, and `latest.log` or crash report if possible.

@@ -50,7 +50,7 @@ HBM NTM Reforged — это неофициальный порт и продол�
 
 Нашли краш, сломанный рецепт или визуальный баг?
 
-1. [Создайте Issue на GitHub](https://github.com/alexsander55455455-cmyk/HBM-NTM-Reforged/issues/new/choose) (шаблон **Bug report**)
+1. [Создайте Issue на GitHub](https://github.com/alexsander55455455-cmyk/HBM-NTM-Reforged/issues/new?template=bug_report.yml) (форма Bug report)
 2. Или напишите в [Discord](https://discord.gg/BgrqdWEK)
 
 Укажите версию мода, Forge, шаги воспроизведения и по возможности `latest.log` или crash-report.
