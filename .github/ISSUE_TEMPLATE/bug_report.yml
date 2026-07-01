@@ -4,15 +4,16 @@ title: "[Bug]: "
 labels: ["bug"]
 body:
   - type: markdown
-    value: |
-      Thanks for reporting a bug. English is preferred, but Russian and Ukrainian are fine.
-      Please fill in as much as you can. Reports without mod version and steps are harder to fix.
+    attributes:
+      value: |
+        Thanks for reporting a bug. English is preferred, but Russian and Ukrainian are fine.
+        Please fill in as much as you can. Reports without mod version and steps are harder to fix.
 
   - type: input
     id: mod_version
     attributes:
       label: Mod version
-      description: Example: 0.9.1-beta
+      description: Example 0.9.1-beta
       placeholder: 0.9.1-beta
     validations:
       required: true
@@ -29,7 +30,7 @@ body:
     id: forge_version
     attributes:
       label: Forge version
-      description: Full Forge build if you know it. Example: 14.23.5.2859
+      description: Full Forge build if you know it. Example 14.23.5.2859
       placeholder: 14.23.5.2859
     validations:
       required: true
@@ -94,8 +95,6 @@ body:
       label: Logs or crash report
       description: Paste the relevant part of latest.log or crash-report.txt. Use a gist or paste site if very long.
       render: shell
-    validations:
-      required: false
 
   - type: checkboxes
     id: terms
@@ -105,4 +104,3 @@ body:
         - label: I searched existing GitHub issues for duplicates
           required: true
         - label: I tested with the latest release jar, not an older file
-          required: false
