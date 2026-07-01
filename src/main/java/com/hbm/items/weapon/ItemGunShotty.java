@@ -9,6 +9,7 @@ import com.hbm.packet.toclient.GunAnimationPacket;
 import com.hbm.packet.toclient.MeathookResetStrafePacket;
 import com.hbm.packet.PacketDispatcher;
 import com.hbm.packet.toserver.SetGunAnimPacket;
+import com.hbm.render.anim.HbmAnimations;
 import com.hbm.render.anim.HbmAnimations.AnimType;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
@@ -38,6 +39,12 @@ public class ItemGunShotty extends ItemGunBase {
 	public static Vec2f prevScreenPos;
 	//For swinging left or right with the meathook
 	public static float motionStrafe;
+	@SideOnly(Side.CLIENT)
+	private static float aimAssistYawAccum;
+	@SideOnly(Side.CLIENT)
+	private static float aimAssistPitchAccum;
+	@SideOnly(Side.CLIENT)
+	private static boolean wasHooked;
 	
 	public ItemGunShotty(GunConfiguration config, String s) {
 		super(config, s);
@@ -62,8 +69,24 @@ public class ItemGunShotty extends ItemGunBase {
 	}
 	
 	@Override
+	public void endAction(ItemStack stack, World world, EntityPlayer player, boolean main, EnumHand hand) {
+		if (!main) {
+			releaseMeathook(player, stack);
+		}
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void endActionClient(ItemStack stack, World world, EntityPlayer player, boolean main, EnumHand hand) {
+		if (!main) {
+			releaseMeathook(player, stack);
+		}
+		super.endActionClient(stack, world, player, main, hand);
+	}
+
+	@Override
 	protected void spawnProjectile(World world, EntityPlayer player, ItemStack stack, int config, EnumHand hand) {
-		setHookedEntity(player, stack, null);
+		releaseMeathook(player, stack);
 		super.spawnProjectile(world, player, stack, config, hand);
 	}
 	
@@ -97,8 +120,12 @@ public class ItemGunShotty extends ItemGunBase {
 	protected void updateServer(ItemStack stack, World world, EntityPlayer player, int slot, EnumHand hand) {
 		super.updateServer(stack, world, player, slot, hand);
 		int timeout = getTimeout(stack);
-		if(timeout > 0)
-			setTimeout(stack, timeout-1);
+		if (timeout > 0) {
+			setTimeout(stack, timeout - 1);
+			if (getTimeout(stack) == 0) {
+				releaseMeathook(player, stack);
+			}
+		}
 		
 		if(hasHookedEntity(world, stack)){
 			player.fallDistance = 0;
@@ -107,7 +134,7 @@ public class ItemGunShotty extends ItemGunBase {
 			Vec3d playerPos = player.getPositionEyes(1);
 			double toEnt = entPos.subtract(playerPos).lengthSquared();
 			if(toEnt < 16 || Library.isObstructed(world, playerPos.x, playerPos.y, playerPos.z, entPos.x, entPos.y, entPos.z))
-				setHookedEntity(player, stack, null);
+				releaseMeathook(player, stack);
 		}
 		
 		if(player.getUniqueID().equals(ShadyUtil.Dr_Nostalgia) && getDelay(stack) < this.mainConfig.rateOfFire * 0.9){
@@ -128,7 +155,9 @@ public class ItemGunShotty extends ItemGunBase {
 			rayTrace = null;
 		}
 		
-		if(hasHookedEntity(world, stack)){
+		boolean hooked = hasHookedEntity(world, stack);
+		if(hooked){
+			wasHooked = true;
 			Entity ent = getHookedEntity(world, stack);
 			Vec3d toEnt = ent.getPositionVector().add(0, ent.getEyeHeight()*0.75, 0).subtract(player.getPositionEyes(1.0F)).normalize().scale(1.3);
 			motionStrafe *= 0.9;
@@ -155,6 +184,8 @@ public class ItemGunShotty extends ItemGunBase {
 				}
 				player.rotationYaw += diff.x;
 				player.rotationPitch += diff.y;
+				aimAssistYawAccum += diff.x;
+				aimAssistPitchAccum += diff.y;
 				//These have to be increased, too, so the held item doesn't jitter weirdly.
 				((EntityPlayerSP)player).renderArmYaw += diff.x;
 				((EntityPlayerSP)player).renderArmPitch += diff.y;
@@ -169,20 +200,65 @@ public class ItemGunShotty extends ItemGunBase {
 		}
 		
 		super.updateClient(stack, world, player, slot, hand);
+
+		if (wasHooked && !hasHookedEntity(world, stack)) {
+			resetMeathookClientState(player);
+		}
 	}
 	
+	public static void releaseMeathook(EntityPlayer player, ItemStack stack) {
+		if (stack == null || stack.getItem() != ModItems.gun_supershotgun) {
+			return;
+		}
+		boolean hadHook = getTimeout(stack) > 0
+				|| (stack.hasTagCompound() && stack.getTagCompound().hasKey("hooked_entity"));
+		setTimeout(stack, 0);
+		if (stack.hasTagCompound()) {
+			stack.getTagCompound().removeTag("hooked_entity");
+		}
+		if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT) {
+			resetMeathookClientState(player);
+		} else if (hadHook && player instanceof EntityPlayerMP) {
+			PacketDispatcher.sendTo(new MeathookResetStrafePacket(true), (EntityPlayerMP) player);
+		}
+	}
+
+	@SideOnly(Side.CLIENT)
+	public static void resetMeathookClientState(EntityPlayer player) {
+		motionStrafe = 0;
+		rayTrace = null;
+		wasHooked = false;
+		if (player instanceof EntityPlayerSP sp && (aimAssistYawAccum != 0F || aimAssistPitchAccum != 0F)) {
+			sp.rotationYaw -= aimAssistYawAccum;
+			sp.rotationPitch -= aimAssistPitchAccum;
+			sp.prevRotationYaw -= aimAssistYawAccum;
+			sp.prevRotationPitch -= aimAssistPitchAccum;
+			sp.renderArmYaw -= aimAssistYawAccum;
+			sp.renderArmPitch -= aimAssistPitchAccum;
+			sp.prevRenderArmYaw -= aimAssistYawAccum;
+			sp.prevRenderArmPitch -= aimAssistPitchAccum;
+		}
+		aimAssistYawAccum = 0F;
+		aimAssistPitchAccum = 0F;
+		int slot = player.inventory.currentItem;
+		if (HbmAnimations.hotbar[slot] != null
+				&& HbmAnimations.hotbar[slot].key.equals(ModItems.gun_supershotgun.getTranslationKey())) {
+			HbmAnimations.hotbar[slot] = null;
+		}
+	}
+
 	public static void setHookedEntity(EntityPlayer p, ItemStack stack, Entity e){
+		if (e == null) {
+			releaseMeathook(p, stack);
+			return;
+		}
 		if(!stack.hasTagCompound()){
 			stack.setTagCompound(new NBTTagCompound());
 		}
 		if(FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER){
-			PacketDispatcher.sendTo(new MeathookResetStrafePacket(), (EntityPlayerMP) p);
+			PacketDispatcher.sendTo(new MeathookResetStrafePacket(false), (EntityPlayerMP) p);
 		}
-		if(e == null){
-			stack.getTagCompound().removeTag("hooked_entity");
-		} else {
-			stack.getTagCompound().setInteger("hooked_entity", e.getEntityId());
-		}
+		stack.getTagCompound().setInteger("hooked_entity", e.getEntityId());
 	}
 	
 	public static boolean hasHookedEntity(World w, ItemStack stack){

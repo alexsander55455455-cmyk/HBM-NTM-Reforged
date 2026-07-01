@@ -156,13 +156,27 @@ public class GunConfig {
     public GunConfig anim(BiFunction<ItemStack, AnimationEnums.GunAnimation, BusAnimationSedna> lambda) {	this.animations_DNA = lambda;			return this; }
     public GunConfig hud(IHUDComponent... components) {								this.hudComponents_DNA = components;	return this; }
 
-    /** Standard package for keybind handling and decider using LEGO prefabs: Primary fire on LMB,
-     * reload on R, aiming on MMB and the standard decider which includes jamming and auto fire handling*/
+    /** Standard package: LMB fire/reload-on-empty, hold RMB aim, R reload, standard decider. */
     public GunConfig setupStandardConfiguration() {
         this.pp(Lego.LAMBDA_STANDARD_CLICK_PRIMARY);
+        this.ps(Lego.LAMBDA_AIM_HOLD_PRESS);
+        this.rs(Lego.LAMBDA_AIM_HOLD_RELEASE);
         this.pr(Lego.LAMBDA_STANDARD_RELOAD);
-        this.pt(Lego.LAMBDA_TOGGLE_AIM);
         this.decider(GunStateDecider.LAMBDA_STANDARD_DECIDER);
         return this;
+    }
+
+    /** Same as standard but without hold-to-aim (akimbo off-hand, PA melee, etc.). */
+    public GunConfig setupStandardConfigurationNoAim() {
+        this.pp(Lego.LAMBDA_STANDARD_CLICK_PRIMARY);
+        this.pr(Lego.LAMBDA_STANDARD_RELOAD);
+        this.decider(GunStateDecider.LAMBDA_STANDARD_DECIDER);
+        return this;
+    }
+
+    /** @deprecated Use {@link #setupStandardConfiguration()} — aim is included by default. */
+    @Deprecated
+    public GunConfig setupScopedConfiguration() {
+        return this.setupStandardConfiguration();
     }
 }

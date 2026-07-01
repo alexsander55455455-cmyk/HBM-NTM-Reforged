@@ -1,6 +1,5 @@
 package com.hbm.render.item.weapon.sedna;
 
-import com.hbm.interfaces.AutoRegister;
 import com.hbm.items.weapon.sedna.ItemGunBaseNT;
 import com.hbm.items.weapon.sedna.factory.XFactoryCatapult;
 import com.hbm.main.ResourceManager;
@@ -10,7 +9,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 import org.lwjgl.opengl.GL11;
-@AutoRegister(item = "gun_fatman")
 public class ItemRenderFatMan extends ItemRenderWeaponBase {
 
 	@Override

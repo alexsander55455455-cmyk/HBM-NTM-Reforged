@@ -105,8 +105,11 @@ public class Lego {
                 ItemGunBaseNT.setState(stack, index, GunState.COOLDOWN);
                 ItemGunBaseNT.setTimer(stack, index, rec.getDelayAfterFire(stack));
             } else {
+                IMagazine mag = rec.getMagazine(stack);
 
-                if(rec.getDoesDryFire(stack)) {
+                if(mag.getAmount(stack, ctx.inventory) <= 0 && mag.canReload(stack, ctx.inventory)) {
+                    LAMBDA_STANDARD_RELOAD.accept(stack, ctx);
+                } else if(rec.getDoesDryFire(stack)) {
                     ItemGunBaseNT.playAnimation(player, stack, AnimationEnums.GunAnimation.CYCLE_DRY, index);
                     ItemGunBaseNT.setState(stack, index, rec.getRefireAfterDry(stack) ? GunState.COOLDOWN : GunState.DRAWING);
                     ItemGunBaseNT.setTimer(stack, index, rec.getDelayAfterDryFire(stack));
@@ -174,6 +177,12 @@ public class Lego {
 
     /** Toggles isAiming. Used by keybinds. */
     public static BiConsumer<ItemStack, LambdaContext> LAMBDA_TOGGLE_AIM = (stack, ctx) -> ItemGunBaseNT.setIsAiming(stack, !ItemGunBaseNT.getIsAiming(stack));
+
+    /** Hold RMB to aim (press). */
+    public static BiConsumer<ItemStack, LambdaContext> LAMBDA_AIM_HOLD_PRESS = (stack, ctx) -> ItemGunBaseNT.setIsAiming(stack, true);
+
+    /** Hold RMB to aim (release). */
+    public static BiConsumer<ItemStack, LambdaContext> LAMBDA_AIM_HOLD_RELEASE = (stack, ctx) -> ItemGunBaseNT.setIsAiming(stack, false);
 
     /** Returns true if the mag has ammo in it. Used by keybind functions on whether to fire, and deciders on whether to trigger a refire. */
     public static BiFunction<ItemStack, LambdaContext, Boolean> LAMBDA_STANDARD_CAN_FIRE = (stack, ctx) -> ctx.config.getReceivers(stack)[0].getMagazine(stack).getAmount(stack, ctx.inventory) > 0;

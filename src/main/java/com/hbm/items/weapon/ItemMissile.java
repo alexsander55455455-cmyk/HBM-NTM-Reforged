@@ -376,6 +376,7 @@ public class ItemMissile extends Item {
 		part.attributes = this.attributes;
 		part.health = this.health;
 		part.mass = this.mass;
+		parts.put(part.hashCode(), part);
 		
 		return part;
 	}

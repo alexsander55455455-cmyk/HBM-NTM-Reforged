@@ -296,11 +296,19 @@ public class ItemGunBase extends Item implements IHoldableWeapon, IItemHUD {
 	
 	// called on click (server side, called by mouse packet)
 	public void startAction(ItemStack stack, World world, EntityPlayer player, boolean main, EnumHand hand) {
-		if(mainConfig.firingMode == GunConfiguration.FIRE_MANUAL && getIsMouseDown(stack) && tryShoot(stack, world, player, main)) {
-			fire(stack, world, player, hand);
-			setDelay(stack, mainConfig.rateOfFire);
-			//setMag(stack, getMag(stack) - 1);
-			//useUpAmmo(player, stack, main);
+		if(main && getIsMouseDown(stack)) {
+			if(mainConfig.firingMode == GunConfiguration.FIRE_MANUAL) {
+				if(tryShoot(stack, world, player, true)) {
+					fire(stack, world, player, hand);
+					setDelay(stack, mainConfig.rateOfFire);
+				} else if(mainConfig.reloadType != GunConfiguration.RELOAD_NONE && getMag(stack) == 0 && canReload(stack, world, player)) {
+					startReloadAction(stack, world, player, hand);
+				}
+			} else if(mainConfig.firingMode == GunConfiguration.FIRE_AUTO
+					&& mainConfig.reloadType != GunConfiguration.RELOAD_NONE
+					&& getMag(stack) == 0 && canReload(stack, world, player) && !getIsReloading(stack)) {
+				startReloadAction(stack, world, player, hand);
+			}
 		}
 		if(!main && altConfig != null && tryShoot(stack, world, player, main)) {
 			altFire(stack, world, player, hand);

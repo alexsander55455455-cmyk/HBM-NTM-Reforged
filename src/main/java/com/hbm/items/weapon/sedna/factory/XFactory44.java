@@ -139,7 +139,7 @@ public class XFactory44 {
                         .mag(new MagazineFullReload(0, 8).addConfigs(m44_bp, m44_sp, m44_fmj, m44_jhp, m44_ap, m44_express))
                         .offset(1, -0.0625 * 2.5, -0.25D)
                         .setupStandardFire().recoil(LAMBDA_RECOIL_HANGMAN))
-                .setupStandardConfiguration().ps(SMACK_A_FUCKER)
+                .setupStandardConfiguration().pt(SMACK_A_FUCKER)
                 .anim(LAMBDA_HANGMAN_ANIMS).orchestra(Orchestras.ORCHESTRA_HANGMAN)
         ).setDefaultAmmo(GunFactory.EnumAmmo.M44_FMJ, 16);
     }

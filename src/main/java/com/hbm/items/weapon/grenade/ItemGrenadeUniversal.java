@@ -212,6 +212,50 @@ public class ItemGrenadeUniversal extends ItemBase implements IAnimatedItem, IEq
         return stack;
     }
 
+    /** Matches {@link #getSubItems} iteration order for creative-tab / JEI variant sorting. */
+    public static int getSubItemSortIndex(ItemStack stack) {
+        EnumGrenadeShell targetShell = getShell(stack);
+        EnumGrenadeFilling targetFilling = getFilling(stack);
+        EnumGrenadeFuze targetFuze = getFuze(stack);
+        EnumGrenadeExtra targetExtra = getExtra(stack);
+        int index = 0;
+        for (EnumGrenadeShell shell : EnumGrenadeShell.VALUES) {
+            for (EnumGrenadeFilling filling : EnumGrenadeFilling.VALUES) {
+                if (!filling.compatibleShells.contains(shell)) {
+                    continue;
+                }
+                for (EnumGrenadeFuze fuze : EnumGrenadeFuze.VALUES) {
+                    if (matchesSubItem(targetShell, targetFilling, targetFuze, targetExtra, shell, filling, fuze, null)) {
+                        return index;
+                    }
+                    index++;
+                    for (EnumGrenadeExtra extra : EnumGrenadeExtra.VALUES) {
+                        if (matchesSubItem(targetShell, targetFilling, targetFuze, targetExtra, shell, filling, fuze, extra)) {
+                            return index;
+                        }
+                        index++;
+                    }
+                }
+            }
+        }
+        return index;
+    }
+
+    private static boolean matchesSubItem(
+            EnumGrenadeShell targetShell,
+            EnumGrenadeFilling targetFilling,
+            EnumGrenadeFuze targetFuze,
+            EnumGrenadeExtra targetExtra,
+            EnumGrenadeShell shell,
+            EnumGrenadeFilling filling,
+            EnumGrenadeFuze fuze,
+            EnumGrenadeExtra extra) {
+        return shell == targetShell
+                && filling == targetFilling
+                && fuze == targetFuze
+                && extra == targetExtra;
+    }
+
     @Override
     @SideOnly(Side.CLIENT)
     public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {

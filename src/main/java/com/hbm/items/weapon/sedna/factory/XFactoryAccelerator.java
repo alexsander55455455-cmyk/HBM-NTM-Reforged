@@ -112,8 +112,10 @@ public class XFactoryAccelerator {
                         .setupStandardFire().recoil(LAMBDA_RECOIL_TAU))
                 .pp(Lego.LAMBDA_STANDARD_CLICK_PRIMARY)
                 .rp(LAMBDA_TAU_PRIMARY_RELEASE)
-                .ps(LAMBDA_TAU_SECONDARY_PRESS)
-                .rs(LAMBDA_TAU_SECONDARY_RELEASE)
+                .ps(Lego.LAMBDA_AIM_HOLD_PRESS)
+                .rs(Lego.LAMBDA_AIM_HOLD_RELEASE)
+                .pt(LAMBDA_TAU_SECONDARY_PRESS)
+                .rt(LAMBDA_TAU_SECONDARY_RELEASE)
                 .pr(Lego.LAMBDA_STANDARD_RELOAD)
                 .decider(GunStateDecider.LAMBDA_STANDARD_DECIDER)
                 .anim(LAMBDA_TAU_ANIMS).orchestra(Orchestras.ORCHESTRA_TAU)
@@ -138,7 +140,7 @@ public class XFactoryAccelerator {
                         .offset(0.75, -0.0625, -0.1875D)
                         .setupStandardFire().fire(Lego.LAMBDA_NOWEAR_FIRE))
                 .setupStandardConfiguration()
-                .ps(LAMBDA_NI4NI_SECONDARY_PRESS)
+                .pt(LAMBDA_NI4NI_SECONDARY_PRESS)
                 .anim(LAMBDA_NI4NI_ANIMS).orchestra(Orchestras.ORCHESTRA_COILGUN)
         );
     }

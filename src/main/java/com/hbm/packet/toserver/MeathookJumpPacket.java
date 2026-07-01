@@ -27,7 +27,7 @@ public class MeathookJumpPacket implements IMessage {
 		public IMessage onMessage(MeathookJumpPacket message, MessageContext ctx) {
 			EntityPlayer p = ctx.getServerHandler().player;
 			if(p.getHeldItemMainhand().getItem() == ModItems.gun_supershotgun && ItemGunShotty.hasHookedEntity(p.world, p.getHeldItemMainhand())){
-				ItemGunShotty.setHookedEntity(p, p.getHeldItemMainhand(), null);
+				ItemGunShotty.releaseMeathook(p, p.getHeldItemMainhand());
 			}
 			return null;
 		}

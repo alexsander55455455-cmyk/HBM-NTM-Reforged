@@ -48,7 +48,7 @@ public class XFactory10ga {
                         .mag(new MagazineFullReload(0, 2).addConfigs(g10, g10_shrapnel, g10_du, g10_slug, g10_explosive))
                         .offset(0.75, -0.0625, -0.1875)
                         .setupStandardFire().recoil(LAMBDA_RECOIL_DOUBLE_BARREL))
-                .setupStandardConfiguration().ps(LAMBDA_DOUBLE_SECONDARY)
+                .setupStandardConfiguration().pt(LAMBDA_DOUBLE_SECONDARY)
                 .anim(LAMBDA_DOUBLE_BARREL_ANIMS).orchestra(Orchestras.ORCHESTRA_DOUBLE_BARREL)
         ).setDefaultAmmo(GunFactory.EnumAmmo.G10, 6);
         ModItems.gun_double_barrel_sacred_dragon = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.B_SIDE, "gun_double_barrel_sacred_dragon", new GunConfig()
@@ -58,7 +58,7 @@ public class XFactory10ga {
                         .mag(new MagazineFullReload(0, 2).addConfigs(g10, g10_shrapnel, g10_du, g10_slug, g10_explosive))
                         .offset(0.75, -0.0625, -0.1875)
                         .setupStandardFire().recoil(LAMBDA_RECOIL_DOUBLE_BARREL))
-                .setupStandardConfiguration().ps(LAMBDA_DOUBLE_SECONDARY)
+                .setupStandardConfiguration().pt(LAMBDA_DOUBLE_SECONDARY)
                 .anim(LAMBDA_DOUBLE_BARREL_ANIMS).orchestra(Orchestras.ORCHESTRA_DOUBLE_BARREL)
         ).setDefaultAmmo(GunFactory.EnumAmmo.G10_DU, 6);
         ModItems.gun_autoshotgun_heretic = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.DEBUG, "gun_autoshotgun_heretic", new GunConfig()

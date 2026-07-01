@@ -57,7 +57,7 @@ public class XFactory556mm {
                         .mag(new MagazineFullReload(0, 30).addConfigs(r556_sp, r556_fmj, r556_jhp, r556_ap))
                         .offset(1, -0.0625 * 2.5, -0.25D)
                         .setupStandardFire().recoil(LAMBDA_RECOIL_G3))
-                .setupStandardConfiguration().ps(Lego.LAMBDA_STANDARD_CLICK_SECONDARY)
+                .setupStandardConfiguration().pt(Lego.LAMBDA_STANDARD_CLICK_SECONDARY)
                 .anim(LAMBDA_G3_ANIMS).orchestra(Orchestras.ORCHESTRA_G3)
         ).setDefaultAmmo(GunFactory.EnumAmmo.R556_SP, 30);
         ModItems.gun_g3_zebra = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.B_SIDE, "gun_g3_zebra", new GunConfig()
@@ -67,7 +67,7 @@ public class XFactory556mm {
                         .mag(new MagazineFullReload(0, 30).addConfigs(r556_inc_sp, r556_inc_fmj, r556_inc_jhp, r556_inc_ap))
                         .offset(1, -0.0625 * 2.5, -0.25D)
                         .setupStandardFire().recoil(LAMBDA_RECOIL_ZEBRA))
-                .setupStandardConfiguration().ps(Lego.LAMBDA_STANDARD_CLICK_SECONDARY)
+                .setupStandardConfiguration().pt(Lego.LAMBDA_STANDARD_CLICK_SECONDARY)
                 .anim(LAMBDA_G3_ANIMS).orchestra(Orchestras.ORCHESTRA_G3)
         ).setNameMutator(LAMBDA_NAME_G3).setDefaultAmmo(GunFactory.EnumAmmo.R556_JHP, 30);
 
@@ -78,8 +78,7 @@ public class XFactory556mm {
                         .mag(new MagazineFullReload(0, 30).addConfigs(r556_sp, r556_fmj, r556_jhp, r556_ap))
                         .offset(1, -0.0625 * 2.5, -0.25D)
                         .setupStandardFire().recoil(LAMBDA_RECOIL_STG))
-                .pp(Lego.LAMBDA_STANDARD_CLICK_PRIMARY).ps(Lego.LAMBDA_STANDARD_CLICK_PRIMARY).pr(Lego.LAMBDA_STANDARD_RELOAD).pt(Lego.LAMBDA_TOGGLE_AIM)
-                .decider(LAMBDA_STG77_DECIDER)
+                .setupStandardConfiguration().pt(Lego.LAMBDA_STANDARD_CLICK_SECONDARY)
                 .anim(LAMBDA_STG77_ANIMS).orchestra(Orchestras.ORCHESTRA_STG77)
         ).setDefaultAmmo(GunFactory.EnumAmmo.R556_FMJ, 30);
     }
@@ -95,15 +94,6 @@ public class XFactory556mm {
     };
 
     public static BiConsumer<ItemStack, ItemGunBaseNT.LambdaContext> LAMBDA_SMOKE = (stack, ctx) -> Lego.handleStandardSmoke(ctx.entity, stack, 1500, 0.075D, 1.1D, 0);
-
-    public static BiConsumer<ItemStack, ItemGunBaseNT.LambdaContext> LAMBDA_STG77_DECIDER = (stack, ctx) -> {
-        int index = ctx.configIndex;
-        ItemGunBaseNT.GunState lastState = ItemGunBaseNT.getState(stack, index);
-        GunStateDecider.deciderStandardFinishDraw(stack, lastState, index);
-        GunStateDecider.deciderStandardClearJam(stack, lastState, index);
-        GunStateDecider.deciderStandardReload(stack, ctx, lastState, 0, index);
-        GunStateDecider.deciderAutoRefire(stack, ctx, lastState, 0, index, () -> ItemGunBaseNT.getSecondary(stack, index));
-    };
 
     public static BiConsumer<ItemStack, ItemGunBaseNT.LambdaContext> LAMBDA_RECOIL_G3 = (stack, ctx) -> ItemGunBaseNT.setupRecoil((float) (ctx.getPlayer().getRNG().nextGaussian() * 0.25), (float) (ctx.getPlayer().getRNG().nextGaussian() * 0.25));
     public static BiConsumer<ItemStack, ItemGunBaseNT.LambdaContext> LAMBDA_RECOIL_ZEBRA = (stack, ctx) -> ItemGunBaseNT.setupRecoil((float) (ctx.getPlayer().getRNG().nextGaussian() * 0.125), (float) (ctx.getPlayer().getRNG().nextGaussian() * 0.125));

@@ -21,7 +21,8 @@ public class ItemRenderFatMan extends TEISRBase {
 
 	@Override
 	public ModelBinding createModelBinding(Item item) {
-		return ModelBinding.inventoryWithGuiModel(item, BakedModelTransforms.defaultItemTransforms());
+		return ModelBinding.inventoryWithGuiModel(item, BakedModelTransforms.defaultItemTransforms(),
+				new ResourceLocation(Tags.MODID, "items/gun_fatman"));
 	}
 
 	@Override
@@ -42,11 +43,12 @@ public class ItemRenderFatMan extends TEISRBase {
 			}
 			model.render((Entity) entity, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F, stack);
 			break;
+		case GUI:
+		case GROUND:
+		case FIXED:
+		case HEAD:
 		case THIRD_PERSON_RIGHT_HAND:
 		case THIRD_PERSON_LEFT_HAND:
-		case HEAD:
-		case FIXED:
-		case GROUND:
 			GL11.glTranslated(-0.1D, -0.1D, 0.6D);
 			GL11.glRotated(90.0D, 0.0D, 1.0D, 0.0D);
 			GL11.glRotated(180.0D, 0.0D, 0.0D, 1.0D);

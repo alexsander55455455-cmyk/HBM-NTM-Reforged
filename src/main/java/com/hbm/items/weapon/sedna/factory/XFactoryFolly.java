@@ -107,7 +107,7 @@ public class XFactoryFolly {
                         .mag(new MagazineSingleReload(0, 1).addConfigs(folly_sm, folly_nuke))
                         .offset(0.75, -0.0625, -0.1875D).offsetScoped(0.75, -0.0625, -0.125D)
                         .canFire(LAMBDA_CAN_FIRE).fire(LAMBDA_FIRE).recoil(LAMBDA_RECOIL_FOLLY))
-                .setupStandardConfiguration().pt(LAMBDA_TOGGLE_AIM)
+                .setupStandardConfigurationNoAim().pt(LAMBDA_TOGGLE_AIM)
                 .anim(LAMBDA_FOLLY_ANIMS).orchestra(Orchestras.ORCHESTRA_FOLLY)
         );
     }

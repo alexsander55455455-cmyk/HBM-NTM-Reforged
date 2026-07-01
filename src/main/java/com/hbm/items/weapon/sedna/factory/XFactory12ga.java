@@ -337,7 +337,7 @@ public class XFactory12ga {
                         .mag(new MagazineSingleReload(0, 8).addConfigs(all))
                         .offset(0.75, -0.0625, -0.1875)
                         .setupStandardFire().recoil(LAMBDA_RECOIL_MARESLEG))
-                .setupStandardConfiguration().ps(LAMBDA_SPAS_SECONDARY).pt(null)
+                .setupStandardConfiguration().pt(LAMBDA_SPAS_SECONDARY)
                 .anim(LAMBDA_SPAS_ANIMS).orchestra(Orchestras.ORCHESTRA_SPAS)
         ).setDefaultAmmo(GunFactory.EnumAmmo.G12, 16);
 

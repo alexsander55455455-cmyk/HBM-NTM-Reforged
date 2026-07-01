@@ -35,7 +35,7 @@ public class ItemRenderSPAS12 extends ItemRenderWeaponBase {
 		float offset = 0.8F;
 		standardAimingTransform(stack,
 				-1.25F * offset, -1.75F * offset, -0.5F * offset,
-				0, 0, 0);
+				0, -10.5 / 8D, 0.5);
 	}
 
 	@Override
