@@ -41,11 +41,18 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 @Optional.InterfaceList({@Optional.Interface(iface = "micdoodle8.mods.galacticraft.api.block.IPartialSealableBlock", modid = "galacticraftcore")})
 public class BlockSlidingBlastDoor extends BlockDummyable implements IRadResistantBlock, IPartialSealableBlock {
+
+	private static boolean bulkDoorDestroy = false;
+
+	public static boolean isBulkDoorDestroy() {
+		return bulkDoorDestroy;
+	}
 
 	public BlockSlidingBlastDoor(Material materialIn, String s) {
 		super(materialIn, s, true);
@@ -53,9 +60,13 @@ public class BlockSlidingBlastDoor extends BlockDummyable implements IRadResista
 
 	@Override
 	protected boolean isSameMultiblock(Block other) {
-		return other == ModBlocks.sliding_blast_door
-			|| other == ModBlocks.sliding_blast_door_2
-			|| other == ModBlocks.sliding_blast_door_keypad;
+		if (this == ModBlocks.sliding_blast_door) {
+			return other == ModBlocks.sliding_blast_door;
+		}
+		if (this == ModBlocks.sliding_blast_door_2 || this == ModBlocks.sliding_blast_door_keypad) {
+			return other == ModBlocks.sliding_blast_door_2 || other == ModBlocks.sliding_blast_door_keypad;
+		}
+		return other == this;
 	}
 
 	public boolean isSealed(World world, BlockPos blockPos, EnumFacing direction){
@@ -201,17 +212,61 @@ public class BlockSlidingBlastDoor extends BlockDummyable implements IRadResista
 		return false;
 	}
 
+	static List<BlockPos> getKeypadPositions(int coreX, int coreY, int coreZ, ForgeDirection dir) {
+		EnumFacing facing = dir.toEnumFacing();
+		BlockPos base = new BlockPos(coreX, coreY + 1, coreZ);
+		List<BlockPos> positions = new ArrayList<>(2);
+		positions.add(base.offset(facing.rotateY(), 3));
+		positions.add(base.offset(facing.rotateYCCW(), 3));
+		return positions;
+	}
+
+	private void clearKeypadAt(World world, BlockPos keypadPos) {
+		if (world.getBlockState(keypadPos).getBlock() != ModBlocks.sliding_blast_door_keypad) {
+			return;
+		}
+		TileEntity te = world.getTileEntity(keypadPos);
+		if (te != null) {
+			te.invalidate();
+			world.removeTileEntity(keypadPos);
+		}
+		IBlockState air = Blocks.AIR.getDefaultState();
+		world.setBlockState(keypadPos, air, 3);
+		world.notifyBlockUpdate(keypadPos, air, air, 3);
+	}
+
+	private void clearKeypads(World world, List<BlockPos> keypadPositions) {
+		for (BlockPos keypadPos : keypadPositions) {
+			clearKeypadAt(world, keypadPos);
+		}
+	}
+
 	@Override
 	protected void fillSpace(World world, int x, int y, int z, ForgeDirection dir, int o) {
 		super.fillSpace(world, x, y, z, dir, o);
-		if(world.getBlockState(new BlockPos(x, y, z)).getBlock() == ModBlocks.sliding_blast_door_2) {
+		if (world.getBlockState(new BlockPos(x, y, z)).getBlock() == ModBlocks.sliding_blast_door_2) {
 			BlockPos pos = new BlockPos(x, y + 1, z).offset(dir.toEnumFacing().rotateY(), 3);
 			BlockPos pos2 = new BlockPos(x, y + 1, z).offset(dir.toEnumFacing().rotateYCCW(), 3);
 			int meta = world.getBlockState(pos).getValue(META);
 			int meta2 = world.getBlockState(pos2).getValue(META);
+			BlockPos core = new BlockPos(x + dir.offsetX * o, y + dir.offsetY * o, z + dir.offsetZ * o);
 			BlockDummyable.safeRem = true;
 			world.setBlockState(pos, ModBlocks.sliding_blast_door_keypad.getDefaultState().withProperty(META, meta));
-			world.setBlockState(pos2, ModBlocks.sliding_blast_door_keypad.getDefaultState().withProperty(META, meta2+extra));
+			world.setBlockState(pos2, ModBlocks.sliding_blast_door_keypad.getDefaultState().withProperty(META, meta2 + extra));
+			if (!world.isRemote) {
+				TileEntity coreTe = world.getTileEntity(core);
+				if (coreTe instanceof TileEntitySlidingBlastDoor doorTe) {
+					doorTe.setKeypadPositions(pos, pos2);
+				}
+				TileEntity te = world.getTileEntity(pos);
+				if (te instanceof TileEntitySlidingBlastDoorKeypad keypadTe) {
+					keypadTe.setLinkedCore(core);
+				}
+				te = world.getTileEntity(pos2);
+				if (te instanceof TileEntitySlidingBlastDoorKeypad keypadTe2) {
+					keypadTe2.setLinkedCore(core);
+				}
+			}
 			BlockDummyable.safeRem = false;
 		}
 	}
@@ -260,48 +315,48 @@ public class BlockSlidingBlastDoor extends BlockDummyable implements IRadResista
 		return block == ModBlocks.sliding_blast_door_2 || block == ModBlocks.sliding_blast_door_keypad;
 	}
 
-	private void clearDoorBlock(World world, BlockPos p) {
+	private void clearDoorBlockQuiet(World world, BlockPos p) {
 		Block block = world.getBlockState(p).getBlock();
 		if (!isDoor2Part(block)) {
 			return;
 		}
-		InventoryHelper.dropInventoryItems(world, p, world.getTileEntity(p));
-		world.setBlockState(p, Blocks.AIR.getDefaultState(), 3);
+		TileEntity te = world.getTileEntity(p);
+		if (te != null) {
+			te.invalidate();
+			world.removeTileEntity(p);
+		}
+		world.setBlockState(p, Blocks.AIR.getDefaultState(), 2);
 	}
 
 	@Nullable
 	private int[] findSlidingBlastDoor2Core(World world, BlockPos pos) {
 		int[] core = findCore(world, pos.getX(), pos.getY(), pos.getZ());
-		if (core != null) {
-			BlockPos corePos = new BlockPos(core[0], core[1], core[2]);
-			IBlockState coreState = world.getBlockState(corePos);
-			if (coreState.getBlock() == ModBlocks.sliding_blast_door_2 && coreState.getValue(META) >= 12) {
-				return core;
-			}
+		if (core == null) {
+			return null;
 		}
-
-		for (int dx = -3; dx <= 3; dx++) {
-			for (int dy = -1; dy <= 3; dy++) {
-				for (int dz = -3; dz <= 3; dz++) {
-					BlockPos scan = pos.add(dx, dy, dz);
-					IBlockState scanState = world.getBlockState(scan);
-					if (scanState.getBlock() == ModBlocks.sliding_blast_door_2 && scanState.getValue(META) >= 12) {
-						return new int[] { scan.getX(), scan.getY(), scan.getZ() };
-					}
-				}
-			}
+		BlockPos corePos = new BlockPos(core[0], core[1], core[2]);
+		IBlockState coreState = world.getBlockState(corePos);
+		if (coreState.getBlock() == ModBlocks.sliding_blast_door_2 && coreState.getValue(META) >= 12) {
+			return core;
 		}
 		return null;
 	}
 
-	private void removeSideColumnBlocks(World world, int coreX, int coreY, int coreZ, ForgeDirection dir) {
-		EnumFacing facing = dir.toEnumFacing();
-		BlockPos side1 = new BlockPos(coreX, coreY, coreZ).offset(facing.rotateY(), 3);
-		BlockPos side2 = new BlockPos(coreX, coreY, coreZ).offset(facing.rotateYCCW(), 3);
-		for (int dy = 0; dy <= 3; dy++) {
-			clearDoorBlock(world, side1.up(dy));
-			clearDoorBlock(world, side2.up(dy));
+	@Nullable
+	private int[] resolveDoor2Core(World world, BlockPos pos, IBlockState state) {
+		if (state.getBlock() == ModBlocks.sliding_blast_door_keypad) {
+			TileEntity te = world.getTileEntity(pos);
+			if (te instanceof TileEntitySlidingBlastDoorKeypad keypadTe) {
+				BlockPos linked = keypadTe.getLinkedCore();
+				if (linked != null) {
+					IBlockState coreState = world.getBlockState(linked);
+					if (coreState.getBlock() == ModBlocks.sliding_blast_door_2 && coreState.getValue(META) >= 12) {
+						return new int[] { linked.getX(), linked.getY(), linked.getZ() };
+					}
+				}
+			}
 		}
+		return findSlidingBlastDoor2Core(world, pos);
 	}
 
 	private void destroySlidingBlastDoor2(World world, int coreX, int coreY, int coreZ) {
@@ -314,27 +369,46 @@ public class BlockSlidingBlastDoor extends BlockDummyable implements IRadResista
 		ForgeDirection dir = ForgeDirection.getOrientation(coreState.getValue(META) - offset);
 
 		safeRem = true;
-		InventoryHelper.dropInventoryItems(world, core, world.getTileEntity(core));
+		bulkDoorDestroy = true;
+		try {
+			TileEntity coreTe = world.getTileEntity(core);
+			List<BlockPos> keypadPositions = null;
+			if (coreTe instanceof TileEntitySlidingBlastDoor doorTe) {
+				keypadPositions = doorTe.getStoredKeypadPositions();
+			}
+			if (coreTe != null) {
+				InventoryHelper.dropInventoryItems(world, core, coreTe);
+				world.removeTileEntity(core);
+			}
+			if (keypadPositions == null) {
+				keypadPositions = getKeypadPositions(coreX, coreY, coreZ, dir);
+			}
 
-		int[] rot = MultiblockHandlerXR.rotate(getDimensions(), dir.toEnumFacing());
-		for (int a = coreX - rot[4]; a <= coreX + rot[5]; a++) {
-			for (int b = coreY - rot[1]; b <= coreY + rot[0]; b++) {
-				for (int c = coreZ - rot[2]; c <= coreZ + rot[3]; c++) {
-					clearDoorBlock(world, new BlockPos(a, b, c));
+			int[] rot = MultiblockHandlerXR.rotate(getDimensions(), dir.toEnumFacing());
+			for (int a = coreX - rot[4]; a <= coreX + rot[5]; a++) {
+				for (int b = coreY - rot[1]; b <= coreY + rot[0]; b++) {
+					for (int c = coreZ - rot[2]; c <= coreZ + rot[3]; c++) {
+						clearDoorBlockQuiet(world, new BlockPos(a, b, c));
+					}
 				}
 			}
-		}
 
-		removeSideColumnBlocks(world, coreX, coreY, coreZ, dir);
-		safeRem = false;
+			clearKeypads(world, keypadPositions);
+			RadiationSystemNT.markSectionForRebuild(world, core);
+		} finally {
+			bulkDoorDestroy = false;
+			safeRem = false;
+		}
 	}
 
 	@Override
 	public void breakBlock(@NotNull World worldIn, @NotNull BlockPos pos, IBlockState state) {
-		RadiationSystemNT.markSectionForRebuild(worldIn, pos);
+		if (!bulkDoorDestroy) {
+			RadiationSystemNT.markSectionForRebuild(worldIn, pos);
+		}
 
 		if (!worldIn.isRemote && !safeRem && isDoor2Part(state.getBlock())) {
-			int[] corePos = findSlidingBlastDoor2Core(worldIn, pos);
+			int[] corePos = resolveDoor2Core(worldIn, pos, state);
 			if (corePos != null) {
 				destroySlidingBlastDoor2(worldIn, corePos[0], corePos[1], corePos[2]);
 				return;

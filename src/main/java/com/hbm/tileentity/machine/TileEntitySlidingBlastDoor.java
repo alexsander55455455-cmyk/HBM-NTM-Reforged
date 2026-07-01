@@ -1,6 +1,8 @@
 package com.hbm.tileentity.machine;
 
 import com.hbm.blocks.BlockDummyable;
+import com.hbm.blocks.ModBlocks;
+import com.hbm.blocks.machine.BlockSlidingBlastDoor;
 import com.hbm.handler.radiation.RadiationSystemNT;
 import com.hbm.interfaces.AutoRegister;
 import com.hbm.interfaces.IAnimatedDoor;
@@ -14,18 +16,32 @@ import com.hbm.sound.AudioWrapper;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.longs.LongIterable;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @AutoRegister
 public class TileEntitySlidingBlastDoor extends TileEntityLockableBase implements ITickable, IAnimatedDoor {
+
+    private static final String NBT_KEYPAD0_X = "keypad0X";
+    private static final String NBT_KEYPAD0_Y = "keypad0Y";
+    private static final String NBT_KEYPAD0_Z = "keypad0Z";
+    private static final String NBT_KEYPAD1_X = "keypad1X";
+    private static final String NBT_KEYPAD1_Y = "keypad1Y";
+    private static final String NBT_KEYPAD1_Z = "keypad1Z";
 
     private AxisAlignedBB bb;
     public DoorState state = DoorState.CLOSED;
@@ -37,6 +53,56 @@ public class TileEntitySlidingBlastDoor extends TileEntityLockableBase implement
     private boolean wasPowered = false;
     private boolean redstoneOnly = false;
     private AudioWrapper audio;
+    @Nullable
+    private BlockPos keypadLeft = null;
+    @Nullable
+    private BlockPos keypadRight = null;
+
+    public void setKeypadPositions(BlockPos left, BlockPos right) {
+        this.keypadLeft = left == null ? null : left.toImmutable();
+        this.keypadRight = right == null ? null : right.toImmutable();
+    }
+
+    @Nullable
+    public List<BlockPos> getStoredKeypadPositions() {
+        if (keypadLeft == null && keypadRight == null) {
+            return null;
+        }
+        List<BlockPos> positions = new ArrayList<>(2);
+        if (keypadLeft != null) {
+            positions.add(keypadLeft);
+        }
+        if (keypadRight != null) {
+            positions.add(keypadRight);
+        }
+        return positions;
+    }
+
+    private void clearStoredKeypads() {
+        if (world == null || world.isRemote || BlockSlidingBlastDoor.isBulkDoorDestroy()) {
+            return;
+        }
+        clearKeypadBlock(keypadLeft);
+        clearKeypadBlock(keypadRight);
+        keypadLeft = null;
+        keypadRight = null;
+    }
+
+    private void clearKeypadBlock(@Nullable BlockPos keypadPos) {
+        if (keypadPos == null) {
+            return;
+        }
+        if (world.getBlockState(keypadPos).getBlock() != ModBlocks.sliding_blast_door_keypad) {
+            return;
+        }
+        TileEntity te = world.getTileEntity(keypadPos);
+        if (te != null) {
+            world.removeTileEntity(keypadPos);
+        }
+        IBlockState air = Blocks.AIR.getDefaultState();
+        world.setBlockState(keypadPos, air, 3);
+        world.notifyBlockUpdate(keypadPos, air, air, 3);
+    }
 
     @Override
     public void update() {
@@ -262,6 +328,16 @@ public class TileEntitySlidingBlastDoor extends TileEntityLockableBase implement
         shouldUseBB = compound.getBoolean("shouldUseBB");
         redstoneOnly = compound.getBoolean("redstoneOnly");
         texture = compound.getByte("texture");
+        if (compound.hasKey(NBT_KEYPAD0_X)) {
+            keypadLeft = new BlockPos(compound.getInteger(NBT_KEYPAD0_X), compound.getInteger(NBT_KEYPAD0_Y), compound.getInteger(NBT_KEYPAD0_Z));
+        } else {
+            keypadLeft = null;
+        }
+        if (compound.hasKey(NBT_KEYPAD1_X)) {
+            keypadRight = new BlockPos(compound.getInteger(NBT_KEYPAD1_X), compound.getInteger(NBT_KEYPAD1_Y), compound.getInteger(NBT_KEYPAD1_Z));
+        } else {
+            keypadRight = null;
+        }
         super.readFromNBT(compound);
     }
 
@@ -275,6 +351,16 @@ public class TileEntitySlidingBlastDoor extends TileEntityLockableBase implement
         compound.setBoolean("shouldUseBB", shouldUseBB);
         compound.setBoolean("redstoneOnly", redstoneOnly);
         compound.setByte("texture", texture);
+        if (keypadLeft != null) {
+            compound.setInteger(NBT_KEYPAD0_X, keypadLeft.getX());
+            compound.setInteger(NBT_KEYPAD0_Y, keypadLeft.getY());
+            compound.setInteger(NBT_KEYPAD0_Z, keypadLeft.getZ());
+        }
+        if (keypadRight != null) {
+            compound.setInteger(NBT_KEYPAD1_X, keypadRight.getX());
+            compound.setInteger(NBT_KEYPAD1_Y, keypadRight.getY());
+            compound.setInteger(NBT_KEYPAD1_Z, keypadRight.getZ());
+        }
         return super.writeToNBT(compound);
     }
 
@@ -292,6 +378,7 @@ public class TileEntitySlidingBlastDoor extends TileEntityLockableBase implement
             audio.stopSound();
             audio = null;
         }
+        clearStoredKeypads();
         super.invalidate();
     }
 

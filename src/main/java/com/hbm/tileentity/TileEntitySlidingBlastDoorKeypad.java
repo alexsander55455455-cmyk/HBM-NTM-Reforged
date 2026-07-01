@@ -1,6 +1,7 @@
 package com.hbm.tileentity;
 
 import com.hbm.blocks.BlockDummyable;
+import com.hbm.blocks.ModBlocks;
 import com.hbm.interfaces.AutoRegister;
 import com.hbm.interfaces.IKeypadHandler;
 import com.hbm.interfaces.Spaghetti;
@@ -9,6 +10,7 @@ import com.hbm.tileentity.machine.TileEntitySlidingBlastDoor;
 import com.hbm.util.Keypad;
 import com.hbm.util.KeypadClient;
 import net.minecraft.block.Block;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
@@ -20,7 +22,22 @@ import org.lwjgl.util.vector.Vector3f;
 @AutoRegister
 public class TileEntitySlidingBlastDoorKeypad extends TileEntityKeypadBase {
 
+	private static final String NBT_CORE_X = "linkedCoreX";
+	private static final String NBT_CORE_Y = "linkedCoreY";
+	private static final String NBT_CORE_Z = "linkedCoreZ";
+
 	public boolean foundCore = false;
+	private BlockPos linkedCore = null;
+
+	public void setLinkedCore(BlockPos core) {
+		this.linkedCore = core == null ? null : core.toImmutable();
+		this.foundCore = false;
+	}
+
+	@org.jetbrains.annotations.Nullable
+	public BlockPos getLinkedCore() {
+		return linkedCore;
+	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
@@ -44,14 +61,55 @@ public class TileEntitySlidingBlastDoorKeypad extends TileEntityKeypadBase {
 	@Override
 	public void update() {
 		super.update();
-		if(world.isRemote && !foundCore){
-			int[] corePos = ((BlockDummyable)this.getBlockType()).findCore(world, pos.getX(), pos.getY(), pos.getZ());
-			if(corePos == null)
+		if (world.isRemote) {
+			if (world.getBlockState(pos).getBlock() != ModBlocks.sliding_blast_door_keypad) {
+				foundCore = false;
 				return;
-			int meta = world.getBlockState(new BlockPos(corePos[0], corePos[1], corePos[2])).getValue(BlockDummyable.META)-BlockDummyable.offset;
-			setupKeypadClient(new BlockPos(corePos[0], corePos[1], corePos[2]), meta);
-			foundCore = true;
+			}
+			if (!foundCore) {
+				BlockPos corePos = linkedCore;
+				if (corePos == null) {
+					int[] found = ((BlockDummyable) this.getBlockType()).findCore(world, pos.getX(), pos.getY(), pos.getZ());
+					if (found == null) {
+						return;
+					}
+					corePos = new BlockPos(found[0], found[1], found[2]);
+				}
+				if (world.getBlockState(corePos).getBlock() != ModBlocks.sliding_blast_door_2) {
+					return;
+				}
+				int meta = world.getBlockState(corePos).getValue(BlockDummyable.META) - BlockDummyable.offset;
+				setupKeypadClient(corePos, meta);
+				foundCore = true;
+			}
 		}
+	}
+
+	@Override
+	public void invalidate() {
+		foundCore = false;
+		super.invalidate();
+	}
+
+	@Override
+	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+		if (linkedCore != null) {
+			compound.setInteger(NBT_CORE_X, linkedCore.getX());
+			compound.setInteger(NBT_CORE_Y, linkedCore.getY());
+			compound.setInteger(NBT_CORE_Z, linkedCore.getZ());
+		}
+		return super.writeToNBT(compound);
+	}
+
+	@Override
+	public void readFromNBT(NBTTagCompound compound) {
+		super.readFromNBT(compound);
+		if (compound.hasKey(NBT_CORE_X)) {
+			linkedCore = new BlockPos(compound.getInteger(NBT_CORE_X), compound.getInteger(NBT_CORE_Y), compound.getInteger(NBT_CORE_Z));
+		} else {
+			linkedCore = null;
+		}
+		foundCore = false;
 	}
 	
 	@Override
