@@ -12,8 +12,10 @@ sys.path.insert(0, str(TOOLS))
 
 from cluster_creative_tab_order import (  # noqa: E402
     GOAL_CLUSTER_VERSION,
+    WEAPON_BOUND_PARTS_PATHS,
     cluster_consumable_tab,
     cluster_parts_tab,
+    is_gun_ammo_path,
     registry_path,
 )
 
@@ -31,6 +33,14 @@ COMPLAINED_POWDERS = (
     "powder_radspice",
     "powder_radspice_tiny",
 )
+
+FORBIDDEN_PARTS_PATHS = frozenset(WEAPON_BOUND_PARTS_PATHS) | frozenset({
+    "missile_soyuz0",
+    "missile_soyuz1",
+    "missile_soyuz2",
+    "inf_water_mk3",
+    "inf_water_mk4",
+})
 
 
 def load_tab_keys(tab_name: str) -> list[str]:
@@ -69,7 +79,7 @@ def test_parts_tab_regeneration_parity_on_disk() -> None:
     assert regenerated == on_disk, "partsTab must equal cluster_parts_tab(on_disk)"
 
 
-def test_ingot_block_alpha_and_inf_water_after() -> None:
+def test_ingot_block_alpha() -> None:
     parts = load_tab_keys("partsTab")
     first, last, ingot_hits = prefix_span(parts, "ingot_")
     assert ingot_hits, "missing ingot_ block"
@@ -77,8 +87,6 @@ def test_ingot_block_alpha_and_inf_water_after() -> None:
     for name in COMPLAINED_INGOTS:
         idx = parts.index(name)
         assert first <= idx <= last, (name, idx, first, last)
-    water_idx = parts.index("inf_water_mk4")
-    assert water_idx > last, (water_idx, last)
 
 
 def test_nugget_and_powder_blocks() -> None:
@@ -93,6 +101,15 @@ def test_nugget_and_powder_blocks() -> None:
     for name in COMPLAINED_POWDERS:
         idx = parts.index(name)
         assert p_first <= idx <= p_last, name
+
+
+def test_parts_tab_excludes_weapon_bound_items() -> None:
+    parts = load_tab_keys("partsTab")
+    paths = {registry_path(k) for k in parts}
+    for path in FORBIDDEN_PARTS_PATHS:
+        assert path not in paths, f"{path} must not be on partsTab"
+    for path in paths:
+        assert not is_gun_ammo_path(path), f"{path} gun ammo must not be on partsTab"
 
 
 def test_consumable_filters_cluster() -> None:
@@ -119,21 +136,27 @@ def test_cluster_parts_scrambled_exotic_ingots() -> None:
         "nugget_radspice",
         "powder_radspice_tiny",
         "powder_ac227",
+        "rod_ac227",
+        "hull_big_steel",
+        "hbmspace:flesh",
     ]
     out = cluster_parts_tab(keys)
     paths = [registry_path(k) for k in out]
     ingot_slice = [p for p in paths if p.startswith("ingot_")]
     assert ingot_slice == sorted(ingot_slice), ingot_slice
     assert paths.index("ingot_ac227") < paths.index("ingot_steel") < paths.index("ingot_strontium")
-    assert paths.index("inf_water_mk4") > paths.index("ingot_radspice")
     assert paths.index("crystal_coal") > paths.index("powder_ac227")
+    assert paths.index("rod_ac227") > paths.index("crystal_coal")
+    assert paths.index("hull_big_steel") > paths.index("rod_ac227")
+    assert out[-1] == "hbmspace:flesh"
 
 
 def main() -> int:
-    assert GOAL_CLUSTER_VERSION == "creative-tab-grouping-4"
+    assert GOAL_CLUSTER_VERSION == "creative-tab-grouping-5"
     test_parts_tab_regeneration_parity_on_disk()
-    test_ingot_block_alpha_and_inf_water_after()
+    test_ingot_block_alpha()
     test_nugget_and_powder_blocks()
+    test_parts_tab_excludes_weapon_bound_items()
     test_consumable_filters_cluster()
     test_cluster_parts_scrambled_exotic_ingots()
     print(f"test_cluster_parts_tab PASS version={GOAL_CLUSTER_VERSION}")

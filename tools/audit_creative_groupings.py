@@ -10,18 +10,16 @@ from pathlib import Path
 
 PROJ = Path(__file__).resolve().parents[1]
 TOOLS = Path(__file__).resolve().parent
-SCRATCH = Path(os.environ.get("GOAL_SCRATCH", r"C:\Temp\grok-goal-3cb09aa72ab5\implementer"))
+SCRATCH = Path(os.environ.get("GOAL_SCRATCH", r"C:\Temp\grok-goal-f7963e6bf0c1\implementer"))
 ORDER_SRC = PROJ / "src/main/resources/assets/hbm/creative_tab_order.txt"
-MOD_ITEMS = PROJ / "src/main/java/com/hbm/items/ModItems.java"
-MOD_BLOCKS = PROJ / "src/main/java/com/hbm/blocks/ModBlocks.java"
 sys.path.insert(0, str(TOOLS))
-from creative_tab_parse import collect_port_tab_entries
-from cluster_creative_tab_order import (
-    CE_FIREARM_ORDER,
-    EE_FIREARM_ORDER,
+from cluster_creative_tab_order import (  # noqa: E402
+    FIREARM_ORDER,
     GOAL_CLUSTER_VERSION,
+    INF_WATER_ORDER,
     MELEE_CLUSTER_ORDER,
-    REVOLVER_FAMILY_PROBES,
+    is_gun_ammo_path,
+    registry_path,
 )
 
 
@@ -41,11 +39,6 @@ def release_jar_path() -> Path | None:
         return None
     return max(candidates, key=lambda p: p.stat().st_mtime)
 
-WEAPON_TAB_SHIELDS = {
-    "alloy_shield", "cmb_shield", "cobalt_shield", "desh_shield", "elec_shield",
-    "schrabidium_shield", "starmetal_shield", "steel_shield", "titanium_shield",
-}
-
 
 def load_tabs(path: Path) -> dict[str, list[str]]:
     tabs: dict[str, list[str]] = {}
@@ -63,10 +56,6 @@ def load_tabs(path: Path) -> dict[str, list[str]]:
     return tabs
 
 
-def registry_path(key: str) -> str:
-    return key.split(":", 1)[-1] if ":" in key else key
-
-
 def contiguity(keys: list[str], prefix: str) -> tuple[int, int, int, bool]:
     hits = [(i, k) for i, k in enumerate(keys) if registry_path(k).startswith(prefix)]
     if not hits:
@@ -75,24 +64,19 @@ def contiguity(keys: list[str], prefix: str) -> tuple[int, int, int, bool]:
     return len(hits), first, last, last - first + 1 == len(hits)
 
 
-def audit_revolver_families(lines: list[str], keys: list[str]) -> bool:
-    ok = True
-    for family in REVOLVER_FAMILY_PROBES:
-        gun_idx = keys.index(family[0]) if family[0] in keys else -1
-        if gun_idx < 0:
-            lines.append(f"[ORDER] revolver_family_missing_gun={family[0]}")
-            ok = False
-            continue
-        expected = gun_idx + 1
-        parts_ok = True
-        for part in family[1:]:
-            part_idx = keys.index(part) if part in keys else -1
-            if part_idx != expected:
-                lines.append(f"[ORDER] revolver_family_broken gun={family[0]} part={part} at={part_idx} expected={expected}")
-                parts_ok = False
-                ok = False
-            expected += 1
-        lines.append(f"[ORDER] revolver_family {family[0]} contiguous={parts_ok}")
+def audit_gun_ammo_block(lines: list[str], keys: list[str]) -> bool:
+    paths = [registry_path(k) for k in keys]
+    ammo_hits = [i for i, p in enumerate(paths) if is_gun_ammo_path(p)]
+    if not ammo_hits:
+        lines.append("[ORDER] gun_ammo_block missing")
+        return False
+    ok = ammo_hits[-1] - ammo_hits[0] + 1 == len(ammo_hits)
+    schrab = paths.index("gun_revolver_schrabidium_ammo") if "gun_revolver_schrabidium_ammo" in paths else -1
+    ok = ok and schrab >= ammo_hits[0] and schrab <= ammo_hits[-1]
+    lines.append(
+        f"[ORDER] gun_ammo_block count={len(ammo_hits)} first={ammo_hits[0]} "
+        f"last={ammo_hits[-1]} contiguous={ok}"
+    )
     return ok
 
 
@@ -120,25 +104,26 @@ def audit_melee_order(lines: list[str], keys: list[str]) -> bool:
     return ok
 
 
-def audit_ee_ce_firearms(lines: list[str], keys: list[str]) -> bool:
+def audit_unified_firearms(lines: list[str], keys: list[str]) -> bool:
     paths = [registry_path(k) for k in keys]
-    ee_idx = [i for i, p in enumerate(paths) if p in EE_FIREARM_ORDER]
-    ce_idx = [i for i, p in enumerate(paths) if p in CE_FIREARM_ORDER]
-    if not ee_idx or not ce_idx:
-        lines.append(f"[ORDER] ee_ce_firearms missing ee={len(ee_idx)} ce={len(ce_idx)}")
+    fire_sub = [p for p in paths if p in FIREARM_ORDER]
+    ok = fire_sub == [n for n in FIREARM_ORDER if n in paths]
+    ammo_hits = [i for i, p in enumerate(paths) if is_gun_ammo_path(p)]
+    if fire_sub and ammo_hits:
+        ok = ok and min(ammo_hits) > max(paths.index(p) for p in fire_sub)
+    lines.append(f"[ORDER] unified_firearms count={len(fire_sub)} ok={ok}")
+    return ok
+
+
+def audit_control_inf_water(lines: list[str], keys: list[str]) -> bool:
+    inf_hits = [i for i, k in enumerate(keys) if registry_path(k).startswith("inf_water")]
+    if not inf_hits:
+        lines.append("[ORDER] control_inf_water missing")
         return False
-    last_ee = max(ee_idx)
-    first_ce = min(ce_idx)
-    boundary_ok = first_ce == last_ee + 1
-    ee_sub = [p for p in paths if p in EE_FIREARM_ORDER]
-    ee_order_ok = ee_sub == [n for n in EE_FIREARM_ORDER if n in paths]
-    ce_sub = [p for p in paths if p in CE_FIREARM_ORDER]
-    ce_order_ok = ce_sub == [n for n in CE_FIREARM_ORDER if n in paths]
-    ok = boundary_ok and ee_order_ok and ce_order_ok
-    lines.append(
-        f"[ORDER] ee_ce_boundary last_ee={last_ee}({paths[last_ee]}) "
-        f"first_ce={first_ce}({paths[first_ce]}) ok={ok}"
-    )
+    ok = inf_hits[-1] - inf_hits[0] + 1 == len(inf_hits)
+    inf_paths = [registry_path(keys[i]) for i in inf_hits]
+    ok = ok and inf_paths == [n for n in INF_WATER_ORDER if n in inf_paths]
+    lines.append(f"[ORDER] control_inf_water paths={inf_paths} ok={ok}")
     return ok
 
 
@@ -152,11 +137,15 @@ def audit_assembly_template_hidden(lines: list[str], tabs: dict[str, list[str]])
 def main() -> int:
     SCRATCH.mkdir(parents=True, exist_ok=True)
     lines: list[str] = [f"audit_creative_groupings.py version={GOAL_CLUSTER_VERSION}\n"]
+    header_ok = ORDER_SRC.read_text(encoding="utf-8").splitlines()[0].startswith("# creative-tab-grouping-5")
+    lines.append(f"[ORDER] header_grouping_5={header_ok}")
     tabs = load_tabs(ORDER_SRC)
     weapon_keys = tabs.get("weaponTab", [])
-    all_ok = audit_revolver_families(lines, weapon_keys)
+    all_ok = header_ok
+    all_ok = audit_gun_ammo_block(lines, weapon_keys) and all_ok
     all_ok = audit_melee_order(lines, weapon_keys) and all_ok
-    all_ok = audit_ee_ce_firearms(lines, weapon_keys) and all_ok
+    all_ok = audit_unified_firearms(lines, weapon_keys) and all_ok
+    all_ok = audit_control_inf_water(lines, tabs.get("controlTab", [])) and all_ok
     all_ok = audit_assembly_template_hidden(lines, tabs) and all_ok
 
     for tab, prefix in [("partsTab", "ingot_"), ("partsTab", "nugget_"), ("partsTab", "powder_")]:

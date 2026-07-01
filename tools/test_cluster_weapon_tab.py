@@ -1,4 +1,4 @@
-"""Unit tests for cluster_weapon_tab (shipped in gradle project tools/)."""
+"""Unit tests for cluster_weapon_tab (creative-tab-grouping-5: gun_ammo contiguity, no revolver-family contiguity)."""
 from __future__ import annotations
 
 import sys
@@ -8,38 +8,32 @@ TOOLS = Path(__file__).resolve().parent
 sys.path.insert(0, str(TOOLS))
 
 from cluster_creative_tab_order import (  # noqa: E402
-    CE_FIREARM_ORDER,
-    CE_FIREARM_PATHS,
-    EE_FIREARM_ORDER,
+    FIREARM_ORDER,
     GOAL_CLUSTER_VERSION,
     cluster_weapon_tab,
-    load_weapon_gun_declaration_lines,
+    is_gun_ammo_path,
     registry_path,
 )
 
 
-def weapon_slice(keys: list[str], start: str, count: int) -> list[str]:
-    idx = keys.index(start)
-    return keys[idx : idx + count]
-
-
-def test_revolver_schrabidium_family_adjacent() -> None:
+def test_gun_ammo_block_contiguous() -> None:
     keys = [
-        "gun_revolver_iron",
         "gun_revolver_schrabidium",
         "gun_revolver_schrabidium_ammo",
         "clip_revolver_schrabidium",
         "gun_b92",
+        "gun_revolver_iron",
         "gun_revolver_iron_ammo",
-        "clip_revolver_iron",
+        "gun_osipr_ammo",
+        "gun_cryolator_ammo",
     ]
     out = cluster_weapon_tab(keys)
-    family = weapon_slice(out, "gun_revolver_schrabidium", 3)
-    assert family == [
-        "gun_revolver_schrabidium",
-        "gun_revolver_schrabidium_ammo",
-        "clip_revolver_schrabidium",
-    ], family
+    ammo_hits = [i for i, k in enumerate(out) if is_gun_ammo_path(registry_path(k))]
+    assert len(ammo_hits) == 4, out
+    assert ammo_hits[-1] - ammo_hits[0] + 1 == len(ammo_hits), out
+    schrab_gun = out.index("gun_revolver_schrabidium")
+    schrab_ammo = out.index("gun_revolver_schrabidium_ammo")
+    assert schrab_ammo != schrab_gun + 1, out
 
 
 def test_melee_immediately_after_shimmer_before_meteorite() -> None:
@@ -71,8 +65,7 @@ def test_melee_immediately_after_shimmer_before_meteorite() -> None:
     assert out.index("meteorite_sword_seared") > out.index("meteorite_sword")
 
 
-def test_ee_firearms_then_ce_firearms() -> None:
-    decl = load_weapon_gun_declaration_lines()
+def test_unified_firearm_order() -> None:
     keys = [
         "gun_revolver",
         "gun_b92",
@@ -83,18 +76,17 @@ def test_ee_firearms_then_ce_firearms() -> None:
         "crucible",
         "gun_b93",
         "gun_osipr_ammo",
+        "gun_revolver_ammo",
     ]
     out = cluster_weapon_tab(keys)
     paths = [registry_path(k) for k in out]
-    ee_sub = [p for p in paths if p in EE_FIREARM_ORDER]
-    ce_sub = [p for p in paths if p in CE_FIREARM_PATHS]
-    assert ee_sub == [n for n in EE_FIREARM_ORDER if n in paths], (paths, ee_sub)
-    assert ce_sub == [n for n in CE_FIREARM_ORDER if n in paths], (paths, ce_sub)
-    assert paths.index("gun_darter") < paths.index("gun_b92"), paths
-    assert paths.index("gun_b92") == paths.index("gun_darter") + 1, paths
-    assert paths.index("gun_osipr_ammo") > paths.index("gun_fatman"), paths
-    assert "gun_osipr_ammo2" not in paths[paths.index("gun_darter") : paths.index("gun_fatman") + 1], paths
-    assert decl["gun_b92"] < decl["gun_deagle"]
+    fire_sub = [p for p in paths if p in FIREARM_ORDER]
+    assert fire_sub == [n for n in FIREARM_ORDER if n in paths], (paths, fire_sub)
+    assert paths.index("gun_b92") < paths.index("gun_deagle"), paths
+    first_ammo = paths.index("gun_osipr_ammo")
+    last_fire = max(paths.index(p) for p in fire_sub)
+    assert first_ammo > last_fire, paths
+    assert paths.index("gun_revolver_ammo") == paths.index("gun_osipr_ammo") + 1, paths
 
 
 def test_shields_sorted_together() -> None:
@@ -106,10 +98,10 @@ def test_shields_sorted_together() -> None:
 
 
 def main() -> int:
-    assert GOAL_CLUSTER_VERSION == "creative-tab-grouping-4"
-    test_revolver_schrabidium_family_adjacent()
+    assert GOAL_CLUSTER_VERSION == "creative-tab-grouping-5"
+    test_gun_ammo_block_contiguous()
     test_melee_immediately_after_shimmer_before_meteorite()
-    test_ee_firearms_then_ce_firearms()
+    test_unified_firearm_order()
     test_shields_sorted_together()
     print(f"test_cluster_weapon_tab PASS version={GOAL_CLUSTER_VERSION}")
     return 0

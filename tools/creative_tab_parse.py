@@ -20,6 +20,22 @@ REGISTRY_STRING = re.compile(r"^[a-z0-9_]+$")
 
 CTOR_TAB_INFERENCE = (
     (re.compile(r"new\s+(?:com\.hbm\.items\.gear\.)?ModShield\s*\("), "weaponTab"),
+    (re.compile(r"new\s+ItemAmmoHIMARS\s*\("), "weaponTab"),
+    (re.compile(r"new\s+ItemAmmoArty\s*\("), "weaponTab"),
+)
+
+# Sedna guns: declared in ModItems as `public static Item gun_x;`, registered in XFactory*.java.
+SEDNA_FACTORY_GUN_RE = re.compile(
+    r"new\s+ItemGun(?:BaseNT|Drill|Chemthrower|Stinger|PA|ChargeThrower|NI4NI)\("
+    r"[^)]*?WeaponQuality\.(A_SIDE|SPECIAL|UTILITY)\s*,\s*\"([a-z0-9_]+)\"",
+    re.DOTALL,
+)
+
+# GunFactory.java: ItemEnumMulti registrations with weaponTab (ammo_standard, weapon_mod_*).
+GUN_FACTORY_WEAPON_TAB_RE = re.compile(
+    r"=\s*new\s+ItemEnumMulti(?:<[^>]*>)?\(\s*\"([a-z0-9_]+)\"[^;]*"
+    r"\.setCreativeTab\(MainRegistry\.weaponTab\)",
+    re.DOTALL,
 )
 
 HBM_TAB_KEYS = {
@@ -143,6 +159,39 @@ def parse_entries(path, kind, namespace="hbm"):
     return entries
 
 
+def collect_gun_factory_weapon_tab_entries(gun_factory: Path) -> list[tuple[str, str]]:
+    """Registry paths for GunFactory ItemEnumMulti items on weaponTab."""
+    entries: list[tuple[str, str]] = []
+    seen: set[str] = set()
+    if not gun_factory.is_file():
+        return entries
+    text = gun_factory.read_text(encoding="utf-8")
+    for match in GUN_FACTORY_WEAPON_TAB_RE.finditer(text):
+        reg_path = match.group(1)
+        if reg_path in seen:
+            continue
+        seen.add(reg_path)
+        entries.append((reg_path, reg_path))
+    return entries
+
+
+def collect_sedna_weapon_tab_entries(factory_dir: Path) -> list[tuple[str, str]]:
+    """Registry paths for sedna guns that land on weaponTab (A_SIDE / SPECIAL / UTILITY)."""
+    entries: list[tuple[str, str]] = []
+    seen: set[str] = set()
+    if not factory_dir.is_dir():
+        return entries
+    for path in sorted(factory_dir.glob("*.java")):
+        text = path.read_text(encoding="utf-8")
+        for match in SEDNA_FACTORY_GUN_RE.finditer(text):
+            reg_path = match.group(2)
+            if reg_path in seen:
+                continue
+            seen.add(reg_path)
+            entries.append((reg_path, reg_path))
+    return entries
+
+
 def collect_port_tab_entries(
     mod_items: Path,
     mod_blocks: Path,
@@ -167,4 +216,17 @@ def collect_port_tab_entries(
             continue
         tabs[tab].append((registry_key, path))
         seen[tab].add(registry_key)
+
+    sedna_factory = mod_items.parent / "weapon" / "sedna" / "factory"
+    for registry_key, path in collect_sedna_weapon_tab_entries(sedna_factory):
+        if registry_key not in seen["weaponTab"]:
+            tabs["weaponTab"].append((registry_key, path))
+            seen["weaponTab"].add(registry_key)
+
+    gun_factory = sedna_factory / "GunFactory.java"
+    for registry_key, path in collect_gun_factory_weapon_tab_entries(gun_factory):
+        if registry_key not in seen["weaponTab"]:
+            tabs["weaponTab"].append((registry_key, path))
+            seen["weaponTab"].add(registry_key)
+
     return tabs

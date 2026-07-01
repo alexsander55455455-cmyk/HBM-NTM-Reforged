@@ -7,39 +7,36 @@ from pathlib import Path
 
 PROJ = Path(__file__).resolve().parents[1]
 TOOLS = Path(__file__).resolve().parent
-SCRATCH = Path(os.environ.get("GOAL_SCRATCH", r"C:\Temp\grok-goal-3cb09aa72ab5\implementer"))
+SCRATCH = Path(os.environ.get("GOAL_SCRATCH", r"C:\Temp\grok-goal-f7963e6bf0c1\implementer"))
 ORDER = PROJ / "src/main/resources/assets/hbm/creative_tab_order.txt"
 
 sys.path.insert(0, str(TOOLS))
 from cluster_creative_tab_order import (  # noqa: E402
-    CE_FIREARM_ORDER,
-    CE_FIREARM_PATHS,
-    EE_FIREARM_ORDER,
+    FIREARM_ORDER,
     GOAL_CLUSTER_VERSION,
+    INF_WATER_ORDER,
     MELEE_CLUSTER_ORDER,
-    REVOLVER_FAMILY_PROBES,
+    METEORITE_SWORD_DAMAGE_ORDER,
+    PARTS_TAB_BEDROCK_JEI_BLOCK,
+    WEAPON_MOD_ORDER,
+    WEAPON_TAB_KITS,
+    WEAPON_TAB_TOOLS,
     cluster_consumable_tab,
+    cluster_control_tab,
     cluster_parts_tab,
     cluster_weapon_tab,
+    is_gun_ammo_path,
     registry_path,
+)
+from creative_tab_parse import (  # noqa: E402
+    collect_gun_factory_weapon_tab_entries,
+    collect_port_tab_entries,
+    collect_sedna_weapon_tab_entries,
 )
 
 
 def load_weapon_tab_keys() -> list[str]:
-    keys: list[str] = []
-    in_weapon = False
-    for raw in ORDER.read_text(encoding="utf-8").splitlines():
-        line = raw.strip()
-        if not line or line.startswith("#"):
-            continue
-        if line.startswith("@weaponTab"):
-            in_weapon = True
-            continue
-        if line.startswith("@") and in_weapon:
-            break
-        if in_weapon and "=" in line:
-            keys.append(line.split("=", 1)[0])
-    return keys
+    return load_tab_keys("weaponTab")
 
 
 def verify_parts_tab_regeneration_parity() -> bool:
@@ -111,7 +108,6 @@ def verify_parts_prefix_probes() -> bool:
             "nugget_radspice",
             "powder_ac227",
             "powder_radspice",
-            "inf_water_mk4",
         )
     }
     ingot_hits = [i for i, k in enumerate(parts) if registry_path(k).startswith("ingot_")]
@@ -129,15 +125,15 @@ def verify_parts_prefix_probes() -> bool:
         idx = probes.get(name, -1)
         if idx < 0 or idx < powder_hits[0] or idx > powder_hits[-1]:
             ok = False
-    if probes["inf_water_mk4"] in ingot_hits:
-        ok = False
     if ingot_hits:
         ingot_paths = [registry_path(parts[i]) for i in ingot_hits]
         if ingot_paths != sorted(ingot_paths):
             ok = False
             print(f"[GOAL] ingot_block_not_alpha_sorted sample={ingot_paths[:5]}..{ingot_paths[-3:]}")
-    if probes["inf_water_mk4"] >= 0 and ingot_hits and probes["inf_water_mk4"] <= ingot_hits[-1]:
-        ok = False
+    for path in parts:
+        if is_gun_ammo_path(registry_path(path)):
+            ok = False
+            print(f"[GOAL] partsTab contains gun ammo {path}")
     print(f"[GOAL] parts_probes={probes} ok={ok}")
     return ok
 
@@ -152,69 +148,163 @@ def verify_consumable_filters() -> bool:
     return ok
 
 
-def is_weapon_firearm_path(path: str) -> bool:
-    if path.startswith("gun_revolver") and path != "gun_revolver_inverted":
-        return False
-    if path.startswith("gun_") and not path.endswith("_ammo"):
-        return True
-    return path in {"cc_plasma_gun", "crucible", "drax", "drax_mk2", "drax_mk3"}
-
-
-def verify_ee_ce_firearm_boundary() -> bool:
+def verify_gun_ammo_block() -> bool:
     weapon = load_weapon_tab_keys()
     paths = [registry_path(k) for k in weapon]
-    firearm_indices = [i for i, p in enumerate(paths) if is_weapon_firearm_path(p)]
-    if not firearm_indices:
-        print("[GOAL] ee_ce_boundary=False no firearms on weaponTab")
+    ammo_hits = [i for i, p in enumerate(paths) if is_gun_ammo_path(p)]
+    if not ammo_hits:
+        print("[GOAL] gun_ammo_block=False missing gun_*_ammo")
         return False
-
-    ee_indices = [i for i, p in enumerate(paths) if p in EE_FIREARM_ORDER]
-    ce_indices = [i for i, p in enumerate(paths) if p in CE_FIREARM_PATHS]
-    if not ee_indices:
-        print("[GOAL] ee_ce_boundary=False missing EE firearms")
-        return False
-    if not ce_indices:
-        print("[GOAL] ee_ce_boundary=False missing CE firearms")
-        return False
-
-    last_ee = max(ee_indices)
-    first_ce = min(ce_indices)
-    boundary_ok = first_ce == last_ee + 1
-    between = paths[last_ee + 1 : first_ce]
-    between_ok = not between
-
-    ee_sub = [p for p in paths if p in EE_FIREARM_ORDER]
-    ee_order_ok = ee_sub == [n for n in EE_FIREARM_ORDER if n in paths]
-    ce_sub = [p for p in paths if p in CE_FIREARM_PATHS]
-    ce_order_ok = ce_sub == [n for n in CE_FIREARM_ORDER if n in paths]
-
-    ok = boundary_ok and between_ok and ee_order_ok and ce_order_ok
+    contiguous = ammo_hits[-1] - ammo_hits[0] + 1 == len(ammo_hits)
+    schrab = paths.index("gun_revolver_schrabidium_ammo") if "gun_revolver_schrabidium_ammo" in paths else -1
+    in_block = schrab >= ammo_hits[0] and schrab <= ammo_hits[-1]
+    ok = contiguous and in_block
     print(
-        f"[GOAL] ee_ce_boundary last_ee={last_ee}({paths[last_ee]}) "
-        f"first_ce={first_ce}({paths[first_ce]}) boundary_ok={boundary_ok} "
-        f"ee_order_ok={ee_order_ok} ce_order_ok={ce_order_ok} ce_count={len(ce_sub)}"
+        f"[GOAL] gun_ammo_block contiguous={contiguous} count={len(ammo_hits)} "
+        f"first={ammo_hits[0]} last={ammo_hits[-1]} schrabidium_in_block={in_block}"
     )
+    return ok
+
+
+def verify_weapon_tab_coverage() -> bool:
+    mod_items = PROJ / "src/main/java/com/hbm/items/ModItems.java"
+    mod_blocks = PROJ / "src/main/java/com/hbm/blocks/ModBlocks.java"
+    declared = collect_port_tab_entries(mod_items, mod_blocks)
+    weapon_declared = {registry_path(k) for k, _ in declared.get("weaponTab", [])}
+    on_disk = {registry_path(k) for k in load_weapon_tab_keys()}
+    missing = sorted(weapon_declared - on_disk)
+    ok = not missing
+    print(
+        f"[GOAL] weapon_tab_coverage ok={ok} declared={len(weapon_declared)} "
+        f"on_disk={len(on_disk)} missing={len(missing)}"
+    )
+    if missing:
+        print(f"  sample_missing={missing[:12]}")
+    sedna = collect_sedna_weapon_tab_entries(mod_items.parent / "weapon" / "sedna" / "factory")
+    sedna_paths = {path for _, path in sedna}
+    sedna_missing = sorted(sedna_paths - on_disk)
+    sedna_ok = not sedna_missing
+    print(f"[GOAL] sedna_weapon_tab_coverage ok={sedna_ok} missing={len(sedna_missing)}")
+    if sedna_missing:
+        print(f"  sedna_missing={sedna_missing[:12]}")
+    gun_factory = mod_items.parent / "weapon" / "sedna" / "factory" / "GunFactory.java"
+    gun_factory_paths = {path for _, path in collect_gun_factory_weapon_tab_entries(gun_factory)}
+    gun_factory_missing = sorted(gun_factory_paths - on_disk)
+    gun_factory_ok = not gun_factory_missing
+    print(f"[GOAL] gun_factory_weapon_tab_coverage ok={gun_factory_ok} missing={len(gun_factory_missing)}")
+    if gun_factory_missing:
+        print(f"  gun_factory_missing={gun_factory_missing[:12]}")
+    return ok and sedna_ok and gun_factory_ok
+
+
+def verify_weapon_mod_block() -> bool:
+    weapon = load_weapon_tab_keys()
+    paths = [registry_path(k) for k in weapon]
+    mod_hits = [i for i, p in enumerate(paths) if p in WEAPON_MOD_ORDER]
+    ok = len(mod_hits) == len(WEAPON_MOD_ORDER)
+    if mod_hits:
+        ok = ok and mod_hits[-1] - mod_hits[0] + 1 == len(mod_hits)
+    sub = [paths[i] for i in mod_hits] if mod_hits else []
+    ok = ok and sub == [n for n in WEAPON_MOD_ORDER if n in paths]
+    himars = paths.index("ammo_himars") if "ammo_himars" in paths else -1
+    hs = paths.index("hs_sword") if "hs_sword" in paths else -1
+    if mod_hits and himars >= 0:
+        ok = ok and min(mod_hits) > himars
+    if mod_hits and hs >= 0:
+        ok = ok and max(mod_hits) < hs
+    print(
+        f"[GOAL] weapon_mod_block ok={ok} hits={mod_hits} "
+        f"order={sub} after_himars={himars < min(mod_hits) if mod_hits and himars >= 0 else 'n/a'} "
+        f"before_hs_sword={max(mod_hits) < hs if mod_hits and hs >= 0 else 'n/a'}"
+    )
+    return ok
+
+
+def verify_weapon_tail_sections() -> bool:
+    weapon = load_weapon_tab_keys()
+    paths = [registry_path(k) for k in weapon]
+    kit_hits = [i for i, p in enumerate(paths) if p in WEAPON_TAB_KITS]
+    tool_hits = [i for i, p in enumerate(paths) if p in WEAPON_TAB_TOOLS]
+    kits_ok = len(kit_hits) > 0 and kit_hits[-1] - kit_hits[0] + 1 == len(kit_hits)
+    tools_ok = len(tool_hits) > 0 and tool_hits[-1] - tool_hits[0] + 1 == len(tool_hits)
+    order_ok = not kit_hits or not tool_hits or max(kit_hits) < min(tool_hits)
+    uzi_ok = "gun_uzi" in paths
+    if uzi_ok:
+        uzi_idx = paths.index("gun_uzi")
+        silencer_idx = paths.index("gun_uzi_silencer") if "gun_uzi_silencer" in paths else -1
+        uzi_ok = silencer_idx < 0 or uzi_idx < silencer_idx
+    ok = kits_ok and tools_ok and order_ok and uzi_ok
+    print(
+        f"[GOAL] weapon_tail_sections ok={ok} kits_contiguous={kits_ok} "
+        f"tools_contiguous={tools_ok} kits_before_tools={order_ok} gun_uzi_before_silencer={uzi_ok}"
+    )
+    return ok
+
+
+def verify_parts_tab_bedrock_jei_block() -> bool:
+    parts = load_tab_keys("partsTab")
+    paths = [registry_path(k) for k in parts]
+    hits = [i for i, p in enumerate(paths) if p in PARTS_TAB_BEDROCK_JEI_BLOCK]
+    ok = len(hits) == len(PARTS_TAB_BEDROCK_JEI_BLOCK)
+    if hits:
+        ok = ok and hits[-1] - hits[0] + 1 == len(hits)
+        sub = [paths[i] for i in hits]
+        ok = ok and sub == list(PARTS_TAB_BEDROCK_JEI_BLOCK)
+    print(
+        f"[GOAL] parts_tab_bedrock_jei_block ok={ok} count={len(hits)} "
+        f"first={hits[0] if hits else -1} last={hits[-1] if hits else -1}"
+    )
+    return ok
+
+
+def verify_meteorite_sword_damage_order() -> bool:
+    weapon = load_weapon_tab_keys()
+    paths = [registry_path(k) for k in weapon]
+    hits = [i for i, p in enumerate(paths) if p in METEORITE_SWORD_DAMAGE_ORDER]
+    ok = len(hits) == len(METEORITE_SWORD_DAMAGE_ORDER)
+    if hits:
+        ok = ok and hits[-1] - hits[0] + 1 == len(hits)
+        sub = [paths[i] for i in hits]
+        ok = ok and sub == list(METEORITE_SWORD_DAMAGE_ORDER)
+    mese_gavel = paths.index("mese_gavel") if "mese_gavel" in paths else -1
+    if hits and mese_gavel >= 0:
+        ok = ok and hits[0] == mese_gavel + 1
+    print(
+        f"[GOAL] meteorite_sword_damage_order ok={ok} count={len(hits)} "
+        f"first={hits[0] if hits else -1} last={hits[-1] if hits else -1}"
+    )
+    return ok
+
+
+def verify_unified_firearm_order() -> bool:
+    weapon = load_weapon_tab_keys()
+    paths = [registry_path(k) for k in weapon]
+    fire_sub = [p for p in paths if p in FIREARM_ORDER]
+    ok = fire_sub == [n for n in FIREARM_ORDER if n in paths]
+    if ammo_hits := [i for i, p in enumerate(paths) if is_gun_ammo_path(p)]:
+        last_fire = max(paths.index(p) for p in fire_sub) if fire_sub else -1
+        ok = ok and min(ammo_hits) > last_fire
+    print(f"[GOAL] unified_firearm_order ok={ok} firearms={len(fire_sub)}")
+    return ok
+
+
+def verify_control_inf_water() -> bool:
+    control = load_tab_keys("controlTab")
+    regenerated = cluster_control_tab(list(control))
+    ok = regenerated == control
+    inf_hits = [i for i, k in enumerate(control) if registry_path(k).startswith("inf_water")]
+    if inf_hits:
+        ok = ok and inf_hits[-1] - inf_hits[0] + 1 == len(inf_hits)
+        inf_paths = [registry_path(control[i]) for i in inf_hits]
+        ok = ok and inf_paths == [n for n in INF_WATER_ORDER if n in inf_paths]
+    print(f"[GOAL] control_inf_water contiguous={bool(inf_hits)} ok={ok}")
     return ok
 
 
 def check_creative_grouping_goal() -> bool:
     weapon = load_weapon_tab_keys()
-    ok = True
-    for family in REVOLVER_FAMILY_PROBES:
-        gun_idx = weapon.index(family[0]) if family[0] in weapon else -1
-        if gun_idx < 0:
-            ok = False
-            print(f"[GOAL] revolver_family missing {family[0]}")
-            continue
-        expected = gun_idx + 1
-        for part in family[1:]:
-            part_idx = weapon.index(part) if part in weapon else -1
-            if part_idx != expected:
-                ok = False
-                print(f"[GOAL] revolver_family broken {family[0]} {part} at={part_idx} expected={expected}")
-            expected += 1
     probes = {name: weapon.index(name) if name in weapon else -1 for name in (
-        "hs_sword", "shimmer_axe", "mese_pickaxe", "mese_gavel", "meteorite_sword", "meteorite_sword_seared"
+        "hs_sword", "shimmer_axe", "mese_pickaxe", "mese_gavel", "meteorite_sword"
     )}
     melee_ok = all(v >= 0 for v in probes.values())
     if melee_ok:
@@ -226,7 +316,10 @@ def check_creative_grouping_goal() -> bool:
                 break
             expected += 1
         melee_ok = melee_ok and probes["meteorite_sword"] == probes["mese_gavel"] + 1
-        melee_ok = melee_ok and probes["meteorite_sword_seared"] > probes["meteorite_sword"]
+        meteorite_hits = [weapon.index(name) for name in METEORITE_SWORD_DAMAGE_ORDER if name in weapon]
+        melee_ok = melee_ok and len(meteorite_hits) == len(METEORITE_SWORD_DAMAGE_ORDER)
+        if meteorite_hits:
+            melee_ok = melee_ok and meteorite_hits[-1] - meteorite_hits[0] + 1 == len(meteorite_hits)
     print(f"[GOAL] melee_probes={probes} ok={melee_ok}")
     assembly_hidden = "assembly_template" not in weapon
     for tab_section in ORDER.read_text(encoding="utf-8").split("@"):
@@ -243,14 +336,20 @@ def check_creative_grouping_goal() -> bool:
         and verify_weapon_tab_regeneration_parity()
     )
     ok = (
-        ok
-        and melee_ok
+        melee_ok
         and assembly_hidden
         and parity_ok
         and shield_ok
         and verify_parts_prefix_probes()
         and verify_consumable_filters()
-        and verify_ee_ce_firearm_boundary()
+        and verify_gun_ammo_block()
+        and verify_unified_firearm_order()
+        and verify_control_inf_water()
+        and verify_weapon_tab_coverage()
+        and verify_weapon_mod_block()
+        and verify_weapon_tail_sections()
+        and verify_meteorite_sword_damage_order()
+        and verify_parts_tab_bedrock_jei_block()
     )
     print(f"[GOAL] creative_grouping_pass={ok}")
     return ok
