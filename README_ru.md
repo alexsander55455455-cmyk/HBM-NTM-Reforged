@@ -46,9 +46,18 @@ HBM NTM Reforged — это неофициальный порт и продол�
 
 Также в будущем планируется публичное modded Minecraft сообщество/сервер, когда мод и комьюнити будут готовы.
 
+## Сообщить об ошибке
+
+Нашли краш, сломанный рецепт или визуальный баг?
+
+1. [Создайте Issue на GitHub](https://github.com/alexsander55455455-cmyk/HBM-NTM-Reforged/issues/new/choose) (шаблон **Bug report**)
+2. Или напишите в [Discord](https://discord.gg/BgrqdWEK)
+
+Укажите версию мода, Forge, шаги воспроизведения и по возможности `latest.log` или crash-report.
+
 ## Discord
 
-Присоединяйтесь к Discord-сообществу для баг-репортов, предложений, новостей разработки, обсуждения modded Minecraft и будущих планов публичного сервера.
+Присоединяйтесь к Discord-сообществу для предложений, новостей разработки, обсуждения modded Minecraft и будущих планов публичного сервера.
 
 [Join the Discord](https://discord.gg/BgrqdWEK)
 

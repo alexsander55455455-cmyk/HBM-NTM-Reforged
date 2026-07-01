@@ -1,0 +1,108 @@
+name: Bug report
+description: Report a crash, broken recipe, missing texture, or other gameplay bug
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    value: |
+      Thanks for reporting a bug. English is preferred, but Russian and Ukrainian are fine.
+      Please fill in as much as you can. Reports without mod version and steps are harder to fix.
+
+  - type: input
+    id: mod_version
+    attributes:
+      label: Mod version
+      description: Example: 0.9.1-beta
+      placeholder: 0.9.1-beta
+    validations:
+      required: true
+
+  - type: input
+    id: minecraft_version
+    attributes:
+      label: Minecraft version
+      placeholder: 1.12.2
+    validations:
+      required: true
+
+  - type: input
+    id: forge_version
+    attributes:
+      label: Forge version
+      description: Full Forge build if you know it. Example: 14.23.5.2859
+      placeholder: 14.23.5.2859
+    validations:
+      required: true
+
+  - type: input
+    id: launcher
+    attributes:
+      label: Launcher
+      description: PrismLauncher, CurseForge, MultiMC, vanilla launcher, etc.
+      placeholder: PrismLauncher
+
+  - type: textarea
+    id: other_mods
+    attributes:
+      label: Other mods
+      description: List other mods in the pack, or write "HBM only"
+      placeholder: HBM NTM Reforged only / or paste mod list
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: What did you do before the bug happened?
+      placeholder: |
+        1. Place sliding blast door with keypad
+        2. Break the door
+        3. Ghost keypad block remains
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - Crash / cannot load world
+        - Major gameplay broken
+        - Minor bug / visual issue
+        - Suggestion / balance
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or crash report
+      description: Paste the relevant part of latest.log or crash-report.txt. Use a gist or paste site if very long.
+      render: shell
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing GitHub issues for duplicates
+          required: true
+        - label: I tested with the latest release jar, not an older file
+          required: false

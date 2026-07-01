@@ -46,9 +46,18 @@ After the 1.12.2 version is completed, the next goal is to begin work on a newer
 
 A public modded Minecraft community/server is also planned for the future when the mod and community are ready.
 
+## Bug reports
+
+Found a crash, broken recipe, or visual bug?
+
+1. [Open a GitHub Issue](https://github.com/alexsander55455455-cmyk/HBM-NTM-Reforged/issues/new/choose) (use the **Bug report** template)
+2. Or ask on [Discord](https://discord.gg/BgrqdWEK)
+
+Please include your mod version, Forge version, steps to reproduce, and `latest.log` or crash report if possible.
+
 ## Discord
 
-Join the Discord community for bug reports, suggestions, development updates, modded Minecraft discussion, and future public server plans.
+Join the Discord community for suggestions, development updates, modded Minecraft discussion, and future public server plans.
 
 [Join the Discord](https://discord.gg/BgrqdWEK)
 
