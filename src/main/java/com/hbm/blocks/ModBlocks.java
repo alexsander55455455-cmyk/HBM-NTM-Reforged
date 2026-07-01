@@ -393,7 +393,7 @@ public class ModBlocks {
     public static final Block block_meteor_broken = new BlockNTMOre("block_meteor_broken", OreEnum.METEORITE_FRAG, 1, 0).setCreativeTab(MainRegistry.resourceTab).setHardness(15.0F).setResistance(900.0F);
     public static final Block block_meteor_molten = new BlockHazard(Material.ROCK, "block_meteor_molten").setTickRandomly(true).setLightLevel(0.75F).setCreativeTab(MainRegistry.resourceTab).setHardness(15.0F).setResistance(900.0F);
     public static final Block block_meteor_treasure = new BlockNTMOre("block_meteor_treasure", OreEnum.METEORITE_TREASURE, 3).setCreativeTab(MainRegistry.resourceTab).setHardness(15.0F).setResistance(900.0F);
-    public static final Block ore_meteor = new BlockMeteorOre().setCreativeTab(MainRegistry.blockTab).setHardness(5.0F).setResistance(10.0F);
+    public static final Block ore_meteor = new BlockMeteorOre().setCreativeTab(MainRegistry.resourceTab).setHardness(5.0F).setResistance(10.0F);
 
     public static final Block meteor_polished = new BlockBase(Material.ROCK, "meteor_polished").setCreativeTab(MainRegistry.blockTab).setHardness(15.0F).setResistance(900.0F);
     public static final Block meteor_brick = new BlockBase(Material.ROCK, "meteor_brick").setCreativeTab(MainRegistry.blockTab).setHardness(15.0F).setResistance(900.0F);
@@ -1343,6 +1343,10 @@ public class ModBlocks {
     public static final Block fwatz_core = new FWatzCore(Material.IRON, "fwatz_core");
     public static final Block fwatz_plasma = new BlockPlasma(Material.IRON, "fwatz_plasma").setHardness(5.0F).setResistance(6000.0F).setLightLevel(1.0F).setCreativeTab(MainRegistry.machineTab);
 
+    //AMS
+    public static final int guiID_ams_emitter = 124;
+    public static final Block ams_emitter = new BlockAMSEmitter(Material.IRON, "ams_emitter").setHardness(5.0F).setResistance(100.0F).setCreativeTab(MainRegistry.machineTab);
+
     //DFC
     public static final Block dfc_emitter = new CoreComponent(Material.IRON, "dfc_emitter").setHardness(5.0F).setResistance(10.0F).setCreativeTab(MainRegistry.machineTab);
     public static final Block dfc_injector = new CoreComponent(Material.IRON, "dfc_injector").setHardness(5.0F).setResistance(10.0F).setCreativeTab(MainRegistry.machineTab);
@@ -1540,6 +1544,8 @@ public class ModBlocks {
 
     public static final Block dummy_block_uf6 = new DummyBlockMachine(Material.IRON, "dummy_block_uf6", false, guiID_uf6_tank, machine_uf6_tank).setHardness(5.0F).setResistance(10.0F).setCreativeTab(null);
     public static final Block dummy_block_puf6 = new DummyBlockMachine(Material.IRON, "dummy_block_puf6", false, guiID_puf6_tank, machine_puf6_tank).setHardness(5.0F).setResistance(10.0F).setCreativeTab(null);
+    public static final Block dummy_block_ams_emitter = new DummyBlockMachine(Material.IRON, "dummy_block_ams_emitter", false, guiID_ams_emitter, ams_emitter).setHardness(5.0F).setResistance(10.0F).setCreativeTab(null);
+    public static final Block dummy_port_ams_emitter = new DummyBlockMachine(Material.IRON, "dummy_port_ams_emitter", true, guiID_ams_emitter, ams_emitter).setHardness(5.0F).setResistance(10.0F).setCreativeTab(null);
 
     //Unused
     //Th3_Sl1ze: name me ONE reason we're keeping these then
@@ -1563,11 +1569,11 @@ public class ModBlocks {
     public static final Block pink_double_slab = new BlockGenericSlab(Material.WOOD, pink_slab, "pink_double_slab").setSoundType(SoundType.WOOD).setCreativeTab(null);
     public static final Block pink_stairs = new BlockGenericStairs(pink_planks, "pink_stairs").setSoundType(SoundType.WOOD).setCreativeTab(null);
 
-    public static final Block wand_air = new BlockWand("wand_air", Blocks.AIR);
-    public static final Block wand_loot = new BlockWandLoot("wand_loot");
-    public static final Block wand_jigsaw = new BlockWandJigsaw("wand_jigsaw");
-    public static final Block wand_logic = new BlockWandLogic("wand_logic");
-    public static final Block wand_tandem = new BlockWandTandem("wand_tandem");
+    public static final Block wand_air = new BlockWand("wand_air", Blocks.AIR).setCreativeTab(null);
+    public static final Block wand_loot = new BlockWandLoot("wand_loot").setCreativeTab(null);
+    public static final Block wand_jigsaw = new BlockWandJigsaw("wand_jigsaw").setCreativeTab(null);
+    public static final Block wand_logic = new BlockWandLogic("wand_logic").setCreativeTab(null);
+    public static final Block wand_tandem = new BlockWandTandem("wand_tandem").setCreativeTab(null);
 
     public static final Block logic_block = new LogicBlock("logic_block");
 

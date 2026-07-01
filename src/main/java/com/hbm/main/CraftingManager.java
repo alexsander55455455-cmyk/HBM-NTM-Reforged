@@ -73,6 +73,10 @@ public class CraftingManager {
 		NukeRecipes.register();
 		WeaponRecipes.register();
 		EEWeaponRecipes.register();
+		EEPartsRecipes.register();
+		EEBlockRecipes.register();
+		EEWeaponTabRecipes.register();
+		EEConfirmPortRecipes.register();
 		ConsumableRecipes.register();
 		BatteryRecipes.register();
 		PowderRecipes.register();
@@ -787,6 +791,7 @@ public class CraftingManager {
 		addShapelessAuto(new ItemStack(ModItems.rune_thurisaz, 1), ModItems.rune_blank, ModItems.powder_spark_mix, ModItems.black_hole );
 		addRecipeAuto(new ItemStack(ModItems.ams_focus_blank, 1), "PAP", "GBG", "PCP", 'P', ModItems.plate_dineutronium, 'G', ModBlocks.reinforced_glass, 'A', ModItems.rune_thurisaz, 'B', ModItems.hull_big_aluminium, 'C', ModItems.rune_jera);
 		addRecipeAuto(new ItemStack(ModItems.ams_lens, 1), "PFP", "GEG", "PFP", 'P', ModItems.rune_dagaz, 'G', ModItems.ams_focus_blank, 'E', ModItems.upgrade_overdrive_3, 'F', ModItems.fusion_shield_tungsten);
+		addRecipeAuto(new ItemStack(ModItems.ams_muzzle, 1), " L ", "ECE", " D ", 'L', ModItems.ams_lens, 'E', ModItems.component_emitter, 'C', ModItems.crystal_horn, 'D', ModItems.plate_dineutronium);
 		addRecipeAuto(new ItemStack(ModItems.ams_focus_booster, 1), "PFP", "GEG", "PFP", 'P', ModItems.rune_hagalaz, 'G', ModItems.ams_lens, 'E', ModItems.upgrade_screm, 'F', ModItems.fusion_shield_desh);
 		addRecipeAuto(new ItemStack(ModItems.ams_focus_limiter, 1), "PFP", "GEG", "PFP", 'P', ModItems.rune_isa, 'G', ModItems.ams_focus_blank, 'E', ModItems.upgrade_power_3, 'F', ModItems.inf_water_mk4);
 		addRecipeAuto(new ItemStack(ModItems.ams_focus_omega, 1), "PFP", "REG", "PFP", 'P', ModBlocks.dfc_stabilizer, 'R', ModItems.ams_focus_limiter, 'G', ModItems.ams_focus_booster, 'E', ModItems.laser_crystal_digamma, 'F', ModItems.fusion_shield_vaporwave);

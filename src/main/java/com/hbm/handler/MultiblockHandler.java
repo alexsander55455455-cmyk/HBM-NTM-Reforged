@@ -14,6 +14,7 @@ public class MultiblockHandler {
 	//Approved!
 	//pos x, neg x, pos y, neg y, pos z, neg z
 	public static final int[] uf6Dimension  = new int[] { 0, 0, 1, 0, 0, 0 };
+	public static final int[] AMSEmitterDimension  = new int[] { 2, 2, 5, 0, 2, 2 };
 	
 	//Approved!
 	public static boolean checkSpace(World world, BlockPos pos, int[] i) {

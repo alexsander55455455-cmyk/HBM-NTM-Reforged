@@ -65,12 +65,14 @@ public class DummyBlockMachine extends DummyOldBase {
 	
 	@Override
 	public void breakBlock(World world, BlockPos pos, IBlockState state) {
+		if(!safeBreak) {
     		TileEntity te = world.getTileEntity(pos);
     		if(te != null && te instanceof TileEntityDummy) {
     		
     			if(!world.isRemote)
     				world.destroyBlock(((TileEntityDummy)te).target, true);
     		}
+    	}
     	world.removeTileEntity(pos);
 	}
 	

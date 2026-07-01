@@ -14,6 +14,7 @@ import com.hbm.blocks.generic.TrappedBrick;
 import com.hbm.blocks.machine.BlockSeal;
 import com.hbm.blocks.machine.rbmk.RBMKDebrisRadiating;
 import com.hbm.command.CommandRadVisClient;
+
 import com.hbm.config.GeneralConfig;
 import com.hbm.entity.grenade.*;
 import com.hbm.entity.grenade.IGenericGrenade;
@@ -164,6 +165,7 @@ public class ClientProxy extends ServerProxy {
 
     @Override
     public void init(FMLInitializationEvent evt) {
+        com.hbm.creativetabs.CreativeTabSortOrder.logLoadHealth();
         FluidFogHandler.init();
         ((IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager()).registerReloadListener(new QMAWLoader());
         // All previous color handler registrations here have been moved to ModEventHandlerClient#itemColorsEvent
@@ -415,6 +417,7 @@ public class ClientProxy extends ServerProxy {
         registerItemRenderer(ModItems.gun_mp40, new com.hbm.render.item.weapon.ItemRenderMP40());
         registerItemRenderer(ModItems.gun_karl, new com.hbm.render.item.weapon.ItemRenderRpg());
         registerItemRenderer(ModItems.gun_proto, new com.hbm.render.item.weapon.ItemRenderFatMan());
+        registerItemRenderer(ModItems.gun_fatman, new com.hbm.render.item.weapon.ItemRenderFatMan());
         registerItemRenderer(ModItems.gun_mirv, new com.hbm.render.item.weapon.ItemRenderMIRVLauncher());
         registerItemRenderer(ModItems.gun_bf, new com.hbm.render.item.weapon.ItemRenderBFLauncher());
         registerItemRenderer(ModItems.gun_osipr, new com.hbm.render.item.weapon.ItemRenderOSIPR());

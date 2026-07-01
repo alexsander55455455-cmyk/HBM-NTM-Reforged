@@ -37,6 +37,8 @@ import com.hbm.render.icon.RegistrationUtils;
 import com.hbm.render.item.BakedModelCustom;
 import com.hbm.render.item.BakedModelNoFPV;
 import com.hbm.render.item.FancyMissingModelPerspective;
+import com.hbm.render.item.FluidTankLeadBakedModel;
+import com.hbm.render.item.FluidTankLeadRender;
 import com.hbm.render.item.TEISRBase;
 import com.hbm.render.item.WrappedTEISRModel;
 import com.hbm.render.item.weapon.B92BakedModel;
@@ -46,6 +48,7 @@ import com.hbm.render.item.weapon.ItemRenderRedstoneSword;
 import com.hbm.render.tileentity.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDoor;
+import net.minecraft.block.BlockPlanks;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -63,6 +66,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemLeaves;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.IRegistry;
@@ -117,6 +121,8 @@ public class NTMClientRegistry {
         bindTeisrs(ItemRendererProviderRegistry.getItemProviders());
         // IItemRendererProvider is not applicable to Render<T extends Entity>
         bindTeisr(Item.getItemFromBlock(ModBlocks.boat), new RenderBoat.BoatItemRenderer());
+        bindTeisr(ModItems.fluid_tank_lead_full, FluidTankLeadRender.INSTANCE);
+        bindTeisr(ModItems.fluid_tank_lead_v2, FluidTankLeadRender.INSTANCE);
         MainRegistry.proxy.registerMissileItems(null);
     }
 
@@ -176,7 +182,6 @@ public class NTMClientRegistry {
         registerNormalStateMapper(ModBlocks.sliding_blast_door);
         registerNormalStateMapper(ModBlocks.sliding_blast_door_2);
         registerNormalStateMapper(ModBlocks.sliding_blast_door_keypad);
-        registerNormalStateMapper(ModBlocks.sliding_blast_door_legacy);
         registerNormalStateMapper(ModBlocks.sliding_gate_door);
         registerNormalStateMapper(ModBlocks.sliding_seal_door);
         registerNormalStateMapper(ModBlocks.small_hatch);
@@ -286,7 +291,6 @@ public class NTMClientRegistry {
             return 0xFFFFFF;
         }, ModItems.icf_pellet);
         evt.getItemColors().registerItemColorHandler(fluidMetaHandler, ModItems.fluid_tank_full);
-        evt.getItemColors().registerItemColorHandler(fluidMetaHandler, ModItems.fluid_tank_lead_full);
         evt.getItemColors().registerItemColorHandler(fluidMetaHandler, ModItems.fluid_barrel_full);
         evt.getItemColors().registerItemColorHandler(fluidMetaHandler, ModItems.disperser_canister);
         evt.getItemColors().registerItemColorHandler(fluidMetaHandler, ModItems.glyphid_gland);
@@ -600,6 +604,11 @@ public class NTMClientRegistry {
             }
         } else if (item == ModItems.fluid_identifier_multi) {
             ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(item.getRegistryName(), "inventory"));
+        } else if (item instanceof ItemLeaves leaf && leaf.getBlock() == ModBlocks.waste_leaves) {
+            for (BlockPlanks.EnumType type : BlockPlanks.EnumType.values()) {
+                ModelLoader.setCustomModelResourceLocation(leaf, type.getMetadata(),
+                        new ModelResourceLocation(Tags.MODID + ":waste_leaves_" + type.getName(), "inventory"));
+            }
         } else if (item instanceof IHasCustomModel) {
             ModelLoader.setCustomModelResourceLocation(item, meta, ((IHasCustomModel) item).getResourceLocation());
         } else if (item instanceof IDynamicModels && IDynamicModels.INSTANCES.contains(item)) { // we are literally registering them manually, why do it twice?..
@@ -644,6 +653,14 @@ public class NTMClientRegistry {
         registry.putObject(RedstoneSword.rsModel, new ItemRenderRedstoneSword());
         ItemRenderGunAnim.INSTANCE.b92ItemModel = registry.getObject(GunB92.b92Model);
         registry.putObject(GunB92.b92Model, new B92BakedModel());
+
+        ModelResourceLocation leadTankModel = new ModelResourceLocation(new ResourceLocation(Tags.MODID, "items/fluid_tank_lead_full"), "inventory");
+        IBakedModel leadTankBaked = registry.getObject(leadTankModel);
+        if (leadTankBaked != null) {
+            FluidTankLeadRender.INSTANCE.itemModel = leadTankBaked;
+            registry.putObject(leadTankModel, new FluidTankLeadBakedModel());
+        }
+
         wrapAllTeisrModels(registry);
     }
 
