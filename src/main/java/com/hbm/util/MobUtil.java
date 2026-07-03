@@ -86,10 +86,10 @@ public class MobUtil {
                 {ModItems.gun_light_revolver, 6}, {ModItems.gun_greasegun, 8}, {ModItems.gun_maresleg, 4}, {ModItems.gun_henry, 6}
         }));
         slotPoolGuns.put(3D, createSlotPool(new Object[][]{
-                {ModItems.gun_uzi, 10}, {ModItems.gun_maresleg, 8}, {ModItems.gun_henry, 12}, {ModItems.gun_heavy_revolver, 4}, {ModItems.gun_flaregun, 2}
+                {ModItems.gun_uzi_sedna, 10}, {ModItems.gun_maresleg, 8}, {ModItems.gun_henry, 12}, {ModItems.gun_heavy_revolver, 4}, {ModItems.gun_flaregun, 2}
         }));
         slotPoolGuns.put(5D, createSlotPool(new Object[][]{
-                {ModItems.gun_am180, 6}, {ModItems.gun_uzi, 10}, {ModItems.gun_spas12, 8}, {ModItems.gun_henry_lincoln, 2}, {ModItems.gun_heavy_revolver, 12}, {ModItems.gun_flaregun, 4}, {ModItems.gun_flamer, 2}
+                {ModItems.gun_am180, 6}, {ModItems.gun_uzi_sedna, 10}, {ModItems.gun_spas12, 8}, {ModItems.gun_henry_lincoln, 2}, {ModItems.gun_heavy_revolver, 12}, {ModItems.gun_flaregun, 4}, {ModItems.gun_flamer_sedna, 2}
         }));
 
         slotPoolAdv.put(4, createSlotPool(new Object[][]{
@@ -126,11 +126,11 @@ public class MobUtil {
         }));
 
         slotPoolGunsTier2.put(0, createSlotPool(0, new Object[][]{
-                {ModItems.gun_uzi, 10}, {ModItems.gun_maresleg, 8}, {ModItems.gun_henry, 12}, {ModItems.gun_heavy_revolver, 4}, {ModItems.gun_flaregun, 4}, {ModItems.gun_carbine, 4}
+                {ModItems.gun_uzi_sedna, 10}, {ModItems.gun_maresleg, 8}, {ModItems.gun_henry, 12}, {ModItems.gun_heavy_revolver, 4}, {ModItems.gun_flaregun, 4}, {ModItems.gun_carbine, 4}
         }));
 
         slotPoolGunsTier3.put(0, createSlotPool(0, new Object[][]{
-                {ModItems.gun_uzi, 25}, {ModItems.gun_spas12, 20}, {ModItems.gun_carbine, 20}, {ModItems.gun_g3, 10}, {ModItems.gun_am180, 5}, {ModItems.gun_stg77, 5}
+                {ModItems.gun_uzi_sedna, 25}, {ModItems.gun_spas12, 20}, {ModItems.gun_carbine, 20}, {ModItems.gun_g3, 10}, {ModItems.gun_am180, 5}, {ModItems.gun_stg77, 5}
         }));
 
         slotPoolMasks.put(4, createSlotPool(0, new Object[][]{

@@ -298,7 +298,7 @@ public class LogicBlockActions {
 			world.addWeatherEffect(blitz);
 
 			TileEntityCrateBase crate = (TileEntityCrateBase) world.getTileEntity(pos);
-			((IInventory) crate).setInventorySlotContents(15, new ItemStack(ModItems.gun_bolter));
+			((IInventory) crate).setInventorySlotContents(15, new ItemStack(ModItems.gun_bolter_sedna));
 		}
 	};
 
