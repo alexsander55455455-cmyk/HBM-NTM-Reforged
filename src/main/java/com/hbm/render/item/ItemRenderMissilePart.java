@@ -2,6 +2,7 @@ package com.hbm.render.item;
 
 import com.hbm.render.misc.MissilePart;
 import net.minecraft.client.Minecraft;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import org.lwjgl.opengl.GL11; import net.minecraft.client.renderer.GlStateManager;
 
@@ -11,6 +12,11 @@ public class ItemRenderMissilePart extends TEISRBase {
 	
 	public ItemRenderMissilePart(MissilePart part) { 
 		this.part = part;
+	}
+
+	@Override
+	public ModelBinding createModelBinding(Item item) {
+		return bindingFullTeisr(item);
 	}
 	
 	@Override

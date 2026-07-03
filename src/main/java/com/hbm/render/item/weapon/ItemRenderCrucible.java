@@ -28,8 +28,10 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
+import net.minecraft.world.World;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector4f;
@@ -43,6 +45,11 @@ public class ItemRenderCrucible extends TEISRBase {
     public static float lastY = 0;
     public static Vec3d playerPos;
     private static DoubleBuffer buf = null;
+
+    @Override
+    public ModelBinding createModelBinding(Item item) {
+        return bindingFullTeisr(item);
+    }
 
     @Override
     public void renderByItem(ItemStack itemStackIn) {
@@ -131,8 +138,11 @@ public class ItemRenderCrucible extends TEISRBase {
                             int[] particleFrames = {13, 14, 15, 16, 17, 18, 19, 20};
                             if (currentFrame <= 20) for (int f : particleFrames) {
                                 if (currentFrame >= f && prevFrame < f) {
-                                    for (int i = 0; i < 50; i++)
-                                        ModEventHandlerClient.firstPersonAuxParticles.add(new ParticleCrucibleSpark(world, 2, 0.0025F, 0, (world.rand.nextFloat() - 0.5F) * 0.2F, 0.6F - world.rand.nextFloat() * 0.75F, 0, 0, -0.01F * world.rand.nextFloat()).lifetime(6 + (int) world.rand.nextGaussian() * 10));
+                                    World particleWorld = world != null ? world : Minecraft.getMinecraft().world;
+                                    if (particleWorld != null) {
+                                        for (int i = 0; i < 50; i++)
+                                            ModEventHandlerClient.firstPersonAuxParticles.add(new ParticleCrucibleSpark(particleWorld, 2, 0.0025F, 0, (particleWorld.rand.nextFloat() - 0.5F) * 0.2F, 0.6F - particleWorld.rand.nextFloat() * 0.75F, 0, 0, -0.01F * particleWorld.rand.nextFloat()).lifetime(6 + (int) particleWorld.rand.nextGaussian() * 10));
+                                    }
                                 }
                             }
 

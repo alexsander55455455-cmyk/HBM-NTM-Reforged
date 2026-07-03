@@ -36,6 +36,7 @@ public class ItemRenderXVL1456 extends TEISRBase {
 
 	@Override
 	public void renderByItem(ItemStack stack) {
+		GL11.glPopMatrix();
 		GlStateManager.enableCull();
 		Minecraft.getMinecraft().getTextureManager().bindTexture(TEXTURE);
 
@@ -107,5 +108,6 @@ public class ItemRenderXVL1456 extends TEISRBase {
 		default:
 			break;
 		}
+		GL11.glPushMatrix();
 	}
 }

@@ -20,7 +20,8 @@ public class ItemRenderMP extends TEISRBase {
 
 	@Override
 	public ModelBinding createModelBinding(Item item) {
-		return ModelBinding.inventoryWithGuiModel(item, BakedModelTransforms.defaultItemTransforms());
+		return ModelBinding.inventoryWithGuiModel(item, BakedModelTransforms.defaultItemTransforms(),
+				new ResourceLocation(Tags.MODID, "items/gun_pm"));
 	}
 
 	@Override

@@ -5,12 +5,18 @@ import com.hbm.items.weapon.ItemCustomMissile;
 import com.hbm.render.misc.MissileMultipart;
 import com.hbm.render.misc.MissilePronter;
 import net.minecraft.client.Minecraft;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import org.lwjgl.opengl.GL11;
 import net.minecraft.client.renderer.GlStateManager;
 
 @AutoRegister(item = "missile_custom")
 public class ItemRenderMissile extends TEISRBase {
+
+    @Override
+    public ModelBinding createModelBinding(Item item) {
+        return bindingFullTeisr(item);
+    }
 
     @Override
     public void renderByItem(ItemStack item) {

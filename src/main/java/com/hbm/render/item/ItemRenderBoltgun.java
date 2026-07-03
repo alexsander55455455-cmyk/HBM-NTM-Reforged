@@ -7,6 +7,7 @@ import com.hbm.render.util.ViewModelPositonDebugger;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import org.lwjgl.opengl.GL11; import net.minecraft.client.renderer.GlStateManager;
@@ -37,6 +38,15 @@ public class ItemRenderBoltgun extends TEISRBase {
     ViewModelPositonDebugger.offset corrections = new ViewModelPositonDebugger.offset(offsets)
             .setRotation(0, 5, 0);
 
+    @Override
+    public ModelBinding createModelBinding(Item item) {
+        return bindingFullTeisr(item);
+    }
+
+    @Override
+    public boolean useRegistryPerspective(Item item) {
+        return true;
+    }
 
     @Override
     public void renderByItem(ItemStack itemStackIn) {
@@ -72,7 +82,7 @@ public class ItemRenderBoltgun extends TEISRBase {
         }
 
         ResourceManager.boltgun.renderPart("Gun");
-        if (type != type.FIRST_PERSON_RIGHT_HAND && type != type.FIRST_PERSON_LEFT_HAND) {
+        if (type != TransformType.FIRST_PERSON_RIGHT_HAND && type != TransformType.FIRST_PERSON_LEFT_HAND) {
             ResourceManager.boltgun.renderPart("Barrel");
         }
         GlStateManager.shadeModel(GL11.GL_FLAT);

@@ -14,6 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
@@ -21,6 +22,11 @@ import org.lwjgl.opengl.GL11;
 
 @AutoRegister(item = "grenade_universal")
 public class ItemRenderGrenade extends TEISRBase {
+
+    @Override
+    public ModelBinding createModelBinding(Item item) {
+        return bindingFullTeisr(item);
+    }
 
     @Override
     public void renderByItem(ItemStack stack) {

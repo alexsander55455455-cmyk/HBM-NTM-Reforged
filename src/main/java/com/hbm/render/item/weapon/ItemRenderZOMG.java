@@ -25,6 +25,7 @@ public class ItemRenderZOMG extends TEISRBase {
 
     @Override
     public void renderByItem(ItemStack stack) {
+        GL11.glPopMatrix();
         GlStateManager.enableRescaleNormal();
         GlStateManager.disableCull();
         Minecraft.getMinecraft().getTextureManager().bindTexture(TEXTURE);
@@ -62,6 +63,7 @@ public class ItemRenderZOMG extends TEISRBase {
             }
         } finally {
             GlStateManager.enableCull();
+            GL11.glPushMatrix();
         }
     }
 }

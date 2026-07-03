@@ -9,7 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 import org.lwjgl.opengl.GL11;
-@AutoRegister(item = "gun_panzerschreck")
+@AutoRegister(item = "gun_panzerschreck_sedna")
 public class ItemRenderPanzerschreck extends ItemRenderWeaponBase {
 
 	@Override

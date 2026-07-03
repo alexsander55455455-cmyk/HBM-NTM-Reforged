@@ -10,7 +10,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.item.ItemStack;
 import org.lwjgl.opengl.GL11;
-@AutoRegister(item = "gun_uzi")
+@AutoRegister(item = "gun_uzi_sedna")
 public class ItemRenderUzi extends ItemRenderWeaponBase {
 
     @Override

@@ -1,63 +1,106 @@
 package com.hbm.render.item.weapon;
 
+import org.lwjgl.opengl.GL11;
+
 import com.hbm.Tags;
 import com.hbm.items.ModItems;
+import com.hbm.items.weapon.ItemGunBase;
 import com.hbm.render.item.TEISRBase;
-import com.hbm.render.model.BakedModelTransforms;
 import com.hbm.render.model.ModelGustav;
+import com.hbm.render.model.ModelPanzerschreck;
+
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import org.lwjgl.opengl.GL11;
 
 public class ItemRenderRpg extends TEISRBase {
 
-    private static final ResourceLocation GUSTAV_TEXTURE = new ResourceLocation(Tags.MODID, "textures/models/weapons/modelgustav.png");
-    private static final ResourceLocation KARL_TEXTURE = new ResourceLocation(Tags.MODID, "textures/models/weapons/modelgustavyellow.png");
+	protected ModelGustav swordModel;
+	protected ModelPanzerschreck panz;
 
-    private final ModelGustav model = new ModelGustav();
+	protected static ResourceLocation gustav_rl = new ResourceLocation(Tags.MODID, "textures/models/weapons/modelgustav.png");
+	protected static ResourceLocation karl_rl = new ResourceLocation(Tags.MODID, "textures/models/weapons/modelgustavyellow.png");
+	protected static ResourceLocation panzer_rl = new ResourceLocation(Tags.MODID, "textures/models/weapons/modelpanzerschreck.png");
 
-    @Override
-    public ModelBinding createModelBinding(Item item) {
-        return ModelBinding.inventoryWithGuiModel(item, BakedModelTransforms.defaultItemTransforms());
-    }
+	public ItemRenderRpg() {
+		swordModel = new ModelGustav();
+		panz = new ModelPanzerschreck();
+	}
 
-    @Override
-    public void renderByItem(ItemStack stack) {
-        GlStateManager.enableCull();
-        Minecraft.getMinecraft().getTextureManager().bindTexture(stack.getItem() == ModItems.gun_karl ? KARL_TEXTURE : GUSTAV_TEXTURE);
+	@Override
+	public void renderByItem(ItemStack item) {
+		GL11.glPopMatrix();
+		if(item.getItem() == ModItems.gun_rpg)
+			Minecraft.getMinecraft().renderEngine.bindTexture(gustav_rl);
+		if(item.getItem() == ModItems.gun_karl)
+			Minecraft.getMinecraft().renderEngine.bindTexture(karl_rl);
+		if(item.getItem() == ModItems.gun_panzerschreck)
+			Minecraft.getMinecraft().renderEngine.bindTexture(panzer_rl);
 
-        switch (type) {
-            case FIRST_PERSON_LEFT_HAND:
-                GL11.glTranslated(-1.5D, 0.0D, 0.5D);
-            case FIRST_PERSON_RIGHT_HAND:
-                GL11.glScaled(0.75D, 0.75D, 0.75D);
-                GL11.glTranslated(1.0D, -0.5D, 0.1D);
-                GL11.glRotated(180.0D, 1.0D, 0.0D, 0.0D);
-                GL11.glRotated(20.0D, 0.0D, 0.0D, 1.0D);
-                if (type == TransformType.FIRST_PERSON_LEFT_HAND) {
-                    GL11.glRotated(180.0D, 0.0D, 1.0D, 0.0D);
-                    GL11.glRotated(40.0D, 0.0D, 0.0D, 1.0D);
-                    GL11.glRotated(-10.0D, 0.0D, 1.0D, 0.0D);
-                }
-                GL11.glTranslatef(0.0F, -0.1F, -0.4F);
-                model.render(null, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F);
-                break;
-            case THIRD_PERSON_LEFT_HAND:
-            case THIRD_PERSON_RIGHT_HAND:
-            case HEAD:
-            case FIXED:
-            case GROUND:
-                GL11.glTranslated(0.0D, -0.25D, 1.0D);
-                GL11.glRotated(180.0D, 0.0D, 0.0D, 1.0D);
-                GL11.glRotated(-90.0D, 0.0D, 1.0D, 0.0D);
-                model.render(null, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F);
-                break;
-            default:
-                break;
-        }
-    }
+		boolean aiming = ItemGunBase.isAimingForRender(item);
+
+		switch(type){
+		case FIRST_PERSON_LEFT_HAND:
+			GL11.glTranslated(-1.5, 0.0, 0.5);
+		case FIRST_PERSON_RIGHT_HAND:
+			GL11.glScaled(0.75, 0.75, 0.75);
+			if(item.getItem() == ModItems.gun_panzerschreck) {
+				GL11.glTranslated(0, 0.2, 0);
+				if(aiming && type == TransformType.FIRST_PERSON_RIGHT_HAND){
+					GL11.glTranslated(0.5, 0.1, 0.82);
+				}
+			}
+			GL11.glTranslated(1, -0.5, 0.1);
+			GL11.glRotated(180, 1, 0, 0);
+			GL11.glRotated(20, 0, 0, 1);
+			if(type == TransformType.FIRST_PERSON_LEFT_HAND){
+				GL11.glRotated(180, 0, 1, 0);
+				GL11.glRotated(40, 0, 0, 1);
+				GL11.glRotated(-10, 0, 1, 0);
+			}
+
+			if(item.getItem() == ModItems.gun_panzerschreck) {
+				GL11.glScalef(1.5F, 1.5F, 1.5F);
+				if(aiming){
+					GL11.glRotated(10, 0, 0, 1);
+				}
+			} else {
+				GL11.glTranslatef(0F, -0.1F, -0.4F);
+			}
+
+			if(item.getItem() == ModItems.gun_rpg)
+				swordModel.render(null, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F);
+			if(item.getItem() == ModItems.gun_karl)
+				swordModel.render(null, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F);
+			if(item.getItem() == ModItems.gun_panzerschreck)
+				panz.render(null, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F);
+			break;
+		case THIRD_PERSON_LEFT_HAND:
+		case THIRD_PERSON_RIGHT_HAND:
+		case HEAD:
+		case FIXED:
+		case GROUND:
+
+			if(item.getItem() == ModItems.gun_panzerschreck){
+				GL11.glScaled(1.7, 1.7, 1.7);
+				GL11.glTranslated(0, 0.2, -0.5);
+			}
+			GL11.glTranslated(0.0, -0.25, 1.0);
+
+			GL11.glRotated(180, 0, 0, 1);
+			GL11.glRotated(-90, 0, 1, 0);
+
+			if(item.getItem() == ModItems.gun_rpg)
+				swordModel.render(null, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F);
+			if(item.getItem() == ModItems.gun_karl)
+				swordModel.render(null, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F);
+			if(item.getItem() == ModItems.gun_panzerschreck)
+				panz.render(null, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F);
+			break;
+		default:
+			break;
+		}
+		GL11.glPushMatrix();
+	}
 }

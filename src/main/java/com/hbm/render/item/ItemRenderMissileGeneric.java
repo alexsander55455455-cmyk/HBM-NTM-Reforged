@@ -8,6 +8,7 @@ import com.hbm.util.RenderUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
@@ -37,6 +38,11 @@ public class ItemRenderMissileGeneric extends TEISRBase {
 	
 	public ItemRenderMissileGeneric(RenderMissileType category) {
 		this.category = category;
+	}
+
+	@Override
+	public ModelBinding createModelBinding(Item item) {
+		return bindingFullTeisr(item);
 	}
 
 	@Override

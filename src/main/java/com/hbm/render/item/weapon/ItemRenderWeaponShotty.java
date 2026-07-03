@@ -3,16 +3,18 @@ package com.hbm.render.item.weapon;
 import com.hbm.Tags;
 import com.hbm.animloader.AnimationWrapper;
 import com.hbm.config.GeneralConfig;
+import com.hbm.items.weapon.ItemGunBase;
 import com.hbm.interfaces.AutoRegister;
 import com.hbm.main.ResourceManager;
+import com.hbm.render.model.BakedModelTransforms;
 import com.hbm.render.anim.HbmAnimations;
 import com.hbm.render.item.TEISRBase;
-import com.hbm.render.model.BakedModelTransforms;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
@@ -22,7 +24,8 @@ public class ItemRenderWeaponShotty extends TEISRBase {
 
 	@Override
 	public ModelBinding createModelBinding(Item item) {
-		return ModelBinding.inventoryWithGuiModel(item, BakedModelTransforms.defaultItemTransforms(), new ResourceLocation(Tags.MODID, "items/gun_uboinik"));
+		return ModelBinding.inventoryWithGuiModel(item, BakedModelTransforms.defaultItemTransforms(),
+				new ResourceLocation(Tags.MODID, "items/gun_uboinik"));
 	}
 
 	@Override
@@ -44,12 +47,6 @@ public class ItemRenderWeaponShotty extends TEISRBase {
 					GlStateManager.translate(0, -7, -0.6);
 					double[] recoil = HbmAnimations.getRelevantTransformation("MEATHOOK_RECOIL", EnumHand.MAIN_HAND);
 					GlStateManager.translate(recoil[2], recoil[1], 0);
-					if(this.entity != null && this.entity.isSneaking()) {
-						GlStateManager.translate(0, 0.20, 0.43);
-						GL11.glRotated(-4, 1, 0, 0);
-						GL11.glRotated(5, 0, 1, 0);
-						GL11.glRotated(-4, 0, 0, 1);
-					}
 					GL11.glRotated(4, 1, 0, 0);
 					GlStateManager.rotate(-23F, 0.0F, 0.0F, 1.0F);
 					GlStateManager.rotate(175F, 0.0F, 1.0F, 0.0F);
@@ -83,7 +80,7 @@ public class ItemRenderWeaponShotty extends TEISRBase {
 				GlStateManager.rotate(175F, 0.0F, 1.0F, 0.0F);
 				GL11.glScaled(2, 2, 2);
 				
-				if(entity.isSneaking()) {
+				if(ItemGunBase.isAimingForRender(item)) {
 					GlStateManager.translate(0F, 1.0F, -1.8F);
 					GlStateManager.rotate(3.5F, 0.0F, 1.0F, 0.0F);
 				} else {

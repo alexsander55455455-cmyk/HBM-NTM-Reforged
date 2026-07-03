@@ -12,7 +12,7 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.item.ItemStack;
 import org.lwjgl.opengl.GL11;
 
-@AutoRegister(item = "gun_bolter")
+@AutoRegister(item = "gun_bolter_sedna")
 public class ItemRenderBolter extends ItemRenderWeaponBase {
 
     @Override

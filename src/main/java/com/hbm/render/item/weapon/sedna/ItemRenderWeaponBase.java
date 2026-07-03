@@ -246,7 +246,7 @@ public abstract class ItemRenderWeaponBase extends TEISRBase {
 
     public void setupFirstPerson(ItemStack stack) {
         GlStateManager.translate(0, 0, 1);
-        if (Minecraft.getMinecraft().player.isSneaking()) {
+        if (ItemGunBaseNT.getIsAiming(stack)) {
             GlStateManager.translate(0, -3.875 / 8D, 0);
         } else {
             float offset = 0.8F;

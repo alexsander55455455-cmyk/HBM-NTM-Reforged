@@ -11,6 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.Vec3d;
@@ -18,6 +19,11 @@ import org.lwjgl.opengl.GL11;
 
 @AutoRegister(item = "hs_sword")
 public class ItemRenderHSSword extends TEISRBase {
+
+    @Override
+    public ModelBinding createModelBinding(Item item) {
+        return bindingFullTeisr(item);
+    }
 
     @Override
     public void renderByItem(ItemStack itemStackIn) {

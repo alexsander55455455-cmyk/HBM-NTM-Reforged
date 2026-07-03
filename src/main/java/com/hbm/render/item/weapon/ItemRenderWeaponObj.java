@@ -2,6 +2,7 @@ package com.hbm.render.item.weapon;
 
 import com.hbm.Tags;
 import com.hbm.items.ModItems;
+import com.hbm.items.weapon.ItemGunBase;
 import com.hbm.main.ResourceManager;
 import com.hbm.render.anim.HbmAnimations;
 import com.hbm.render.item.TEISRBase;
@@ -19,14 +20,20 @@ public class ItemRenderWeaponObj extends TEISRBase {
 
     @Override
     public ModelBinding createModelBinding(Item item) {
-        if (item == ModItems.gun_ks23 || item == ModItems.gun_flechette) {
-            return ModelBinding.inventoryWithGuiModel(item, BakedModelTransforms.defaultItemTransforms(), new ResourceLocation(Tags.MODID, "items/gun_uboinik"));
+        if (item == ModItems.gun_hk69 || item == ModItems.gun_ks23 || item == ModItems.gun_flechette) {
+            return bindingFullTeisr(item);
         }
-        return ModelBinding.inventoryWithGuiModel(item, BakedModelTransforms.defaultItemTransforms());
+        return binding2dGui(item);
+    }
+
+    @Override
+    public boolean useRegistryPerspective(Item item) {
+        return item == ModItems.gun_hk69 || item == ModItems.gun_ks23 || item == ModItems.gun_flechette;
     }
 
     @Override
     public void renderByItem(ItemStack stack) {
+        GL11.glPopMatrix();
         GlStateManager.enableRescaleNormal();
 
         Item item = stack.getItem();
@@ -82,7 +89,7 @@ public class ItemRenderWeaponObj extends TEISRBase {
                     // type is FIRST_PERSON_RIGHT_HAND
                     if (item == ModItems.gun_hk69) {
                         GL11.glTranslated(-1.0D, 0.0D, -0.2D);
-                        if (entity != null && entity.isSneaking()) {
+                        if (ItemGunBase.isAimingForRender(stack)) {
                             GL11.glTranslated(0.5D, 0.2D, 1.14D);
                             GL11.glRotated(5.0D, 0.0D, 1.0D, 0.0D);
                         }
@@ -91,7 +98,7 @@ public class ItemRenderWeaponObj extends TEISRBase {
                         GL11.glRotated(-5.0D, 0.0D, 1.0D, 0.0D);
                     } else if (item == ModItems.gun_deagle) {
                         GL11.glTranslated(0.0D, 0.0D, 0.2D);
-                        if (entity != null && entity.isSneaking()) {
+                        if (ItemGunBase.isAimingForRender(stack)) {
                             GL11.glTranslated(0.0D, 0.2D, 0.72D);
                             GL11.glRotated(10.0D, 0.0D, 1.0D, 0.0D);
                         }
@@ -100,7 +107,7 @@ public class ItemRenderWeaponObj extends TEISRBase {
                         GL11.glScaled(0.2D, 0.2D, 0.2D);
                     } else if (item == ModItems.gun_ks23 || item == ModItems.gun_sauer) {
                         GL11.glTranslated(-0.1D, 0.3D, 0.4D);
-                        if (entity != null && entity.isSneaking()) {
+                        if (ItemGunBase.isAimingForRender(stack)) {
                             GL11.glTranslated(-0.2D, 0.25D, 0.53D);
                             GL11.glRotated(10.0D, 0.0D, 1.0D, 0.0D);
                         }
@@ -108,7 +115,7 @@ public class ItemRenderWeaponObj extends TEISRBase {
                         GL11.glRotated(-25.0D, 1.0D, 0.0D, 0.0D);
                     } else if (item == ModItems.gun_flamer) {
                         GL11.glTranslated(-0.5D, -0.5D, 0.0D);
-                        if (entity != null && entity.isSneaking()) {
+                        if (ItemGunBase.isAimingForRender(stack)) {
                             GL11.glTranslated(0.0D, 0.15D, 0.53D);
                         }
                         GL11.glRotated(265.0D, 0.0D, 1.0D, 0.0D);
@@ -116,7 +123,7 @@ public class ItemRenderWeaponObj extends TEISRBase {
                         GL11.glScaled(0.5D, 0.5D, 0.5D);
                     } else if (item == ModItems.gun_flechette) {
                         GL11.glTranslated(-0.5D, -1.0D, 0.3D);
-                        if (entity != null && entity.isSneaking()) {
+                        if (ItemGunBase.isAimingForRender(stack)) {
                             GL11.glTranslated(-0.8D, 0.55D, 0.7D);
                             GL11.glRotated(6.0D, 0.0D, 1.0D, 0.0D);
                         }
@@ -223,6 +230,7 @@ public class ItemRenderWeaponObj extends TEISRBase {
         }
 
         GlStateManager.enableLighting();
+        GL11.glPushMatrix();
     }
 
     public void renderFlechette() {

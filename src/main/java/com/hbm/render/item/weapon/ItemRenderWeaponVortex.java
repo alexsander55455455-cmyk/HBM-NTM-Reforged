@@ -7,11 +7,22 @@ import com.hbm.render.item.TEISRBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import org.lwjgl.opengl.GL11;
 @AutoRegister(item = "gun_vortex")
 public class ItemRenderWeaponVortex extends TEISRBase {
+
+	@Override
+	public ModelBinding createModelBinding(Item item) {
+		return bindingFullTeisr(item);
+	}
+
+	@Override
+	public boolean useRegistryPerspective(Item item) {
+		return true;
+	}
 
 	@Override
 	public void renderByItem(ItemStack itemStackIn) {

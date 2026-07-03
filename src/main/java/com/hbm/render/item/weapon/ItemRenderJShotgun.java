@@ -22,6 +22,7 @@ import net.minecraft.client.renderer.GlStateManager.DestFactor;
 import net.minecraft.client.renderer.GlStateManager.SourceFactor;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.Vec3d;
@@ -32,6 +33,16 @@ public class ItemRenderJShotgun extends TEISRBase {
 
 	public static float[] firstPersonFlashlightPos = null;
 	public static Vec3d flashlightDirection;
+
+	@Override
+	public ModelBinding createModelBinding(Item item) {
+		return bindingFullTeisr(item);
+	}
+
+	@Override
+	public boolean useRegistryPerspective(Item item) {
+		return true;
+	}
 
 	@Override
 	public void renderByItem(ItemStack stack) {

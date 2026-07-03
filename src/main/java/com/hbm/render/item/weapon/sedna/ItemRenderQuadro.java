@@ -16,7 +16,7 @@ import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 
-@AutoRegister(item = "gun_quadro")
+@AutoRegister(item = "gun_quadro_sedna")
 public class ItemRenderQuadro extends ItemRenderWeaponBase {
 
     protected static String label = ">> <<";

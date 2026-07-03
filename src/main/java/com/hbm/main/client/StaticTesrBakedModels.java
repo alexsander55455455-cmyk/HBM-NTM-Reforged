@@ -113,9 +113,7 @@ public final class StaticTesrBakedModels {
                     .doubleSided()
                     .worldAngles(180.0D, 0.0D)
                     .translate(0.0F, 0.5F, 0.0F)
-                    .item(3.0F, RAD_90, 0.75F, 0.5F, 0.0F, 0.0F, 0.0F)
-                    .itemAngles(180.0D, 0.0D)
-                    .gui(0.0D, -1.0D, 0.0D, 4.0D),
+                    .withoutInventory(),
             normalSpec(ModBlocks.machine_storage_drum, "models/machines/drum.obj", "models/machines/drum_gray", yawMap().meta(0, 0).build())
                     .item(2.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F)
                     .gui(0.0D, -3.0D, 0.0D, 5.0D),
@@ -248,8 +246,7 @@ public final class StaticTesrBakedModels {
             normalSpec(ModBlocks.plasma_heater, "models/reactors/iter.obj", "models/iter/microwave", yawMap().meta(12, 0).meta(13, 180).meta(14, 90).meta(15, 270).build())
                     .parts("Microwave")
                     .preTranslate(0.0F, 0.0F, 18.0F)
-                    .item(0.5F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 14.0F)
-                    .gui(0.0D, -1.0D, 0.0D, 2.5D, 90.0D),
+                    .withoutInventory(),
             facingSpec(ModBlocks.fluid_pump, "models/network/fluid_diode.obj", "models/network/fluid_diode", yawMap().meta(2, 180).meta(3, 0).meta(4, 270).meta(5, 90).build())
                     .item(2.0F, RAD_90, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F)
                     .gui(0.0D, -2.0D, 0.0D, 5.0D),

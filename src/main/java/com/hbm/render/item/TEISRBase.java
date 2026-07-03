@@ -33,6 +33,16 @@ public class TEISRBase extends TileEntityItemStackRenderer {
 		if (item instanceof ItemBlock) {
 			return ModelBinding.inventory(item, ItemCameraTransforms.DEFAULT);
 		}
+		return binding2dGui(item);
+	}
+
+	/** EE swapModelsNoGui: 2D inventory icon, 3D TEISR in hand. */
+	protected static ModelBinding binding2dGui(Item item) {
+		return ModelBinding.inventoryWithGuiModel(item, BakedModelTransforms.defaultItemTransforms());
+	}
+
+	/** EE swapModels: TEISR everywhere, registry JSON supplies perspective. */
+	protected static ModelBinding bindingFullTeisr(Item item) {
 		return ModelBinding.inventory(item, BakedModelTransforms.defaultItemTransforms());
 	}
 
