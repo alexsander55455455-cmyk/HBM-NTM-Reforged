@@ -56,7 +56,7 @@ public class PedestalRecipes extends SerializableRecipe {
 
         register(new PedestalRecipe(new ItemStack(ModItems.gun_flamer_daybreaker),
                 new OreDictStack(GOLD.plateCast()),	new ComparableStack(ModItems.canned_conserve, 1, EnumFoodType.JIZZ),	new OreDictStack(GOLD.plateCast()),
-                new OreDictStack(P_WHITE.ingot()),	new ComparableStack(ModItems.gun_flamer),								new OreDictStack(P_WHITE.ingot()),
+                new OreDictStack(P_WHITE.ingot()),	new ComparableStack(ModItems.gun_flamer_topaz),						new OreDictStack(P_WHITE.ingot()),
                 new OreDictStack(GOLD.plateCast()),	new ComparableStack(ModItems.stick_dynamite),							new OreDictStack(GOLD.plateCast()))
                 .extra(PedestalExtraCondition.SUN));
 

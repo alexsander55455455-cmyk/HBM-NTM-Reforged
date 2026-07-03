@@ -21,6 +21,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -44,6 +45,7 @@ import java.util.UUID;
 public class ItemCrucible extends ItemSwordCutter implements IPostRender {
 
 	public static boolean doSpecialClick = false;
+	private static final UUID SPEED_MODIFIER = UUID.fromString("CB7E5F9A-376B-4498-935B-2F7F68070635");
 	
 	public ItemCrucible(float damage, double movement, ToolMaterial material, String s) {
 		super(damage, movement, material, s);
@@ -103,6 +105,16 @@ public class ItemCrucible extends ItemSwordCutter implements IPostRender {
 	
 	@Override
 	public void onUpdate(@NotNull ItemStack stack, @NotNull World worldIn, @NotNull Entity entityIn, int itemSlot, boolean isSelected) {
+		if(entityIn instanceof EntityPlayer && !worldIn.isRemote) {
+			EntityPlayer player = (EntityPlayer) entityIn;
+			IAttributeInstance speed = player.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.MOVEMENT_SPEED);
+			speed.removeModifier(SPEED_MODIFIER);
+			if(player.getHeldItemMainhand().getItem() == this) {
+				boolean charged = getCharges(stack) > 0;
+				double bonus = charged ? movement : movement * 0.8D;
+				speed.applyModifier(new AttributeModifier(SPEED_MODIFIER, "Crucible modifier", bonus, 1));
+			}
+		}
 		if(isSelected && worldIn.isRemote && getCharges(stack) > 0 && entityIn instanceof EntityPlayer){
 			updateClient(worldIn, (EntityPlayer) entityIn, itemSlot);
 		}

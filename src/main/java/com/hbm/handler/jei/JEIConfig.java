@@ -514,6 +514,11 @@ public class JEIConfig implements IModPlugin {
         blacklist.addIngredientToBlacklist(new ItemStack(ModBlocks.sliding_blast_door_keypad));
         blacklist.addIngredientToBlacklist(new ItemStack(ModItems.board_copper));
         blacklist.addIngredientToBlacklist(new ItemStack(ModItems.magnet_circular));
+        blacklist.addIngredientToBlacklist(new ItemStack(ModItems.gun_bolter));
+        blacklist.addIngredientToBlacklist(new ItemStack(ModItems.gun_flamer));
+        blacklist.addIngredientToBlacklist(new ItemStack(ModItems.gun_quadro));
+        blacklist.addIngredientToBlacklist(new ItemStack(ModItems.gun_panzerschreck));
+        blacklist.addIngredientToBlacklist(new ItemStack(ModItems.gun_thompson));
 
         for (int i = 0; i < ItemEnums.EnumDepletedRTGMaterial.VALUES.length; i++) {
             blacklist.addIngredientToBlacklist(new ItemStack(ModItems.pellet_rtg_depleted, 1, i));

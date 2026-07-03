@@ -108,7 +108,7 @@ public class ItemPoolsLegacy {
                     weighted(ModItems.circuit, EnumCircuitType.CHIP.ordinal(), 1, 1, 2),
                     weighted(ModItems.gun_kit_1, 0, 1, 3, 6),
                     weighted(ModItems.gun_kit_2, 0, 1, 2, 3),
-                    weighted(ModItems.gun_panzerschreck, 0, 1, 1, 4),
+                    weighted(ModItems.gun_panzerschreck_sedna, 0, 1, 1, 4),
                     weighted(ModItems.ammo_standard, GunFactory.EnumAmmo.ROCKET_HE.ordinal(), 1, 4, 5),
                     weighted(ModItems.ammo_standard, GunFactory.EnumAmmo.G26_FLARE_SUPPLY.ordinal(), 1, 1, 5),
                     weighted(ModItems.ammo_standard, GunFactory.EnumAmmo.G26_FLARE_WEAPON.ordinal(), 1, 1, 3),

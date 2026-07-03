@@ -59,10 +59,13 @@ public class EEWeaponRecipes {
         CraftingManager.addRecipeAuto(new ItemStack(ModItems.gun_bolt_action, 1), "PPI", "SWD", 'P', STEEL.plate(), 'I', ModItems.mechanism_rifle_1, 'S', Items.STICK, 'D', KEY_PLANKS, 'W', new ItemStack(ModItems.wire, 1, Mats.MAT_COPPER.id));
         CraftingManager.addRecipeAuto(new ItemStack(ModItems.gun_bolt_action_green, 1), "PPI", "SWD", 'P', IRON.plate(), 'I', ModItems.mechanism_rifle_1, 'S', Items.STICK, 'D', KEY_PLANKS, 'W', new ItemStack(ModItems.wire, 1, Mats.MAT_COPPER.id));
         CraftingManager.addRecipeAuto(new ItemStack(ModItems.gun_bolt_action_saturnite, 1), "PPI", "SWD", 'P', BIGMT.plate(), 'I', ModItems.mechanism_rifle_1, 'S', Items.STICK, 'D', KEY_PLANKS, 'W', new ItemStack(ModItems.wire, 1, Mats.MAT_TUNGSTEN.id));
+        CraftingManager.addRecipeAuto(new ItemStack(ModItems.gun_uzi, 1), "SMS", " PB", " P ", 'S', STEEL.ingot(), 'M', ModItems.mechanism_rifle_2, 'P', STEEL.plate(), 'B', new ItemStack(ModItems.bolt, 1, Mats.MAT_DURA.id));
+        CraftingManager.addRecipeAuto(new ItemStack(ModItems.gun_minigun, 1), "PIB", "PCM", "PIB", 'P', ModItems.pipes_steel, 'B', STEEL.block(), 'I', ANY_PLASTIC.ingot(), 'C', ModItems.mechanism_rifle_2, 'M', ModItems.motor);
+
         CraftingManager.addRecipeAuto(new ItemStack(ModItems.gun_uzi_silencer, 1), "P  ", " P ", "  U", 'P', ANY_PLASTIC.ingot(), 'U', ModItems.gun_uzi);
         CraftingManager.addRecipeAuto(new ItemStack(ModItems.gun_uzi_saturnite, 1), "SMS", " PB", " P ", 'S', BIGMT.ingot(), 'M', ModItems.mechanism_rifle_2, 'P', BIGMT.plate(), 'B', new ItemStack(ModItems.bolt, 1, Mats.MAT_STEEL.id));
         CraftingManager.addRecipeAuto(new ItemStack(ModItems.gun_uzi_saturnite_silencer, 1), "P  ", " P ", "  U", 'P', ANY_PLASTIC.ingot(), 'U', ModItems.gun_uzi_saturnite);
-        CraftingManager.addRecipeAuto(new ItemStack(ModItems.gun_bolter, 1), "SSM", "PIP", " I ", 'S', BIGMT.plate(), 'I', BIGMT.ingot(), 'M', ModItems.mechanism_special, 'P', ANY_PLASTIC.ingot());
+
         CraftingManager.addRecipeAuto(new ItemStack(ModItems.gun_vortex, 1), "AS ", "SIP", " SC", 'S', ModItems.plate_armor_lunar, 'I', ModItems.gun_xvl1456, 'A', ModItems.levitation_unit, 'P', DictFrame.fromOne(ModItems.circuit, EnumCircuitType.CONTROLLER_ADVANCED), 'C', ModItems.crystal_trixite);
         CraftingManager.addRecipeAuto(new ItemStack(ModItems.gun_revolver_pip, 1), " G ", "SSP", " TI", 'G', KEY_ANYPANE, 'S', STEEL.plate(), 'P', ModItems.mechanism_revolver_2, 'T', new ItemStack(ModItems.wire, 1, Mats.MAT_TUNGSTEN.id), 'I', ANY_PLASTIC.ingot());
         CraftingManager.addRecipeAuto(new ItemStack(ModItems.gun_revolver_nopip, 1), "SSP", " TI", 'S', STEEL.plate(), 'P', ModItems.mechanism_revolver_2, 'T', new ItemStack(ModItems.wire, 1, Mats.MAT_TUNGSTEN.id), 'I', ANY_PLASTIC.ingot());

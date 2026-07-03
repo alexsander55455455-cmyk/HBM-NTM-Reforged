@@ -1307,16 +1307,29 @@ public class ModEventHandlerClient {
 
         boolean m1 = ItemGunBase.m1;
         boolean m2 = ItemGunBase.m2;
+        boolean m3 = ItemGunBase.m3;
         if (!player.getHeldItem(EnumHand.MAIN_HAND).isEmpty()) {
             Item item = player.getHeldItem(EnumHand.MAIN_HAND).getItem();
             if (item instanceof ItemGunBase weapon) {
                 if (event.getButton() == 0)
                     event.setCanceled(true);
 
-                if (event.getButton() == 0 && !m1 && !m2) {
+                if (event.getButton() == 0 && !m1 && !m2 && !m3) {
                     ItemGunBase.m1 = true;
                     PacketDispatcher.wrapper.sendToServer(new GunButtonPacket(true, (byte) 0, EnumHand.MAIN_HAND));
                     weapon.startActionClient(player.getHeldItemMainhand(), player.world, player, true, EnumHand.MAIN_HAND);
+                } else if (weapon.usesRmbAimBinding()) {
+                    if (event.getButton() == 1) {
+                        event.setCanceled(true);
+                        ItemGunBase.setIsAiming(player.getHeldItemMainhand(), event.isButtonstate());
+                    } else if (event.getButton() == 2 && weapon.altConfig != null) {
+                        event.setCanceled(true);
+                        if (event.isButtonstate() && !m3 && !m1) {
+                            ItemGunBase.m3 = true;
+                            PacketDispatcher.wrapper.sendToServer(new GunButtonPacket(true, (byte) 1, EnumHand.MAIN_HAND));
+                            weapon.startActionClient(player.getHeldItemMainhand(), player.world, player, false, EnumHand.MAIN_HAND);
+                        }
+                    }
                 } else if (event.getButton() == 1 && !m2 && !m1) {
                     ItemGunBase.m2 = true;
                     PacketDispatcher.wrapper.sendToServer(new GunButtonPacket(true, (byte) 1, EnumHand.MAIN_HAND));
@@ -1337,10 +1350,22 @@ public class ModEventHandlerClient {
             if (event.getButton() == 0)
                 event.setCanceled(true);
 
-            if (event.getButton() == 0 && !m1 && !m2) {
+            if (event.getButton() == 0 && !m1 && !m2 && !m3) {
                 ItemGunBase.m1 = true;
                 PacketDispatcher.wrapper.sendToServer(new GunButtonPacket(true, (byte) 0, EnumHand.OFF_HAND));
                 item.startActionClient(player.getHeldItemOffhand(), player.world, player, true, EnumHand.OFF_HAND);
+            } else if (item.usesRmbAimBinding()) {
+                if (event.getButton() == 1) {
+                    event.setCanceled(true);
+                    ItemGunBase.setIsAiming(player.getHeldItemOffhand(), event.isButtonstate());
+                } else if (event.getButton() == 2 && item.altConfig != null) {
+                    event.setCanceled(true);
+                    if (event.isButtonstate() && !m3 && !m1) {
+                        ItemGunBase.m3 = true;
+                        PacketDispatcher.wrapper.sendToServer(new GunButtonPacket(true, (byte) 1, EnumHand.OFF_HAND));
+                        item.startActionClient(player.getHeldItemOffhand(), player.world, player, false, EnumHand.OFF_HAND);
+                    }
+                }
             } else if (event.getButton() == 1 && !m2 && !m1) {
                 ItemGunBase.m2 = true;
                 PacketDispatcher.wrapper.sendToServer(new GunButtonPacket(true, (byte) 1, EnumHand.OFF_HAND));

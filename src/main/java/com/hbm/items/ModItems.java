@@ -279,6 +279,10 @@ public class ModItems {
     public static final Item stamp_desh_44 = new ItemStamp("stamp_desh_44", 0, ItemStamp.StampType.C44);
     public static final Item stamp_desh_9 = new ItemStamp("stamp_desh_9", 0, ItemStamp.StampType.C9);
     public static final Item stamp_desh_50 = new ItemStamp("stamp_desh_50", 0, ItemStamp.StampType.C50);
+    public static final Item stamp_schrabidium_flat = new ItemStamp("stamp_schrabidium_flat", 4096, ItemStamp.StampType.FLAT);
+    public static final Item stamp_schrabidium_plate = new ItemStamp("stamp_schrabidium_plate", 4096, ItemStamp.StampType.PLATE);
+    public static final Item stamp_schrabidium_wire = new ItemStamp("stamp_schrabidium_wire", 4096, ItemStamp.StampType.WIRE);
+    public static final Item stamp_schrabidium_circuit = new ItemStamp("stamp_schrabidium_circuit", 4096, ItemStamp.StampType.CIRCUIT);
     public static final Item stamp_357 = new ItemStamp("stamp_357", 1000, ItemStamp.StampType.C357);
     public static final Item stamp_44 = new ItemStamp("stamp_44", 1000, ItemStamp.StampType.C44);
     public static final Item stamp_9 = new ItemStamp("stamp_9", 1000, ItemStamp.StampType.C9);
@@ -869,6 +873,7 @@ public class ModItems {
     public static final Item jshotgun = new ItemGunJShotty(Gun12GaugeFactory.getJShotgunConfig(), "gun_jshotgun").setCreativeTab(MainRegistry.weaponTab);
     //Drillgon200: The SQUID!
     public static final Item gun_vortex = new ItemGunVortex(GunEnergyFactory.getVortexConfig(), "gun_vortex").setCreativeTab(MainRegistry.weaponTab);
+    public static final Item cc_plasma_gun = new ItemGunCCPlasmaCannon(GunEnergyFactory.getCCPlasmaGunConfig(), "cc_plasma_gun").setCreativeTab(MainRegistry.weaponTab);
     public static final Item gun_egon = new ItemGunEgon(GunEnergyFactory.getEgonConfig(), "gun_egon").setCreativeTab(MainRegistry.weaponTab);
     public static final Item gun_moist_nugget = new ItemNugget(3, false, "gun_moist_nugget").setCreativeTab(MainRegistry.weaponTab);
     public static final Item crucible = new ItemCrucible(500, 1F, MaterialRegistry.matCrucible, "crucible").setCreativeTab(MainRegistry.weaponTab);
@@ -2007,13 +2012,13 @@ public class ModItems {
     public static Item gun_am180;
     public static Item gun_liberator;
     public static Item gun_congolake;
-    public static Item gun_flamer;
+    public static Item gun_flamer_sedna;
     public static Item gun_flamer_topaz;
     public static Item gun_flamer_daybreaker;
-    public static Item gun_uzi;
+    public static Item gun_uzi_sedna;
     public static Item gun_uzi_akimbo;
     public static Item gun_spas12;
-    public static Item gun_panzerschreck;
+    public static Item gun_panzerschreck_sedna;
     public static Item gun_g3;
     public static Item gun_g3_zebra;
     public static Item gun_stinger;
@@ -2026,9 +2031,9 @@ public class ModItems {
     public static Item gun_autoshotgun_shredder;
     public static Item gun_autoshotgun_sexy;
     public static Item gun_autoshotgun_heretic;
-    public static Item gun_quadro;
+    public static Item gun_quadro_sedna;
     public static Item gun_lag;
-    public static Item gun_minigun;
+    public static Item gun_minigun_sedna;
     public static Item gun_minigun_dual;
     public static Item gun_minigun_lacunae;
     public static Item gun_missile_launcher;
@@ -2043,7 +2048,7 @@ public class ModItems {
     public static Item gun_coilgun;
     public static Item gun_hangman;
     public static Item gun_mas36;
-    public static Item gun_bolter;
+    public static Item gun_bolter_sedna;
     public static Item gun_folly;
     public static Item gun_aberrator;
     public static Item gun_aberrator_eott;
@@ -2057,6 +2062,8 @@ public class ModItems {
 
     public static Item gun_pa_melee;
     public static Item gun_pa_ranged;
+    public static Item gun_mk108;
+    public static Item gun_star_f;
 
     public static Item weapon_mod_test;
     public static Item weapon_mod_generic;
@@ -3140,7 +3147,7 @@ public class ModItems {
     public static final Item canned_tuna = new ItemBase("canned_tuna").setCreativeTab(MainRegistry.consumableTab);
     public static final Item canned_yogurt = new ItemBase("canned_yogurt").setCreativeTab(MainRegistry.consumableTab);
     public static final Item capsule_empty = new ItemBase("capsule_empty").setCreativeTab(MainRegistry.partsTab);
-    public static final Item cc_plasma_gun = new ItemBase("cc_plasma_gun").setCreativeTab(MainRegistry.partsTab);
+
     public static final Item chemistry_icon = new ItemBase("chemistry_icon").setCreativeTab(MainRegistry.partsTab);
     public static final Item chemistry_template = new ItemBase("chemistry_template").setCreativeTab(MainRegistry.partsTab);
     public static final Item cinnebar = new ItemBase("cinnebar").setCreativeTab(MainRegistry.partsTab);
@@ -3284,7 +3291,7 @@ public class ModItems {
     public static final Item gun_deagle = new ItemGunBase(com.hbm.handler.guncfg.Gun50AEFactory.getDeagleConfig(), "gun_deagle").setMaxDamage(2500).setCreativeTab(MainRegistry.weaponTab);
     public static final Item gun_defabricator = new GunDefabricator("gun_defabricator").setCreativeTab(MainRegistry.weaponTab);
     public static final Item gun_defabricator_ammo = new ItemBase("gun_defabricator_ammo").setCreativeTab(MainRegistry.partsTab);
-    public static final Item gun_emp = new GunEMPRay("gun_emp").setMaxDamage(1500).setCreativeTab(MainRegistry.weaponTab);
+    public static final Item gun_emp = new ItemGunBase(com.hbm.handler.guncfg.GunEnergyFactory.getEMPConfig(), "gun_emp").setCreativeTab(MainRegistry.weaponTab);
     public static final Item gun_emp_ammo = new ItemBase("gun_emp_ammo").setCreativeTab(MainRegistry.partsTab);
     public static final Item gun_euthanasia = new GunEuthanasia("gun_euthanasia").setCreativeTab(MainRegistry.weaponTab);
     public static final Item gun_euthanasia_ammo = new ItemBase("gun_euthanasia_ammo").setCreativeTab(MainRegistry.partsTab);
@@ -3340,14 +3347,20 @@ public class ModItems {
     public static final Item gun_spark_ammo = new ItemBase("gun_spark_ammo").setCreativeTab(MainRegistry.partsTab);
     public static final Item gun_stinger_ammo = new ItemBase("gun_stinger_ammo").setCreativeTab(MainRegistry.weaponTab);
     public static final Item gun_super_shotgun = new ItemCustomLore("gun_super_shotgun").setMaxStackSize(1).setFull3D().setCreativeTab(MainRegistry.weaponTab);
-    public static final Item gun_thompson = new ItemGunBase(com.hbm.handler.guncfg.Gun9mmFactory.getThompsonConfig(), "gun_thompson").setMaxDamage(2500).setCreativeTab(MainRegistry.weaponTab);
+    public static final Item gun_thompson = new ItemGunBase(com.hbm.handler.guncfg.Gun9mmFactory.getThompsonConfig(), "gun_thompson").setMaxDamage(2500).setCreativeTab(null);
     public static final Item gun_uboinik = new ItemGunBase(com.hbm.handler.guncfg.Gun12GaugeFactory.getUboinikConfig(), "gun_uboinik").setCreativeTab(MainRegistry.weaponTab);
+    public static final Item gun_minigun = new ItemGunLacunae(com.hbm.handler.guncfg.Gun5mmFactory.get53Config(), "gun_minigun").setCreativeTab(MainRegistry.weaponTab);
+    public static final Item gun_uzi = new ItemGunBase(com.hbm.handler.guncfg.Gun22LRFactory.getUziConfig(), "gun_uzi").setMaxDamage(3000).setCreativeTab(MainRegistry.weaponTab);
+    public static final Item gun_flamer = new ItemGunBase(com.hbm.handler.guncfg.GunEnergyFactory.getFlamerConfig(), "gun_flamer").setCreativeTab(null);
+    public static final Item gun_panzerschreck = new ItemGunBase(com.hbm.handler.guncfg.GunRocketFactory.getPanzConfig(), "gun_panzerschreck").setCreativeTab(null);
+    public static final Item gun_quadro = new ItemGunBase(com.hbm.handler.guncfg.GunRocketFactory.getQuadroConfig(), "gun_quadro").setCreativeTab(null);
+    public static final Item gun_bolter = new ItemGunBase(com.hbm.handler.guncfg.Gun75BoltFactory.getBolterConfig(), "gun_bolter").setCreativeTab(null);
     public static final Item gun_uzi_saturnite = new ItemGunBase(com.hbm.handler.guncfg.Gun22LRFactory.getSaturniteConfig(), "gun_uzi_saturnite").setMaxDamage(4500).setCreativeTab(MainRegistry.weaponTab);
     public static final Item gun_uzi_saturnite_silencer = new ItemGunBase(com.hbm.handler.guncfg.Gun22LRFactory.getSaturniteConfig().silenced(), "gun_uzi_saturnite_silencer").setMaxDamage(4500).setCreativeTab(MainRegistry.weaponTab);
     public static final Item gun_uzi_silencer = new ItemGunBase(com.hbm.handler.guncfg.Gun22LRFactory.getUziConfig().silenced(), "gun_uzi_silencer").setMaxDamage(3000).setCreativeTab(MainRegistry.weaponTab);
     public static final Item gun_xvl1456 = new ItemGunGauss(com.hbm.handler.guncfg.GunGaussFactory.getXVLConfig(), com.hbm.handler.guncfg.GunGaussFactory.getChargedConfig(), "gun_xvl1456").setMaxDamage(6000).setCreativeTab(MainRegistry.weaponTab);
     public static final Item gun_xvl1456_ammo = new ItemCustomLore("gun_xvl1456_ammo").setCreativeTab(MainRegistry.weaponTab);
-    public static final Item gun_zomg = new GunZOMG("gun_zomg").setMaxDamage(100000).setCreativeTab(MainRegistry.weaponTab);
+    public static final Item gun_zomg = new ItemGunBase(com.hbm.handler.guncfg.GunEnergyFactory.getZOMGConfig(), "gun_zomg").setCreativeTab(MainRegistry.weaponTab);
     public static final Item heavy_duty_element = new ItemBase("heavy_duty_element").setCreativeTab(MainRegistry.partsTab);
     public static final Item hf_sword = new ItemSwordCutter(15F, 1D, MaterialRegistry.matCrucible, "hf_sword").setCreativeTab(MainRegistry.weaponTab);
     public static final Item hs_sword = new ItemSwordCutter(10F, 1D, MaterialRegistry.matCrucible, "hs_sword").setCreativeTab(MainRegistry.weaponTab);
@@ -3515,10 +3528,6 @@ public class ModItems {
     public static final Item spill6 = new ItemBase("spill6").setCreativeTab(null);
     public static final Item spill7 = new ItemBase("spill7").setCreativeTab(null);
     public static final Item spill8 = new ItemBase("spill8").setCreativeTab(null);
-    public static final Item stamp_schrabidium_circuit = new ItemBase("stamp_schrabidium_circuit").setCreativeTab(MainRegistry.partsTab);
-    public static final Item stamp_schrabidium_flat = new ItemBase("stamp_schrabidium_flat").setCreativeTab(MainRegistry.partsTab);
-    public static final Item stamp_schrabidium_plate = new ItemBase("stamp_schrabidium_plate").setCreativeTab(MainRegistry.partsTab);
-    public static final Item stamp_schrabidium_wire = new ItemBase("stamp_schrabidium_wire").setCreativeTab(MainRegistry.partsTab);
     public static final Item starmetal_shield = new com.hbm.items.gear.ModShield("starmetal_shield", matStarmetal, com.hbm.inventory.OreDictManager.STAR.ingot());
     public static final Item steel_shield = new com.hbm.items.gear.ModShield("steel_shield", com.hbm.main.MaterialRegistry.enumToolMaterialSteel, com.hbm.inventory.OreDictManager.STEEL.ingot());
     public static final Item tem_flakes1 = new ItemBase("tem_flakes1").setCreativeTab(MainRegistry.partsTab);

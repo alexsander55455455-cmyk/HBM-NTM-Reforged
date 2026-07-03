@@ -72,7 +72,7 @@ public class ItemPoolsSingle {
                     weighted(ItemGrenadeUniversal.make(EnumGrenadeShell.NUKE, EnumGrenadeFilling.NUCLEAR, EnumGrenadeFuze.S7), 1, 1, 1),
                     weighted(ItemGrenadeUniversal.make(EnumGrenadeShell.TECH, EnumGrenadeFilling.EMP, EnumGrenadeFuze.S3), 1, 6, 1),
                     weighted(ModItems.powder_yellowcake, 0, 16, 24, 1),
-                    weighted(ModItems.gun_uzi, 0, 1, 1, 1),
+                    weighted(ModItems.gun_uzi_sedna, 0, 1, 1, 1),
                     weighted(ModItems.circuit, ItemEnums.EnumCircuitType.VACUUM_TUBE.ordinal(), 12, 16, 1),
                     weighted(ModItems.circuit, ItemEnums.EnumCircuitType.CHIP.ordinal(), 2, 6, 1)
             };

@@ -331,7 +331,7 @@ public class ClientProxy extends ServerProxy {
         registerItemRenderer(ModItems.gun_light_revolver_atlas, new ItemRenderAtlas(ResourceManager.bio_revolver_atlas_tex));
         registerItemRenderer(ModItems.gun_double_barrel, new ItemRenderDoubleBarrel(ResourceManager.double_barrel_tex));
         registerItemRenderer(ModItems.gun_double_barrel_sacred_dragon, new ItemRenderDoubleBarrel(ResourceManager.double_barrel_sacred_dragon_tex));
-        registerItemRenderer(ModItems.gun_flamer, new ItemRenderFlamer(ResourceManager.flamethrower_tex));
+        registerItemRenderer(ModItems.gun_flamer_sedna, new ItemRenderFlamer(ResourceManager.flamethrower_tex));
         registerItemRenderer(ModItems.gun_flamer_topaz, new ItemRenderFlamer(ResourceManager.flamethrower_topaz_tex));
         registerItemRenderer(ModItems.gun_flamer_daybreaker, new ItemRenderFlamer(ResourceManager.flamethrower_daybreaker_tex));
         registerItemRenderer(ModItems.gun_heavy_revolver, new ItemRenderHeavyRevolver(ResourceManager.heavy_revolver_tex));
@@ -339,7 +339,6 @@ public class ClientProxy extends ServerProxy {
         registerItemRenderer(ModItems.gun_heavy_revolver_protege, new ItemRenderHeavyRevolver(ResourceManager.heavy_revolver_protege_tex));
         registerItemRenderer(ModItems.gun_maresleg, new ItemRenderMaresleg(ResourceManager.maresleg_tex));
         registerItemRenderer(ModItems.gun_maresleg_broken, new ItemRenderMaresleg(ResourceManager.maresleg_broken_tex));
-        registerItemRenderer(ModItems.gun_minigun, new ItemRenderMinigun(ResourceManager.minigun_tex));
         registerItemRenderer(ModItems.gun_minigun_lacunae, new ItemRenderMinigun(ResourceManager.minigun_lacunae_tex));
         registerItemRenderer(ModItems.gun_autoshotgun, new ItemRenderShredder(ResourceManager.shredder_tex));
         registerItemRenderer(ModItems.gun_autoshotgun_shredder, new ItemRenderShredder(ResourceManager.shredder_orig_tex));
@@ -400,22 +399,29 @@ public class ClientProxy extends ServerProxy {
         ModItems.titanium_shield.setTileEntityItemStackRenderer(new com.hbm.render.item.ItemRenderShield("S1", new ResourceLocation("hbm", "textures/items/titanium_shield.png"), new ResourceLocation("hbm", "textures/items/titanium_shield_blank.png")));
         ModItems.crucible_template.setTileEntityItemStackRenderer(com.hbm.render.item.CrucibleTemplateRender.INSTANCE);
 
-        // EE Guns Rendering (gun_flamer is already registered above with ItemRenderFlamer)
+        // EE Guns Rendering
         com.hbm.render.item.weapon.ItemRenderWeaponObj objRenderer = new com.hbm.render.item.weapon.ItemRenderWeaponObj();
+        registerItemRenderer(ModItems.gun_flamer, objRenderer);
         registerItemRenderer(ModItems.gun_hk69, objRenderer);
         registerItemRenderer(ModItems.gun_deagle, objRenderer);
         registerItemRenderer(ModItems.gun_ks23, objRenderer);
         registerItemRenderer(ModItems.gun_flechette, objRenderer);
         registerItemRenderer(ModItems.gun_sauer, new com.hbm.render.item.weapon.ItemRenderWeaponSauer());
-        registerItemRenderer(ModItems.gun_thompson, new com.hbm.render.item.weapon.ItemRenderWeaponThompson());
+        registerItemRenderer(ModItems.gun_uboinik, new com.hbm.render.item.weapon.ItemRenderUboinik());
         com.hbm.render.item.weapon.ItemRenderUzi eeUziRenderer = new com.hbm.render.item.weapon.ItemRenderUzi();
+        registerItemRenderer(ModItems.gun_uzi, eeUziRenderer);
         registerItemRenderer(ModItems.gun_uzi_silencer, eeUziRenderer);
         registerItemRenderer(ModItems.gun_uzi_saturnite, eeUziRenderer);
         registerItemRenderer(ModItems.gun_uzi_saturnite_silencer, eeUziRenderer);
         registerItemRenderer(ModItems.gun_zomg, new com.hbm.render.item.weapon.ItemRenderZOMG());
         registerItemRenderer(ModItems.gun_emp, new com.hbm.render.item.weapon.ItemRenderEMPRay());
         registerItemRenderer(ModItems.gun_mp40, new com.hbm.render.item.weapon.ItemRenderMP40());
-        registerItemRenderer(ModItems.gun_karl, new com.hbm.render.item.weapon.ItemRenderRpg());
+        com.hbm.render.item.weapon.ItemRenderRpg rpgRenderer = new com.hbm.render.item.weapon.ItemRenderRpg();
+        registerItemRenderer(ModItems.gun_rpg, rpgRenderer);
+        registerItemRenderer(ModItems.gun_karl, rpgRenderer);
+        registerItemRenderer(ModItems.gun_panzerschreck, rpgRenderer);
+        registerItemRenderer(ModItems.gun_quadro, new com.hbm.render.item.weapon.ItemRenderWeaponQuadro());
+        registerItemRenderer(ModItems.gun_bolter, new com.hbm.render.item.weapon.ItemRenderWeaponBolter());
         registerItemRenderer(ModItems.gun_proto, new com.hbm.render.item.weapon.ItemRenderFatMan());
         registerItemRenderer(ModItems.gun_fatman, new com.hbm.render.item.weapon.ItemRenderFatMan());
         registerItemRenderer(ModItems.gun_mirv, new com.hbm.render.item.weapon.ItemRenderMIRVLauncher());
@@ -423,9 +429,53 @@ public class ClientProxy extends ServerProxy {
         registerItemRenderer(ModItems.gun_osipr, new com.hbm.render.item.weapon.ItemRenderOSIPR());
         registerItemRenderer(ModItems.gun_xvl1456, new com.hbm.render.item.weapon.ItemRenderXVL1456());
         registerItemRenderer(ModItems.gun_skystinger, new com.hbm.render.item.weapon.ItemRenderStinger());
-        registerItemRenderer(ModItems.gun_lacunae, new com.hbm.render.item.weapon.ItemRenderMinigun());
-
+        com.hbm.render.item.weapon.ItemRenderMinigun eeMinigunRenderer = new com.hbm.render.item.weapon.ItemRenderMinigun();
+        registerItemRenderer(ModItems.gun_minigun, eeMinigunRenderer);
+        registerItemRenderer(ModItems.gun_avenger, eeMinigunRenderer);
+        registerItemRenderer(ModItems.gun_lacunae, eeMinigunRenderer);
         registerItemRenderer(ModItems.gun_b92, ItemRenderGunAnim.INSTANCE);
+
+        registerItemRenderer(ModItems.gun_revolver_nightmare, new com.hbm.render.item.weapon.ItemRenderRevolverNightmare());
+        registerItemRenderer(ModItems.gun_revolver_nightmare2, new com.hbm.render.item.weapon.ItemRenderRevolverNightmare());
+        registerItemRenderer(ModItems.gun_revolver, new com.hbm.render.item.weapon.ItemRenderWeaponFFColt(ResourceManager.ff_gun_bright, ResourceManager.ff_gun_bright, ResourceManager.ff_wood));
+        registerItemRenderer(ModItems.gun_revolver_saturnite, new com.hbm.render.item.weapon.ItemRenderWeaponFFColt(ResourceManager.ff_saturnite, ResourceManager.ff_iron, ResourceManager.ff_wood));
+        registerItemRenderer(ModItems.gun_revolver_iron, new com.hbm.render.item.weapon.ItemRenderWeaponFFColt(ResourceManager.ff_iron, ResourceManager.ff_iron, ResourceManager.ff_wood));
+        registerItemRenderer(ModItems.gun_revolver_gold, new com.hbm.render.item.weapon.ItemRenderWeaponFFColt(ResourceManager.ff_gold, ResourceManager.ff_gold, ResourceManager.ff_wood_red));
+        registerItemRenderer(ModItems.gun_revolver_lead, new com.hbm.render.item.weapon.ItemRenderWeaponFFColt(ResourceManager.ff_lead, ResourceManager.ff_lead, ResourceManager.ff_gun_dark));
+        registerItemRenderer(ModItems.gun_revolver_schrabidium, new com.hbm.render.item.weapon.ItemRenderWeaponFFColt(ResourceManager.ff_schrabidium, ResourceManager.ff_schrabidium, ResourceManager.ff_gun_dark));
+        registerItemRenderer(ModItems.gun_revolver_cursed, new com.hbm.render.item.weapon.ItemRenderRevolverCursed());
+        com.hbm.render.item.weapon.ItemRenderOverkill overkillRenderer = new com.hbm.render.item.weapon.ItemRenderOverkill();
+        registerItemRenderer(ModItems.gun_revolver_pip, overkillRenderer);
+        registerItemRenderer(ModItems.gun_revolver_nopip, overkillRenderer);
+        registerItemRenderer(ModItems.gun_revolver_blackjack, overkillRenderer);
+        registerItemRenderer(ModItems.gun_revolver_red, overkillRenderer);
+        registerItemRenderer(ModItems.gun_revolver_silver, overkillRenderer);
+        registerItemRenderer(ModItems.gun_spark, overkillRenderer);
+        registerItemRenderer(ModItems.gun_revolver_inverted, new com.hbm.render.item.weapon.ItemRenderRevolverInverted());
+
+        com.hbm.render.item.weapon.ItemRenderGunAnim2 anim2Renderer = new com.hbm.render.item.weapon.ItemRenderGunAnim2();
+        registerItemRenderer(ModItems.gun_lever_action, anim2Renderer);
+        registerItemRenderer(ModItems.gun_lever_action_dark, anim2Renderer);
+        registerItemRenderer(ModItems.gun_bolt_action, anim2Renderer);
+        registerItemRenderer(ModItems.gun_bolt_action_green, anim2Renderer);
+        registerItemRenderer(ModItems.gun_lever_action_sonata, new com.hbm.render.item.weapon.ItemRenderGunSonata());
+        registerItemRenderer(ModItems.gun_bolt_action_saturnite, new com.hbm.render.item.weapon.ItemRenderGunSaturnite());
+
+        registerItemRenderer(ModItems.gun_ar15, new com.hbm.render.item.weapon.ItemRenderWeaponAR15());
+        registerItemRenderer(ModItems.gun_calamity, new com.hbm.render.item.weapon.ItemRenderCalamity());
+        registerItemRenderer(ModItems.gun_calamity_dual, new com.hbm.render.item.weapon.ItemRenderCalamity());
+        registerItemRenderer(ModItems.gun_hp, new com.hbm.render.item.weapon.ItemRenderGunHP());
+        registerItemRenderer(ModItems.gun_defabricator, new com.hbm.render.item.weapon.ItemRenderGunDefab());
+        registerItemRenderer(ModItems.gun_euthanasia, new com.hbm.render.item.weapon.ItemRenderEuthanasia());
+        registerItemRenderer(ModItems.gun_mp, new com.hbm.render.item.weapon.ItemRenderMP());
+        registerItemRenderer(ModItems.gun_cryolator, new com.hbm.render.item.weapon.ItemRenderCryolator());
+        registerItemRenderer(ModItems.gun_jack, new com.hbm.render.item.weapon.ItemRenderGunJack());
+        registerItemRenderer(ModItems.gun_immolator, new com.hbm.render.item.weapon.ItemRenderImmolator());
+        registerItemRenderer(ModItems.gun_dampfmaschine, new com.hbm.render.item.weapon.ItemRenderBullshit());
+        registerItemRenderer(ModItems.gun_supershotgun, new com.hbm.render.item.weapon.ItemRenderWeaponShotty());
+        registerItemRenderer(ModItems.gun_b93, new com.hbm.render.item.weapon.RenderGunB93());
+        registerItemRenderer(ModItems.jshotgun, new com.hbm.render.item.weapon.ItemRenderJShotgun());
+        registerItemRenderer(ModItems.gun_vortex, new com.hbm.render.item.weapon.ItemRenderWeaponVortex());
     }
 
     @Override
