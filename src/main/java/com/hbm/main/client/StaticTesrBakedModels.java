@@ -247,6 +247,10 @@ public final class StaticTesrBakedModels {
                     .parts("Microwave")
                     .preTranslate(0.0F, 0.0F, 18.0F)
                     .withoutInventory(),
+            normalSpec(ModBlocks.uu_gigafactory, "models/reactors/watz.obj", "models/machines/uu_creator", yawMap().meta(12, 0).meta(13, 0).meta(14, 0).meta(15, 0).build())
+                    .doubleSided()
+                    .item(1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F)
+                    .gui(0.0D, -1.0D, 0.0D, 2.0D),
             facingSpec(ModBlocks.fluid_pump, "models/network/fluid_diode.obj", "models/network/fluid_diode", yawMap().meta(2, 180).meta(3, 0).meta(4, 270).meta(5, 90).build())
                     .item(2.0F, RAD_90, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F)
                     .gui(0.0D, -2.0D, 0.0D, 5.0D),

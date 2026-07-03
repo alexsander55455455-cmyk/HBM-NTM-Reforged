@@ -634,6 +634,8 @@ public class AssemblyMachineRecipes extends GenericRecipes<GenericRecipe> {
                 .inputItems(new ComparableStack(ModBlocks.block_meteor, 1), new ComparableStack(ModItems.wire, 24, Mats.MAT_MAGTUNG.id), new OreDictStack(DIAMOND.dust(), 8), new OreDictStack(MAGTUNG.dust(), 12), new OreDictStack(DESH.heavyComp()), new ComparableStack(ModItems.upgrade_screm, 1), new ComparableStack(ModItems.upgrade_overdrive_3, 1), new ComparableStack(ModItems.circuit, 8, EnumCircuitType.QUANTUM)));
         this.register(new GenericRecipe("ass.ams_emitter").setup(6000, 100_000).outputItems(new ItemStack(ModBlocks.ams_emitter, 1))
                 .inputItems(new ComparableStack(ModItems.component_emitter, 16), new OreDictStack(W.heavyComp(), 1), new OreDictStack(TI.heavyComp(), 2), new ComparableStack(ModItems.plate_dineutronium, 32), new ComparableStack(ModItems.circuit, 12, EnumCircuitType.CONTROLLER_ADVANCED), new ComparableStack(ModItems.coil_advanced_torus, 24), new ComparableStack(ModItems.entanglement_kit, 3), new ComparableStack(ModItems.crystal_horn, 1), new ComparableStack(ModBlocks.fwatz_core, 1)));
+        this.register(new GenericRecipe("ass.uugigafactory").setup(900, 100).outputItems(new ItemStack(ModBlocks.uu_gigafactory, 1))
+                .inputItems(new ComparableStack(ModBlocks.machine_orbus, 1), new ComparableStack(ModBlocks.machine_saturnite_battery, 2), new ComparableStack(ModBlocks.hadron_analysis, 16), new ComparableStack(ModItems.laser_crystal_cmb, 1), new ComparableStack(ModItems.powder_nitan_mix, 8), new OreDictStack(AL.heavyComp(), 1), new ComparableStack(ModItems.circuit, 1, EnumCircuitType.CONTROLLER_QUANTUM)));
 
         // upgrades
         if(no528) {
