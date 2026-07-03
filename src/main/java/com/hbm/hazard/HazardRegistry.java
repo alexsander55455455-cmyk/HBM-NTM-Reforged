@@ -337,7 +337,11 @@ public class HazardRegistry {
 
 		HazardSystem.register(part_plutonium, makeData(RADIATION, pu * powder * 0.25F));
 		HazardSystem.register(pellet_charged, makeData(RADIATION, 420F));
-		HazardSystem.register(particle_digamma, makeData(RADIATION, 100F));
+		HazardSystem.register(particle_digamma, makeData(RADIATION, 100F).addEntry(DIGAMMA, 0.3333F));
+
+		HazardSystem.register(powder_paleogenite_tiny, makeData(DIGAMMA, 0.0005F));
+		HazardSystem.register(powder_paleogenite, makeData(DIGAMMA, 0.005F));
+		HazardSystem.register(powder_impure_osmiridium, makeData(DIGAMMA, 0.010F));
 
 		HazardSystem.register(assembly_schrabidium, makeData(RADIATION, sa326 / 6F));
 		HazardSystem.register(assembly_lead, makeData(RADIATION, 0.1F));
@@ -351,6 +355,9 @@ public class HazardRegistry {
 
 		HazardSystem.register(anvil_ferrouranium, makeData(RADIATION, ferro * 10F));
 		HazardSystem.register(anvil_schrabidate, makeData(RADIATION, sb * 10F));
+		HazardSystem.register(anvil_osmiridium, makeData(DIGAMMA, 0.4F));
+		HazardSystem.register(ash_digamma, makeData(DIGAMMA, 0.001F));
+		HazardSystem.register(digamma_matter, makeData(DIGAMMA, 0.2F));
 		HazardSystem.register(hadron_coil_magtung, makeData(RADIATION, magt * 2F));
 		HazardSystem.register(hadron_coil_schrabidium, makeData(RADIATION, magt * 2F + sa326 * 2F));
 		HazardSystem.register(hadron_coil_schrabidate, makeData(RADIATION, sa326 * 2F + sb * 2F));
@@ -704,6 +711,7 @@ public class HazardRegistry {
 		registerFluid("mud_fluid", 400, 0, 800, 0, 0);
 		registerFluid("schrabidic", 700, 20);
 		registerFluid("corium_fluid", 10000, 0);
+		registerFluid("liquid_osmiridium", 20, 0, 0, 0, 0.005F);
 		registerFluidTemps();
 	}
 
@@ -770,7 +778,7 @@ public class HazardRegistry {
 		HazardData data = new HazardData();
 		data.addEntry(new HazardEntry(RADIATION, base).addMod(new HazardModifierRBMKRadiation(dep, linear)));
 		if(blinding > 0) data.addEntry(new HazardEntry(BLINDING, blinding));
-		if(digamma > 0) data.addEntry(new HazardEntry(DIGAMMA, digamma));
+		if(digamma > 0) data.addEntry(new HazardEntry(DIGAMMA, digamma).addMod(new HazardModifierRBMKRadiation(digamma * 10F, linear)));
 		HazardSystem.register(pellet, data);
 	}
 
@@ -784,7 +792,7 @@ public class HazardRegistry {
 		data.addEntry(new HazardEntry(RADIATION, base).addMod(new HazardModifierRBMKRadiation(dep, linear)));
 		if(hot) data.addEntry(new HazardEntry(HOT, 0).addMod(new HazardModifierRBMKHot()));
 		if(blinding > 0) data.addEntry(new HazardEntry(BLINDING, blinding));
-		if(digamma > 0) data.addEntry(new HazardEntry(DIGAMMA, digamma));
+		if(digamma > 0) data.addEntry(new HazardEntry(DIGAMMA, digamma).addMod(new HazardModifierRBMKRadiation(digamma * 10F, linear)));
 		HazardSystem.register(rod, data);
 	}
 
