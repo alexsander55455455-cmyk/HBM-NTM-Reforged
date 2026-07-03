@@ -64,8 +64,22 @@ public class ItemGunBase extends Item implements IHoldableWeapon, IItemHUD {
 	public static boolean m1;// = false;
 	@SideOnly(Side.CLIENT)
 	public static boolean m2;// = false;
+	@SideOnly(Side.CLIENT)
+	public static boolean m3;// = false;
 	public static boolean oldClickRight;
 	public static boolean oldClickLeft;
+
+	public boolean usesRmbAimBinding() {
+		return this != ModItems.gun_egon && this != ModItems.gun_xvl1456 && this != ModItems.gun_supershotgun
+				&& mainConfig.hasSights;
+	}
+
+	public static boolean isAimingForRender(ItemStack stack) {
+		if(stack == null || stack.isEmpty() || !(stack.getItem() instanceof ItemGunBase gun)) {
+			return false;
+		}
+		return gun.usesRmbAimBinding() && getIsAiming(stack);
+	}
 
 	public ItemGunBase(GunConfiguration config, String s) {
 		mainConfig = config;
@@ -110,15 +124,22 @@ public class ItemGunBase extends Item implements IHoldableWeapon, IItemHUD {
 
 		boolean clickLeft = Mouse.isButtonDown(0);
 		boolean clickRight = Mouse.isButtonDown(1);
+		boolean clickMiddle = Mouse.isButtonDown(2);
 		boolean left = m1;
-		boolean right = m2;
-		
+		boolean rmbAim = usesRmbAimBinding();
+		boolean right = rmbAim ? m3 : m2;
+		boolean clickAlt = rmbAim ? clickMiddle : clickRight;
+
 		if(hand != null) {
+			if(rmbAim) {
+				setIsAiming(stack, clickRight);
+			}
+
 			if(left && right) {
 				PacketDispatcher.wrapper.sendToServer(new GunButtonPacket(false, (byte) 0, hand));
 				PacketDispatcher.wrapper.sendToServer(new GunButtonPacket(false, (byte) 1, hand));
 				m1 = false;
-				m2 = false;
+				if(rmbAim) m3 = false; else m2 = false;
 			}
 			
 			if((m1 || getIsMouseDown(stack)) && !clickLeft) {
@@ -127,9 +148,9 @@ public class ItemGunBase extends Item implements IHoldableWeapon, IItemHUD {
 				endActionClient(stack, world, entity, true, hand);
 			}
 			
-			if((m2 || getIsAltDown(stack)) && !clickRight) {
+			if((right || getIsAltDown(stack)) && !clickAlt) {
 				PacketDispatcher.wrapper.sendToServer(new GunButtonPacket(false, (byte) 1, hand));
-				m2 = false;
+				if(rmbAim) m3 = false; else m2 = false;
 				endActionClient(stack, world, entity, false, hand);
 			}
 			
@@ -635,6 +656,14 @@ public class ItemGunBase extends Item implements IHoldableWeapon, IItemHUD {
 		return readNBT(stack, "isAltDown") == 1;
 	}
 
+	public static void setIsAiming(ItemStack stack, boolean b) {
+		writeNBT(stack, "isAiming", b ? 1 : 0);
+	}
+
+	public static boolean getIsAiming(ItemStack stack) {
+		return readNBT(stack, "isAiming") == 1;
+	}
+
 	/// RoF cooldown ///
 	public static void setDelay(ItemStack stack, int i) {
 		writeNBT(stack, "dlay", i);
@@ -760,7 +789,7 @@ public class ItemGunBase extends Item implements IHoldableWeapon, IItemHUD {
 			if(((IHoldableWeapon) player.getHeldItemMainhand().getItem()).hasCustomHudElement()){
 				((IHoldableWeapon) player.getHeldItemMainhand().getItem()).renderHud(event.getResolution(), Minecraft.getMinecraft().ingameGUI, player.getHeldItemMainhand(), event.getPartialTicks());
 			} else {
-				if(!(gcfg.hasSights && player.isSneaking()))
+				if(!(gcfg.hasSights && (getIsAiming(player.getHeldItemMainhand()) || isAimingForRender(player.getHeldItemMainhand()))))
 					RenderScreenOverlay.renderCustomCrosshairs(event.getResolution(), Minecraft.getMinecraft().ingameGUI, ((IHoldableWeapon) player.getHeldItemMainhand().getItem()).getCrosshair());
 				else
 					RenderScreenOverlay.renderCustomCrosshairs(event.getResolution(), Minecraft.getMinecraft().ingameGUI, Crosshair.NONE);
