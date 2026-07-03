@@ -53,7 +53,7 @@ public class ToolPreset {
 
     public ITextComponent getMessage() {
         if (isNone()) {
-            return ChatBuilder.start("[").nextTranslation("chat.abildisabled").next("]").color(TextFormatting.GOLD).flush();
+            return ChatBuilder.start("[").nextTranslation("chat.abildisabled").next("]").color(TextFormatting.WHITE).flush();
         }
 
         boolean hasArea = areaAbility != IToolAreaAbility.NONE;
