@@ -180,6 +180,9 @@ public class ResourceManager {
     //Guns
     public static final WaveFrontObjectVAO shotty = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/weapons/supershotty.obj")).asVBO();
     public static final WaveFrontObjectVAO vortex = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/weapons/vortex.obj")).asVBO();
+    public static final HFRWavefrontObject ff_python = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/weapons/python.obj"));
+    public static final WaveFrontObjectVAO ar15 = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/weapons/ar15.obj")).asVBO();
+    public static final WaveFrontObjectVAO cc_plasma_cannon = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/weapons/cc_assault_rifle.obj")).asVBO();
     public static final WaveFrontObjectVAO bolter = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/weapons/bolter.obj")).asVBO();
     public static final WaveFrontObjectVAO fireext = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/weapons/fireext.obj")).asVBO();
     public static final WaveFrontObjectVAO detonator_laser = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/weapons/detonator_laser.obj")).asVBO();
@@ -195,6 +198,8 @@ public class ResourceManager {
     public static final WaveFrontObjectVAO am180 = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/weapons/am180.obj")).asVBO();
     public static final WaveFrontObjectVAO liberator = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/weapons/liberator.obj")).asVBO();
     public static final WaveFrontObjectVAO congolake = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/weapons/congolake.obj")).asVBO();
+    public static final WaveFrontObjectVAO mk108 = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/weapons/mk108.obj")).asVBO();
+    public static final WaveFrontObjectVAO star_f = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/weapons/star_f.obj")).asVBO();
     public static final WaveFrontObjectVAO flamethrower = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/weapons/flamethrower.obj")).asVBO();
     public static final WaveFrontObjectVAO lilmac = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/weapons/lilmac.obj")).asVBO();
     public static final WaveFrontObjectVAO carbine = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/weapons/carbine.obj")).asVBO();
@@ -385,6 +390,7 @@ public class ResourceManager {
     //Bombs
     public static final WaveFrontObjectVAO n45_chain = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/bombs/n45_chain.obj")).asVBO();
     public static final WaveFrontObjectVAO fstbmb = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/bombs/fstbmb.obj")).asVBO();
+    public static final WaveFrontObjectVAO bomb_multi = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/bombs/BombGeneric.obj")).asVBO();
     //Landmines
     public static final WaveFrontObjectVAO mine_ap = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/bombs/ap_mine.obj")).asVBO();
     public static final WaveFrontObjectVAO mine_he = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/mine_he.obj")).asVBO();
@@ -825,6 +831,7 @@ public class ResourceManager {
     public static final ResourceLocation forcefield_top_tex = new ResourceLocation(Tags.MODID, "textures/models/machines/forcefield_top.png");
     //Bombs
     public static final ResourceLocation fstbmb_tex = new ResourceLocation(Tags.MODID, "textures/models/bombs/fstbmb.png");
+    public static final ResourceLocation bomb_multi_tex = new ResourceLocation(Tags.MODID, "textures/models/bombs/BombGeneric.png");
     //Satellites
     public static final ResourceLocation sat_foeq_tex = new ResourceLocation(Tags.MODID, "textures/models/sat/sat_foeq.png");
     public static final ResourceLocation sat_foeq_burning_tex = new ResourceLocation(Tags.MODID, "textures/sat/models/sat_foeq_burning.png");
@@ -916,6 +923,8 @@ public class ResourceManager {
     public static final ResourceLocation m2_tex = new ResourceLocation(Tags.MODID, "textures/models/weapons/m2_browning.png");
     public static final ResourceLocation coilgun_tex = new ResourceLocation(Tags.MODID, "textures/models/weapons/coilgun.png");
     public static final ResourceLocation congolake_tex = new ResourceLocation(Tags.MODID, "textures/models/weapons/congolake.png");
+    public static final ResourceLocation mk108_tex = new ResourceLocation(Tags.MODID, "textures/models/weapons/mk108.png");
+    public static final ResourceLocation star_f_tex = new ResourceLocation(Tags.MODID, "textures/models/weapons/star_f.png");
     public static final ResourceLocation debug_gun_tex = new ResourceLocation(Tags.MODID, "textures/models/weapons/debug_gun.png");
     public static final ResourceLocation pepperbox_tex = new ResourceLocation(Tags.MODID, "textures/models/weapons/pepperbox.png");
     public static final ResourceLocation bio_revolver_tex = new ResourceLocation(Tags.MODID, "textures/models/weapons/bio_revolver.png");
@@ -1084,6 +1093,17 @@ public class ResourceManager {
 
     //Vortex
     public static final ResourceLocation vortex_tex = new ResourceLocation(Tags.MODID, "textures/models/weapons/vortex.png");
+    public static final ResourceLocation ar15_tex = new ResourceLocation(Tags.MODID, "textures/models/weapons/carbine.png");
+    public static final ResourceLocation ff_gold = new ResourceLocation(Tags.MODID, "textures/models/weapons/ff/gold.png");
+    public static final ResourceLocation ff_gun_bright = new ResourceLocation(Tags.MODID, "textures/models/weapons/ff/gun_bright.png");
+    public static final ResourceLocation ff_gun_dark = new ResourceLocation(Tags.MODID, "textures/models/weapons/ff/gun_dark.png");
+    public static final ResourceLocation ff_iron = new ResourceLocation(Tags.MODID, "textures/models/weapons/ff/iron.png");
+    public static final ResourceLocation ff_lead = new ResourceLocation(Tags.MODID, "textures/models/weapons/ff/lead.png");
+    public static final ResourceLocation ff_saturnite = new ResourceLocation(Tags.MODID, "textures/models/weapons/ff/saturnite.png");
+    public static final ResourceLocation ff_schrabidium = new ResourceLocation(Tags.MODID, "textures/models/weapons/ff/schrabidium.png");
+    public static final ResourceLocation ff_wood = new ResourceLocation(Tags.MODID, "textures/models/weapons/ff/wood.png");
+    public static final ResourceLocation ff_wood_red = new ResourceLocation(Tags.MODID, "textures/models/weapons/ff/wood_red.png");
+    public static final ResourceLocation cc_plasma_cannon_tex = new ResourceLocation(Tags.MODID, "textures/models/weapons/cc_assault_rifle.png");
     public static final ResourceLocation vortex_hud_circle = new ResourceLocation(Tags.MODID, "textures/misc/vortex_circle.png");
     public static final ResourceLocation vortex_hud_reticle = new ResourceLocation(Tags.MODID, "textures/misc/vortex_target.png");
     public static final ResourceLocation vortex_beam_circle_2 = new ResourceLocation(Tags.MODID, "textures/particle/vortex_beam_circle_2.png");
