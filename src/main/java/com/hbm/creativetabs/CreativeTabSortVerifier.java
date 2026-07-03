@@ -77,6 +77,7 @@ public final class CreativeTabSortVerifier {
 		verifyVariantScatterSearchOrder();
 		verifyMissileThrusterBlock();
 		verifyControlTabSpaceRbmkFuelRods();
+		verifyMachineTabRbmkBurnerPlacement();
 		verifyHardDriveControlTabPlacement();
 		verifySellafieldOreResourceTab();
 		verifyOreMeteorResourceTab();
@@ -212,6 +213,7 @@ public final class CreativeTabSortVerifier {
 
 	/** EE ModItems ~819-901 firearm order; sedna-replaced ids live only in the CE block. */
 	private static final String[] WEAPON_TAB_EE_FIREARMS = {
+			"ullapool_caber",
 			"gun_b92", "gun_b93",
 			"gun_revolver_iron", "gun_revolver", "gun_revolver_saturnite", "gun_revolver_gold",
 			"gun_revolver_lead", "gun_revolver_schrabidium", "gun_revolver_cursed",
@@ -219,17 +221,18 @@ public final class CreativeTabSortVerifier {
 			"gun_revolver_nopip", "gun_revolver_blackjack", "gun_revolver_silver", "gun_revolver_red",
 			"gun_deagle", "gun_flechette", "gun_ar15", "gun_uboinik", "gun_supershotgun", "gun_jshotgun",
 			"gun_ks23", "gun_sauer", "gun_calamity", "gun_calamity_dual",
-			"gun_avenger", "gun_lacunae",
+			"gun_minigun", "gun_avenger", "gun_lacunae",
 			"gun_bolt_action", "gun_bolt_action_green",
-			"gun_uzi_silencer", "gun_uzi_saturnite", "gun_uzi_saturnite_silencer",
-			"gun_mp40", "gun_thompson",
+			"gun_uzi", "gun_uzi_silencer", "gun_uzi_saturnite", "gun_uzi_saturnite_silencer",
+			"gun_mp40",
 			"gun_rpg", "gun_karl",
-			"gun_lever_action", "gun_lever_action_dark",
-			"gun_hk69", "gun_spark", "gun_fatman", "gun_proto", "gun_mirv", "gun_bf",
+			"gun_lever_action", "gun_lever_action_dark", "gun_hk69",
+			"gun_spark", "gun_fatman", "gun_proto", "gun_mirv", "gun_bf",
 			"gun_zomg", "gun_xvl1456",
 			"gun_hp", "gun_defabricator", "gun_vortex", "cc_plasma_gun", "gun_egon",
 			"gun_euthanasia", "gun_skystinger", "gun_mp",
-			"gun_cryolator", "gun_jack", "gun_immolator", "gun_osipr", "gun_emp",
+			"gun_cryolator", "gun_jack", "gun_immolator",
+			"gun_osipr", "gun_emp",
 			"gun_moist_nugget", "gun_super_shotgun", "gun_revolver_inverted",
 			"gun_lever_action_sonata", "gun_bolt_action_saturnite",
 			"gun_dampfmaschine", "gun_darter",
@@ -242,19 +245,20 @@ public final class CreativeTabSortVerifier {
 			"gun_maresleg", "gun_maresleg_akimbo", "gun_maresleg_broken", "gun_flaregun",
 			"gun_heavy_revolver", "gun_heavy_revolver_lilmac", "gun_heavy_revolver_protege",
 			"gun_carbine", "gun_am180", "gun_liberator", "gun_congolake",
-			"gun_flamer", "gun_flamer_topaz", "gun_flamer_daybreaker",
-			"gun_uzi", "gun_uzi_akimbo", "gun_spas12", "gun_panzerschreck",
+			"gun_flamer_sedna", "gun_flamer_topaz", "gun_flamer_daybreaker",
+			"gun_uzi_sedna", "gun_uzi_akimbo", "gun_spas12", "gun_panzerschreck_sedna",
 			"gun_g3", "gun_g3_zebra", "gun_chemthrower",
 			"gun_amat", "gun_amat_subtlety", "gun_amat_penance", "gun_m2",
 			"gun_autoshotgun", "gun_autoshotgun_shredder", "gun_autoshotgun_sexy", "gun_autoshotgun_heretic",
-			"gun_quadro", "gun_lag", "gun_minigun", "gun_minigun_dual", "gun_minigun_lacunae",
+			"gun_quadro_sedna", "gun_lag", "gun_minigun_sedna", "gun_minigun_dual", "gun_minigun_lacunae",
 			"gun_missile_launcher", "gun_tesla_cannon",
 			"gun_laser_pistol", "gun_laser_pistol_pew_pew", "gun_laser_pistol_morning_glory",
 			"gun_stg77", "gun_tau", "gun_lasrifle", "gun_stinger", "gun_coilgun",
-			"gun_hangman", "gun_mas36", "gun_bolter", "gun_folly",
+			"gun_hangman", "gun_mas36", "gun_bolter_sedna", "gun_folly",
 			"gun_aberrator", "gun_aberrator_eott",
 			"gun_double_barrel", "gun_double_barrel_sacred_dragon", "gun_n_i_4_n_i",
 			"gun_fireext", "gun_charge_thrower", "gun_drill", "gun_pa_melee", "gun_pa_ranged",
+			"gun_mk108", "gun_star_f",
 	};
 
 	private static void verifyWeaponEeCeFirearmBlocks() {
@@ -293,11 +297,12 @@ public final class CreativeTabSortVerifier {
 		}
 		int silencer = order.indexOf("gun_uzi_silencer");
 		int uzi = order.indexOf("gun_uzi");
-		if (silencer < 0 || uzi < 0) {
-			throw new AssertionError("weaponTab missing gun_uzi_silencer or gun_uzi");
+		int uziSedna = order.indexOf("gun_uzi_sedna");
+		if (silencer < 0 || uzi < 0 || uziSedna < 0) {
+			throw new AssertionError("weaponTab missing gun_uzi_silencer, gun_uzi, or gun_uzi_sedna");
 		}
-		if (silencer >= ceBase || uzi < ceBase) {
-			throw new AssertionError("gun_uzi_silencer must be EE block, gun_uzi must be CE block");
+		if (silencer >= ceBase || uzi >= ceBase || uziSedna < ceBase) {
+			throw new AssertionError("gun_uzi and gun_uzi_silencer must be EE block, gun_uzi_sedna must be CE block");
 		}
 		System.out.println("weapon_ee_ce_firearm_blocks=true ee=" + WEAPON_TAB_EE_FIREARMS.length
 				+ " ce=" + WEAPON_TAB_CE_FIREARMS.length + " ammoStart=" + ammoStart);
@@ -845,6 +850,23 @@ public final class CreativeTabSortVerifier {
 			throw new AssertionError("space rbmk fuel rods must follow rbmk_fuel_drx and precede rbmk_fuel_test");
 		}
 		System.out.println("control_tab_space_rbmk_fuel_rods=true");
+	}
+
+	private static void verifyMachineTabRbmkBurnerPlacement() {
+		ItemStack heater = probeStack("hbm", "rbmk_heater");
+		ItemStack burner = probeStackForKey("hbmspace:rbmk_burner");
+		ItemStack reflector = probeStack("hbm", "rbmk_reflector");
+		int burnerIdx = CreativeTabSortOrder.getSortIndex(burner, "machineTab");
+		if (burnerIdx != 92) {
+			throw new AssertionError("hbmspace:rbmk_burner must use machineTab index 92, got " + burnerIdx);
+		}
+		if (CreativeTabSortHelper.compareStacks(heater, burner, "machineTab") >= 0) {
+			throw new AssertionError("hbmspace:rbmk_burner must sort after rbmk_heater on machineTab");
+		}
+		if (CreativeTabSortHelper.compareStacks(burner, reflector, "machineTab") >= 0) {
+			throw new AssertionError("hbmspace:rbmk_burner must sort before rbmk_reflector on machineTab");
+		}
+		System.out.println("machine_tab_rbmk_burner=true");
 	}
 
 	private static void verifyHardDriveControlTabPlacement() {
