@@ -62,7 +62,7 @@ public class XFactory9mm {
                 .anim(LAMBDA_LAG_ANIMS).orchestra(Orchestras.ORCHESTRA_LAG)
         ).setDefaultAmmo(GunFactory.EnumAmmo.P9_JHP, 17);
 
-        ModItems.gun_uzi = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.A_SIDE, "gun_uzi", new GunConfig()
+        ModItems.gun_uzi_sedna = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.A_SIDE, "gun_uzi_sedna", new GunConfig()
                 .dura(3_000).draw(15).inspect(31).crosshair(RenderScreenOverlay.Crosshair.CIRCLE).smoke(LAMBDA_SMOKE)
                 .rec(new Receiver(0)
                         .dmg(3F).delay(2).dry(25).auto(true).spread(0.005F).reload(55).jam(50).sound(HBMSoundHandler.fireUzi, 1.0F, 1.0F)

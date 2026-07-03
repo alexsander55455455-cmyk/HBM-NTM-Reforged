@@ -66,14 +66,14 @@ public class XWeaponModManager {
                 ModItems.gun_am180,
                 ModItems.gun_liberator,
                 ModItems.gun_congolake,
-                ModItems.gun_flamer,
+                ModItems.gun_flamer_sedna,
                 ModItems.gun_flamer_topaz };
         Item[] deshGuns = new Item[] {
                 ModItems.gun_heavy_revolver,
                 ModItems.gun_carbine,
-                ModItems.gun_uzi, ModItems.gun_uzi_akimbo,
+                ModItems.gun_uzi_sedna, ModItems.gun_uzi_akimbo,
                 ModItems.gun_spas12,
-                ModItems.gun_panzerschreck };
+                ModItems.gun_panzerschreck_sedna };
         Item[] wsteelGuns = new Item[] {
                 ModItems.gun_g3, ModItems.gun_g3_zebra,
                 ModItems.gun_stinger,
@@ -82,10 +82,10 @@ public class XWeaponModManager {
                 ModItems.gun_amat,
                 ModItems.gun_m2,
                 ModItems.gun_autoshotgun, ModItems.gun_autoshotgun_shredder,
-                ModItems.gun_quadro };
+                ModItems.gun_quadro_sedna };
         Item[] tcalloyGuns = new Item[] {
                 ModItems.gun_lag,
-                ModItems.gun_minigun,
+                ModItems.gun_minigun_sedna,
                 ModItems.gun_missile_launcher,
                 ModItems.gun_tesla_cannon };
         Item[] bigmtGuns = new Item[] {
@@ -113,16 +113,16 @@ public class XWeaponModManager {
         new WeaponModDefinition(GunFactory.EnumModGeneric.BRONZE_DURA).addMod(bronzeGuns, new WeaponModGenericDurability(117));
 
         new WeaponModDefinition(GunFactory.EnumModSpecial.SPEEDLOADER).addMod(ModItems.gun_liberator, new WeaponModLiberatorSpeedloader(200));
-        new WeaponModDefinition(GunFactory.EnumModSpecial.SILENCER).addMod(new Item[] {ModItems.gun_am180, ModItems.gun_uzi, ModItems.gun_uzi_akimbo, ModItems.gun_g3, ModItems.gun_amat}, new WeaponModSilencer(ID_SILENCER));
+        new WeaponModDefinition(GunFactory.EnumModSpecial.SILENCER).addMod(new Item[] {ModItems.gun_am180, ModItems.gun_uzi_sedna, ModItems.gun_uzi_akimbo, ModItems.gun_g3, ModItems.gun_amat, ModItems.gun_star_f}, new WeaponModSilencer(ID_SILENCER));
         new WeaponModDefinition(GunFactory.EnumModSpecial.SCOPE).addMod(new Item[] {ModItems.gun_heavy_revolver, ModItems.gun_g3, ModItems.gun_mas36, ModItems.gun_charge_thrower}, new WeaponModScope(ID_SCOPE));
         new WeaponModDefinition(GunFactory.EnumModSpecial.SAW)
                 .addMod(new Item[] {ModItems.gun_maresleg, ModItems.gun_double_barrel}, new WeaponModSawedOff(ID_SAWED_OFF))
-                .addMod(ModItems.gun_panzerschreck, new WeaponModPanzerschreckSawedOff(ID_NO_SHIELD))
+                .addMod(ModItems.gun_panzerschreck_sedna, new WeaponModPanzerschreckSawedOff(ID_NO_SHIELD))
                 .addMod(new Item[] {ModItems.gun_g3, ModItems.gun_g3_zebra}, new WeapnModG3SawedOff(ID_NO_STOCK));
         new WeaponModDefinition(GunFactory.EnumModSpecial.GREASEGUN).addMod(ModItems.gun_greasegun, new WeaponModGreasegun(ID_GREASEGUN_CLEAN));
-        new WeaponModDefinition(GunFactory.EnumModSpecial.SLOWDOWN).addMod(new Item[] {ModItems.gun_minigun, ModItems.gun_minigun_dual}, new WeaponModSlowdown(207));
+        new WeaponModDefinition(GunFactory.EnumModSpecial.SLOWDOWN).addMod(new Item[] {ModItems.gun_minigun_sedna, ModItems.gun_minigun_dual}, new WeaponModSlowdown(207));
         new WeaponModDefinition(GunFactory.EnumModSpecial.SPEEDUP)
-                .addMod(new Item[] {ModItems.gun_minigun, ModItems.gun_minigun_dual}, new WeaponModMinigunSpeedup(ID_MINIGUN_SPEED))
+                .addMod(new Item[] {ModItems.gun_minigun_sedna, ModItems.gun_minigun_dual}, new WeaponModMinigunSpeedup(ID_MINIGUN_SPEED))
                 .addMod(new Item[] {ModItems.gun_autoshotgun, ModItems.gun_autoshotgun_shredder}, new WeaponModShredderSpeedup(209));
         new WeaponModDefinition(GunFactory.EnumModSpecial.CHOKE).addMod(new Item[] {ModItems.gun_pepperbox, ModItems.gun_maresleg, ModItems.gun_double_barrel, ModItems.gun_liberator, ModItems.gun_spas12, ModItems.gun_autoshotgun_sexy, ModItems.gun_autoshotgun_heretic}, new WeaponModChoke(210));
         new WeaponModDefinition(GunFactory.EnumModSpecial.FURNITURE_GREEN).addMod(ModItems.gun_g3, new WeaponModPolymerFurniture(ID_FURNITURE_GREEN));
@@ -130,8 +130,8 @@ public class XWeaponModManager {
         new WeaponModDefinition(GunFactory.EnumModSpecial.BAYONET)
                 .addMod(ModItems.gun_mas36, new WeaponModMASBayonet(ID_MAS_BAYONET))
                 .addMod(ModItems.gun_carbine, new WeaponModCarbineBayonet(ID_CARBINE_BAYONET));
-        new WeaponModDefinition(GunFactory.EnumModSpecial.STACK_MAG).addMod(new Item[] {ModItems.gun_greasegun, ModItems.gun_uzi, ModItems.gun_uzi_akimbo, ModItems.gun_aberrator, ModItems.gun_aberrator_eott}, new WeaponModStackMag(214));
-        new WeaponModDefinition(GunFactory.EnumModSpecial.SKIN_SATURNITE).addMod(new Item[] {ModItems.gun_uzi, ModItems.gun_uzi_akimbo}, new WeaponModUziSaturnite(ID_UZI_SATURN));
+        new WeaponModDefinition(GunFactory.EnumModSpecial.STACK_MAG).addMod(new Item[] {ModItems.gun_greasegun, ModItems.gun_uzi_sedna, ModItems.gun_uzi_akimbo, ModItems.gun_aberrator, ModItems.gun_aberrator_eott}, new WeaponModStackMag(214));
+        new WeaponModDefinition(GunFactory.EnumModSpecial.SKIN_SATURNITE).addMod(new Item[] {ModItems.gun_uzi_sedna, ModItems.gun_uzi_akimbo}, new WeaponModUziSaturnite(ID_UZI_SATURN));
         new WeaponModDefinition(GunFactory.EnumModSpecial.LAS_SHOTGUN).addMod(new Item[] {ModItems.gun_lasrifle}, new WeaponModLasShotgun(ID_LAS_SHOTGUN));
         new WeaponModDefinition(GunFactory.EnumModSpecial.LAS_CAPACITOR).addMod(new Item[] {ModItems.gun_lasrifle}, new WeaponModLasCapacitor(ID_LAS_CAPACITOR));
         new WeaponModDefinition(GunFactory.EnumModSpecial.LAS_AUTO).addMod(new Item[] {ModItems.gun_lasrifle}, new WeaponModLasAuto(ID_LAS_AUTO));
@@ -165,12 +165,12 @@ public class XWeaponModManager {
         new WeaponModDefinition(GunFactory.EnumModCaliber.P45)
                 .addMod(ModItems.gun_henry, new WeaponModCaliber(310, 28, 10F, p45))
                 .addMod(ModItems.gun_greasegun, new WeaponModCaliber(311, 24, 3F, p45))
-                .addMod(ModItems.gun_uzi, new WeaponModCaliber(312, 24, 3F, p45))
+                .addMod(ModItems.gun_uzi_sedna, new WeaponModCaliber(312, 24, 3F, p45))
                 .addMod(ModItems.gun_uzi_akimbo, new WeaponModCaliber(313, 24, 3F, p45))
                 .addMod(ModItems.gun_lag, new WeaponModCaliber(314, 15, 25F, p45));
         new WeaponModDefinition(GunFactory.EnumModCaliber.P22)
                 .addMod(ModItems.gun_henry, new WeaponModCaliber(320, 28, 10F, p22))
-                .addMod(ModItems.gun_uzi, new WeaponModCaliber(321, 40, 3F, p22))
+                .addMod(ModItems.gun_uzi_sedna, new WeaponModCaliber(321, 40, 3F, p22))
                 .addMod(ModItems.gun_uzi_akimbo, new WeaponModCaliber(322, 40, 3F, p22));
         new WeaponModDefinition(GunFactory.EnumModCaliber.M357)
                 .addMod(ModItems.gun_henry, new WeaponModCaliber(330, 20, 10F, m357))
@@ -180,13 +180,13 @@ public class XWeaponModManager {
         new WeaponModDefinition(GunFactory.EnumModCaliber.R556)
                 .addMod(ModItems.gun_henry, new WeaponModCaliber(350, 10, 10F, r556))
                 .addMod(ModItems.gun_carbine, new WeaponModCaliber(351, 20, 15F, r556))
-                .addMod(new Item[] {ModItems.gun_minigun, ModItems.gun_minigun_dual}, new WeaponModCaliber(352, 0, 6F, r556));
+                .addMod(new Item[] {ModItems.gun_minigun_sedna, ModItems.gun_minigun_dual}, new WeaponModCaliber(352, 0, 6F, r556));
         new WeaponModDefinition(GunFactory.EnumModCaliber.R762)
                 .addMod(ModItems.gun_henry, new WeaponModCaliber(360, 8, 10F, r762))
                 .addMod(ModItems.gun_g3, new WeaponModCaliber(361, 24, 5F, r762));
         new WeaponModDefinition(GunFactory.EnumModCaliber.BMG50)
                 .addMod(ModItems.gun_henry, new WeaponModCaliber(370, 5, 10F, bmg50))
-                .addMod(new Item[] {ModItems.gun_minigun, ModItems.gun_minigun_dual}, new WeaponModCaliber(371, 0, 6F, bmg50));
+                .addMod(new Item[] {ModItems.gun_minigun_sedna, ModItems.gun_minigun_dual}, new WeaponModCaliber(371, 0, 6F, bmg50));
     }
 
     public static final int ID_SILENCER = 201;

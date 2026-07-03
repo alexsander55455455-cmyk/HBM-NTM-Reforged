@@ -16,6 +16,8 @@ import com.hbm.explosion.ExplosionNukeGeneric;
 import com.hbm.handler.ArmorUtil;
 import com.hbm.handler.BulletConfigSyncingUtil;
 import com.hbm.handler.BulletConfiguration;
+import com.hbm.handler.GunConfiguration;
+import com.hbm.items.weapon.ItemGunBase;
 import com.hbm.handler.threading.PacketThreading;
 import com.hbm.interfaces.AutoRegister;
 import com.hbm.lib.HBMSoundHandler;
@@ -42,6 +44,7 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.RayTraceResult.Type;
@@ -119,15 +122,32 @@ public class EntityBulletBase extends Entity implements IProjectile {
 		this.getDataManager().set(BULLETCONFIG, config);
 		shooter = entity;
 
+		ItemStack gunStack = entity.getHeldItem(hand);
+		boolean offsetShot = true;
+		float spreadMult = 1F;
+		if(!gunStack.isEmpty() && gunStack.getItem() instanceof ItemGunBase legacyGun) {
+			GunConfiguration cfg = legacyGun.mainConfig;
+			if(cfg != null) {
+				if(cfg.hasSights && ItemGunBase.getIsAiming(gunStack)) {
+					offsetShot = false;
+					spreadMult = 0.25F;
+				}
+			}
+		}
+
 		this.setLocationAndAngles(entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ, entity.rotationYaw, entity.rotationPitch);
-		if (hand == EnumHand.MAIN_HAND) {
-			this.posX -= MathHelper.cos(this.rotationYaw / 180.0F * (float) Math.PI) * 0.16F;
-			this.posY -= 0.10000000149011612D;
-			this.posZ -= MathHelper.sin(this.rotationYaw / 180.0F * (float) Math.PI) * 0.16F;
+		if(offsetShot) {
+			if (hand == EnumHand.MAIN_HAND) {
+				this.posX -= MathHelper.cos(this.rotationYaw / 180.0F * (float) Math.PI) * 0.16F;
+				this.posY -= 0.10000000149011612D;
+				this.posZ -= MathHelper.sin(this.rotationYaw / 180.0F * (float) Math.PI) * 0.16F;
+			} else {
+				this.posX += MathHelper.cos(this.rotationYaw / 180.0F * (float) Math.PI) * 0.16F;
+				this.posY -= 0.10000000149011612D;
+				this.posZ += MathHelper.sin(this.rotationYaw / 180.0F * (float) Math.PI) * 0.16F;
+			}
 		} else {
-			this.posX += MathHelper.cos(this.rotationYaw / 180.0F * (float) Math.PI) * 0.16F;
 			this.posY -= 0.10000000149011612D;
-			this.posZ += MathHelper.sin(this.rotationYaw / 180.0F * (float) Math.PI) * 0.16F;
 		}
 		this.setPosition(this.posX, this.posY, this.posZ);
 
@@ -137,7 +157,7 @@ public class EntityBulletBase extends Entity implements IProjectile {
 
 		this.setSize(0.5F, 0.5F);
 
-		this.shoot(this.motionX, this.motionY, this.motionZ, 2.0F, this.config.spread);
+		this.shoot(this.motionX, this.motionY, this.motionZ, 2.0F, this.config.spread * spreadMult);
 		
 		this.getDataManager().set(STYLE, this.config.style);
 		this.getDataManager().set(TRAIL, this.config.trail);

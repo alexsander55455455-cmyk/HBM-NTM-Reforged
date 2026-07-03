@@ -169,7 +169,7 @@ public class XFactoryRocket {
             rocket_ncrpa[i] = makeRPZB(rocket_template[i]);
         }
 
-        ModItems.gun_panzerschreck = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.A_SIDE, "gun_panzerschreck", new GunConfig()
+        ModItems.gun_panzerschreck_sedna = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.A_SIDE, "gun_panzerschreck_sedna", new GunConfig()
                 .dura(300).draw(7).inspect(40).crosshair(Crosshair.L_CIRCUMFLEX)
                 .rec(new Receiver(0)
                         .dmg(25F).delay(5).reload(50).jam(40).sound(HBMSoundHandler.rpgShoot, 1.0F, 1.0F)
@@ -191,7 +191,7 @@ public class XFactoryRocket {
                 .anim(LAMBDA_PANZERSCHRECK_ANIMS).orchestra(Orchestras.ORCHESTRA_STINGER)
         ).setDefaultAmmo(GunFactory.EnumAmmo.ROCKET_HEAT, 3);
 
-        ModItems.gun_quadro = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.A_SIDE, "gun_quadro", new GunConfig()
+        ModItems.gun_quadro_sedna = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.A_SIDE, "gun_quadro_sedna", new GunConfig()
                 .dura(400).draw(7).inspect(40).crosshair(Crosshair.L_CIRCUMFLEX).hideCrosshair(false)
                 .rec(new Receiver(0)
                         .dmg(40F).spreadHipfire(0F).delay(10).reload(55).jam(40).sound(HBMSoundHandler.rpgShoot, 1.0F, 1.0F)

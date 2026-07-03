@@ -16,9 +16,12 @@ import com.hbm.explosion.vanillant.standard.*;
 import com.hbm.handler.ArmorUtil;
 import com.hbm.handler.BulletConfigSyncingUtil;
 import com.hbm.handler.BulletConfiguration;
+import com.hbm.handler.GunConfiguration;
 import com.hbm.handler.GunConfigurationSedna;
 import com.hbm.handler.threading.PacketThreading;
 import com.hbm.interfaces.AutoRegister;
+import com.hbm.items.weapon.ItemGunBase;
+import com.hbm.items.weapon.sedna.ItemGunBaseNT;
 import com.hbm.items.weapon.sedna.ItemGunBaseSedna;
 import com.hbm.lib.HBMSoundHandler;
 import com.hbm.main.MainRegistry;
@@ -131,18 +134,19 @@ public class EntityBulletBaseNT extends EntityThrowableInterp implements IBullet
         boolean offsetShot = true;
         boolean accuracyBoost = false;
 
-        if(!gun.isEmpty() && gun.getItem() instanceof ItemGunBaseSedna) {
-            GunConfigurationSedna cfg = ((ItemGunBaseSedna) gun.getItem()).mainConfig;
+        if(!gun.isEmpty() && gun.getItem() instanceof ItemGunBase) {
+            GunConfiguration cfg = ((ItemGunBase) gun.getItem()).mainConfig;
 
             if(cfg != null) {
-                if(cfg.hasSights && entity.isSneaking()) {
+                if(cfg.hasSights && ItemGunBase.getIsAiming(gun)) {
                     offsetShot = false;
                     accuracyBoost = true;
                 }
-
-                if(cfg.isCentered){
-                    offsetShot = false;
-                }
+            }
+        } else if(!gun.isEmpty() && gun.getItem() instanceof ItemGunBaseNT) {
+            if(ItemGunBaseNT.getIsAiming(gun)) {
+                offsetShot = false;
+                accuracyBoost = true;
             }
         }
 

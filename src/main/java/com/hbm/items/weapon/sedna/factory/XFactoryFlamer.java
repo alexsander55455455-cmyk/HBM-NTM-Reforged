@@ -136,7 +136,7 @@ public class XFactoryFlamer {
         flame_daybreaker_balefire = flame_balefire.clone().setLife(200).setVel(2F).setGrav(0.035F)
                 .setOnImpact((bullet, mop) -> { Lego.standardExplode(bullet, mop, 5F); spawnFire(bullet, mop, 7.5F, 2.5F, 400, EntityFireLingering.TYPE_BALEFIRE); bullet.setDead(); });
 
-        ModItems.gun_flamer = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.A_SIDE, "gun_flamer", new GunConfig()
+        ModItems.gun_flamer_sedna = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.A_SIDE, "gun_flamer_sedna", new GunConfig()
                 .dura(20_000).draw(10).inspect(17).crosshair(Crosshair.L_CIRCLE)
                 .rec(new Receiver(0)
                         .dmg(1F).spreadHipfire(0F).delay(1).auto(true).reload(90).jam(17)

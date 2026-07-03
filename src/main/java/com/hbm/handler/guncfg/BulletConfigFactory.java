@@ -10,9 +10,14 @@ import com.hbm.items.ModItems;
 import com.hbm.lib.Library;
 import com.hbm.render.amlfrom1710.Vec3;
 import com.hbm.util.BobMathUtil;
+import com.hbm.handler.ArmorUtil;
+import com.hbm.util.ArmorRegistry;
+import com.hbm.util.ArmorRegistry.HazardClass;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.MobEffects;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.math.Vec3d;
@@ -402,6 +407,54 @@ public class BulletConfigFactory {
 			}
 		};
 		return config;
+	}
+
+	public static IBulletImpactBehavior getGasEffect(final int radius, final int duration) {
+
+		return new IBulletImpactBehavior() {
+
+			@Override
+			public void behaveBlockHit(EntityBulletBase bullet, int x, int y, int z) {
+
+				List<Entity> hit = bullet.world.getEntitiesWithinAABBExcludingEntity(bullet, new AxisAlignedBB(bullet.posX - radius, bullet.posY - radius, bullet.posZ - radius, bullet.posX + radius, bullet.posY + radius, bullet.posZ + radius));
+
+				for(Entity e : hit) {
+
+					if(!Library.isObstructed(bullet.world, bullet.posX, bullet.posY, bullet.posZ, e.posX, e.posY + e.getEyeHeight(), e.posZ)) {
+
+						if(e instanceof EntityLivingBase) {
+
+							EntityLivingBase entityLiving = (EntityLivingBase) e;
+
+							if(ArmorRegistry.hasAllProtection(entityLiving, EntityEquipmentSlot.HEAD, HazardClass.GAS_LUNG)) {
+								ArmorUtil.damageGasMaskFilter(entityLiving, 1);
+							} else {
+								PotionEffect eff0 = new PotionEffect(MobEffects.POISON, duration, 2, true, false);
+								PotionEffect eff1 = new PotionEffect(MobEffects.MINING_FATIGUE, duration, 2, true, false);
+								PotionEffect eff2 = new PotionEffect(MobEffects.WEAKNESS, duration, 4, true, false);
+								PotionEffect eff3 = new PotionEffect(MobEffects.WITHER, (int)Math.ceil(duration * 0.1), 0, true, false);
+								eff0.getCurativeItems().clear();
+								eff1.getCurativeItems().clear();
+								eff2.getCurativeItems().clear();
+								eff3.getCurativeItems().clear();
+								entityLiving.addPotionEffect(eff0);
+								entityLiving.addPotionEffect(eff1);
+								entityLiving.addPotionEffect(eff2);
+								entityLiving.addPotionEffect(eff3);
+							}
+						}
+					}
+				}
+
+				NBTTagCompound data = new NBTTagCompound();
+				data.setString("type", "vanillaburst");
+				data.setString("mode", "cloud");
+				data.setInteger("count", 15);
+				data.setDouble("motion", 0.1D);
+
+				PacketDispatcher.wrapper.sendToAllAround(new AuxParticlePacketNT(data, bullet.posX, bullet.posY, bullet.posZ), new TargetPoint(bullet.dimension, bullet.posX, bullet.posY, bullet.posZ, 50));
+			}
+		};
 	}
 
 	public static IBulletImpactBehavior getPhosphorousEffect(final int radius, final int duration, final int count, final double motion, final float hazeChance) {

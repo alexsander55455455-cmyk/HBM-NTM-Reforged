@@ -71,7 +71,7 @@ public class XFactory762mm {
                 .anim(LAMBDA_CARBINE_ANIMS).orchestra(Orchestras.ORCHESTRA_CARBINE)
         ).setDefaultAmmo(GunFactory.EnumAmmo.R762_SP, 14);
 
-        ModItems.gun_minigun = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.A_SIDE, "gun_minigun", new GunConfig()
+        ModItems.gun_minigun_sedna = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.A_SIDE, "gun_minigun_sedna", new GunConfig()
                 .dura(50_000).draw(20).inspect(20).crosshair(Crosshair.L_CIRCLE).smoke(LAMBDA_SMOKE)
                 .rec(new Receiver(0)
                         .dmg(6F).delay(1).auto(true).dry(15).spread(0.01F).sound(HBMSoundHandler.calShoot, 1.0F, 1.0F)

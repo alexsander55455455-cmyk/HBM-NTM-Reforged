@@ -10,6 +10,8 @@ import com.hbm.interfaces.IBulletImpactBehavior;
 import com.hbm.inventory.RecipesCommon;
 import com.hbm.items.ModItems;
 import com.hbm.lib.HBMSoundHandler;
+import com.hbm.packet.PacketDispatcher;
+import com.hbm.packet.toclient.AuxParticlePacketNT;
 import com.hbm.potion.HbmPotion;
 import com.hbm.render.anim.BusAnimation;
 import com.hbm.render.anim.BusAnimationKeyframe;
@@ -17,8 +19,10 @@ import com.hbm.render.anim.BusAnimationSequence;
 import com.hbm.render.anim.HbmAnimations.AnimType;
 import com.hbm.render.misc.RenderScreenOverlay.Crosshair;
 import net.minecraft.init.MobEffects;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.SoundCategory;
+import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 
 import java.util.ArrayList;
 
@@ -59,7 +63,7 @@ public class GunEnergyFactory {
 		config.rateOfFire = 30;
 		config.roundsPerCycle = 1;
 		config.gunMode = GunConfiguration.MODE_NORMAL;
-		config.firingMode = GunConfiguration.FIRE_AUTO;
+		config.firingMode = GunConfiguration.FIRE_MANUAL;
 		config.reloadDuration = 10;
 		config.firingDuration = 0;
 		config.ammoCap = 0;
@@ -77,6 +81,160 @@ public class GunEnergyFactory {
 		return config;
 	}
 
+	public static GunConfiguration getFlamerConfig() {
+
+		GunConfiguration config = new GunConfiguration();
+
+		config.rateOfFire = 1;
+		config.roundsPerCycle = 1;
+		config.gunMode = GunConfiguration.MODE_NORMAL;
+		config.firingMode = GunConfiguration.FIRE_AUTO;
+		config.reloadDuration = 20;
+		config.reloadSoundEnd = false;
+		config.firingDuration = 0;
+		config.ammoCap = 100;
+		config.durability = 1000;
+		config.reloadType = GunConfiguration.RELOAD_FULL;
+		config.allowsInfinity = true;
+		config.crosshair = Crosshair.L_CIRCLE;
+		config.firingSound = HBMSoundHandler.flamethrowerShoot;
+		config.reloadSound = HBMSoundHandler.b92Reload;
+
+		config.name = "Heavy Duty Flamer";
+		config.manufacturer = "MWT Prototype Labs";
+
+		config.comment.add("Dragon-slaying: Advanced techniques, part 1:");
+		config.comment.add("Try not to get eaten by the dragon.");
+		config.comment.add("");
+		config.comment.add("Hope that helps.");
+
+		config.config = new ArrayList<Integer>();
+		config.config.add(BulletConfigSyncingUtil.FLAMER_NORMAL);
+		config.config.add(BulletConfigSyncingUtil.FLAMER_NAPALM);
+		config.config.add(BulletConfigSyncingUtil.FLAMER_WP);
+		config.config.add(BulletConfigSyncingUtil.FLAMER_VAPORIZER);
+		config.config.add(BulletConfigSyncingUtil.FLAMER_GAS);
+
+		return config;
+	}
+
+	public static BulletConfiguration getFlameConfig() {
+
+		BulletConfiguration bullet = new BulletConfiguration();
+
+		bullet.ammo = new RecipesCommon.ComparableStack(ModItems.ammo_fuel);
+		bullet.ammoCount = 100;
+
+		bullet.velocity = 0.75F;
+		bullet.spread = 0.025F;
+		bullet.wear = 1;
+		bullet.bulletsMin = 3;
+		bullet.bulletsMax = 5;
+		bullet.dmgMin = 2;
+		bullet.dmgMax = 4;
+		bullet.gravity = 0.01F;
+		bullet.maxAge = 60;
+		bullet.doesRicochet = false;
+		bullet.doesPenetrate = true;
+		bullet.doesBreakGlass = false;
+		bullet.style = BulletConfiguration.STYLE_NONE;
+		bullet.plink = BulletConfiguration.PLINK_NONE;
+		bullet.vPFX = "flame";
+		bullet.incendiary = 10;
+
+		bullet.bImpact = new IBulletImpactBehavior() {
+
+			@Override
+			public void behaveBlockHit(EntityBulletBase bullet, int x, int y, int z) {
+
+				NBTTagCompound data = new NBTTagCompound();
+				data.setString("type", "vanillaburst");
+				data.setString("mode", "flame");
+				data.setInteger("count", 15);
+				data.setDouble("motion", 0.1D);
+
+				PacketDispatcher.wrapper.sendToAllAround(new AuxParticlePacketNT(data, bullet.posX, bullet.posY, bullet.posZ), new TargetPoint(bullet.dimension, bullet.posX, bullet.posY, bullet.posZ, 50));
+			}
+		};
+
+		return bullet;
+	}
+
+	public static BulletConfiguration getNapalmConfig() {
+
+		BulletConfiguration bullet = getFlameConfig();
+
+		bullet.ammo = new RecipesCommon.ComparableStack(ModItems.ammo_fuel_napalm);
+		bullet.wear = 2;
+		bullet.dmgMin = 4;
+		bullet.dmgMax = 6;
+		bullet.maxAge = 200;
+
+		return bullet;
+	}
+
+	public static BulletConfiguration getPhosphorusConfig() {
+
+		BulletConfiguration bullet = getFlameConfig();
+
+		bullet.ammo = new RecipesCommon.ComparableStack(ModItems.ammo_fuel_phosphorus);
+		bullet.wear = 2;
+		bullet.spread = 0.0F;
+		bullet.bulletsMin = 1;
+		bullet.bulletsMax = 1;
+		bullet.dmgMin = 4;
+		bullet.dmgMax = 6;
+		bullet.maxAge = 200;
+		bullet.vPFX = "smoke";
+
+		bullet.bImpact = BulletConfigFactory.getPhosphorousEffect(5, 60 * 20, 25, 0.25, 0.1F);
+
+		return bullet;
+	}
+
+	public static BulletConfiguration getVaporizerConfig() {
+
+		BulletConfiguration bullet = getFlameConfig();
+
+		bullet.ammo = new RecipesCommon.ComparableStack(ModItems.ammo_fuel_vaporizer);
+		bullet.wear = 4;
+		bullet.spread = 0.25F;
+		bullet.bulletsMin = 8;
+		bullet.bulletsMax = 10;
+		bullet.dmgMin = 6;
+		bullet.dmgMax = 10;
+		bullet.maxAge = 15;
+		bullet.vPFX = "flame";
+		bullet.incendiary = 0;
+
+		PotionEffect eff = new PotionEffect(HbmPotion.phosphorus, 20 * 20, 0, true, false);
+		eff.getCurativeItems().clear();
+		bullet.effects = new ArrayList<>();
+		bullet.effects.add(new PotionEffect(eff));
+
+		return bullet;
+	}
+
+	public static BulletConfiguration getGasConfig() {
+
+		BulletConfiguration bullet = getFlameConfig();
+
+		bullet.ammo = new RecipesCommon.ComparableStack(ModItems.ammo_fuel_gas);
+		bullet.wear = 1;
+		bullet.spread = 0.05F;
+		bullet.gravity = 0F;
+		bullet.bulletsMin = 5;
+		bullet.bulletsMax = 7;
+		bullet.dmgMin = 0;
+		bullet.dmgMax = 0;
+		bullet.vPFX = "cloud";
+		bullet.incendiary = 0;
+
+		bullet.bImpact = BulletConfigFactory.getGasEffect(5, 60 * 20);
+
+		return bullet;
+	}
+
 	public static GunConfiguration getVortexConfig() {
 
 		GunConfiguration config = new GunConfiguration();
@@ -88,11 +246,11 @@ public class GunEnergyFactory {
 		config.hasSights = false;
 		config.reloadDuration = 20;
 		config.firingDuration = 0;
-		config.ammoCap = 8;
+		config.ammoCap = 10;
 		config.reloadType = GunConfiguration.RELOAD_FULL;
 		config.allowsInfinity = true;
 		config.crosshair = Crosshair.NONE;
-		config.durability = 12000;
+		config.durability = 10000;
 		config.reloadSound = GunConfiguration.RSOUND_MAG; //MetalloloM: i'll add new sounds for it later
 		config.firingSound = HBMSoundHandler.hksShoot;
 		config.reloadSoundEnd = false;
@@ -182,6 +340,51 @@ public class GunEnergyFactory {
 		};
 
 		return bullet;
+	}
+
+	public static GunConfiguration getCCPlasmaGunConfig() {
+		GunConfiguration config = new GunConfiguration();
+
+		config.rateOfFire = 2;
+		config.roundsPerCycle = 1;
+		config.gunMode = GunConfiguration.MODE_NORMAL;
+		config.firingMode = GunConfiguration.FIRE_AUTO;
+		config.hasSights = false;
+		config.reloadDuration = 20;
+		config.firingDuration = 0;
+		config.ammoCap = 40;
+		config.reloadType = GunConfiguration.RELOAD_NONE;
+		config.allowsInfinity = true;
+		config.crosshair = Crosshair.NONE;
+		config.durability = 10000;
+		config.reloadSound = GunConfiguration.RSOUND_MAG;
+		config.firingSound = HBMSoundHandler.osiprShoot;
+		config.reloadSoundEnd = false;
+
+		config.name = "ChickenCom Light Duty Plasma Gun";
+		config.manufacturer = "ChickenCom";
+
+		config.comment.add("A gun originally manufactured for a lesser species.");
+
+		config.animations.put(AnimType.CYCLE, new BusAnimation()
+				.addBus("RECOIL", new BusAnimationSequence()
+						.addKeyframe(new BusAnimationKeyframe(0, 1, -5, 25))
+						.addKeyframe(new BusAnimationKeyframe(0, 0, 0, 200))
+						));
+
+		config.config = new ArrayList<Integer>();
+		config.config.add(BulletConfigSyncingUtil.R556_NORMAL);
+		config.config.add(BulletConfigSyncingUtil.R556_GOLD);
+		config.config.add(BulletConfigSyncingUtil.R556_TRACER);
+		config.config.add(BulletConfigSyncingUtil.R556_PHOSPHORUS);
+		config.config.add(BulletConfigSyncingUtil.R556_AP);
+		config.config.add(BulletConfigSyncingUtil.R556_DU);
+		config.config.add(BulletConfigSyncingUtil.R556_STAR);
+		config.config.add(BulletConfigSyncingUtil.CHL_R556);
+		config.config.add(BulletConfigSyncingUtil.R556_SLEEK);
+		config.config.add(BulletConfigSyncingUtil.R556_K);
+
+		return config;
 	}
 
 	public static BulletConfiguration getOrbusConfig() {

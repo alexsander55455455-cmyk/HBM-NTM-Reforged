@@ -329,6 +329,8 @@ public final class HBMSoundHandler {
     public static SoundEvent hundunsMagnificentHowl;
     public static SoundEvent fireSilenced;
     public static SoundEvent fireGreaseGun;
+    public static SoundEvent firePistolLight;
+    public static SoundEvent fireMk108;
     public static SoundEvent firePistol;
     public static SoundEvent fireBlackPowder;
     public static SoundEvent fireUzi;
@@ -733,6 +735,8 @@ public final class HBMSoundHandler {
         fireBlackPowder = register("weapon.fire.blackPowder");
         fireUzi = register("weapon.fire.uzi");
         fireGreaseGun = register("weapon.fire.greaseGun");
+        firePistolLight = register("weapon.fire.pistolLight");
+        fireMk108 = register("weapon.fire.mk108");
         fireAberrator = register("weapon.fire.aberrator");
         coilgunShoot = register("weapon.coilgunShoot");
         fireTauRelease = register("weapon.fire.tauRelease");

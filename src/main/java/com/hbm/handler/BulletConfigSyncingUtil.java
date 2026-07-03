@@ -294,6 +294,16 @@ private static HashMap<Integer, BulletConfiguration> configSet = new HashMap<Int
 		configSet.put(G12_SLEEK, Gun12GaugeFactory.get12GaugeSleekConfig());
 		configSet.put(NEEDLE_GPS, GunDartFactory.getGPSConfig());
 
+		configSet.put(FLAMER_NORMAL, GunEnergyFactory.getFlameConfig());
+		configSet.put(FLAMER_NAPALM, GunEnergyFactory.getNapalmConfig());
+		configSet.put(FLAMER_WP, GunEnergyFactory.getPhosphorusConfig());
+		configSet.put(FLAMER_VAPORIZER, GunEnergyFactory.getVaporizerConfig());
+		configSet.put(FLAMER_GAS, GunEnergyFactory.getGasConfig());
+
+		configSet.put(B75_NORMAL, Gun75BoltFactory.get75BoltConfig());
+		configSet.put(B75_INCENDIARY, Gun75BoltFactory.get75BoltIncConfig());
+		configSet.put(B75_HE, Gun75BoltFactory.get75BoltHEConfig());
+
 		configSet.put(ZOMG_BOLT, GunEnergyFactory.getZOMGBoltConfig());
 		configSet.put(SPECIAL_OSIPR, GunOSIPRFactory.getPulseConfig());
 		configSet.put(SPECIAL_OSIPR_CHARGED, GunOSIPRFactory.getPulseChargedConfig());

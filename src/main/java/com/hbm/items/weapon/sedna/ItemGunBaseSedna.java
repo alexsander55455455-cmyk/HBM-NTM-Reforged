@@ -782,7 +782,7 @@ public class ItemGunBaseSedna extends ItemBakedBase implements IHoldableWeapon, 
 
             event.setCanceled(true);
 
-            if(!(gcfg.hasSights && player.isSneaking()))
+            if(!(gcfg.hasSights && ItemGunBaseNT.getIsAiming(player.getHeldItemMainhand())))
                 RenderScreenOverlay.renderCustomCrosshairs(event.getResolution(), Minecraft.getMinecraft().ingameGUI, ((IHoldableWeapon)player.getHeldItemMainhand().getItem()).getCrosshair());
             else
                 RenderScreenOverlay.renderCustomCrosshairs(event.getResolution(), Minecraft.getMinecraft().ingameGUI, RenderScreenOverlay.Crosshair.NONE);

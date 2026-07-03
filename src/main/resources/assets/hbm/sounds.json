@@ -251,6 +251,8 @@
     "weapon.fire.shotgunAlt": {"category": "player", "sounds": ["hbm:weapon/fire/shotgunAlt"]},
     "weapon.fire.shotgunAuto": {"category": "player", "sounds": ["hbm:weapon/fire/shotgunAuto"]},
     "weapon.fire.greaseGun": {"category": "player", "sounds": ["hbm:weapon/fire/greaseGun"]},
+    "weapon.fire.pistolLight": {"category": "player", "sounds": ["hbm:weapon/fire/pistolLight"]},
+    "weapon.fire.mk108": {"category": "player", "sounds": ["hbm:weapon/fire/mk108"]},
     "weapon.fire.uzi": {"category": "player", "sounds": ["hbm:weapon/fire/uzi"]},
     "weapon.fire.tesla": {"category": "player", "sounds": ["hbm:weapon/fire/tesla"]},
     "weapon.fire.aberrator": {"category": "player", "sounds": ["hbm:weapon/fire/aberrator"]},
