@@ -32,11 +32,6 @@ public final class CreativeTabSortOrder {
 
     private static final Map<String, String> REGISTRY_ALIASES = new HashMap<>();
 
-    static {
-        REGISTRY_ALIASES.put("hbm:rbmk_fuel_hep", "rbmk_fuel_hep239");
-        REGISTRY_ALIASES.put("rbmk_fuel_hep", "rbmk_fuel_hep239");
-    }
-
     private static final Map<String, Map<String, Integer>> TAB_ORDERS = new HashMap<>();
     private static final Map<String, List<String>> TAB_REGISTRY_ORDER = new HashMap<>();
     private static final Map<String, Integer> GLOBAL_FALLBACK = new HashMap<>();
