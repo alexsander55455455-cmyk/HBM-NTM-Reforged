@@ -3,6 +3,7 @@ package com.hbmspace.mixin.mod.hbm;
 import com.hbm.hazard.HazardRegistry;
 import com.hbm.inventory.OreDictManager;
 import com.hbm.inventory.material.MaterialShapes;
+import com.hbmspace.dim.SolarSystem;
 import com.hbmspace.inventory.IDictFrameAddon;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
@@ -40,7 +41,7 @@ public abstract class MixinDictFrame implements IDictFrameAddon {
         // Th3_Sl1ze: somehow space ores are skipped even though I'm registering them via wildcard value..
         for(Object o : ore) {
             if (o instanceof Block) {
-                for (int i = 0; i < 16; i++) {
+                for (int i = 0; i < SolarSystem.Body.values().length; i++) {
                     this.makeObject(MaterialShapes.ORE, i, o);
                 }
             }

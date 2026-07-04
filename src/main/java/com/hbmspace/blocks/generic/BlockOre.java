@@ -278,7 +278,7 @@ public class BlockOre extends net.minecraft.block.BlockOre implements ICustomBlo
     @SideOnly(Side.CLIENT)
     public void bakeModel(ModelBakeEvent event) {
         try {
-            IModel cube = ModelLoaderRegistry.getModel(new ResourceLocation("block/cube_all"));
+            IModel cube = ModelLoaderRegistry.getModel(new ResourceLocation("minecraft:block/cube_all"));
             // Since resource loading fucks itself in the ass, I had to move the ore textures to "hbmspace" folder instead of default "hbm" one
             String oreTex = new ResourceLocation(Tags.MODID, "blocks/" + this.getRegistryName().getPath()).toString();
 
