@@ -3,9 +3,11 @@ package com.hbm.tileentity.machine;
 import com.hbm.api.energymk2.IEnergyReceiverMK2;
 import com.hbm.api.fluid.IFluidStandardTransceiver;
 import com.hbm.blocks.ModBlocks;
+import com.hbm.config.MachineConfig;
 import com.hbm.interfaces.AutoRegister;
 import com.hbm.interfaces.IControlReceiver;
 import com.hbm.inventory.UpgradeManagerNT;
+import com.hbm.inventory.fluid.FluidType;
 import com.hbm.inventory.container.ContainerMixer;
 import com.hbm.inventory.fluid.Fluids;
 import com.hbm.inventory.fluid.tank.FluidTankNTM;
@@ -46,6 +48,8 @@ import java.util.List;
 public class TileEntityMachineMixer extends TileEntityMachineBase implements IControlReceiver, ITickable, IGUIProvider, IFluidStandardTransceiver, IEnergyReceiverMK2, IUpgradeInfoProvider, IFluidCopiable, IConnectionAnchors {
 
     public static final long maxPower = 10_000;
+    public static final int uuConsumption = 1_000_000;
+    public static final long uuMaxPower = 200_000_000;
     private final UpgradeManagerNT upgradeManager;
     public long power;
     public int progress;
@@ -54,6 +58,7 @@ public class TileEntityMachineMixer extends TileEntityMachineBase implements ICo
     public float rotation;
     public float prevRotation;
     public boolean wasOn = false;
+    public boolean uuMixer = false;
     public FluidTankNTM[] tanks;
     AxisAlignedBB aabb;
     private int consumption = 50;
@@ -85,31 +90,50 @@ public class TileEntityMachineMixer extends TileEntityMachineBase implements ICo
 
     @Override
     public String getDefaultName() {
-        return "container.machineMixer";
+        return uuMixer ? "container.machineUUMixer" : "container.machineMixer";
     }
 
     @Override
     public void update() {
         if (!world.isRemote) {
             this.power = Library.chargeTEFromItems(inventory, 0, power, getMaxPower());
-            tanks[2].setType(2, inventory);
 
             upgradeManager.checkSlots(3, 4);
             int speedLevel = upgradeManager.getLevel(UpgradeType.SPEED);
             int powerLevel = upgradeManager.getLevel(UpgradeType.POWER);
             int overLevel = upgradeManager.getLevel(UpgradeType.OVERDRIVE);
+            uuMixer = upgradeManager.getLevel(UpgradeType.SCREAM) > 0;
 
-            this.consumption = 50;
+            updateTankSizes();
 
-            this.consumption += speedLevel * 150;
-            this.consumption -= this.consumption * powerLevel * 0.25;
-            this.consumption *= (overLevel * 3 + 1);
+            if(uuMixer) {
+                updateInputUUtank();
+                updateOutputTypeUUMixer();
+            } else {
+                tanks[2].setType(2, inventory);
+            }
+
+            if(uuMixer) {
+                this.consumption = uuConsumption;
+                this.consumption *= (speedLevel + 1);
+                this.consumption *= (overLevel * 3 + 1);
+                if(powerLevel > 0)
+                    this.consumption /= (powerLevel + 1);
+            } else {
+                this.consumption = 50;
+                this.consumption += speedLevel * 150;
+                this.consumption -= this.consumption * powerLevel * 0.25;
+                this.consumption *= (overLevel * 3 + 1);
+            }
+
+            if(!uuMixer && power > getMaxPower())
+                power = getMaxPower();
 
             for (DirPos pos : getConPos()) {
                 this.trySubscribe(world, pos.getPos().getX(), pos.getPos().getY(), pos.getPos().getZ(), pos.getDir());
                 if (tanks[0].getTankType() != Fluids.NONE)
                     this.trySubscribe(tanks[0].getTankType(), world, pos.getPos().getX(), pos.getPos().getY(), pos.getPos().getZ(), pos.getDir());
-                if (tanks[1].getTankType() != Fluids.NONE)
+                if (!uuMixer && tanks[1].getTankType() != Fluids.NONE)
                     this.trySubscribe(tanks[1].getTankType(), world, pos.getPos().getX(), pos.getPos().getY(), pos.getPos().getZ(), pos.getDir());
             }
 
@@ -145,7 +169,7 @@ public class TileEntityMachineMixer extends TileEntityMachineBase implements ICo
             this.prevRotation = this.rotation;
 
             if (this.wasOn) {
-                this.rotation += 20F;
+                this.rotation += uuMixer ? 40F : 20F;
             }
 
             if (this.rotation >= 360) {
@@ -163,6 +187,7 @@ public class TileEntityMachineMixer extends TileEntityMachineBase implements ICo
         buf.writeInt(progress);
         buf.writeInt(recipeIndex);
         buf.writeBoolean(wasOn);
+        buf.writeBoolean(uuMixer);
 
         for (FluidTankNTM fluidTankNTM : tanks)
             fluidTankNTM.serialize(buf);
@@ -176,12 +201,55 @@ public class TileEntityMachineMixer extends TileEntityMachineBase implements ICo
         progress = buf.readInt();
         recipeIndex = buf.readInt();
         wasOn = buf.readBoolean();
+        uuMixer = buf.readBoolean();
 
         for (FluidTankNTM fluidTankNTM : tanks)
             fluidTankNTM.deserialize(buf);
     }
 
+    private void updateTankSizes() {
+        if(uuMixer) {
+            if(tanks[0].getMaxFill() != 2_000_000_000) {
+                tanks[0].changeTankSize(2_000_000_000);
+                tanks[1].changeTankSize(2_000_000_000);
+                tanks[2].changeTankSize(2_000_000_000 / MachineConfig.uuMixerFluidRatio);
+                markDirty();
+            }
+        } else if(tanks[0].getMaxFill() != 16_000) {
+            tanks[0].changeTankSize(16_000);
+            tanks[1].changeTankSize(16_000);
+            tanks[2].changeTankSize(24_000);
+            markDirty();
+        }
+    }
+
+    private void updateInputUUtank() {
+        if(tanks[0].getTankType() != Fluids.UU_MATTER)
+            tanks[0].setTankType(Fluids.UU_MATTER);
+        if(tanks[1].getTankType() != Fluids.NONE || tanks[1].getFill() > 0) {
+            tanks[1].setTankType(Fluids.NONE);
+            tanks[1].setFill(0);
+        }
+    }
+
+    private void updateOutputTypeUUMixer() {
+        FluidType prev = tanks[2].getTankType();
+        tanks[2].setType(2, inventory);
+        FluidType next = tanks[2].getTankType();
+        if(next != Fluids.NONE && !MachineConfig.isFluidAllowed(next)) {
+            tanks[2].setTankType(prev);
+        }
+    }
+
     public boolean canProcess() {
+        if(uuMixer) {
+            if(tanks[2].getTankType() == Fluids.NONE) return false;
+            if(this.power < getConsumption()) return false;
+            if(tanks[2].getFill() >= tanks[2].getMaxFill()) return false;
+            if(tanks[0].getFill() < MachineConfig.uuMixerFluidRatio) return false;
+            this.processTime = 200;
+            return true;
+        }
 
         MixerRecipe[] recipes = MixerRecipes.getOutput(tanks[2].getTankType());
         if (recipes == null || recipes.length <= 0) {
@@ -220,6 +288,15 @@ public class TileEntityMachineMixer extends TileEntityMachineBase implements ICo
     }
 
     protected void process() {
+        if(uuMixer) {
+            int mbProduction = Math.min(tanks[2].getMaxFill() - tanks[2].getFill(), tanks[0].getFill() / MachineConfig.uuMixerFluidRatio);
+            if(mbProduction > 0) {
+                tanks[0].setFill(tanks[0].getFill() - mbProduction * MachineConfig.uuMixerFluidRatio);
+                tanks[2].setFill(tanks[2].getFill() + mbProduction);
+                markDirty();
+            }
+            return;
+        }
 
         MixerRecipe[] recipes = MixerRecipes.getOutput(tanks[2].getTankType());
         MixerRecipe recipe = recipes[this.recipeIndex % recipes.length];
@@ -268,6 +345,7 @@ public class TileEntityMachineMixer extends TileEntityMachineBase implements ICo
         this.progress = nbt.getInteger("progress");
         this.processTime = nbt.getInteger("processTime");
         this.recipeIndex = nbt.getInteger("recipe");
+        this.uuMixer = nbt.getBoolean("uu");
         for (int i = 0; i < 3; i++) this.tanks[i].readFromNBT(nbt, i + "");
         if (nbt.hasKey("f")) {
             nbt.removeTag("f");
@@ -281,6 +359,7 @@ public class TileEntityMachineMixer extends TileEntityMachineBase implements ICo
         nbt.setInteger("progress", progress);
         nbt.setInteger("processTime", processTime);
         nbt.setInteger("recipe", recipeIndex);
+        nbt.setBoolean("uu", uuMixer);
         for (int i = 0; i < 3; i++) this.tanks[i].writeToNBT(nbt, i + "");
         return super.writeToNBT(nbt);
     }
@@ -297,7 +376,7 @@ public class TileEntityMachineMixer extends TileEntityMachineBase implements ICo
 
     @Override
     public long getMaxPower() {
-        return maxPower;
+        return uuMixer ? uuMaxPower : maxPower;
     }
 
     @Override
@@ -339,6 +418,8 @@ public class TileEntityMachineMixer extends TileEntityMachineBase implements ICo
 
     @Override
     public FluidTankNTM[] getReceivingTanks() {
+        if(uuMixer)
+            return new FluidTankNTM[]{tanks[0]};
         return new FluidTankNTM[]{tanks[0], tanks[1]};
     }
 
@@ -354,7 +435,7 @@ public class TileEntityMachineMixer extends TileEntityMachineBase implements ICo
 
     @Override
     public boolean canProvideInfo(UpgradeType type, int level, boolean extendedInfo) {
-        return type == UpgradeType.SPEED || type == UpgradeType.POWER || type == UpgradeType.OVERDRIVE;
+        return type == UpgradeType.SPEED || type == UpgradeType.POWER || type == UpgradeType.OVERDRIVE || type == UpgradeType.SCREAM;
     }
 
     @Override
@@ -370,6 +451,9 @@ public class TileEntityMachineMixer extends TileEntityMachineBase implements ICo
         if(type == UpgradeType.OVERDRIVE) {
             info.add((BobMathUtil.getBlink() ? TextFormatting.RED : TextFormatting.DARK_GRAY) + "YES");
         }
+        if(type == UpgradeType.SCREAM) {
+            info.add(TextFormatting.LIGHT_PURPLE + I18nUtil.resolveKey("container.machineUUMixer"));
+        }
     }
 
     @Override
@@ -378,6 +462,7 @@ public class TileEntityMachineMixer extends TileEntityMachineBase implements ICo
         upgrades.put(UpgradeType.SPEED, 3);
         upgrades.put(UpgradeType.POWER, 3);
         upgrades.put(UpgradeType.OVERDRIVE, 6);
+        upgrades.put(UpgradeType.SCREAM, 1);
         return upgrades;
     }
     @Override

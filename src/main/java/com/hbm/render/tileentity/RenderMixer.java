@@ -26,7 +26,7 @@ public class RenderMixer extends TileEntitySpecialRenderer<TileEntityMachineMixe
     GlStateManager.disableCull();
 
     GlStateManager.shadeModel(GL11.GL_SMOOTH);
-    bindTexture(ResourceManager.mixer_tex);
+    bindTexture(mixer.uuMixer ? ResourceManager.mixer_uu_tex : ResourceManager.mixer_tex);
     ResourceManager.mixer.renderPart("Main");
 
     GlStateManager.pushMatrix();
@@ -55,7 +55,11 @@ public class RenderMixer extends TileEntitySpecialRenderer<TileEntityMachineMixe
       Color color = new Color(mixer.tanks[2].getTankType().getColor());
       GlStateManager.color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, 0.75F);
       GlStateManager.translate(0, 1, 0);
-      GlStateManager.scale(1, (double) totalFill / (double) totalMax * 0.99, 1);
+      if(mixer.uuMixer) {
+        GlStateManager.scale(1, 0.99, 1);
+      } else {
+        GlStateManager.scale(1, (double) totalFill / (double) totalMax * 0.99, 1);
+      }
       GlStateManager.translate(0, -1, 0);
       ResourceManager.mixer.renderPart("Fluid");
 

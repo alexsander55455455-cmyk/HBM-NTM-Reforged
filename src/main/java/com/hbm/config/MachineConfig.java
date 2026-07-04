@@ -1,9 +1,11 @@
 package com.hbm.config;
 
 import com.hbm.interfaces.IDoor;
+import com.hbm.inventory.fluid.FluidType;
 import net.minecraftforge.common.config.Configuration;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
 
 public class MachineConfig {
@@ -16,6 +18,17 @@ public class MachineConfig {
     public static int crateByteSize = 8192;
     public static int rbmkJumpTemp = 1250;
     public static HashMap<String, IDoor.Mode> doorConf = new HashMap<>();
+
+    public static int uuMixerFluidRatio = 100;
+    public static boolean uuMixerFluidListIsWhitelist = false;
+    public static HashSet<String> blacklistedMixerFluids = new HashSet<>();
+
+    public static boolean isFluidAllowed(FluidType type) {
+        if(type == null) return false;
+        boolean isInList = blacklistedMixerFluids.contains(type.getFFName());
+        if(uuMixerFluidListIsWhitelist) return isInList;
+        return !isInList;
+    }
 
     public static void loadFromConfig(Configuration config) {
 
@@ -46,5 +59,9 @@ public class MachineConfig {
                 // Ignore invalid modes
             }
         }
+
+        uuMixerFluidRatio = CommonConfig.createConfigInt(config, CATEGORY_MACHINE, "9.24_uuMixerFluidRatio", "How much mB of UU-Matter is used per mB of output fluid", 100);
+        uuMixerFluidListIsWhitelist = CommonConfig.createConfigBool(config, CATEGORY_MACHINE, "9.25_uuMixerFluidListIsWhitelist", "If true then the following list of fluids is a whitelist. Otherwise it is a blacklist", false);
+        blacklistedMixerFluids = CommonConfig.createConfigHashSet(config, CATEGORY_MACHINE, "9.26_blacklistedUUMixerFluids", "List of fluids that can not be made by UU Mixer. - <fluid> (String)", String.class, new String[]{"liquid_osmiridium", "experience"});
     }
 }

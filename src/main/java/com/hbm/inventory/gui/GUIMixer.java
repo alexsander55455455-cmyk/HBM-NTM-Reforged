@@ -41,7 +41,7 @@ public class GUIMixer extends GuiInfoContainer {
 
 		MixerRecipes.MixerRecipe[] recipes = MixerRecipes.getOutput(mixer.tanks[2].getTankType());
 
-		if(recipes != null && recipes.length > 1) {
+		if(!mixer.uuMixer && recipes != null && recipes.length > 1) {
 			List<String> label = new ArrayList<>();
 			label.add(TextFormatting.YELLOW + "Current recipe (" + (mixer.recipeIndex + 1) + "/" + recipes.length + "):");
 			MixerRecipes.MixerRecipe recipe = recipes[mixer.recipeIndex % recipes.length];

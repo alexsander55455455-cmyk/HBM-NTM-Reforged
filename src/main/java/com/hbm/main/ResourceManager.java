@@ -766,6 +766,7 @@ public class ResourceManager {
     public static final ResourceLocation arc_furnace_tex = new ResourceLocation(Tags.MODID, "textures/models/machines/arc_furnace.png");
     //Mixer
     public static final ResourceLocation mixer_tex = new ResourceLocation(Tags.MODID, "textures/models/machines/mixer.png");
+    public static final ResourceLocation mixer_uu_tex = new ResourceLocation(Tags.MODID, "textures/models/machines/mixer_uu.png");
     //Centrifuge
     public static final ResourceLocation centrifuge_gas_tex = new ResourceLocation(Tags.MODID, "textures/models/machines/centrifuge_gas.png");
     public static final ResourceLocation silex_tex = new ResourceLocation(Tags.MODID, "textures/models/machines/silex.png");
