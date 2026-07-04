@@ -51,7 +51,7 @@ public class ItemRenderBrimstone extends TEISRBase {
             case GUI:
                 GlStateManager.enableLighting();
                 GL11.glTranslated(0.5D, 0.5D, 0.5D);
-                GL11.glScaled(0.12D, 0.12D, 0.12D);
+                GL11.glScaled(0.16D, 0.16D, 0.16D);
                 GL11.glTranslated(-0.2D, -1.2D, 0.0D);
                 GL11.glRotated(-90.0D, 0.0D, 1.0D, 0.0D);
                 GL11.glRotated(-40.0D, 1.0D, 0.0D, 0.0D);
