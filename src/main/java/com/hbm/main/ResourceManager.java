@@ -56,6 +56,7 @@ public class ResourceManager {
     public static final WaveFrontObjectVAO deagle = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/weapons/deagle.obj")).asVBO();
     public static final WaveFrontObjectVAO ks23 = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/weapons/ks23.obj")).asVBO();
     public static final WaveFrontObjectVAO flamer = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/weapons/flamer.obj")).asVBO();
+    public static final WaveFrontObjectVAO brimstone = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/brimstone.obj")).asVBO();
     public static final WaveFrontObjectVAO sauer = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/weapons/sauergun.obj")).asVBO();
     public static final WaveFrontObjectVAO grenade_frag = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/weapons/grenade_frag.obj")).asVBO();
     public static final WaveFrontObjectVAO grenade_aschrab = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/weapons/grenade_aschrab.obj")).asVBO();
@@ -63,6 +64,7 @@ public class ResourceManager {
     public static final ResourceLocation hk69_tex = new ResourceLocation(Tags.MODID, "textures/models/weapons/hk69.png");
     public static final ResourceLocation deagle_tex = new ResourceLocation(Tags.MODID, "textures/models/weapons/deagle.png");
     public static final ResourceLocation flamer_tex = new ResourceLocation(Tags.MODID, "textures/models/weapons/flamer.png");
+    public static final ResourceLocation brimstone_tex = new ResourceLocation(Tags.MODID, "textures/models/weapons/brimstone.png");
     public static final ResourceLocation sauer_tex = new ResourceLocation(Tags.MODID, "textures/models/weapons/sauergun.png");
 
     public static final WaveFrontObjectVAO horse = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/mobs/horse.obj")).asVBO();

@@ -426,6 +426,7 @@ public class ClientProxy extends ServerProxy {
         registerItemRenderer(ModItems.gun_fatman, new com.hbm.render.item.weapon.ItemRenderFatMan());
         registerItemRenderer(ModItems.gun_mirv, new com.hbm.render.item.weapon.ItemRenderMIRVLauncher());
         registerItemRenderer(ModItems.gun_bf, new com.hbm.render.item.weapon.ItemRenderBFLauncher());
+        registerItemRenderer(ModItems.gun_brimstone, new com.hbm.render.item.weapon.ItemRenderBrimstone());
         registerItemRenderer(ModItems.gun_osipr, new com.hbm.render.item.weapon.ItemRenderOSIPR());
         registerItemRenderer(ModItems.gun_xvl1456, new com.hbm.render.item.weapon.ItemRenderXVL1456());
         registerItemRenderer(ModItems.gun_skystinger, new com.hbm.render.item.weapon.ItemRenderStinger());
