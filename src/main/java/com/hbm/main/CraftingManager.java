@@ -890,8 +890,8 @@ public class CraftingManager {
 		//addRecipeAuto(new ItemStack(ModBlocks.hadron_power_100m, 1), "HF", 'H', ModBlocks.hadron_power_10m, 'F', ModItems.fuse );
 		//addRecipeAuto(new ItemStack(ModBlocks.hadron_power_1g, 1), "HF", 'H', ModBlocks.hadron_power_100m, 'F', ModItems.fuse );
 		//addRecipeAuto(new ItemStack(ModBlocks.hadron_power_10g, 1), "HF", 'H', ModBlocks.hadron_power_1g, 'F', ModItems.fuse );
-		//addRecipeAuto(new ItemStack(ModBlocks.hadron_analysis, 1), "IPI", "PCP", "IPI", 'I', TI.ingot(), 'P', getReflector(), 'C', DictFrame.fromOne(ModItems.circuit, EnumCircuitType.ADVANCED) );
-		//addShapelessAuto(new ItemStack(ModBlocks.hadron_analysis_glass, 1), ModBlocks.hadron_analysis, KEY_ANYGLASS );
+		addRecipeAuto(new ItemStack(ModBlocks.hadron_analysis, 1), "IPI", "PCP", "IPI", 'I', TI.ingot(), 'P', getReflector(), 'C', DictFrame.fromOne(ModItems.circuit, EnumCircuitType.ADVANCED) );
+		addShapelessAuto(new ItemStack(ModBlocks.hadron_analysis_glass, 1), ModBlocks.hadron_analysis, KEY_ANYGLASS );
 		//addRecipeAuto(new ItemStack(ModBlocks.hadron_access, 1), "IGI", "CRC", "IPI", 'I', ModItems.plate_polymer, 'G', KEY_ANYPANE, 'C', DictFrame.fromOne(ModItems.circuit, EnumCircuitType.BASIC), 'R', REDSTONE.block(), 'P', ModBlocks.hadron_plating_blue );
 		//addRecipeAuto(new ItemStack(ModBlocks.hadron_cooler, 1, 0), "PCP", "CHC", "PCP", 'P', ANY_RESISTANTALLOY.plateCast(), 'C', DictFrame.fromOne(ModItems.circuit, EnumCircuitType.BASIC), 'H', Fluids.HELIUM4.getDict(16_000) );
 		//addRecipeAuto(new ItemStack(ModBlocks.hadron_cooler, 1, 1), "PCP", "CHC", "PCP", 'P', GOLD.plateCast(), 'C', ModItems.motor_bismuth, 'H', new ItemStack(ModBlocks.hadron_cooler, 1, 0) );
