@@ -332,7 +332,6 @@ public class Fluids {
         PLASMA_DH3 =			new FluidType("PLASMA_DH3",			0xFF83AA, 0, 4, 0, EnumSymbol.RADIATION).setTemp(3480).addTraits(NOCON, NOID, PLASMA);
         HELIUM3 =				new FluidType("HELIUM3",			0xFCF0C4, 0, 0, 0, EnumSymbol.ASPHYXIANT).addTraits(GASEOUS).addContainers(new CD_Gastank(0xFD631F, 0xffffff));
         DEATH =					new FluidType("DEATH",				0x717A88, 2, 0, 1, EnumSymbol.ACID).setFFNameOverride("liquid_osmiridium").setTemp(300).addTraits(new FT_Corrosive(80), new FT_Poison(true, 4), LEADCON, LIQUID, VISCOUS);
-        UU_MATTER =				new FluidType("UU_MATTER",			0xE700FF, 6, 2, 6, EnumSymbol.ACID).setFFNameOverride("ic2uu_matter").setTemp(1_000_000).addTraits(new FT_Corrosive(20), LIQUID, VISCOUS);
         ETHANOL =				new FluidType("ETHANOL",			0xe0ffff, 2, 3, 0, EnumSymbol.NONE).addContainers(new CD_Canister(0xEAFFF3)).addTraits(new FT_Flammable(75_000), new FT_Combustible(FuelGrade.HIGH, 200_000), LIQUID, P_FUEL);
         HEAVYWATER =			new FluidType("HEAVYWATER",			0x00a0b0, 1, 0, 0, EnumSymbol.NONE).addTraits(LIQUID);
         CRACKOIL =				new FluidType("CRACKOIL",			0x020202, 2, 1, 0, EnumSymbol.NONE).addContainers(new CD_Canister(0x424242)).addTraits(new FT_Flammable(10_000), LIQUID, VISCOUS, P_OIL);
@@ -435,6 +434,7 @@ public class Fluids {
         VOLCANIC_LAVA =			new FluidType(157, "VOLCANIC_LAVA",		0xC42509, 4, 1, 1, EnumSymbol.NOWATER).setFFNameOverride("volcanic_lava_fluid").setGuiTint(0xC42509).addContainers(new CD_Canister(0xC42509)).setTemp(1300).addTraits(LIQUID, VISCOUS);
         RADWATER =				new FluidType(158, "RADWATER",			0x3F7A97, 2, 0, 0, EnumSymbol.RADIATION).setFFNameOverride("radwater_fluid").setGuiTint(0x3F7A97).addContainers(new CD_Canister(0x3F7A97)).addTraits(new FT_VentRadiation(0.04F), LIQUID);
         PLASMA_PUT =			new FluidType(159, "PLASMA_PUT",			0x3F99FF, 2, 3, 1, EnumSymbol.RADIATION).setTemp(50273).addTraits(NOCON, NOID, PLASMA);
+        UU_MATTER =				new FluidType(160, "UU_MATTER",			0xE700FF, 6, 2, 6, EnumSymbol.ACID).setFFNameOverride("ic2uu_matter").setTemp(1_000_000).addTraits(new FT_Corrosive(20), LIQUID, VISCOUS);
 
         // ^ ^ ^ ^ ^ ^ ^ ^
         //ADD NEW FLUIDS HERE
@@ -575,7 +575,6 @@ public class Fluids {
         metaOrder.add(SAS3);
         metaOrder.add(PAIN);
         metaOrder.add(DEATH);
-        metaOrder.add(UU_MATTER);
         metaOrder.add(WATZ);
         metaOrder.add(REDMUD);
         metaOrder.add(FULLERENE);
@@ -617,6 +616,7 @@ public class Fluids {
         metaOrder.add(PLASMA_DH3);
         metaOrder.add(PLASMA_XM);
         metaOrder.add(PLASMA_PUT);
+        metaOrder.add(UU_MATTER);
         metaOrder.add(PLASMA_BF);
         //smoke
         metaOrder.add(SMOKE);
