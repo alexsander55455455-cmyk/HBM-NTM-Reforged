@@ -170,8 +170,8 @@ public final class StaticTesrBakedModels {
                     .item(1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F)
                     .gui(0.0D, -5.0D, 0.0D, 3.8D),
             normalSpec(ModBlocks.machine_drain, "models/machines/drain.obj", "models/machines/drain", yawMap().meta(12, 90).meta(13, 270).meta(14, 180).meta(15, 0).build())
-                    .item(1.0F, RAD_180, 0.75F, 0.0F, 0.0F, 0.0F, 0.0F)
-                    .gui(-1.0D, -1.0D, 0.0D, 5.0D, 180.0D),
+                    .item(1.0F, RAD_180, 0.0F, 0.0F, 0.0F, 0.75F, 0.0F, 0.0F)
+                    .gui(-1.0D, -1.0D, 0.0D, 5.0D, 0.0D),
             normalSpec(ModBlocks.machine_electrolyser, "models/machines/electrolyser.obj", "models/machines/electrolyser", yawMap().meta(12, 180).meta(13, 0).meta(14, 270).meta(15, 90).build())
                     .doubleSided()
                     .item(0.5F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F)
