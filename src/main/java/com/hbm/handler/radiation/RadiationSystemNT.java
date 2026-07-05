@@ -31,7 +31,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.management.PlayerChunkMapEntry;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -63,6 +62,10 @@ public final class RadiationSystemNT {
 	private static Map<World, WorldRadiationData> worldMap = new HashMap<>();
 	/**A tick counter so radiation only updates once every second.*/
 	private static int ticks;
+
+	/** Budget for async dirty-queue rebuilds only; spread path keeps the original sync behavior. */
+	private static final int MAX_DIRTY_REBUILDS_PER_TICK = 8;
+	private static final long MAX_DIRTY_REBUILD_MS = 16L;
 	
 	/**
 	 * Increments the radiation at the specified block position. Only increments if the current radiaion stored is less than max
@@ -74,7 +77,10 @@ public final class RadiationSystemNT {
 	public static void incrementRad(World world, BlockPos pos, float amount, float max){
 		if(pos.getY() < 0 || pos.getY() > 255 || !world.isBlockLoaded(pos))
 			return;
-		RadPocket p = getPocket(world, pos);
+		RadPocket p = getPocketLazy(world, pos);
+		if (p == null) {
+			return;
+		}
 		if(p.radiation < max){
 			p.radiation += amount;
 		}
@@ -95,7 +101,10 @@ public final class RadiationSystemNT {
 		//If there's nothing to decrement, return
 		if(pos.getY() < 0 || pos.getY() > 255 || !isSubChunkLoaded(world, pos))
 			return;
-		RadPocket p = getPocket(world, pos);
+		RadPocket p = getPocketLazy(world, pos);
+		if (p == null) {
+			return;
+		}
 		p.radiation -= Math.max(amount, 0);
 		if(p.radiation < 0){
 			p.radiation = 0;
@@ -109,7 +118,10 @@ public final class RadiationSystemNT {
 	 * @param amount - the amount to set the radiation to
 	 */
 	public static void setRadForCoord(World world, BlockPos pos, float amount){
-		RadPocket p = getPocket(world, pos);
+		RadPocket p = getPocketLazy(world, pos);
+		if (p == null) {
+			return;
+		}
 		p.radiation = Math.max(amount, 0);
 		//If the amount is greater than 0, make sure to mark it as dirty so it gets updated
 		if(amount > 0){
@@ -129,11 +141,11 @@ public final class RadiationSystemNT {
 		if(!isSubChunkLoaded(world, pos))
 			return 0;
 
-		// If no pockets, assume no radiation
-		if (getPocket(world, pos) == null)
+		RadPocket pocket = getPocketLazy(world, pos);
+		if (pocket == null) {
 			return 0;
-
-		return getPocket(world, pos).radiation;
+		}
+		return pocket.radiation;
 	}
 
 	public static double getRadForCoord(WorldServer world, BlockPos pos) {
@@ -195,6 +207,34 @@ public final class RadiationSystemNT {
 	 */
 	public static RadPocket getPocket(World world, BlockPos pos){
 		return getSubChunkStorage(world, pos).getPocket(pos);
+	}
+
+	/** Pocket lookup without sync flood-fill; used on block-tick / player-read paths. */
+	private static RadPocket getPocketLazy(World world, BlockPos pos) {
+		if (!world.isBlockLoaded(pos)) {
+			return null;
+		}
+		SubChunkRadiationStorage storage = peekSubChunkStorage(world, pos);
+		if (storage == null) {
+			markChunkForRebuild(world, pos);
+			return null;
+		}
+		return storage.getPocket(pos);
+	}
+
+	private static SubChunkRadiationStorage peekSubChunkStorage(World world, BlockPos pos) {
+		if (!world.isBlockLoaded(pos)) {
+			return null;
+		}
+		WorldRadiationData worldRadData = worldMap.get(world);
+		if (worldRadData == null) {
+			return null;
+		}
+		ChunkRadiationStorage st = worldRadData.data.get(new ChunkPos(pos));
+		if (st == null) {
+			return null;
+		}
+		return st.getForYLevel(pos.getY());
 	}
 	
 	/**
@@ -315,6 +355,10 @@ public final class RadiationSystemNT {
 		BlockPos chunkPos = new BlockPos(pos.getX() >> 4, pos.getY() >> 4, pos.getZ() >> 4);
 		WorldRadiationData r = getWorldRadData(world);
 
+		if (r.dirtyChunks.contains(chunkPos) || r.dirtyChunks2.contains(chunkPos)) {
+			return;
+		}
+
 		if(GeneralConfig.enableDebugMode) {
 			MainRegistry.logger.info("[Debug] Marking chunk dirty at " + chunkPos);
 		}
@@ -331,25 +375,36 @@ public final class RadiationSystemNT {
 	 * Rebuilds stored dirty chunks
 	 */
 	private static void rebuildDirty() {
+		long budgetStart = System.currentTimeMillis();
+		int rebuilt = 0;
 
 		for(WorldRadiationData r : worldMap.values()) {
-			boolean hadDirty = false;
-
 			//Set the iteration flag to avoid concurrent modification
 			r.iteratingDirty = true;
 
-			//For each dirty sub chunk, rebuild it
-			for (BlockPos dirtyChunkPos : r.dirtyChunks) {
+			Iterator<BlockPos> dirtyItr = r.dirtyChunks.iterator();
+			while (dirtyItr.hasNext()) {
+				if (rebuilt >= MAX_DIRTY_REBUILDS_PER_TICK
+						|| System.currentTimeMillis() - budgetStart > MAX_DIRTY_REBUILD_MS) {
+					break;
+				}
+
+				BlockPos dirtyChunkPos = dirtyItr.next();
+				BlockPos chunkAnchor = new BlockPos(dirtyChunkPos.getX() << 4, 0, dirtyChunkPos.getZ() << 4);
+				if (!r.world.isBlockLoaded(chunkAnchor)) {
+					dirtyItr.remove();
+					continue;
+				}
+
 				if (GeneralConfig.enableDebugMode) {
 					MainRegistry.logger.info("[Debug] Rebuilding chunk pockets for dirty chunk at " + dirtyChunkPos);
 				}
 
 				rebuildChunkPockets(r.world.getChunk(dirtyChunkPos.getX(), dirtyChunkPos.getZ()), dirtyChunkPos.getY());
-				hadDirty = true;
+				dirtyItr.remove();
+				rebuilt++;
 			}
 			r.iteratingDirty = false;
-			//Clear the dirty chunks lists, and add any chunks that might have been marked while iterating to be dealt with next tick.
-			r.dirtyChunks.clear();
 			r.dirtyChunks.addAll(r.dirtyChunks2);
 			r.dirtyChunks2.clear();
 
@@ -491,12 +546,6 @@ public final class RadiationSystemNT {
 			while(itr.hasNext()) {
 				RadPocket p = itr.next();
 				BlockPos pos = p.parent.parent.getWorldPos(p.parent.yLevel);
-				PlayerChunkMapEntry entry = ((WorldServer) w.world).getPlayerChunkMap().getEntry(p.parent.parent.chunk.x, p.parent.parent.chunk.z);
-				if (entry == null || entry.getWatchingPlayers().isEmpty()) {
-					//I shouldn't have to do this, but I ran into some issues with chunks not getting unloaded?
-					//In any case, marking it for unload myself shouldn't cause any problems
-					((WorldServer) w.world).getChunkProvider().queueUnload(p.parent.parent.chunk);
-				}
 				//Lower the radiation a bit, and mark the parent chunk as dirty so the radiation gets saved
 				p.radiation *= 0.999F;
 				p.radiation -= 0.05F;
