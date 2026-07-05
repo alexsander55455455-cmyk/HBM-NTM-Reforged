@@ -537,6 +537,9 @@ abstract public class Component extends StructureComponent {
 							|| block.isLeaves(state, world, pos)
 							|| state.getMaterial() == Material.LEAVES)
 							&& pos.getY() > 1 && brake <= 15) {
+						if (!box.isVecInside(pos)) {
+							break;
+						}
 						world.setBlockState(pos, fillState, 2);
 						pos = pos.down();
 						state = world.getBlockState(pos);

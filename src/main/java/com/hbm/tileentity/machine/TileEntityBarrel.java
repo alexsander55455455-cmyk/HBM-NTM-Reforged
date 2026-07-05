@@ -202,6 +202,9 @@ public class TileEntityBarrel extends TileEntityMachineBase implements ITickable
         //
 
         if (!world.isRemote) {
+            if (inventory.getSlots() < 6) {
+                resizeInventory(6);
+            }
             tankNew.setType(0, 1, inventory);
             tankNew.loadTank(2, 3, inventory);
             tankNew.unloadTank(4, 5, inventory);

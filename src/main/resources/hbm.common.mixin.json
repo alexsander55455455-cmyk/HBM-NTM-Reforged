@@ -16,7 +16,9 @@
   ],
   "mixins": [
     "MixinFMLProxyPacket",
-    "MixinNetworkDispatcher"
+    "MixinNetworkDispatcher",
+    "MixinTemplateNtmdopolnenie",
+    "MixinTemplateManagerNtmdopolnenie"
   ],
   "server": [],
   "setSourceFile": true,

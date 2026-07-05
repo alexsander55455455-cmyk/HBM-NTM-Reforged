@@ -32,6 +32,7 @@ public class GeneralConfig {
 	public static boolean enableMycelium = false;
 	public static boolean enablePlutoniumOre = false;
 	public static boolean enableDungeons = true;
+	public static boolean enableNtmdopolnenieCompat = true;
 	public static boolean enableMDOres = true;
 	public static boolean enableMines = true;
 	public static boolean enableRad = true;
@@ -141,6 +142,7 @@ public class GeneralConfig {
         enableMycelium = config.get(CommonConfig.CATEGORY_GENERAL, "1.01_enableMyceliumSpread", false, "Allows glowing mycelium to spread").getBoolean(false);
 		enablePlutoniumOre = config.get(CommonConfig.CATEGORY_GENERAL, "1.02_enablePlutoniumNetherOre", false, "Enables plutonium ore generation in the nether").getBoolean(false);
 		enableDungeons = config.get(CommonConfig.CATEGORY_GENERAL, "1.03_enableDungeonSpawn", true, "Allows structures and dungeons to spawn.").getBoolean(true);
+		enableNtmdopolnenieCompat = config.get(CommonConfig.CATEGORY_GENERAL, "1.03_enableNtmdopolnenieCompat", true, "Enables optional compatibility for the ntmdopolnenie (NTMstructure) worldgen addon when its JAR is installed. Has no effect if the addon is absent.").getBoolean(true);
 		enableMDOres = config.get(CommonConfig.CATEGORY_GENERAL, "1.04_enableOresInModdedDimensions", true, "Allows NTM ores to generate in modded dimensions").getBoolean(true);
 		enableMines = config.get(CommonConfig.CATEGORY_GENERAL, "1.05_enableLandmineSpawn", true, "Allows landmines to generate").getBoolean(true);
 		enableRad = config.get(CommonConfig.CATEGORY_GENERAL, "1.06_enableRadHotspotSpawn", true, "Allows radiation hotspots to generate").getBoolean(true);

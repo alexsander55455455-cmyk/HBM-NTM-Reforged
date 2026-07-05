@@ -95,11 +95,14 @@ public class Compat {
         }
     }
 
+    public static boolean isNtmdopolnenieLoaded() {
+        return Loader.isModLoaded(ModIds.HBM_NTM_STRUCTURE);
+    }
+
     public static void exitOnIncompatible() {
         final Map<String,String> humanReadable = Map.of(
                 HBM_NTM_LUCKY_BLOCKS, "\"HBM NTM Lucky blocks\" by Eag0la",
-                POTATOO_STRUCTURE, "\"Potatoo's Custom Structure For HBM's Nuclear Tech Mod\" by Potatoo_Cake",
-                HBM_NTM_STRUCTURE, "\"HBM/NTM structure\" by AlimodyKorol"
+                POTATOO_STRUCTURE, "\"Potatoo's Custom Structure For HBM's Nuclear Tech Mod\" by Potatoo_Cake"
         );
         for (String mod : ModIds.INCOMPATIBLE_MODS) {
             if (Loader.isModLoaded(mod)) {
@@ -114,10 +117,10 @@ public class Compat {
         public static final String CTM = "ctm";
         public static final String AE2 = "appliedenergistics2";
         public static final String MODERN_SPLASH = "modernsplash";
-        public static final String HBM_NTM_STRUCTURE = "ntmdopolnenie"; //Yes, this is the modid. Idk what this means
+        public static final String HBM_NTM_STRUCTURE = "ntmdopolnenie";
         public static final String POTATOO_STRUCTURE = "potatooscustomstructureforhbm"; //Can we just block all mccreator mods?
         public static final String HBM_NTM_LUCKY_BLOCKS = "luckynuke"; //It's all fucking garbage;
-        public static final String[] INCOMPATIBLE_MODS = {HBM_NTM_LUCKY_BLOCKS, POTATOO_STRUCTURE, HBM_NTM_STRUCTURE};
+        public static final String[] INCOMPATIBLE_MODS = {HBM_NTM_LUCKY_BLOCKS, POTATOO_STRUCTURE};
 
 
     }

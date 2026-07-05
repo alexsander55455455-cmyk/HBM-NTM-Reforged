@@ -1,6 +1,7 @@
 package com.hbm.world.gen.nbt;
 
 import com.hbm.Tags;
+import com.hbm.compat.StructureLegacyRemap;
 import com.hbm.blocks.ModBlocks;
 import com.hbm.blocks.generic.BlockWand;
 import com.hbm.blocks.generic.BlockWandTandem.TileEntityWandTandem;
@@ -75,44 +76,6 @@ public class NBTStructure {
     private Map<String, List<JigsawConnection>> toBottomConnections;
     private Map<String, List<JigsawConnection>> toHorizontalConnections;
     private Map<Short, String> legacyItemIdToName;
-    private static final Map<String, String> substitutions = new HashMap<String, String>() {{
-        put(Tags.MODID + ":tile.ore_coal_oil", "minecraft:coal_ore");
-        put(Tags.MODID + ":ore_coal_oil", "minecraft:coal_ore");
-        put(Tags.MODID + ":fluid_duct_neo", Tags.MODID + ":fluid_duct_mk2");
-        put(Tags.MODID + ":rail_narrow", "minecraft:rail");
-    }};
-    private static final String[] LEGACY_BRICK_SLABS = {
-            Tags.MODID + ":reinforced_stone_slab",
-            Tags.MODID + ":reinforced_brick_slab",
-            Tags.MODID + ":brick_obsidian_slab",
-            Tags.MODID + ":brick_light_slab",
-            Tags.MODID + ":brick_compound_slab",
-            Tags.MODID + ":brick_asbestos_slab",
-            Tags.MODID + ":brick_fire_slab"
-    };
-    private static final String[] LEGACY_BRICK_DOUBLE_SLABS = {
-            Tags.MODID + ":reinforced_stone_double_slab",
-            Tags.MODID + ":reinforced_brick_double_slab",
-            Tags.MODID + ":brick_obsidian_double_slab",
-            Tags.MODID + ":brick_light_double_slab",
-            Tags.MODID + ":brick_compound_double_slab",
-            Tags.MODID + ":brick_asbestos_double_slab",
-            Tags.MODID + ":brick_fire_double_slab"
-    };
-    private static final String[] LEGACY_CONCRETE_BRICK_SLABS = {
-            Tags.MODID + ":brick_concrete_slab",
-            Tags.MODID + ":brick_concrete_mossy_slab",
-            Tags.MODID + ":brick_concrete_cracked_slab",
-            Tags.MODID + ":brick_concrete_broken_slab",
-            Tags.MODID + ":ducrete_brick_slab"
-    };
-    private static final String[] LEGACY_CONCRETE_BRICK_DOUBLE_SLABS = {
-            Tags.MODID + ":brick_concrete_double_slab",
-            Tags.MODID + ":brick_concrete_mossy_double_slab",
-            Tags.MODID + ":brick_concrete_cracked_double_slab",
-            Tags.MODID + ":brick_concrete_broken_double_slab",
-            Tags.MODID + ":ducrete_brick_double_slab"
-    };
 
 	public NBTStructure(ResourceLocation resource) {
         this.resource = resource;
@@ -616,6 +579,9 @@ public class NBTStructure {
                 if (hasBase && piece.platform != null && !piece.conformToTerrain) {
                     for (int y = oy - 1; y > 0; y--) {
                         BlockPos fillPos = new BlockPos(rx, y, rz);
+                        if (!generatingBounds.isVecInside(fillPos)) {
+                            break;
+                        }
                         if (!world.getBlockState(fillPos).getMaterial().isReplaceable()) break;
                         piece.platform.selectBlocks(world.rand, 0, 0, 0, false);
                         world.setBlockState(fillPos, piece.platform.getBlockState(), 2);
@@ -679,278 +645,7 @@ public class NBTStructure {
     }
 
     private void nbtFixerUpper(NBTTagCompound teNbt, Map<Short, String> idPalette) {
-        if (teNbt == null) return;
-
-        fixLegacyBlockNames(teNbt);
-        fixLegacyItemStackIds(teNbt, idPalette);
-
-        // Keep legacy lists intact: structure parity depends on many TEs still deserializing "items" or
-        // "Items" directly. If a modern inventory wrapper is absent, synthesize it additively instead.
-        if (teNbt.hasKey("inventory", Constants.NBT.TAG_COMPOUND)) return;
-        String listKey = null;
-        if (teNbt.hasKey("items", Constants.NBT.TAG_LIST)) listKey = "items";
-        else if (teNbt.hasKey("Items", Constants.NBT.TAG_LIST)) listKey = "Items";
-        if (listKey == null) return;
-        NBTTagList oldList = teNbt.getTagList(listKey, Constants.NBT.TAG_COMPOUND);
-        if (oldList.tagCount() == 0) return;
-        int maxSlot = -1;
-        for (int i = 0; i < oldList.tagCount(); i++) {
-            NBTTagCompound oldStack = oldList.getCompoundTagAt(i);
-            int slot = getSlot(oldStack);
-            if (slot >= 0 && slot > maxSlot) {
-                maxSlot = slot;
-            }
-        }
-        if (maxSlot < 0) return;
-        NBTTagList newItems = new NBTTagList();
-        for (int i = 0; i < oldList.tagCount(); i++) {
-            NBTTagCompound oldStack = oldList.getCompoundTagAt(i);
-            int slot = getSlot(oldStack);
-            if (slot < 0) continue;
-            String idString = null;
-            if (oldStack.hasKey("id", Constants.NBT.TAG_STRING)) {
-                idString = oldStack.getString("id");
-            } else if (oldStack.hasKey("id", Constants.NBT.TAG_SHORT)) {
-                short legacyId = oldStack.getShort("id");
-                idString = mapId(legacyId, idPalette);
-            } else if (oldStack.hasKey("id", Constants.NBT.TAG_INT)) {
-                int legacyId = oldStack.getInteger("id");
-                if (legacyId >= Short.MIN_VALUE && legacyId <= Short.MAX_VALUE) {
-                    idString = mapId((short) legacyId, idPalette);
-                } else {
-                    Item item = Item.getItemById(legacyId);
-                    if (item.getRegistryName() != null) {
-                        idString = item.getRegistryName().toString();
-                    }
-                }
-            }
-            if (idString == null || idString.isEmpty()) continue;
-            NBTTagCompound newStack = new NBTTagCompound();
-            newStack.setInteger("Slot", slot);
-            newStack.setString("id", idString);
-            if (oldStack.hasKey("Count", Constants.NBT.TAG_BYTE)) {
-                newStack.setByte("Count", oldStack.getByte("Count"));
-            } else {
-                newStack.setByte("Count", (byte) 1);
-            }
-            if (oldStack.hasKey("Damage", Constants.NBT.TAG_SHORT)) {
-                newStack.setShort("Damage", oldStack.getShort("Damage"));
-            } else {
-                newStack.setShort("Damage", (short) 0);
-            }
-            if (oldStack.hasKey("tag", Constants.NBT.TAG_COMPOUND)) {
-                newStack.setTag("tag", oldStack.getCompoundTag("tag"));
-            }
-            if (oldStack.hasKey("ForgeCaps", Constants.NBT.TAG_COMPOUND)) {
-                newStack.setTag("ForgeCaps", oldStack.getCompoundTag("ForgeCaps"));
-            }
-
-            newItems.appendTag(newStack);
-        }
-
-        if (newItems.tagCount() == 0) return;
-        NBTTagCompound invTag = new NBTTagCompound();
-        invTag.setTag("Items", newItems);
-        //invTag.setInteger("Size", maxSlot + 1);
-        // Th3_Sl1ze: problem is, if any ticking update tries to access greater slot than maxSlot + 1 (e.g. fluid tank trying to empty a fluid container),
-        // you'll get into a fucking miracle of corrupted saves
-        teNbt.setTag("inventory", invTag);
-        MainRegistry.logger.debug("[NBTStructure] Added inventory wrapper for TE with {} items in structure {}", newItems.tagCount(), resource);
-    }
-
-    private void fixLegacyBlockNames(NBTBase tag) {
-        if (tag instanceof NBTTagCompound compound) {
-            if (compound.hasKey("block", Constants.NBT.TAG_STRING)) {
-                int meta = compound.hasKey("meta", Constants.NBT.TAG_ANY_NUMERIC) ? compound.getInteger("meta") : 0;
-                LegacyBlockDefinition remappedDefinition = remapLegacyBlockDefinition(compound.getString("block"), meta);
-                if (remappedDefinition != null) {
-                    compound.setString("block", remappedDefinition.name);
-                    compound.setInteger("meta", remappedDefinition.meta);
-                } else {
-                    String remapped = remapLegacyBlockName(compound.getString("block"));
-                    if (remapped != null) {
-                        compound.setString("block", remapped);
-                    }
-                }
-            }
-
-            for (String key : compound.getKeySet()) {
-                fixLegacyBlockNames(compound.getTag(key));
-            }
-            return;
-        }
-
-        if (tag instanceof NBTTagList list) {
-            for (int i = 0; i < list.tagCount(); i++) {
-                fixLegacyBlockNames(list.get(i));
-            }
-        }
-    }
-
-    private void fixLegacyItemStackIds(NBTBase tag, Map<Short, String> idPalette) {
-        if (tag instanceof NBTTagCompound compound) {
-            if (looksLikeLegacyItemStack(compound)) {
-                String remapped = remapLegacyItemId(compound, idPalette);
-                if (remapped != null && !remapped.isEmpty()) {
-                    compound.setString("id", remapped);
-                }
-            }
-
-            for (String key : compound.getKeySet()) {
-                fixLegacyItemStackIds(compound.getTag(key), idPalette);
-            }
-            return;
-        }
-
-        if (tag instanceof NBTTagList list) {
-            for (int i = 0; i < list.tagCount(); i++) {
-                fixLegacyItemStackIds(list.get(i), idPalette);
-            }
-        }
-    }
-
-    private boolean looksLikeLegacyItemStack(NBTTagCompound tag) {
-        if (!tag.hasKey("id")) return false;
-
-        return tag.hasKey("Count", Constants.NBT.TAG_BYTE)
-                || tag.hasKey("Damage", Constants.NBT.TAG_SHORT)
-                || tag.hasKey("tag", Constants.NBT.TAG_COMPOUND)
-                || tag.hasKey("ForgeCaps", Constants.NBT.TAG_COMPOUND)
-                || tag.hasKey("Slot", Constants.NBT.TAG_BYTE)
-                || tag.hasKey("Slot", Constants.NBT.TAG_INT)
-                || tag.hasKey("slot", Constants.NBT.TAG_BYTE)
-                || tag.hasKey("slot", Constants.NBT.TAG_INT);
-    }
-
-    private @Nullable String remapLegacyItemId(NBTTagCompound itemTag, Map<Short, String> idPalette) {
-        if (itemTag.hasKey("id", Constants.NBT.TAG_STRING)) {
-            String idString = itemTag.getString("id");
-            if (idString.isEmpty()) return null;
-
-            Item item = Item.getByNameOrId(idString);
-            if (item != null && item.getRegistryName() != null) {
-                return item.getRegistryName().toString();
-            }
-
-            return idString.contains(":") ? idString : null;
-        }
-
-        if (itemTag.hasKey("id", Constants.NBT.TAG_SHORT)) {
-            return mapId(itemTag.getShort("id"), idPalette);
-        }
-
-        if (itemTag.hasKey("id", Constants.NBT.TAG_INT)) {
-            return mapId(itemTag.getInteger("id"), idPalette);
-        }
-
-        return null;
-    }
-
-    private static int getSlot(NBTTagCompound tag) {
-        int id = tag.getTagId("slot");
-        if (id != 0) {
-            if (id == NBT.TAG_BYTE) {
-                return tag.getByte("slot") & 0xFF;
-            } else if (id == NBT.TAG_INT) {
-                return tag.getInteger("slot");
-            }
-        } else {
-            id = tag.getTagId("Slot");
-            if (id != 0) {
-                if (id == NBT.TAG_BYTE) {
-                    return tag.getByte("Slot") & 0xFF;
-                } else if (id == NBT.TAG_INT) {
-                    return tag.getInteger("Slot");
-                }
-            }
-        }
-        return -1;
-    }
-
-    private @Nullable String mapId(int legacyId, Map<Short, String> idPalette) {
-        if (legacyId >= Short.MIN_VALUE && legacyId <= Short.MAX_VALUE && idPalette != null) {
-            String name = idPalette.get((short) legacyId);
-            if (name != null && !name.isEmpty()) {
-                return name;
-            }
-        }
-
-        Item item = Item.getItemById(legacyId);
-        //noinspection ConstantValue
-        if (item != null && item.getRegistryName() != null) {
-            return item.getRegistryName().toString();
-        }
-
-        MainRegistry.logger.debug("[NBTStructure] Could not find id {} in structure {}'s item palette", legacyId, resource);
-        return null;
-    }
-
-    private static Block resolveBlockName(String name) {
-        Block block = Block.getBlockFromName(name);
-        if (block != null) {
-            return block;
-        }
-
-        String remapped = remapLegacyBlockName(name);
-        if (remapped != null) {
-            block = Block.getBlockFromName(remapped);
-            if (block != null) {
-                return block;
-            }
-        }
-
-        return Blocks.AIR;
-    }
-
-    private static @Nullable LegacyBlockDefinition remapLegacyBlockDefinition(String name, int meta) {
-        String normalized = remapLegacyBlockName(name);
-        if (normalized == null) {
-            normalized = name;
-        }
-
-        return switch (normalized) {
-            case Tags.MODID + ":brick_slab" -> remapLegacySlab(meta, LEGACY_BRICK_SLABS, true);
-            case Tags.MODID + ":brick_double_slab" -> remapLegacySlab(meta, LEGACY_BRICK_DOUBLE_SLABS, false);
-            case Tags.MODID + ":concrete_brick_slab" -> remapLegacySlab(meta, LEGACY_CONCRETE_BRICK_SLABS, true);
-            case Tags.MODID + ":concrete_brick_double_slab" -> remapLegacySlab(meta, LEGACY_CONCRETE_BRICK_DOUBLE_SLABS, false);
-            default -> null;
-        };
-    }
-
-    private static @Nullable LegacyBlockDefinition remapLegacySlab(int meta, String[] variants, boolean preserveHalf) {
-        int variant = meta & 7;
-        if (variant < 0 || variant >= variants.length) {
-            return null;
-        }
-
-        return new LegacyBlockDefinition(variants[variant], preserveHalf ? meta & 8 : 0);
-    }
-
-    private static @Nullable String remapLegacyBlockName(String name) {
-        String substituted = substitutions.get(name);
-        if (substituted != null) {
-            return substituted;
-        }
-
-        String prefix = Tags.MODID + ":tile.";
-        if (name.startsWith(prefix)) {
-            String stripped = Tags.MODID + ":" + name.substring(prefix.length());
-            return substitutions.getOrDefault(stripped, stripped);
-        }
-
-        return null;
-    }
-
-    private static class LegacyBlockDefinition {
-
-        final String name;
-        final int meta;
-
-        private LegacyBlockDefinition(String name, int meta) {
-            this.name = name;
-            this.meta = meta;
-        }
-
+        StructureLegacyRemap.sanitizeTileEntityNbt(teNbt, idPalette);
     }
 
 	private Block transformBlock(BlockDefinition definition, Map<Block, StructureComponent.BlockSelector> blockTable, Random rand) {
@@ -1045,14 +740,14 @@ public class NBTStructure {
 		final int meta;
 
 		BlockDefinition(String name, int meta) {
-            LegacyBlockDefinition remapped = remapLegacyBlockDefinition(name, meta);
+            StructureLegacyRemap.LegacyBlockDefinition remapped = StructureLegacyRemap.remapLegacyBlockDefinition(name, meta);
             if (remapped != null) {
-                this.block = resolveBlockName(remapped.name);
+                this.block = StructureLegacyRemap.resolveBlockName(remapped.name);
                 this.meta = remapped.meta;
                 return;
             }
 
-			this.block = resolveBlockName(name);
+			this.block = StructureLegacyRemap.resolveBlockName(name);
 			this.meta = meta;
 		}
 

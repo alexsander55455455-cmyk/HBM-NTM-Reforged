@@ -8,6 +8,7 @@ import com.hbm.blocks.ModBlocks;
 import com.hbm.blocks.VanillaBlockPatcher;
 import com.hbm.blocks.fluid.ModFluids;
 import com.hbm.blocks.generic.BlockCrate;
+import com.hbm.compat.NtmdopolnenieCompat;
 import com.hbm.capability.HbmCapability;
 import com.hbm.capability.HbmLivingCapability;
 import com.hbm.capability.NTMBatteryCapabilityHandler;
@@ -211,6 +212,7 @@ public class MainRegistry {
         }
         proxy.checkGLCaps();
         reloadConfig();
+        NtmdopolnenieCompat.init();
 
         OreDictManager.registerGroups();
         OreDictManager oreMan = new OreDictManager();
