@@ -64,6 +64,7 @@ public final class CreativeTabSortVerifier {
 		verifyWeaponTabArtilleryAmmo();
 		verifyWeaponEeCeFirearmBlocks();
 		verifyWeaponModBlock();
+		verifyRailgunPlasmaPlacement();
 		verifyMeteoriteSwordDamageOrder();
 		verifyPartsTabBedrockJeiBlock();
 		verifyBedrockOreTypeMajorVariantOrder();
@@ -346,12 +347,29 @@ public final class CreativeTabSortVerifier {
 			prevIdx = sortIdx;
 		}
 		int himars = order.indexOf("ammo_himars");
+		int crucible = order.indexOf("crucible");
 		int hsSword = order.indexOf("hs_sword");
 		if (himars >= 0 && first <= himars) {
 			throw new AssertionError("weapon_mod block must follow ammo_himars");
 		}
-		if (hsSword >= 0 && last >= hsSword) {
-			throw new AssertionError("weapon_mod block must precede hs_sword");
+		if (crucible < 0) {
+			throw new AssertionError("weaponTab missing crucible");
+		}
+		if (last >= crucible) {
+			throw new AssertionError("weapon_mod block must precede crucible");
+		}
+		if (hsSword >= 0 && crucible >= hsSword) {
+			throw new AssertionError("crucible must precede hs_sword");
+		}
+		int crucibleIdx = CreativeTabSortOrder.getSortIndex(probeStack("hbm", "crucible"), "weaponTab");
+		if (crucibleIdx <= prevIdx) {
+			throw new AssertionError("crucible sort index must follow weapon_mod_caliber");
+		}
+		if (hsSword >= 0) {
+			int hsIdx = CreativeTabSortOrder.getSortIndex(probeStack("hbm", "hs_sword"), "weaponTab");
+			if (crucibleIdx >= hsIdx) {
+				throw new AssertionError("crucible sort index must precede hs_sword");
+			}
 		}
 		ItemStack generic0 = probeStack("hbm", "weapon_mod_generic", 0);
 		ItemStack generic1 = probeStack("hbm", "weapon_mod_generic", 1);
@@ -366,8 +384,36 @@ public final class CreativeTabSortVerifier {
 		if (CreativeTabSortHelper.compareStacks(special0, caliber0, "weaponTab") >= 0) {
 			throw new AssertionError("weapon_mod_special must precede weapon_mod_caliber in stack sort");
 		}
+		ItemStack caliber7 = probeStack("hbm", "weapon_mod_caliber", 7);
+		ItemStack crucibleStack = probeStack("hbm", "crucible");
+		if (CreativeTabSortHelper.compareStacks(caliber7, crucibleStack, "weaponTab") >= 0) {
+			throw new AssertionError("weapon_mod_caliber meta 7 must precede crucible in stack sort");
+		}
 		System.out.println(
 				"weapon_mod_block=true first=" + first + " last=" + last + " indices=" + prevIdx);
+	}
+
+	private static void verifyRailgunPlasmaPlacement() {
+		List<String> order = CreativeTabSortOrder.getTabRegistryOrder("weaponTab");
+		int fritz = order.indexOf("turret_fritz");
+		int railgun = order.indexOf("railgun_plasma");
+		int brandon = order.indexOf("turret_brandon");
+		if (fritz < 0 || railgun < 0 || brandon < 0) {
+			throw new AssertionError("weaponTab missing turret_fritz, railgun_plasma, or turret_brandon");
+		}
+		if (railgun != fritz + 1) {
+			throw new AssertionError("railgun_plasma must immediately follow turret_fritz");
+		}
+		if (brandon != railgun + 1) {
+			throw new AssertionError("turret_brandon must immediately follow railgun_plasma");
+		}
+		int fritzIdx = CreativeTabSortOrder.getSortIndex(probeStack("hbm", "turret_fritz"), "weaponTab");
+		int railgunIdx = CreativeTabSortOrder.getSortIndex(probeStack("hbm", "railgun_plasma"), "weaponTab");
+		int brandonIdx = CreativeTabSortOrder.getSortIndex(probeStack("hbm", "turret_brandon"), "weaponTab");
+		if (fritzIdx >= railgunIdx || railgunIdx >= brandonIdx) {
+			throw new AssertionError("turret_fritz < railgun_plasma < turret_brandon sort indices required");
+		}
+		System.out.println("railgun_plasma_placement=true fritz=" + fritz + " railgun=" + railgun);
 	}
 
 	private static void verifyAssemblyTemplateHidden() {
