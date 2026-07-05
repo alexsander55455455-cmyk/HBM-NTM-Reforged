@@ -190,17 +190,17 @@ public final class StructureLegacyRemap {
     }
 
     public static Block resolveBlockName(String name) {
-        Block block = Block.getBlockFromName(name);
-        if (block != null) {
-            return block;
-        }
-
         String remapped = remapLegacyBlockName(name);
         if (remapped != null) {
-            block = Block.getBlockFromName(remapped);
+            Block block = Block.getBlockFromName(remapped);
             if (block != null) {
                 return block;
             }
+        }
+
+        Block block = Block.getBlockFromName(name);
+        if (block != null) {
+            return block;
         }
 
         return Blocks.AIR;
