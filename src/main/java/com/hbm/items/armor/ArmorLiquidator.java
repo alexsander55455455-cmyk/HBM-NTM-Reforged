@@ -9,7 +9,6 @@ import com.hbm.items.ModItems;
 import com.hbm.items.gear.ArmorFSB;
 import com.hbm.render.model.ModelM65;
 import com.hbm.util.ArmorRegistry.HazardClass;
-import com.hbm.util.I18nUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.model.ModelBiped;
@@ -31,7 +30,6 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -165,11 +163,6 @@ public class ArmorLiquidator extends ArmorFSB implements IGasMask {
 		super.addInformation(stack, worldIn, list, flagIn);
 		if (this == ModItems.liquidator_helmet)
 			ArmorUtil.addGasMaskTooltip(stack, worldIn, list, flagIn);
-		list.add(TextFormatting.GOLD + I18nUtil.resolveKey("armor.fullSetBonus"));
-		list.add(TextFormatting.YELLOW + "  " + I18nUtil.resolveKey("armor.threshold", DAMAGE_THRESHOLD));
-		list.add(TextFormatting.YELLOW + "  " + I18nUtil.resolveKey("armor.blastProtection", BLAST_MOD));
-		list.add(TextFormatting.RED + "  " + I18nUtil.resolveKey("armor.fireproof"));
-		list.add(TextFormatting.GREEN + "  " + I18nUtil.resolveKey("armor.yield", PROTECTION_YIELD));
 	}
 
 	@Override

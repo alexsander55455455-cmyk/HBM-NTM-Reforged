@@ -15,6 +15,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
@@ -243,6 +244,8 @@ public class DamageResistanceHandler {
 
     public static void addInfo(ItemStack stack, List desc) {
         if (stack == null || stack.getItem() == null) return;
+        // EE shows armor bonuses via ArmorFSB.addInformation only, not damage-resistance tables.
+        if (stack.getItem() instanceof ItemArmor) return;
 
         if (itemInfoSet.containsKey(stack.getItem())) {
             List<Quartet<Item, Item, Item, Item>> sets = itemInfoSet.get(stack.getItem());

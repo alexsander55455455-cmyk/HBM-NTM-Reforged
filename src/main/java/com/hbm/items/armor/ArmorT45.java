@@ -6,9 +6,7 @@ import com.hbm.render.model.ModelT45Boots;
 import com.hbm.render.model.ModelT45Chest;
 import com.hbm.render.model.ModelT45Helmet;
 import com.hbm.render.model.ModelT45Legs;
-import com.hbm.util.I18nUtil;
 import net.minecraft.client.model.ModelBiped;
-import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -17,17 +15,11 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
-
 public class ArmorT45 extends ArmorFSBPowered {
 
     private static final float DAMAGE_CAP = 20F;
@@ -198,15 +190,4 @@ public class ArmorT45 extends ArmorFSBPowered {
         return super.getArmorTexture(stack, entity, slot, type);
     }
 
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void addInformation(@NotNull ItemStack stack, World worldIn, @NotNull List<String> list, @NotNull ITooltipFlag flagIn) {
-        super.addInformation(stack, worldIn, list, flagIn);
-        list.add(TextFormatting.YELLOW + "  " + I18nUtil.resolveKey("armor.blastProtection", BLAST_MOD));
-        list.add(TextFormatting.YELLOW + "  " + I18nUtil.resolveKey("armor.cap", DAMAGE_CAP));
-        list.add(TextFormatting.YELLOW + "  " + I18nUtil.resolveKey("armor.modifier", DAMAGE_MOD));
-        list.add(TextFormatting.RED + "  " + I18nUtil.resolveKey("armor.nullDamage", I18nUtil.resolveKey("damage.exact.fall")));
-        list.add(TextFormatting.RED + "  " + I18nUtil.resolveKey("armor.fireproof"));
-        list.add(TextFormatting.GREEN + "  " + I18nUtil.resolveKey("armor.yield", PROTECTION_YIELD));
-    }
 }

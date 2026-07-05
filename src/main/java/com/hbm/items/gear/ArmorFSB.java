@@ -605,12 +605,9 @@ public class ArmorFSB extends ItemArmor implements IArmorDisableModel {
         List<String> toAdd = new ArrayList<>();
 
         if (!effects.isEmpty()) {
-            List<String> potionList = new ArrayList<>();
             for (PotionEffect effect : effects) {
-                potionList.add(I18n.format(effect.getEffectName()));
+                toAdd.add(TextFormatting.AQUA + "  " + I18n.format(effect.getEffectName()));
             }
-
-            toAdd.add(TextFormatting.AQUA + String.join(", ", potionList));
         }
 
         if (geigerSound) toAdd.add(TextFormatting.GOLD + "  " + I18nUtil.resolveKey("armor.geigerSound"));
@@ -636,7 +633,7 @@ public class ArmorFSB extends ItemArmor implements IArmorDisableModel {
         if (gravity != 0) toAdd.add(TextFormatting.DARK_AQUA + "  " + I18nUtil.resolveKey("armor.gravity", gravity));
         if (stepSize != 0) toAdd.add(TextFormatting.BLUE + "  " + I18nUtil.resolveKey("armor.stepSize", stepSize));
         if (dashCount > 0) toAdd.add(TextFormatting.AQUA + "  " + I18nUtil.resolveKey("armor.dash", dashCount));
-        if (hasProtectionYield && protectionYield > 0F) toAdd.add(TextFormatting.GREEN + "  " + I18nUtil.resolveKey("armor.yield", protectionYield));
+        if (protectionYield > 0F) toAdd.add(TextFormatting.GREEN + "  " + I18nUtil.resolveKey("armor.yield", protectionYield));
 
         if (!toAdd.isEmpty()) {
             list.add(TextFormatting.GOLD + I18nUtil.resolveKey("armor.fullSetBonus"));

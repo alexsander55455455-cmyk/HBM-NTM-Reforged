@@ -2,8 +2,6 @@ package com.hbm.items.armor;
 
 import com.hbm.items.ModItems;
 import com.hbm.items.gear.ArmorFSB;
-import com.hbm.util.I18nUtil;
-import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -13,16 +11,9 @@ import net.minecraft.item.ItemArmor.ArmorMaterial;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
 
 public class ArmorPAA extends ArmorFSB {
 
@@ -128,14 +119,4 @@ public class ArmorPAA extends ArmorFSB {
         return super.isValidArmor(stack, slot, entity);
     }
 
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void addInformation(@NotNull ItemStack stack, World worldIn, @NotNull List<String> list, @NotNull ITooltipFlag flagIn) {
-        super.addInformation(stack, worldIn, list, flagIn);
-        list.add(TextFormatting.YELLOW + "  " + I18nUtil.resolveKey("armor.blastProtection", BLAST_MOD));
-        list.add(TextFormatting.YELLOW + "  " + I18nUtil.resolveKey("armor.cap", DAMAGE_CAP));
-        list.add(TextFormatting.YELLOW + "  " + I18nUtil.resolveKey("armor.modifier", DAMAGE_MOD));
-        list.add(TextFormatting.RED + "  " + I18nUtil.resolveKey("armor.fireproof"));
-        list.add(TextFormatting.GREEN + "  " + I18nUtil.resolveKey("armor.yield", PROTECTION_YIELD));
-    }
 }
