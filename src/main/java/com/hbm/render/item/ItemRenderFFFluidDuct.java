@@ -29,6 +29,11 @@ public class ItemRenderFFFluidDuct extends TEISRBase {
 	}
 
 	@Override
+	public boolean useRegistryPerspective(Item item) {
+		return true;
+	}
+
+	@Override
 	public void renderByItem(ItemStack stack) {
 		GL11.glPushMatrix();
 		GL11.glPushAttrib(GL11.GL_LIGHTING_BIT);
@@ -44,38 +49,50 @@ public class ItemRenderFFFluidDuct extends TEISRBase {
 		GL11.glPopMatrix();
 
 		Fluid fluid = getFluid(stack);
-		TextureAtlasSprite sprite = null;
 		if (fluid != null) {
-			sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(fluid.getStill().toString());
-		}
+			TextureAtlasSprite sprite = getFluidSprite(fluid);
+			if (sprite != null) {
+				NTMRenderHelper.setColor(fluid.getColor(new FluidStack(fluid, 1000)));
+				GlStateManager.disableLighting();
 
-		if (sprite != null) {
-			NTMRenderHelper.setColor(fluid.getColor(new FluidStack(fluid, 1000)));
-			GlStateManager.disableLighting();
+				float scroll = sprite.getFrameCount() > 1 ? 0.0F : getFlowScroll();
+				float minU = sprite.getInterpolatedU(3) + scroll;
+				float maxU = sprite.getInterpolatedU(13) + scroll;
+				float minV = sprite.getInterpolatedV(7);
+				float maxV = sprite.getInterpolatedV(9);
 
-			float maxU = sprite.getInterpolatedU(13);
-			float minU = sprite.getInterpolatedU(3);
-			float maxV = sprite.getInterpolatedV(7);
-			float minV = sprite.getInterpolatedV(9);
+				GL11.glTranslated(0, 0, 0.5 + HALF_A_PIXEL);
+				buf.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+				buf.pos(3 * PIX, 7 * PIX, 0).tex(minU, minV).endVertex();
+				buf.pos(13 * PIX, 7 * PIX, 0).tex(maxU, minV).endVertex();
+				buf.pos(13 * PIX, 9 * PIX, 0).tex(maxU, maxV).endVertex();
+				buf.pos(3 * PIX, 9 * PIX, 0).tex(minU, maxV).endVertex();
 
-			GL11.glTranslated(0, 0, 0.5 + HALF_A_PIXEL);
-			buf.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-			buf.pos(3 * PIX, 7 * PIX, 0).tex(minU, minV).endVertex();
-			buf.pos(13 * PIX, 7 * PIX, 0).tex(maxU, minV).endVertex();
-			buf.pos(13 * PIX, 9 * PIX, 0).tex(maxU, maxV).endVertex();
-			buf.pos(3 * PIX, 9 * PIX, 0).tex(minU, maxV).endVertex();
-
-			buf.pos(13 * PIX, 7 * PIX, -PIX).tex(maxU, minV).endVertex();
-			buf.pos(3 * PIX, 7 * PIX, -PIX).tex(minU, minV).endVertex();
-			buf.pos(3 * PIX, 9 * PIX, -PIX).tex(minU, maxV).endVertex();
-			buf.pos(13 * PIX, 9 * PIX, -PIX).tex(maxU, maxV).endVertex();
-
-			tes.draw();
-			GlStateManager.enableLighting();
+				buf.pos(13 * PIX, 7 * PIX, -PIX).tex(maxU, minV).endVertex();
+				buf.pos(3 * PIX, 7 * PIX, -PIX).tex(minU, minV).endVertex();
+				buf.pos(3 * PIX, 9 * PIX, -PIX).tex(minU, maxV).endVertex();
+				buf.pos(13 * PIX, 9 * PIX, -PIX).tex(maxU, maxV).endVertex();
+				tes.draw();
+				GlStateManager.enableLighting();
+			}
 		}
 		GL11.glPopAttrib();
 		GL11.glPopMatrix();
 		super.renderByItem(stack);
+	}
+
+	private static float getFlowScroll() {
+		Minecraft mc = Minecraft.getMinecraft();
+		long tick = mc.world != null ? mc.world.getTotalWorldTime() : System.currentTimeMillis() / 50L;
+		return (tick % 40L) / 640.0F;
+	}
+
+	private static TextureAtlasSprite getFluidSprite(Fluid fluid) {
+		TextureAtlasSprite flowing = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(fluid.getFlowing().toString());
+		if (flowing.getFrameCount() > 1) {
+			return flowing;
+		}
+		return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(fluid.getStill().toString());
 	}
 
 	private static Fluid getFluid(ItemStack stack) {

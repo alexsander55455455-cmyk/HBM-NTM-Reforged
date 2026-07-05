@@ -124,6 +124,7 @@ public class NTMClientRegistry {
         bindTeisr(ModItems.fluid_tank_lead_full, FluidTankLeadRender.INSTANCE);
         bindTeisr(ModItems.fluid_tank_lead_v2, FluidTankLeadRender.INSTANCE);
         bindTeisr(ModItems.fluid_duct, new com.hbm.render.item.ItemRenderFFFluidDuct());
+
         MainRegistry.proxy.registerMissileItems(null);
     }
 
