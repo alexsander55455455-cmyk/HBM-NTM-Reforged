@@ -230,10 +230,19 @@ public class BulletConfig implements Cloneable {
         else dmg = new DamageSourceSednaNoAttacker(dmgClass.name());
 
         switch (dmgClass) {
-            case PHYSICAL -> dmg.setProjectile();
-            case FIRE -> dmg.setFireDamage();
-            case EXPLOSIVE -> dmg.setExplosion();
-            case ELECTRIC, LASER, SUBATOMIC -> {}
+            case PHYSICAL:
+                dmg.setProjectile();
+                break;
+            case FIRE:
+                dmg.setFireDamage();
+                break;
+            case EXPLOSIVE:
+                dmg.setExplosion();
+                break;
+            case ELECTRIC:
+            case LASER:
+            case SUBATOMIC:
+                break;
         }
 
         return dmg;
