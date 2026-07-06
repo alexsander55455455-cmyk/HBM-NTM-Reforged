@@ -465,12 +465,17 @@ public class NBTStructure {
 					int meta = transformMeta(state.definition, null, coordBaseMode);
 
 					BlockPos pos = new BlockPos(rx, ry, rz);
-					IBlockState place = block.getStateFromMeta(meta);
-					world.setBlockState(pos, place, 2);
+					if (block instanceof BlockBed) {
+						if ((meta & 8) != 0) continue;
+						placeLegacyBed(world, pos, meta);
+					} else {
+						IBlockState place = block.getStateFromMeta(meta);
+						world.setBlockState(pos, place, 2);
 
-					if(state.nbt != null) {
-						TileEntity te = buildTileEntity(world, state.nbt, coordBaseMode, null);
-						world.setTileEntity(pos, te);
+						if(state.nbt != null) {
+							TileEntity te = buildTileEntity(world, state.nbt, coordBaseMode, null);
+							world.setTileEntity(pos, te);
+						}
 					}
 				}
 			}
@@ -563,12 +568,19 @@ public class NBTStructure {
                     if (ry < 1) continue;
 
 					BlockPos pos = new BlockPos(rx, ry, rz);
-					IBlockState place = block.getStateFromMeta(meta);
-					world.setBlockState(pos, place, 2);
+					IBlockState place;
+					if (block instanceof BlockBed) {
+						if ((meta & 8) != 0) continue;
+						placeLegacyBed(world, pos, meta);
+						place = Blocks.BED.getDefaultState();
+					} else {
+						place = block.getStateFromMeta(meta);
+						world.setBlockState(pos, place, 2);
 
-					if(state.nbt != null) {
-						TileEntity te = buildTileEntity(world, state.nbt, coordBaseMode, structureName);
-						world.setTileEntity(pos, te);
+						if(state.nbt != null) {
+							TileEntity te = buildTileEntity(world, state.nbt, coordBaseMode, structureName);
+							world.setTileEntity(pos, te);
+						}
 					}
 
                     if (by == 0 && piece.platform != null && !place.getMaterial().isReplaceable()) {
@@ -685,6 +697,20 @@ public class NBTStructure {
 		if(definition.block instanceof BlockVine) return INBTBlockTransformable.transformMetaVine(definition.meta, coordBaseMode);
 		if(definition.block instanceof BlockTrapDoor) return INBTBlockTransformable.transformMetaTrapdoor(definition.meta, coordBaseMode);
 		return definition.meta;
+	}
+
+	private static void placeLegacyBed(World world, BlockPos footPos, int meta) {
+		EnumFacing facing = EnumFacing.byHorizontalIndex(meta & 3);
+		IBlockState foot = Blocks.BED.getDefaultState()
+				.withProperty(BlockBed.PART, BlockBed.EnumPartType.FOOT)
+				.withProperty(BlockBed.OCCUPIED, false)
+				.withProperty(BlockHorizontal.FACING, facing);
+		IBlockState head = Blocks.BED.getDefaultState()
+				.withProperty(BlockBed.PART, BlockBed.EnumPartType.HEAD)
+				.withProperty(BlockBed.OCCUPIED, false)
+				.withProperty(BlockHorizontal.FACING, facing);
+		world.setBlockState(footPos, foot, 2);
+		world.setBlockState(footPos.offset(facing), head, 2);
 	}
 
 	public int rotateX(int x, int z, int coordBaseMode) {

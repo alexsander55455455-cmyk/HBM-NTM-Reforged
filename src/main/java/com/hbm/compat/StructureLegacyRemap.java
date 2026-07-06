@@ -1,9 +1,11 @@
 package com.hbm.compat;
 
 import com.hbm.Tags;
+import com.hbm.blocks.BlockEnums;
 import com.hbm.main.MainRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -12,6 +14,7 @@ import net.minecraftforge.common.util.Constants;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -61,6 +64,14 @@ public final class StructureLegacyRemap {
         SUBSTITUTIONS.put(Tags.MODID + ":fluid_duct_neo", Tags.MODID + ":fluid_duct_mk2");
         SUBSTITUTIONS.put(Tags.MODID + ":rail_narrow", "minecraft:rail");
         SUBSTITUTIONS.put(Tags.MODID + ":ff_fludi_duct_mk2", Tags.MODID + ":ff_fluid_duct_mk2");
+        SUBSTITUTIONS.put(Tags.MODID + ":turret_ciws", Tags.MODID + ":turret_cwis");
+
+        for (EnumDyeColor color : EnumDyeColor.values()) {
+            String dye = color.getName();
+            SUBSTITUTIONS.put(
+                    Tags.MODID + ":concrete_" + dye + "_stairs",
+                    Tags.MODID + ":concrete_colored_stairs_" + dye);
+        }
     }
 
     private StructureLegacyRemap() {
@@ -87,6 +98,11 @@ public final class StructureLegacyRemap {
             normalized = name;
         }
 
+        LegacyBlockDefinition cap = remapLegacyBlockCap(normalized);
+        if (cap != null) {
+            return cap;
+        }
+
         return switch (normalized) {
             case Tags.MODID + ":brick_slab" -> remapLegacySlab(meta, LEGACY_BRICK_SLABS, true);
             case Tags.MODID + ":brick_double_slab" -> remapLegacySlab(meta, LEGACY_BRICK_DOUBLE_SLABS, false);
@@ -94,6 +110,21 @@ public final class StructureLegacyRemap {
             case Tags.MODID + ":concrete_brick_double_slab" -> remapLegacySlab(meta, LEGACY_CONCRETE_BRICK_DOUBLE_SLABS, false);
             default -> null;
         };
+    }
+
+    private static @Nullable LegacyBlockDefinition remapLegacyBlockCap(String normalized) {
+        if (!normalized.startsWith(Tags.MODID + ":block_cap_")) {
+            return null;
+        }
+
+        String suffix = normalized.substring((Tags.MODID + ":block_cap_").length()).toUpperCase(Locale.US);
+        for (BlockEnums.EnumBlockCapType type : BlockEnums.EnumBlockCapType.VALUES) {
+            if (type.name().equals(suffix)) {
+                return new LegacyBlockDefinition(Tags.MODID + ":block_cap", type.ordinal());
+            }
+        }
+
+        return null;
     }
 
     public static void fixLegacyBlockNames(NBTBase tag) {
@@ -171,9 +202,14 @@ public final class StructureLegacyRemap {
                     continue;
                 }
                 String name = entry.getString("Name");
-                String remapped = remapLegacyBlockName(name);
-                if (remapped != null) {
-                    entry.setString("Name", remapped);
+                LegacyBlockDefinition remappedDefinition = remapLegacyBlockDefinition(name, 0);
+                if (remappedDefinition != null) {
+                    entry.setString("Name", remappedDefinition.name);
+                } else {
+                    String remapped = remapLegacyBlockName(name);
+                    if (remapped != null) {
+                        entry.setString("Name", remapped);
+                    }
                 }
             }
         }
@@ -190,6 +226,14 @@ public final class StructureLegacyRemap {
     }
 
     public static Block resolveBlockName(String name) {
+        LegacyBlockDefinition remappedDefinition = remapLegacyBlockDefinition(name, 0);
+        if (remappedDefinition != null) {
+            Block block = Block.getBlockFromName(remappedDefinition.name);
+            if (block != null) {
+                return block;
+            }
+        }
+
         String remapped = remapLegacyBlockName(name);
         if (remapped != null) {
             Block block = Block.getBlockFromName(remapped);
