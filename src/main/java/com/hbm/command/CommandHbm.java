@@ -5,11 +5,13 @@ import com.hbm.Tags;
 import com.hbm.blocks.ModBlocks;
 import com.hbm.handler.HbmShaderManager2;
 import com.hbm.main.ResourceManager;
+import com.hbm.main.StructureManager;
 import com.hbm.main.client.NTMClientRegistry;
 import com.hbm.render.GLCompat;
 import com.hbm.saveddata.TomSaveData;
 import com.hbm.world.*;
 import com.hbm.world.dungeon.LibraryDungeon;
+import com.hbm.world.gen.component.SiloComponent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.shader.Framebuffer;
@@ -59,7 +61,7 @@ public class CommandHbm extends CommandBase {
 			if ("subcommands".equals(args[0])) {
 				return Lists.newArrayList("gen", "tom").stream().filter(s -> s.startsWith(args[1])).collect(Collectors.toList());
 			} else if ("gen".equals(args[0])) {
-				return Lists.newArrayList("antenna", "relay", "dud", "silo", "factory", "barrel", "vertibird", "vertibird_crashed", "satellite", "spaceship", "sellafield", "radio", "bunker", "desert_atom", "library", "geysir_water", "geysir_vapor", "geysir_chlorine").stream().filter(s -> s.startsWith(args[1])).collect(Collectors.toList());
+				return Lists.newArrayList("antenna", "dud", "silo_shaft", "silo", "silo_component", "factory", "barrel", "vertibird", "vertibird_crashed", "satellite", "spaceship", "sellafield", "radio", "bunker", "desert_atom", "library", "geysir_water", "geysir_vapor", "geysir_chlorine").stream().filter(s -> s.startsWith(args[1])).collect(Collectors.toList());
 			} else if ("tom".equals(args[0])) {
 				return Lists.newArrayList("reset").stream().filter(s -> s.startsWith(args[1])).collect(Collectors.toList());
 			}
@@ -275,7 +277,7 @@ public class CommandHbm extends CommandBase {
 				builder.append("Info for command: gen\n\n");
 				builder.append("Generates a structure at the block under your current position. Generation can be forced.\n\n");
 				builder.append("Available structures:\n\n");
-				builder.append("antenna      relay\ndud           silo\nfactory      barrel\nvertibird     vertibird_crashed\nsatellite      spaceship\nsellafield     radio\nbunker       desert_atom\nlibrary      geysir_water\ngeysir_vapor      geysir_chlorine");
+				builder.append("silo_shaft     silo_component\n(aliases: silo = silo_shaft)\n\nantenna      dud\nfactory       barrel\nvertibird     vertibird_crashed\nsatellite      spaceship\nsellafield     radio\nbunker       desert_atom\nlibrary      geysir_water\ngeysir_vapor      geysir_chlorine");
 				sender.sendMessage(new TextComponentTranslation(builder.toString()));
 			} else if ("tom".equals(args[1])) {
 				StringBuilder builder = new StringBuilder();
@@ -318,6 +320,16 @@ public class CommandHbm extends CommandBase {
                 }
                 case "radio" -> Radio01.INSTANCE.generate(world, rand, genPos, force);
                 case "bunker" -> Bunker.INSTANCE.generate(world, rand, genPos, force);
+                case "silo", "silo_shaft" -> new Silo().generate(world, rand, genPos, force);
+                case "silo_component" -> {
+                    int minX = (int) senderPos.x - 21;
+                    int minZ = (int) senderPos.z - 13;
+                    SiloComponent component = new SiloComponent(rand, minX, minZ);
+                    component.addComponentParts(world, rand, component.getBoundingBox());
+                }
+                case "factory" -> StructureManager.factory.build(world, genPos.getX(), genPos.getY(), genPos.getZ());
+                case "vertibird" -> StructureManager.vertibird.build(world, genPos.getX(), genPos.getY(), genPos.getZ());
+                case "vertibird_crashed" -> StructureManager.crashed_vertibird.build(world, genPos.getX(), genPos.getY(), genPos.getZ());
                 case "desert_atom" -> DesertAtom001.INSTANCE.generate(world, rand, genPos, force);
                 case "library" -> LibraryDungeon.INSTANCE.generate(world, rand, genPos, force);
                 case "geysir_water" -> {
