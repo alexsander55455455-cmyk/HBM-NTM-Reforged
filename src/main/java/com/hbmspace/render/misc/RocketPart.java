@@ -73,9 +73,8 @@ public class RocketPart extends MissilePart {
         try {
             registerPart(ModItems.mp_thruster_10_kerosene, ItemMissile.PartType.THRUSTER, 1, 1, ResourceManager.mp_t_10_kerosene, ResourceManager.mp_t_10_kerosene_tex);
             registerPart(ModItems.mp_thruster_10_solid, ItemMissile.PartType.THRUSTER, 0.5, 1, ResourceManager.mp_t_10_solid, ResourceManager.mp_t_10_solid_tex);
-            //registerPart(ModItems.mp_thruster_10_hydrazine, PartType.THRUSTER, 0.5, 1, ResourceManager.mp_t_10_solid, ResourceManager.mp_t_10_solid_tex);
+            registerPart(ModItemsSpace.mp_thruster_10_hydrazine, ItemMissile.PartType.THRUSTER, 0.5, 1, ResourceManager.mp_t_10_solid, ResourceManager.mp_t_10_solid_tex);
             registerPart(ModItems.mp_thruster_10_xenon, ItemMissile.PartType.THRUSTER, 0.5, 1, ResourceManager.mp_t_10_xenon, ResourceManager.mp_t_10_xenon_tex);
-            //registerPart(ModItems.mp_thruster_10_hydrazine, PartType.THRUSTER, 0.5, 1, ResourceManager.mp_t_10_solid, ResourceManager.mp_t_10_solid_tex);
 
             //
             registerPart(ModItems.mp_thruster_15_kerosene, ItemMissile.PartType.THRUSTER, 1.5, 1.5, ResourceManager.mp_t_15_kerosene, ResourceManager.mp_t_15_kerosene_tex);
@@ -96,7 +95,7 @@ public class RocketPart extends MissilePart {
             registerPart(ModItems.mp_thruster_20_solid, ItemMissile.PartType.THRUSTER, 1, 1.75, ResourceManager.mp_t_20_solid, ResourceManager.mp_t_20_solid_tex);
             registerPart(ModItems.mp_thruster_20_solid_multi, ItemMissile.PartType.THRUSTER, 0.5, 1.5, ResourceManager.mp_t_20_solid_multi, ResourceManager.mp_t_20_solid_multi_tex);
             registerPart(ModItems.mp_thruster_20_solid_multier, ItemMissile.PartType.THRUSTER, 0.5, 1.5, ResourceManager.mp_t_20_solid_multi, ResourceManager.mp_t_20_solid_multier_tex);
-            //registerPart(ModItems.mp_thruster_20_hydrazine, PartType.THRUSTER, 3, 2.5, ResourceManager.mp_t_20_azide, ResourceManager.mp_t_20_azide_tex);
+            registerPart(ModItemsSpace.mp_thruster_20_hydrazine, ItemMissile.PartType.THRUSTER, 3, 2.5, ResourceManagerSpace.mp_t_20_hydrazine, ResourceManagerSpace.mp_t_20_hydrazine_tex);
 
             //////
 

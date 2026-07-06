@@ -553,6 +553,7 @@ public class RocketStruct {
         serverParts.put(Item.getIdFromItem(ModItems.mp_thruster_10_kerosene), 1D);
         serverParts.put(Item.getIdFromItem(ModItems.mp_thruster_10_solid), 0.5D);
         serverParts.put(Item.getIdFromItem(ModItems.mp_thruster_10_xenon), 0.5D);
+        serverParts.put(Item.getIdFromItem(ModItemsSpace.mp_thruster_10_hydrazine), 0.5D);
 
         //
         serverParts.put(Item.getIdFromItem(ModItems.mp_thruster_15_kerosene), 1.5D);
@@ -576,6 +577,7 @@ public class RocketStruct {
         serverParts.put(Item.getIdFromItem(ModItemsSpace.mp_thruster_20_hydrogen), 2D);
         serverParts.put(Item.getIdFromItem(ModItemsSpace.mp_thruster_20_hydrogen_dual), 2D);
         serverParts.put(Item.getIdFromItem(ModItemsSpace.mp_thruster_20_hydrogen_triple), 2D);
+        serverParts.put(Item.getIdFromItem(ModItemsSpace.mp_thruster_20_hydrazine), 3D);
         serverParts.put(Item.getIdFromItem(ModItems.mp_thruster_20_solid), 1D);
         serverParts.put(Item.getIdFromItem(ModItems.mp_thruster_20_solid_multi), 0.5D);
         serverParts.put(Item.getIdFromItem(ModItems.mp_thruster_20_solid_multier), 0.5D);
@@ -678,6 +680,7 @@ public class RocketStruct {
         serverParts.put(Item.getIdFromItem(ModItemsSpace.mp_thruster_20_hydrogen), 2D);
         serverParts.put(Item.getIdFromItem(ModItemsSpace.mp_thruster_20_hydrogen_dual), 2D);
         serverParts.put(Item.getIdFromItem(ModItemsSpace.mp_thruster_20_hydrogen_triple), 2D);
+        serverParts.put(Item.getIdFromItem(ModItemsSpace.mp_thruster_20_hydrazine), 3D);
 
         //////
 

@@ -2,7 +2,10 @@ package com.hbmspace.dim.Ike;
 
 import com.hbm.blocks.ModBlocks;
 import com.hbm.world.dungeon.AncientTombStructure;
+import com.hbm.world.gen.nbt.JigsawPiece;
 import com.hbm.world.gen.nbt.NBTStructure;
+import com.hbm.world.gen.nbt.SpawnCondition;
+import com.hbmspace.main.StructureManagerSpace;
 import com.hbmspace.blocks.ModBlocksSpace;
 import com.hbmspace.config.SpaceConfig;
 import com.hbm.config.WorldConfig;
@@ -24,10 +27,10 @@ import java.util.Random;
 public class WorldGeneratorIke implements IWorldGenerator {
 
     public WorldGeneratorIke() {
-        /*NBTStructure.registerStructure(SpaceConfig.ikeDimension, new SpawnCondition("ike_artifact") {{
-            structure = new JigsawPiece("ike_artifact", StructureManager.ike_artifact, -5);
+        NBTStructure.registerStructure(SpaceConfig.ikeDimension, new SpawnCondition("ike_artifact") {{
+            structure = new JigsawPiece("ike_artifact", StructureManagerSpace.ike_artifact, -5);
             spawnWeight = 4;
-        }});*/
+        }});
 
         NBTStructure.registerNullWeight(SpaceConfig.ikeDimension, 12);
 

@@ -124,7 +124,7 @@ public class BlockAirPump extends BlockContainerBakeableSpace implements ILookOv
 
         if(!player.getHeldItem(hand).isEmpty() && player.getHeldItem(hand).getItem() instanceof IItemFluidIdentifier) {
             FluidType type = ((IItemFluidIdentifier) player.getHeldItem(hand).getItem()).getType(world, pos.getX(), pos.getY(), pos.getZ(), player.getHeldItem(hand));
-            if(type.hasTrait(FluidTraitSimple.FT_Gaseous.class)) {
+            if(type.hasTrait(FluidTraitSimple.FT_Gaseous.class) || type.hasTrait(FluidTraitSimple.FT_Gaseous_ART.class)) {
                 pump.tank.setTankType(type);
                 pump.markDirty();
                 player.sendMessage(

@@ -2,7 +2,10 @@ package com.hbmspace.dim.moho;
 
 import com.hbm.blocks.ModBlocks;
 import com.hbm.config.WorldConfig;
+import com.hbm.world.gen.nbt.JigsawPiece;
+import com.hbm.world.gen.nbt.JigsawPool;
 import com.hbm.world.gen.nbt.NBTStructure;
+import com.hbm.world.gen.nbt.SpawnCondition;
 import com.hbmspace.blocks.ModBlocksSpace;
 import com.hbm.blocks.bomb.BlockVolcano;
 import com.hbmspace.blocks.generic.BlockOre;
@@ -12,6 +15,7 @@ import com.hbmspace.dim.CelestialBody;
 import com.hbmspace.dim.SolarSystem;
 import com.hbmspace.dim.WorldGeneratorCelestial;
 import com.hbmspace.dim.WorldProviderCelestial;
+import com.hbmspace.main.StructureManagerSpace;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
@@ -20,12 +24,13 @@ import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.gen.IChunkGenerator;
 import net.minecraftforge.fml.common.IWorldGenerator;
 
+import java.util.HashMap;
 import java.util.Random;
 
 public class WorldGeneratorMoho implements IWorldGenerator {
 
     public WorldGeneratorMoho() {
-        /*NBTStructure.registerStructure(SpaceConfig.mohoDimension, new SpawnCondition("moho_base") {{
+        NBTStructure.registerStructure(SpaceConfig.mohoDimension, new SpawnCondition("moho_base") {{
             spawnWeight = 4;
             minHeight = 63 - 11;
             maxHeight = 63;
@@ -34,29 +39,29 @@ public class WorldGeneratorMoho implements IWorldGenerator {
             startPool = "start";
             pools = new HashMap<String, JigsawPool>() {{
                 put("start", new JigsawPool() {{
-                    add(new JigsawPiece("moho_core", StructureManager.moho_core) {{ heightOffset = -11; }}, 1);
+                    add(new JigsawPiece("moho_core", StructureManagerSpace.moho_core) {{ heightOffset = -11; }}, 1);
                 }});
                 put("default", new JigsawPool() {{
-                    add(new JigsawPiece("moho_corner_lab", StructureManager.moho_corner_lab) {{ heightOffset = -14; }}, 2);
-                    add(new JigsawPiece("moho_corner_heffer", StructureManager.moho_corner_heffer) {{ heightOffset = -17; }}, 2);
-                    add(new JigsawPiece("moho_corner_extension", StructureManager.moho_corner_extension) {{ heightOffset = -11; }}, 1);
-                    add(new JigsawPiece("moho_corner_empty", StructureManager.moho_corner_empty) {{ heightOffset = -11; }}, 1);
+                    add(new JigsawPiece("moho_corner_lab", StructureManagerSpace.moho_corner_lab) {{ heightOffset = -14; }}, 2);
+                    add(new JigsawPiece("moho_corner_heffer", StructureManagerSpace.moho_corner_heffer) {{ heightOffset = -17; }}, 2);
+                    add(new JigsawPiece("moho_corner_extension", StructureManagerSpace.moho_corner_extension) {{ heightOffset = -11; }}, 1);
+                    add(new JigsawPiece("moho_corner_empty", StructureManagerSpace.moho_corner_empty) {{ heightOffset = -11; }}, 1);
                     fallback = "fallback";
                 }});
                 put("room", new JigsawPool() {{
-                    add(new JigsawPiece("moho_room_tape", StructureManager.moho_room_tape) {{ heightOffset = -11; }}, 1);
-                    add(new JigsawPiece("moho_room_reception", StructureManager.moho_room_reception) {{ heightOffset = -11; }}, 1);
-                    add(new JigsawPiece("moho_room_kitchen", StructureManager.moho_room_kitchen) {{ heightOffset = -11; }}, 1);
+                    add(new JigsawPiece("moho_room_tape", StructureManagerSpace.moho_room_tape) {{ heightOffset = -11; }}, 1);
+                    add(new JigsawPiece("moho_room_reception", StructureManagerSpace.moho_room_reception) {{ heightOffset = -11; }}, 1);
+                    add(new JigsawPiece("moho_room_kitchen", StructureManagerSpace.moho_room_kitchen) {{ heightOffset = -11; }}, 1);
                     fallback = "room";
                 }});
                 put("fallback", new JigsawPool() {{
-                    add(new JigsawPiece("moho_fall", StructureManager.moho_corner_cap) {{ heightOffset = -11; }}, 1);
+                    add(new JigsawPiece("moho_fall", StructureManagerSpace.moho_corner_cap) {{ heightOffset = -11; }}, 1);
                 }});
                 put("snorkel", new JigsawPool() {{
-                    add(new JigsawPiece("moho_snorkel", StructureManager.moho_snorkel) {{ heightOffset = -11; }}, 1);
+                    add(new JigsawPiece("moho_snorkel", StructureManagerSpace.moho_snorkel) {{ heightOffset = -11; }}, 1);
                 }});
             }};
-        }});*/
+        }});
 
         NBTStructure.registerNullWeight(SpaceConfig.mohoDimension, 20);
 
@@ -65,6 +70,7 @@ public class WorldGeneratorMoho implements IWorldGenerator {
         BlockOre.addValidBody(ModBlocksSpace.ore_glowstone, SolarSystem.Body.MOHO);
         BlockOre.addValidBody(ModBlocksSpace.ore_fire, SolarSystem.Body.MOHO);
         BlockOre.addValidBody(ModBlocksSpace.ore_australium, SolarSystem.Body.MOHO);
+        BlockOre.addValidBody(ModBlocksSpace.ore_morkite, SolarSystem.Body.MOHO);
     }
 
 	@Override
@@ -83,6 +89,7 @@ public class WorldGeneratorMoho implements IWorldGenerator {
         WorldGeneratorCelestial.generateOre(world, rand, i, j, 14, 12, 5, 30, ModBlocksSpace.ore_glowstone.getStateFromMeta(meta), stone);
         WorldGeneratorCelestial.generateOre(world, rand, i, j, WorldConfig.netherPhosphorusSpawn, 6, 8, 64, ModBlocksSpace.ore_fire.getStateFromMeta(meta), stone);
         WorldGeneratorCelestial.generateOre(world, rand, i, j, 8, 4, 0, 24, ModBlocksSpace.ore_australium.getStateFromMeta(meta), stone);
+        WorldGeneratorCelestial.generateOre(world, rand, i, j, 6, 4, 8, 48, ModBlocksSpace.ore_morkite.getStateFromMeta(meta), stone);
 
         WorldGeneratorCelestial.generateOre(world, rand, i, j, 1, 12, 8, 32, ModBlocksSpace.ore_shale.getStateFromMeta(meta), stone);
 

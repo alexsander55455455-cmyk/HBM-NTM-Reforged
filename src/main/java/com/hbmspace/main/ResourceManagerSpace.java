@@ -93,6 +93,8 @@ public class ResourceManagerSpace {
     public static final ResourceLocation mp_t_20_methalox_dual_tex = new ResourceLocation("hbm", "textures/models/missile_parts/thrusters/mp_t_20_methalox_dual.png");
     public static final ResourceLocation mp_t_20_hydrogen_tex = new ResourceLocation("hbm", "textures/models/missile_parts/thrusters/mp_t_20_hydrogen.png");
     public static final ResourceLocation mp_t_20_hydrogen_dual_tex = new ResourceLocation("hbm", "textures/models/missile_parts/thrusters/mp_t_20_hydrogen_dual.png");
+    public static final WaveFrontObjectVAO mp_t_20_hydrazine = new HFRWavefrontObject(new ResourceLocation("hbm", "models/missile_parts/mp_t_20_hydrazine.obj")).asVBO();
+    public static final ResourceLocation mp_t_20_hydrazine_tex = new ResourceLocation("hbm", "textures/models/missile_parts/thrusters/mp_t_20_hydrazine.png");
     public static final ResourceLocation sat_dock_tex = new ResourceLocation("hbm", "textures/models/missile_parts/sat_dock.png");
     //Space
     public static final ResourceLocation solarp_tex = new ResourceLocation("hbm", "textures/models/machines/solar_panel.png"); //haha... "larp"

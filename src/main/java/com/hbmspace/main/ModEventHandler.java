@@ -17,6 +17,7 @@ import com.hbmspace.dim.orbit.OrbitalStation;
 import com.hbmspace.dim.orbit.WorldProviderOrbit;
 import com.hbmspace.dim.trait.CBT_Atmosphere;
 import com.hbmspace.dim.trait.CBT_Lights;
+import com.hbmspace.dim.trait.CBT_Weather;
 import com.hbmspace.dim.trait.CelestialBodyTrait;
 import com.hbmspace.entity.missile.EntityRideableRocket;
 import com.hbmspace.handler.atmosphere.ChunkAtmosphereManager;
@@ -484,6 +485,7 @@ public class ModEventHandler {
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if(event.phase == TickEvent.Phase.START) {
+            CBT_Weather.updateGlobalWeather();
             for(CelestialBody body : CelestialBody.getAllBodies()) {
                 List<CelestialBodyTrait> traits = new ArrayList<>(body.getTraits().values());
                 for (CelestialBodyTrait trait : traits) {

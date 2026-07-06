@@ -5,7 +5,10 @@ import com.hbmspace.config.SpaceConfig;
 import com.hbmspace.dim.WorldChunkManagerCelestial;
 import com.hbmspace.dim.WorldChunkManagerCelestial.BiomeGenLayers;
 import com.hbmspace.dim.WorldProviderCelestial;
+import com.hbmspace.dim.tekto.GenLayerTekto.GenLayerDiversifyTekto;
+import com.hbmspace.dim.tekto.GenLayerTekto.GenLayerTektoPlains;
 import com.hbmspace.dim.tekto.GenLayerTekto.GenLayerTektoRiverMix;
+import com.hbmspace.dim.tekto.GenLayerTekto.GenLayerTetrachloricRiver;
 import com.hbmspace.dim.tekto.GenLayerTekto.GenlayerTektoBiomes;
 import net.minecraft.block.Block;
 import net.minecraft.world.DimensionType;
@@ -54,9 +57,11 @@ public class WorldProviderTekto extends WorldProviderCelestial {
 		genlayerBiomes = new GenLayerZoom(1003L, genlayerBiomes);
 		genlayerBiomes = new GenLayerZoom(1004L, genlayerBiomes);
 		genlayerBiomes = new GenLayerZoom(1005L, genlayerBiomes);
+		genlayerBiomes = new GenLayerTektoPlains(1006L, genlayerBiomes);
+		genlayerBiomes = new GenLayerDiversifyTekto(1007L, genlayerBiomes);
 
 		GenLayer genlayerRiverZoom = new GenLayerZoom(1000L, genlayerBiomes);
-		GenLayer genlayerRiver = new GenLayerRiver(1001L, genlayerRiverZoom); // Your custom river layer
+		GenLayer genlayerRiver = new GenLayerTetrachloricRiver(1001L, genlayerRiverZoom);
 		GenLayerSmooth genlayersmooth = new GenLayerSmooth(1000L, genlayerRiver);
 
 		GenLayerSmooth genlayersmooth1 = new GenLayerSmooth(1000L, genlayerBiomes);

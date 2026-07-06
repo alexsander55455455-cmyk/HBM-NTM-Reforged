@@ -21,6 +21,7 @@
     "hbm.MixinArmorFSB",
     "hbm.MixinDictFrame",
     "hbm.MixinEntityEffectHandler",
+    "hbm.MixinFluidContainerRegistry",
     "hbm.MixinFluids",
     "hbm.MixinHbmWorldGen",
     "hbm.MixinItemModInsert",

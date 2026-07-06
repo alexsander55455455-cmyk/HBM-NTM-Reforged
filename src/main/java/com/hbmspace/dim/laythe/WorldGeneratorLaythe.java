@@ -7,8 +7,14 @@ import com.hbmspace.config.SpaceConfig;
 import com.hbm.config.WorldConfig;
 import com.hbmspace.dim.CelestialBody;
 import com.hbmspace.dim.SolarSystem;
+import com.hbm.main.StructureManager;
+import com.hbm.world.gen.nbt.JigsawPiece;
+import com.hbm.world.gen.nbt.NBTStructure;
+import com.hbm.world.gen.nbt.SpawnCondition;
 import com.hbmspace.dim.WorldGeneratorCelestial;
 import com.hbmspace.dim.WorldProviderCelestial;
+import com.hbmspace.dim.laythe.biome.BiomeGenBaseLaythe;
+import com.hbmspace.main.StructureManagerSpace;
 import com.hbmspace.util.GenUtil;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
@@ -22,22 +28,22 @@ import java.util.Random;
 public class WorldGeneratorLaythe implements IWorldGenerator {
 
     public WorldGeneratorLaythe() {
-        /*NBTStructure.registerStructure(SpaceConfig.laytheDimension, new SpawnCondition("laythe_nuke_sub") {{
-            structure = new JigsawPiece("laythe_nuke_sub", StructureManager.nuke_sub);
+        NBTStructure.registerStructure(SpaceConfig.laytheDimension, new SpawnCondition("laythe_nuke_sub") {{
+            structure = new JigsawPiece("laythe_nuke_sub", StructureManagerSpace.nuke_sub);
             canSpawn = biome -> biome == BiomeGenBaseLaythe.laytheOcean;
             maxHeight = 54;
             spawnWeight = 6;
         }});
         NBTStructure.registerStructure(SpaceConfig.laytheDimension, new SpawnCondition("laythe_vertibird") {{
             structure = new JigsawPiece("laythe_vertibird", StructureManager.vertibird, -3);
-            canSpawn = biome -> biome.rootHeight >= 0;
+            canSpawn = biome -> biome.getBaseHeight() >= 0.0F;
             spawnWeight = 6;
         }});
         NBTStructure.registerStructure(SpaceConfig.laytheDimension, new SpawnCondition("laythe_crashed_vertibird") {{
             structure = new JigsawPiece("laythe_crashed_vertibird", StructureManager.crashed_vertibird, -10);
-            canSpawn = biome -> biome.rootHeight >= 0;
+            canSpawn = biome -> biome.getBaseHeight() >= 0.0F;
             spawnWeight = 6;
-        }});*/
+        }});
 
         BlockOre.addValidBody(ModBlocksSpace.ore_emerald, SolarSystem.Body.LAYTHE);
         BlockOre.addValidBody(ModBlocksSpace.ore_lapis, SolarSystem.Body.LAYTHE);

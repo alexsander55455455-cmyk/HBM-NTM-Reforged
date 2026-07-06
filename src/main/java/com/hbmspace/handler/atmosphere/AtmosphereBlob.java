@@ -130,6 +130,10 @@ public class AtmosphereBlob implements Runnable {
 		return handler.getFluidPressure() >= abovePressure;
 	}
 
+	public boolean hasPressure(double abovePressure) {
+		return handler.getFluidPressure() >= abovePressure;
+	}
+
 	public void consume(int amount) {
 		handler.consume(amount);
 	}

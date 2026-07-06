@@ -35,13 +35,17 @@ public class GenLayerTektoRiverMix extends GenLayerRiverMix {
 		int[] outputBiomeIds = IntCache.getIntCache(width * length);
 		//what if instead of constantly copying like this we just set the ids in the constructor?????
 		//later
+		int polyvinylPlains = Biome.getIdForBiome(BiomeGenBaseTekto.polyvinylPlains);
+		int tetrachloricRiver = Biome.getIdForBiome(BiomeGenBaseTekto.tetrachloricRiver);
+		int vanillaRiver = Biome.getIdForBiome(Biomes.RIVER);
+
 		for(int i1 = 0; i1 < width * length; ++i1) {
-			if(inputBiomeIds[i1] != Biome.getIdForBiome(BiomeGenBaseTekto.polyvinylPlains)) {
-				if(riverBiomeIds[i1] == Biome.getIdForBiome(Biomes.RIVER)) {
+			if(inputBiomeIds[i1] != polyvinylPlains) {
+				if(riverBiomeIds[i1] == tetrachloricRiver || riverBiomeIds[i1] == vanillaRiver) {
 					if(BiomeGenBaseEve.getBiomeForId(inputBiomeIds[i1]) != null) {
-						outputBiomeIds[i1] = Biome.getIdForBiome(BiomeGenBaseTekto.tetrachloricRiver);
+						outputBiomeIds[i1] = tetrachloricRiver;
 					} else if(inputBiomeIds[i1] != Biome.getIdForBiome(Biomes.MUSHROOM_ISLAND) && inputBiomeIds[i1] != Biome.getIdForBiome(Biomes.MUSHROOM_ISLAND_SHORE)) {
-						outputBiomeIds[i1] = riverBiomeIds[i1] & 255;
+						outputBiomeIds[i1] = tetrachloricRiver;
 					} else {
 						outputBiomeIds[i1] = Biome.getIdForBiome(Biomes.MUSHROOM_ISLAND_SHORE);
 					}

@@ -26,6 +26,7 @@ import com.hbmspace.items.special.ItemConsumableSpace;
 import com.hbmspace.items.special.ItemMineralOre;
 import com.hbmspace.items.special.ItemModRecordSpace;
 import com.hbmspace.items.tool.ItemAtmosphereScanner;
+import com.hbmspace.items.tool.ItemFluidBucketSpace;
 import com.hbmspace.items.tool.ItemTransporterLinker;
 import com.hbmspace.items.tool.ItemWandTime;
 import com.hbmspace.items.weapon.ItemCustomMissilePart;
@@ -75,6 +76,8 @@ public class ModItemsSpace {
     public static final Item mp_thruster_20_hydrogen = new ItemCustomMissilePart("mp_thruster_20_hydrogen").makeThruster(ItemMissile.FuelType.HYDROGEN, 1F, 100_000, ItemMissile.PartSize.SIZE_20, 480_000, 2600, 380).setHealth(30F);
     public static final Item mp_thruster_20_hydrogen_dual = new ItemCustomMissilePart("mp_thruster_20_hydrogen_dual").makeThruster(ItemMissile.FuelType.HYDROGEN, 1F, 100_000, ItemMissile.PartSize.SIZE_20, 640_000, 3400, 380).setHealth(30F);
     public static final Item mp_thruster_20_hydrogen_triple = new ItemCustomMissilePart("mp_thruster_20_hydrogen_triple").makeThruster(ItemMissile.FuelType.HYDROGEN, 1F, 100_000, ItemMissile.PartSize.SIZE_20, 938_000, 4500, 380).setHealth(30F);
+    public static final Item mp_thruster_10_hydrazine = new ItemCustomMissilePart("mp_thruster_10_hydrazine").makeThruster(ItemMissile.FuelType.HYDRAZINE, 1F, 1_500, ItemMissile.PartSize.SIZE_10, 14_000, 120, 220).setHealth(15F);
+    public static final Item mp_thruster_20_hydrazine = new ItemCustomMissilePart("mp_thruster_20_hydrazine").makeThruster(ItemMissile.FuelType.HYDRAZINE, 1F, 100_000, ItemMissile.PartSize.SIZE_20, 600_000, 1200, 220).setHealth(35F);
     public static final Item flesh = new ItemBakedSpace("flesh").setCreativeTab(MainRegistry.partsTab);
     public static final Item flesh_wafer = new ItemLemonSpace(5, 0.6F, false, "flesh_wafer", "blood_wafer").setCreativeTab(MainRegistry.partsTab);
     public static final Item grilled_flesh = new ItemLemonSpace(6, 0.8F, false, "grilled_flesh", "blood_patty").setCreativeTab(MainRegistry.partsTab);
@@ -91,7 +94,7 @@ public class ModItemsSpace {
     public static final Item chunk_ore = new ItemEnumMultiSpace<>("chunk_ore", ItemEnumsSpace.EnumChunkType.VALUES, true, true).setCreativeTab(MainRegistry.partsTab);
     public static final Item mineral_fragment = new ItemMineralOre("mineral_fragment").setCreativeTab(MainRegistry.partsTab);
     public static final Item swarm_member = new ItemBaseSpace("swarm_member").setCreativeTab(MainRegistry.partsTab);
-    public static final Item saltleaf = new ItemBakedSpace("saltleaf", "salt_leaf").setCreativeTab(MainRegistry.partsTab);
+    public static final Item saltleaf = new ItemLemonSpace(2, 0.5F, false, "saltleaf", "salt_leaf").setCreativeTab(MainRegistry.partsTab);
     public static final Item beryllium_mirror = new ItemBakedSpace("beryllium_mirror").setCreativeTab(MainRegistry.partsTab);
     public static final Item teacup_empty = new ItemBakedSpace("teacup_empty", "teacup").setCreativeTab(MainRegistry.consumableTab);
     public static final Item glass_smilk = new ItemEnergySpace("glass_smilk").setContainerItem(ModItemsSpace.glass_empty);
@@ -263,6 +266,7 @@ public class ModItemsSpace {
     public static final Item flour = new ItemBakedSpace("flour").setCreativeTab(MainRegistry.consumableTab);
     public static final Item wand_time = new ItemWandTime("wand_time").setMaxStackSize(1).setCreativeTab(MainRegistry.consumableTab).setFull3D();
     public static final Item atmosphere_scanner = new ItemAtmosphereScanner("atmosphere_scanner").setMaxStackSize(1).setCreativeTab(MainRegistry.consumableTab);
+    public static final Item bucket_bromine = new ItemFluidBucketSpace(ModBlocksSpace.bromine_block, "bucket_bromine");
 
     public static final Item record_gs = new ItemModRecordSpace("gs", HBMSpaceSoundHandler.recordGodSpeed, "record_gs").setCreativeTab(CreativeTabs.MISC);
     public static final Item record_gp = new ItemModRecordSpace("gp", HBMSpaceSoundHandler.recordGoop, "record_gp").setCreativeTab(CreativeTabs.MISC);
