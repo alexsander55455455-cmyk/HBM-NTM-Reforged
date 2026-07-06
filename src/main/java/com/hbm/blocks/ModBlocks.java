@@ -120,6 +120,7 @@ public class ModBlocks {
     public static final Block concrete_super_broken = new BlockFallingBaked(Material.ROCK, "concrete_super_broken", "concrete_super_broken").setCreativeTab(MainRegistry.blockTab).setHardness(10.0F).setResistance(20.0F);
 
     public static final Block concrete_asbestos = new BlockBase(Material.ROCK, "concrete_asbestos").setCreativeTab(MainRegistry.blockTab).setHardness(15.0F).setResistance(4000.0F);
+    public static final Block concrete_hazard = new BlockBase(Material.ROCK, "concrete_hazard").setCreativeTab(MainRegistry.blockTab).setHardness(15.0F).setResistance(4000.0F);
     public static final Block concrete_pillar = new BlockRadResistantPillar(Material.ROCK, "concrete_pillar").setCreativeTab(MainRegistry.blockTab).setHardness(15.0F).setResistance(4000.0F);
 
     public static final Block ducrete_smooth = new BlockRadResistant(Material.ROCK, "ducrete_smooth").setCreativeTab(MainRegistry.blockTab).setHardness(20.0F).setResistance(8000.0F);
@@ -839,6 +840,14 @@ public class ModBlocks {
     public static final Block turret_fritz = new TurretFritz(Material.IRON, "turret_fritz").setHardness(5.0F).setResistance(600.0F).setCreativeTab(MainRegistry.weaponTab);
     public static final Block turret_sentry = new TurretSentry(Material.IRON, "turret_sentry").setHardness(5.0F).setResistance(5.0F).setCreativeTab(MainRegistry.weaponTab);
     public static final Block turret_sentry_damaged = new TurretSentryDamaged(Material.IRON, "turret_sentry_damaged").setHardness(5.0F).setResistance(5.0F).setCreativeTab(MainRegistry.weaponTab);
+    public static final Block turret_cwis = new TurretCIWS(Material.IRON, "turret_cwis").setHardness(5.0F).setResistance(10.0F).setCreativeTab(MainRegistry.weaponTab);
+    public static final Block turret_cheapo = new TurretCheapo(Material.IRON, "turret_cheapo").setHardness(5.0F).setResistance(10.0F).setCreativeTab(MainRegistry.weaponTab);
+    public static final Block turret_light = new TurretLight(Material.IRON, "turret_light").setHardness(5.0F).setResistance(10.0F).setCreativeTab(MainRegistry.weaponTab);
+    public static final Block turret_heavy = new TurretHeavy(Material.IRON, "turret_heavy").setHardness(5.0F).setResistance(10.0F).setCreativeTab(MainRegistry.weaponTab);
+    public static final Block turret_rocket = new TurretRocket(Material.IRON, "turret_rocket").setHardness(5.0F).setResistance(10.0F).setCreativeTab(MainRegistry.weaponTab);
+    public static final Block turret_flamer = new TurretFlamer(Material.IRON, "turret_flamer").setHardness(5.0F).setResistance(10.0F).setCreativeTab(MainRegistry.weaponTab);
+    public static final Block turret_tau = new TurretTau(Material.IRON, "turret_tau").setHardness(5.0F).setResistance(10.0F).setCreativeTab(MainRegistry.weaponTab);
+    public static final Block turret_spitfire = new TurretSpitfire(Material.IRON, "turret_spitfire").setHardness(5.0F).setResistance(10.0F).setCreativeTab(MainRegistry.weaponTab);
 
     //Rails
     public static final Block rail_highspeed = new RailHighspeed("rail_highspeed").setHardness(5.0F).setResistance(10.0F).setCreativeTab(CreativeTabs.TRANSPORTATION);
@@ -1158,6 +1167,7 @@ public class ModBlocks {
     public static final Block machine_well = new MachineOilWell(Material.IRON, "machine_well").setHardness(5.0F).setResistance(100.0F).setCreativeTab(MainRegistry.machineTab);
     public static final Block machine_pumpjack = new MachinePumpjack(Material.IRON, "machine_pumpjack").setHardness(5.0F).setResistance(100.0F).setCreativeTab(MainRegistry.machineTab);
     public static final Block machine_fracking_tower = new MachineFrackingTower(Material.IRON, "machine_fracking_tower").setHardness(5.0F).setResistance(100.0F).setCreativeTab(MainRegistry.machineTab);
+    public static final Block barricade = new BlockNoDrop(Material.SAND, "barricade").setHardness(1.0F).setResistance(2.5F).setCreativeTab(null);
     public static final Block oil_pipe = new BlockNoDrop(Material.IRON, "oil_pipe").setHardness(5.0F).setResistance(10.0F).setCreativeTab(null);
 
     public static final Block machine_flare = new MachineGasFlare(Material.IRON, "machine_flare").setHardness(5.0F).setResistance(100.0F).setCreativeTab(MainRegistry.machineTab);
@@ -1443,6 +1453,7 @@ public class ModBlocks {
     public static final Block ancient_scrap = new BlockOutgas(true, 1, true, true, "ancient_scrap").setCreativeTab(MainRegistry.resourceTab).setHardness(100.0F).setResistance(6000.0F);
 
     public static final Block railgun_plasma = new RailgunPlasma(Material.IRON, "railgun_plasma").setSoundType(SoundType.METAL).setHardness(5.0F).setResistance(10.0F).setCreativeTab(MainRegistry.weaponTab);
+    public static final Block turret_brandon = new TurretBrandon(Material.IRON, "turret_brandon").setHardness(5.0F).setResistance(600.0F).setCreativeTab(MainRegistry.weaponTab);
 
     public static final Block fluid_duct_paintable = new FluidDuctPaintable("fluid_duct_paintable").setHardness(5.0F).setResistance(10.0F).setCreativeTab(MainRegistry.machineTab);
     public static final Block fluid_duct_gauge = new FluidDuctGauge("fluid_duct_gauge").setHardness(5.0F).setResistance(10.0F).setCreativeTab(MainRegistry.machineTab);

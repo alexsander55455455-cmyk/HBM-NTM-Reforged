@@ -1571,6 +1571,7 @@ public class ModItems {
     public static final Item can_breen = new ItemEnergy("can_breen").setContainerItem(ModItems.can_empty).setCreativeTab(MainRegistry.consumableTab);
     public static final Item can_mug = new ItemEnergy("can_mug").makeCan().setCreativeTab(MainRegistry.consumableTab);
     public static final Item drone = new ItemDrone("drone");
+    public static final Item boat_rubber = new ItemBoatRubber("boat_rubber");
     //Tools
     public static final Item titanium_sword = new ItemSwordAbility(6.5F, 0, MaterialRegistry.enumToolMaterialTitanium, "titanium_sword");
     public static final Item titanium_pickaxe = new ItemToolAbility(4.5F, -2.8F, 0, MaterialRegistry.enumToolMaterialTitanium, EnumToolType.PICKAXE, "titanium_pickaxe");
@@ -3566,15 +3567,15 @@ public class ModItems {
     public static final Item tiny_singularity_spark = new ItemFWatzCore("capsule_sing_spark_tiny", 40000000000L, 500, 500, 1280, 320, 5, true).setCreativeTab(MainRegistry.controlTab);
     public static final Item tiny_singularity_super_heated = new ItemFWatzCore("capsule_sing_super_tiny", 1200000000L, 75, 150, 1600, 800, 3, true).setCreativeTab(MainRegistry.controlTab);
     public static final Item titanium_shield = new com.hbm.items.gear.ModShield("titanium_shield", com.hbm.main.MaterialRegistry.enumToolMaterialTitanium, com.hbm.inventory.OreDictManager.TI.ingot());
-    public static final Item turret_cheapo_ammo = new ItemBase("turret_cheapo_ammo").setCreativeTab(MainRegistry.partsTab);
+    public static final Item turret_cheapo_ammo = new com.hbm.items.weapon.ItemTurretAmmo(ModBlocks.turret_cheapo, 100, "turret_cheapo_ammo");
     public static final Item turret_control = new ItemBase("turret_control").setCreativeTab(MainRegistry.partsTab);
-    public static final Item turret_cwis_ammo = new ItemBase("turret_cwis_ammo").setCreativeTab(MainRegistry.partsTab);
-    public static final Item turret_flamer_ammo = new ItemBase("turret_flamer_ammo").setCreativeTab(MainRegistry.partsTab);
-    public static final Item turret_heavy_ammo = new ItemBase("turret_heavy_ammo").setCreativeTab(MainRegistry.partsTab);
-    public static final Item turret_light_ammo = new ItemBase("turret_light_ammo").setCreativeTab(MainRegistry.partsTab);
-    public static final Item turret_rocket_ammo = new ItemBase("turret_rocket_ammo").setCreativeTab(MainRegistry.partsTab);
-    public static final Item turret_spitfire_ammo = new ItemBase("turret_spitfire_ammo").setCreativeTab(MainRegistry.partsTab);
-    public static final Item turret_tau_ammo = new ItemBase("turret_tau_ammo").setCreativeTab(MainRegistry.partsTab);
+    public static final Item turret_cwis_ammo = new com.hbm.items.weapon.ItemTurretAmmo(ModBlocks.turret_cwis, 250, "turret_cwis_ammo");
+    public static final Item turret_flamer_ammo = new com.hbm.items.weapon.ItemTurretAmmo(ModBlocks.turret_flamer, 200, "turret_flamer_ammo");
+    public static final Item turret_heavy_ammo = new com.hbm.items.weapon.ItemTurretAmmo(ModBlocks.turret_heavy, 25, "turret_heavy_ammo");
+    public static final Item turret_light_ammo = new com.hbm.items.weapon.ItemTurretAmmo(ModBlocks.turret_light, 100, "turret_light_ammo");
+    public static final Item turret_rocket_ammo = new com.hbm.items.weapon.ItemTurretAmmo(ModBlocks.turret_rocket, 8, "turret_rocket_ammo");
+    public static final Item turret_spitfire_ammo = new com.hbm.items.weapon.ItemTurretAmmo(ModBlocks.turret_spitfire, 2, "turret_spitfire_ammo");
+    public static final Item turret_tau_ammo = new com.hbm.items.weapon.ItemTurretAmmo(ModBlocks.turret_tau, 100, "turret_tau_ammo");
     public static final Item waste_mox_hot = new ItemCustomLore("waste_mox_hot").setCreativeTab(MainRegistry.partsTab);
     public static final Item waste_plutonium_hot = new ItemCustomLore("waste_plutonium_hot").setCreativeTab(MainRegistry.partsTab);
     public static final Item waste_schrabidium_hot = new ItemCustomLore("waste_schrabidium_hot").setCreativeTab(MainRegistry.partsTab);

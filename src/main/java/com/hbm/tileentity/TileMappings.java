@@ -307,11 +307,19 @@ public class TileMappings {
         put(TileEntityTurretHowardDamaged.class, "tileentity_turret_howard_damaged");
         put(TileEntityTurretMaxwell.class, "tileentity_turret_maxwell");
         put(TileEntityTurretFritz.class, "tileentity_turret_fritz");
-//        put(TileEntityTurretBrandon.class, "tileentity_turret_brandon");
+        put(TileEntityTurretBrandon.class, "tileentity_turret_brandon");
         put(TileEntityTurretArty.class, "tileentity_turret_arty");
         put(TileEntityTurretHIMARS.class, "tileentity_turret_himars");
         put(TileEntityTurretSentry.class, "tileentity_turret_sentry");
         put(TileEntityTurretSentryDamaged.class, "tileentity_turret_sentry_damaged");
+        put(TileEntityTurretCIWS.class, "tileentity_turret_cwis");
+        put(TileEntityTurretCheapo.class, "tileentity_turret_cheapo");
+        put(TileEntityTurretLight.class, "tileentity_turret_light");
+        put(TileEntityTurretHeavy.class, "tileentity_turret_heavy");
+        put(TileEntityTurretFlamer.class, "tileentity_turret_flamer");
+        put(TileEntityTurretRocket.class, "tileentity_turret_rocket");
+        put(TileEntityTurretTau.class, "tileentity_turret_tau");
+        put(TileEntityTurretSpitfire.class, "tileentity_turret_spitfire");
     }
 
     private static void putMachines() {

@@ -132,6 +132,24 @@ public class ResourceManager {
 
     public static final WaveFrontObjectVAO turret_howard_damaged = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/turrets/turret_howard_damaged.obj")).asVBO();
 
+    public static final WaveFrontObjectVAO turret_cwis_base = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/cwis_base.obj")).asVBO();
+    public static final WaveFrontObjectVAO turret_cwis_rotor = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/cwis_rotor.obj")).asVBO();
+    public static final WaveFrontObjectVAO turret_cwis_head = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/cwis_head.obj")).asVBO();
+    public static final WaveFrontObjectVAO turret_cwis_gun = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/cwis_gun.obj")).asVBO();
+    public static final WaveFrontObjectVAO turret_cheapo_base = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/turret_cheapo_base.obj")).asVBO();
+    public static final WaveFrontObjectVAO turret_cheapo_rotor = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/turret_cheapo_rotor.obj")).asVBO();
+    public static final WaveFrontObjectVAO turret_cheapo_head = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/turret_cheapo_head.obj")).asVBO();
+    public static final WaveFrontObjectVAO turret_cheapo_gun = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/turret_cheapo_gun.obj")).asVBO();
+    public static final HFRWavefrontObject turret_mg = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/turrets/freons/turret_mg.obj"));
+    public static final HFRWavefrontObject turret_flamethower = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/turrets/freons/turret_flamethower.obj"));
+    public static final HFRWavefrontObject turret_cannon = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/turrets/freons/turret_cannon.obj"));
+    public static final HFRWavefrontObject turret_tau = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/turrets/freons/turret_tau.obj"));
+    public static final HFRWavefrontObject turret_rocket_launcher = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/turrets/freons/turret_rocket_launcher.obj"));
+    public static final HFRWavefrontObject turret_spitfire_base = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/turret_spitfire_base.obj"));
+    public static final HFRWavefrontObject turret_spitfire_rotor = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/turret_spitfire_rotor.obj"));
+    public static final HFRWavefrontObject turret_spitfire_gun = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/turret_spitfire_gun.obj"));
+    public static final WaveFrontObjectVAO turret_brandon = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/turrets/turret_brandon.obj")).asVBO();
+
     //Satellites
     public static final WaveFrontObjectVAO sat_foeq_burning = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/sat_foeq_burning.obj")).asVBO();
     public static final WaveFrontObjectVAO sat_foeq_fire = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/sat_foeq_fire.obj")).asVBO();
@@ -646,6 +664,21 @@ public class ResourceManager {
     public static final ResourceLocation turret_himars_tex = new ResourceLocation(Tags.MODID, "textures/models/turrets/himars.png");
     public static final ResourceLocation turret_sentry_tex = new ResourceLocation(Tags.MODID, "textures/models/turrets/sentry.png");
     public static final ResourceLocation turret_sentry_damaged_tex = new ResourceLocation(Tags.MODID, "textures/models/turrets/sentry_damaged.png");
+    public static final ResourceLocation turret_ciws_base_tex = new ResourceLocation(Tags.MODID, "textures/models/turrets/cwis_base.png");
+    public static final ResourceLocation turret_ciws_rotor_tex = new ResourceLocation(Tags.MODID, "textures/models/turrets/cwis_rotor.png");
+    public static final ResourceLocation turret_ciws_head_tex = new ResourceLocation(Tags.MODID, "textures/models/turrets/cwis_head.png");
+    public static final ResourceLocation turret_ciws_gun_tex = new ResourceLocation(Tags.MODID, "textures/models/turrets/cwis_gun.png");
+    public static final ResourceLocation turret_cheapo_base_tex = new ResourceLocation(Tags.MODID, "textures/models/turrets/turret_cheapo_base.png");
+    public static final ResourceLocation turret_cheapo_rotor_tex = new ResourceLocation(Tags.MODID, "textures/models/turrets/turret_cheapo_rotor.png");
+    public static final ResourceLocation turret_cheapo_head_tex = new ResourceLocation(Tags.MODID, "textures/models/turrets/turret_cheapo_head.png");
+    public static final ResourceLocation turret_cheapo_gun_tex = new ResourceLocation(Tags.MODID, "textures/models/turrets/turret_cheapo_gun.png");
+    public static final ResourceLocation turret_mg_tex = new ResourceLocation(Tags.MODID, "textures/models/turrets/freons/turret_mg.png");
+    public static final ResourceLocation turret_flamethower_tex = new ResourceLocation(Tags.MODID, "textures/models/turrets/freons/turret_flamethower.png");
+    public static final ResourceLocation turret_cannon_tex = new ResourceLocation(Tags.MODID, "textures/models/turrets/freons/turret_cannon.png");
+    public static final ResourceLocation turret_tau_tex = new ResourceLocation(Tags.MODID, "textures/models/turrets/freons/turret_tau.png");
+    public static final ResourceLocation turret_rocket_launcher_tex = new ResourceLocation(Tags.MODID, "textures/models/turrets/freons/turret_rocket_launcher.png");
+    public static final ResourceLocation turret_brandon_tex = new ResourceLocation(Tags.MODID, "textures/models/turrets/brandon.png");
+    public static final ResourceLocation brandon_explosive = new ResourceLocation(Tags.MODID, "textures/models/turrets/brandon_drum.png");
     public static final ResourceLocation himars_standard_tex = new ResourceLocation(Tags.MODID, "textures/models/projectiles/himars_standard.png");
     public static final ResourceLocation turret_base_rusted = new ResourceLocation(Tags.MODID, "textures/models/turrets/rusted/base.png");
     public static final ResourceLocation turret_carriage_ciws_rusted = new ResourceLocation(Tags.MODID, "textures/models/turrets/rusted/carriage_ciws.png");
