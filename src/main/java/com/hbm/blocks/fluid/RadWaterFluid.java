@@ -9,8 +9,8 @@ public class RadWaterFluid extends Fluid {
 
 	public RadWaterFluid(String name) {
 		super(name,
-				new ResourceLocation("blocks/water_still"),
-				new ResourceLocation("blocks/water_flow"),
-				Color.WHITE);
+				new ResourceLocation("minecraft", "blocks/water_still"),
+				new ResourceLocation("minecraft", "blocks/water_flow"),
+				new Color(0x3F7A97));
 	}
 }

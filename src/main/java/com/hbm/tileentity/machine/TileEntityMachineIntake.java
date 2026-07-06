@@ -8,6 +8,10 @@ import com.hbm.interfaces.AutoRegister;
 import com.hbm.inventory.fluid.FluidType;
 import com.hbm.inventory.fluid.Fluids;
 import com.hbm.inventory.fluid.tank.FluidTankNTM;
+import com.hbmspace.dim.CelestialBody;
+import com.hbmspace.dim.trait.CBT_Atmosphere;
+import com.hbmspace.handler.atmosphere.AtmosphereBlob;
+import com.hbmspace.handler.atmosphere.ChunkAtmosphereManager;
 import com.hbm.lib.DirPos;
 import com.hbm.lib.ForgeDirection;
 import com.hbm.lib.HBMSoundHandler;
@@ -28,6 +32,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 @AutoRegister
 public class TileEntityMachineIntake extends TileEntityLoadedBase implements ITickable, IEnergyReceiverMK2, IFluidStandardSenderMK2, IConnectionAnchors {
@@ -49,7 +54,9 @@ public class TileEntityMachineIntake extends TileEntityLoadedBase implements ITi
         if (!world.isRemote) {
 
             if (this.power >= this.getMaxPower() / 20) {
-                this.compair.setFill(this.compair.getMaxFill());
+                if (canCompress()) {
+                    this.compair.setFill(this.compair.getMaxFill());
+                }
                 this.power -= this.getMaxPower() / 20;
             }
 
@@ -90,6 +97,32 @@ public class TileEntityMachineIntake extends TileEntityLoadedBase implements ITi
                 }
             }
         }
+    }
+
+    private boolean canCompress() {
+        CBT_Atmosphere atmosphere = ChunkAtmosphereManager.proxy.getAtmosphere(world, pos.getX(), pos.getY(), pos.getZ());
+        if (atmosphere == null || atmosphere.getPressure() <= 0.01D) return false;
+
+        boolean isInPressurizedRoom = ChunkAtmosphereManager.proxy.hasAtmosphere(world, pos.getX(), pos.getY(), pos.getZ());
+
+        int consumption = this.compair.getMaxFill() - this.compair.getFill();
+        if (consumption <= 0) return true;
+        consumption = Math.max(1, consumption / 100);
+
+        if (!isInPressurizedRoom) {
+            CelestialBody.capture(world, atmosphere.getMainFluid(), consumption);
+            return true;
+        }
+
+        List<AtmosphereBlob> blobs = ChunkAtmosphereManager.proxy.getBlobs(world, pos.getX(), pos.getY(), pos.getZ());
+        for (AtmosphereBlob blob : blobs) {
+            if (!blob.hasFluid(Fluids.AIR) && blob.hasPressure(0.1)) {
+                blob.consume(consumption);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public DirPos[] getConPos() {
