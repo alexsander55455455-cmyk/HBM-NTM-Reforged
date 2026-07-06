@@ -386,6 +386,7 @@ public class HbmWorldGen implements IWorldGenerator {
 
             generateAStructure(world, rand, chunkMinX, chunkMinZ, Spaceship.INSTANCE, parseInt(CompatibilityConfig.spaceshipStructure.get(dimID)));
             generateAStructure(world, rand, chunkMinX, chunkMinZ, Bunker.INSTANCE, parseInt(CompatibilityConfig.bunkerStructure.get(dimID)));
+            generateAStructure(world, rand, chunkMinX, chunkMinZ, new Silo(), parseInt(CompatibilityConfig.siloStructure.get(dimID)));
             generateAStructure(world, rand, chunkMinX, chunkMinZ, new Dud(), parseInt(CompatibilityConfig.dudStructure.get(dimID)));
 
             if (biome.getTempCategory() == Biome.TempCategory.WARM && biome.getTempCategory() != Biome.TempCategory.OCEAN) {

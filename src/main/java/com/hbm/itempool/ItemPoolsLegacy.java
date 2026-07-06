@@ -32,6 +32,7 @@ public class ItemPoolsLegacy {
     public static final String POOL_NUKE_MISC = "POOL_NUKE_MISC";
     public static final String POOL_VERTIBIRD = "POOL_VERTIBIRD";
     public static final String POOL_SPACESHIP = "POOL_SPACESHIP";
+    public static final String POOL_MISSILE = "POOL_MISSILE";
 
     public static void init() {
 
@@ -211,6 +212,34 @@ public class ItemPoolsLegacy {
                     weighted(ModItems.bomb_caller, 0, 1, 1, 1),
                     weighted(ModItems.bomb_caller, 1, 1, 1, 1),
                     weighted(ModItems.bomb_caller, 2, 1, 1, 2)
+            };
+        }};
+
+        //missile loot found in silos
+        new ItemPool(POOL_MISSILE) {{
+            this.pool = new WeightedRandomChestContentFrom1710[] {
+                    weighted(ModItems.missile_generic, 0, 1, 1, 4),
+                    weighted(ModItems.missile_incendiary, 0, 1, 1, 4),
+                    weighted(ModItems.missile_cluster, 0, 1, 1, 4),
+                    weighted(ModItems.missile_buster, 0, 1, 1, 4),
+                    weighted(ModBlocks.launch_pad, 0, 1, 1, 5),
+                    weighted(ModItems.gas_mask_m65, 0, 1, 1, 5),
+                    weighted(ModItems.battery_advanced, 0, 1, 1, 5),
+                    weighted(ModItems.designator, 0, 1, 1, 5),
+                    weighted(ModItems.crate_caller, 0, 1, 1, 1),
+                    weighted(ModItems.thruster_small, 0, 1, 1, 5),
+                    weighted(ModItems.thruster_medium, 0, 1, 1, 4),
+                    weighted(ModItems.thruster_large, 0, 1, 1, 2),
+                    weighted(ModItems.fuel_tank_small, 0, 1, 1, 5),
+                    weighted(ModItems.fuel_tank_medium, 0, 1, 1, 4),
+                    weighted(ModItems.fuel_tank_large, 0, 1, 1, 2),
+                    weighted(ModItems.warhead_mirvlet, 0, 1, 1, 1),
+                    weighted(ModItems.warhead_nuclear, 0, 1, 1, 1),
+                    weighted(ModItems.loot_10, 0, 1, 1, 3),
+                    weighted(ModItems.loot_15, 0, 1, 1, 2),
+                    weighted(ModItems.loot_misc, 0, 1, 1, 1),
+                    weighted(ModItems.bomb_caller, 0, 1, 1, 1),
+                    weighted(ModItems.bomb_caller, 1, 1, 1, 1)
             };
         }};
 
