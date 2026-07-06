@@ -31,7 +31,7 @@ import com.hbm.items.weapon.IMetaItemTesr;
 import com.hbm.main.AutoRegistry;
 import com.hbm.main.MainRegistry;
 import com.hbm.main.ResourceManager;
-import com.hbm.render.GuiCTMWarning;
+
 import com.hbm.render.entity.RenderBoat;
 import com.hbm.render.icon.RegistrationUtils;
 import com.hbm.render.item.BakedModelCustom;
@@ -91,12 +91,6 @@ public class NTMClientRegistry {
     public static TextureAtlasSprite fog;
     public static TextureAtlasSprite debugPower;
     public static TextureAtlasSprite debugFluid;
-    //Lazy, I know
-    // 0 - CTM exists
-    // 1 - No CTM, Player didn't acknowledge
-    // 2 - No CTM, Player acknowledge
-    public static boolean ctmWarning = false;
-
     public static void bindTeisr(Item item, TileEntityItemStackRenderer renderer) {
         ClaimedModelLocationRegistry.unregisterTeisrBinding(item);
         item.setTileEntityItemStackRenderer(renderer);
@@ -447,15 +441,6 @@ public class NTMClientRegistry {
         }
         return model;
     }
-    @SubscribeEvent
-    public void onGuiInit(GuiScreenEvent.InitGuiEvent.Post event) {
-        if (!ctmWarning) return;
-        if (event.getGui() instanceof net.minecraft.client.gui.GuiMainMenu) {
-            Minecraft.getMinecraft().displayGuiScreen(new GuiCTMWarning());
-            ctmWarning = false;
-        }
-    }
-
     @SubscribeEvent
     public void registerModels(ModelRegistryEvent event) {
         initializeItemRendererBindings();

@@ -114,7 +114,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fluids.BlockFluidClassic;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
-import net.minecraftforge.fml.common.Loader;
+
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -2228,6 +2228,5 @@ public class ClientProxy extends ServerProxy {
 
 
     public void onLoadComplete(FMLLoadCompleteEvent event) {
-        if (!Loader.isModLoaded(Compat.ModIds.CTM)) NTMClientRegistry.ctmWarning = true;
     }
 }
