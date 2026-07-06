@@ -10,6 +10,7 @@ import com.hbm.lib.HBMSoundHandler;
 import com.hbm.lib.ModDamageSource;
 import com.hbm.main.AdvancementManager;
 import com.hbm.packet.toclient.AuxParticlePacketNT;
+import com.hbm.interfaces.IRadiationImmune;
 import com.hbm.util.ContaminationUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -33,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 @AutoRegister(name = "entity_nuclear_creeper", trackingRange = 80, eggColors = {0x204131, 0x75CE00})
-public class EntityCreeperNuclear extends EntityCreeper {
+public class EntityCreeperNuclear extends EntityCreeper implements IRadiationImmune {
 
 	public EntityCreeperNuclear(World worldIn) {
 		super(worldIn);

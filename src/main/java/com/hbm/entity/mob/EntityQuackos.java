@@ -1,5 +1,6 @@
 package com.hbm.entity.mob;
 
+import com.hbm.interfaces.IRadiationImmune;
 import com.hbm.handler.threading.PacketThreading;
 import com.hbm.interfaces.AutoRegister;
 import com.hbm.lib.HBMSoundHandler;
@@ -22,7 +23,7 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
  *  BOW
  */
 @AutoRegister(name = "entity_elder_one", trackingRange = 1000, eggColors = {0xd0d0d0, 0xFFBF00})
-public class EntityQuackos extends EntityDuck {
+public class EntityQuackos extends EntityDuck implements IRadiationImmune {
 
 	/**
      *  BOW

@@ -10,9 +10,9 @@ import com.hbm.entity.effect.EntityNukeTorex;
 import com.hbm.entity.grenade.EntityGrenadeUniversal;
 import com.hbm.items.weapon.grenade.ItemGrenadeFilling.EnumGrenadeFilling;
 import com.hbm.entity.logic.EntityNukeExplosionMK5;
-import com.hbm.entity.missile.EntityMIRV;
-import com.hbm.entity.mob.EntityCreeperNuclear;
 import com.hbm.entity.mob.EntityQuackos;
+import com.hbm.entity.missile.EntityMIRV;
+
 import com.hbm.entity.projectile.EntityBulletBase;
 import com.hbm.entity.projectile.EntityExplosiveBeam;
 import com.hbm.entity.projectile.EntityMiniMIRV;
@@ -63,20 +63,6 @@ public class ContaminationUtil {
 	public static final String NTM_NEUTRON_NBT_KEY = "ntmNeutron";
 	public static final float MIN_RAD_ACTIVATION_RATE = 0.000005F;
     public static final String RAD_MULT_KEY = "hbmradmultiplier";
-    public static Class<?>[] immuneEntities  = new Class<?>[]{
-            EntityCreeperNuclear.class,
-            EntityMooshroom.class,
-            EntityZombie.class,
-            EntitySkeleton.class,
-            EntityQuackos.class,
-            EntityOcelot.class,
-            IRadiationImmune.class,
-            // 1.12.2 Addition
-            EntityZombieHorse.class,
-            EntitySkeletonHorse.class,
-            EntityArmorStand.class
-    };
-
     /**
 	 * Calculates how much radiation can be applied to this entity by calculating resistance
 	 * @param entity
@@ -456,10 +442,19 @@ public class ContaminationUtil {
 	public static boolean isRadImmune(Entity e) {
 		if(e instanceof EntityLivingBase livingBase && livingBase.isPotionActive(HbmPotion.mutation))
 			return true;
-		Class<? extends Entity> entityClass = e.getClass();
-        for (Class<?> radImmuneClass : immuneEntities) {
-            if (radImmuneClass.isAssignableFrom(entityClass)) return true;
-        }
+
+		if(e instanceof IRadiationImmune)
+			return true;
+
+		if(e instanceof EntityMooshroom || e instanceof EntityZombie || e instanceof EntitySkeleton)
+			return true;
+
+		if(e instanceof EntityZombieHorse || e instanceof EntitySkeletonHorse || e instanceof EntityArmorStand)
+			return true;
+
+		if("cyano.lootable.entities.EntityLootableBody".equals(e.getClass().getName()))
+			return true;
+
 		return checkConfigEntityImmunity(e);
 	}
 	
