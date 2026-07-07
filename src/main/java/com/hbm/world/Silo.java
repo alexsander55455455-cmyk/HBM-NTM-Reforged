@@ -2,8 +2,11 @@ package com.hbm.world;
 
 import java.util.Random;
 
+import com.hbm.blocks.BlockDummyable;
 import com.hbm.blocks.ModBlocks;
+import com.hbm.blocks.bomb.LaunchPad;
 import com.hbm.config.GeneralConfig;
+import com.hbm.lib.ForgeDirection;
 import com.hbm.handler.WeightedRandomChestContentFrom1710;
 import com.hbm.itempool.ItemPool;
 import com.hbm.itempool.ItemPoolsLegacy;
@@ -391,8 +394,6 @@ public class Silo extends WorldGenerator
 		world.setBlockState(pos.setPos(x + 6, y + -20, z + 10), Blocks.AIR.getDefaultState(), 3);
 		world.setBlockState(pos.setPos(x + 7, y + -20, z + 10), Blocks.AIR.getDefaultState(), 3);
 		world.setBlockState(pos.setPos(x + 8, y + -20, z + 10), Blocks.AIR.getDefaultState(), 3);
-		world.setBlockState(pos.setPos(x + 9, y + -20, z + 10), Block2.getDefaultState(), 3);
-		world.setBlockState(pos.setPos(x + 10, y + -20, z + 10), Blocks.UNPOWERED_REPEATER.getDefaultState().withProperty(BlockRedstoneRepeater.FACING, EnumFacing.EAST), 3);
 		world.setBlockState(pos.setPos(x + 11, y + -20, z + 10), Blocks.REDSTONE_WIRE.getDefaultState(), 3);
 		world.setBlockState(pos.setPos(x + 12, y + -20, z + 10), Blocks.REDSTONE_WIRE.getDefaultState(), 3);
 		world.setBlockState(pos.setPos(x + 13, y + -20, z + 10), Blocks.IRON_BARS.getDefaultState(), 3);
@@ -2488,6 +2489,11 @@ public class Silo extends WorldGenerator
 		world.setBlockState(pos.setPos(x + 8, y + 1, z + 13), Block6.getDefaultState(), 3);
 		world.setBlockState(pos.setPos(x + 9, y + 1, z + 13), Block6.getDefaultState(), 3);
 		world.setBlockState(pos.setPos(x + 10, y + 1, z + 13), Block6.getDefaultState(), 3);
+
+		BlockDummyable.safeRem = true;
+		world.setBlockState(pos.setPos(x + 9, y - 20, z + 10), Block2.getDefaultState().withProperty(BlockDummyable.META, ForgeDirection.NORTH.ordinal() + BlockDummyable.offset), 3);
+		((LaunchPad) Block2).fillSpace(world, x + 9, y - 20, z + 10, ForgeDirection.NORTH, 0);
+		BlockDummyable.safeRem = false;
 
 		generate_r03_last(world, rand, x, y, z, pos);
 		return true;
