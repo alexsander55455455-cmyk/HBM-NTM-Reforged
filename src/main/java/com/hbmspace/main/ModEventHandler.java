@@ -304,37 +304,26 @@ public class ModEventHandler {
     @SubscribeEvent
     public static void worldTick(TickEvent.WorldTickEvent event) {
         if(event.world == null) return;
-        if(!event.world.isRemote){
-            List<Entity> loadedEntityList = new ArrayList<>(event.world.loadedEntityList); // ConcurrentModificationException my balls
+        if(!event.world.isRemote && event.phase == TickEvent.Phase.START) {
+            for (EntityPlayer player : event.world.playerEntities) {
+                // handle dismount events, or our players will splat upon leaving tall rockets
+                Entity riding = player.getRidingEntity();
+                if (riding instanceof EntityRideableRocket rocket && player.isSneaking()) {
+                    // Prevent leaving a rocket in motion, for safety
+                    if (rocket.canExitCapsule() || rocket.forceExitTimer >= 60) {
+                        boolean inOrbit = event.world.provider instanceof WorldProviderOrbit;
+                        Entity ridingEntity = player.getRidingEntity();
+                        float prevHeight = ridingEntity.height;
 
-            for (Entity e : loadedEntityList) {
-
-                if (e instanceof EntityPlayer player) {
-
-                    // handle dismount events, or our players will splat upon leaving tall rockets
-                    Entity riding = player.getRidingEntity();
-                    if (riding instanceof EntityRideableRocket rocket && player.isSneaking()) {
-
-                        if (player.isSneaking()) {
-                            // Prevent leaving a rocket in motion, for safety
-                            if (rocket.canExitCapsule() || rocket.forceExitTimer >= 60) {
-                                boolean inOrbit = event.world.provider instanceof WorldProviderOrbit;
-                                Entity ridingEntity = player.getRidingEntity();
-                                float prevHeight = ridingEntity.height;
-
-                                ridingEntity.height = inOrbit ? (ridingEntity.height + 1.0F) : 1.0F;
-                                player.dismountRidingEntity();
-                                if (!inOrbit) player.setPositionAndUpdate(player.posX + 2, player.posY, player.posZ);
-                                ridingEntity.height = prevHeight;
-                            } else {
-                                rocket.forceExitTimer++;
-                            }
-
-                            player.setSneaking(false);
-                        } else {
-                            rocket.forceExitTimer = 0;
-                        }
+                        ridingEntity.height = inOrbit ? (ridingEntity.height + 1.0F) : 1.0F;
+                        player.dismountRidingEntity();
+                        if (!inOrbit) player.setPositionAndUpdate(player.posX + 2, player.posY, player.posZ);
+                        ridingEntity.height = prevHeight;
+                    } else {
+                        rocket.forceExitTimer++;
                     }
+
+                    player.setSneaking(false);
                 }
             }
         }

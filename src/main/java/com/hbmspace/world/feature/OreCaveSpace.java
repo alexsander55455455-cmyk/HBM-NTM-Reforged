@@ -21,6 +21,7 @@ import java.util.Random;
 public class OreCaveSpace {
 
     private NoiseGeneratorPerlin noise;
+    private long lastSeed = Long.MIN_VALUE;
     private final RecipesCommon.MetaBlock ore;
     /** The number that is being deducted flat from the result of the perlin noise before all other processing. Increase this to make strata rarer. */
     private double threshold = 2D;
@@ -95,8 +96,7 @@ public class OreCaveSpace {
     public void onDecorate(DecorateBiomeEvent.Pre event) {
 
         World world = event.getWorld();
-
-        if (world.provider == null) return;
+        if (world == null || world.provider == null || world.isRemote) return;
 
         Block replace = Blocks.STONE;
         if(override != null) {
@@ -111,15 +111,25 @@ public class OreCaveSpace {
             if(world.provider.getDimension() != this.dim) return;
         }
 
-        if (this.noise == null) {
-            this.noise = new NoiseGeneratorPerlin(new Random(world.getSeed() + (ore.getID() * 31L) + yLevel), 2);
+        long seed = world.getSeed();
+        if (this.noise == null || this.lastSeed != seed) {
+            this.noise = new NoiseGeneratorPerlin(new Random(seed + (ore.getID() * 31L) + yLevel), 2);
+            this.lastSeed = seed;
         }
+
         // Apparently getChunkPos doesn't work here at all..
         int cX = event.getPos().getX();
         int cZ = event.getPos().getZ();
 
         double scale = 0.01D;
+        final Random rand = event.getRand();
+        final Block fluidBlock = fluid;
+
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+        BlockPos.MutableBlockPos npos = new BlockPos.MutableBlockPos();
+        BlockPos.MutableBlockPos downPos = new BlockPos.MutableBlockPos();
+        BlockPos.MutableBlockPos clPos = new BlockPos.MutableBlockPos();
+
         for (int x = cX + 8; x < cX + 24; x++) {
             for (int z = cZ + 8; z < cZ + 24; z++) {
 
@@ -135,6 +145,7 @@ public class OreCaveSpace {
                         continue;
 
                     for (int y = yLevel - range; y <= yLevel + range; y++) {
+                        pos.setPos(x, y, z);
                         IBlockState genState = world.getBlockState(pos);
                         Block genBlock = genState.getBlock();
 
@@ -143,10 +154,10 @@ public class OreCaveSpace {
                                 && genBlock.isReplaceableOreGen(genState, world, pos, PLANET_PREDICATE)) {
 
                             boolean shouldGen = false;
-                            boolean canGenFluid = event.getRand().nextBoolean();
+                            boolean canGenFluid = rand.nextBoolean();
 
                             for (EnumFacing dir : EnumFacing.values()) {
-                                BlockPos npos = pos.offset(dir);
+                                npos.setPos(pos).move(dir);
                                 IBlockState neighborState = world.getBlockState(npos);
                                 Block neighborBlock = neighborState.getBlock();
 
@@ -171,7 +182,7 @@ public class OreCaveSpace {
                                         case SOUTH:
                                         case EAST:
                                         case WEST:
-                                            if (!neighborBlock.isNormalCube(neighborState, world, npos) && neighborBlock != fluid)
+                                            if (!neighborBlock.isNormalCube(neighborState, world, npos) && neighborBlock != fluidBlock)
                                                 canGenFluid = false;
                                             break;
                                     }
@@ -180,10 +191,11 @@ public class OreCaveSpace {
 
                             if (fluid != null && canGenFluid) {
                                 world.setBlockState(pos, fluid.getDefaultState(), 2);
-                                world.setBlockState(pos.down(), ore.block.getStateFromMeta(ore.meta), 2);
+                                downPos.setPos(pos).move(EnumFacing.DOWN);
+                                world.setBlockState(downPos, ore.block.getStateFromMeta(ore.meta), 2);
 
                                 for (EnumFacing dir : EnumFacing.HORIZONTALS) {
-                                    BlockPos clPos = pos.offset(dir);
+                                    clPos.setPos(pos).move(dir);
                                     IBlockState neighborState = world.getBlockState(clPos);
                                     Block neighborBlock = neighborState.getBlock();
 
