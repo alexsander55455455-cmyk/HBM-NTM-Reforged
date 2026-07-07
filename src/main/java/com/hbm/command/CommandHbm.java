@@ -9,6 +9,7 @@ import com.hbm.main.StructureManager;
 import com.hbm.main.client.NTMClientRegistry;
 import com.hbm.render.GLCompat;
 import com.hbm.saveddata.TomSaveData;
+import com.hbm.lib.HbmWorldGen;
 import com.hbm.world.*;
 import com.hbm.world.dungeon.LibraryDungeon;
 import com.hbm.world.gen.component.SiloComponent;
@@ -332,6 +333,7 @@ public class CommandHbm extends CommandBase {
                 case "vertibird_crashed" -> StructureManager.crashed_vertibird.build(world, genPos.getX(), genPos.getY(), genPos.getZ());
                 case "desert_atom" -> DesertAtom001.INSTANCE.generate(world, rand, genPos, force);
                 case "library" -> LibraryDungeon.INSTANCE.generate(world, rand, genPos, force);
+                case "vault_dungeon" -> HbmWorldGen.generateVaultDungeon(world, (int) senderPos.x, (int) senderPos.z, rand);
                 case "geysir_water" -> {
                     if (force) {
                         GeyserLarge.INSTANCE.generate(world, rand, genPos);

@@ -4,6 +4,7 @@ import com.hbm.world.phased.AbstractPhasedStructure;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +16,7 @@ public class CellularDungeon {
 	CellularDungeonRoom[][] cells;
 	EnumFacing[][] doors;
 	// the order in which the buffer should be processed
-	private List<int[]> order = new ArrayList<int[]>();
+	protected List<int[]> order = new ArrayList<int[]>();
 
 	// the size of the cell array x
 	int dimX;
@@ -57,6 +58,28 @@ public class CellularDungeon {
 		this.floor.add(floor.getDefaultState());
 		this.ceiling.add(ceiling.getDefaultState());
 		this.wall.add(wall.getDefaultState());
+	}
+
+	public void generate(World world, int x, int y, int z, Random rand) {
+		if(world.isRemote)
+			return;
+
+		x -= dimX * width / 2;
+		z -= dimZ * width / 2;
+
+		compose(rand);
+		for(int[] coord : order) {
+
+			if(coord == null || coord.length != 2)
+				continue;
+
+			int dx = coord[0];
+			int dz = coord[1];
+
+			if(cells[dx][dz] != null) {
+				cells[dx][dz].generate(world, x + dx * (width - 1), y, z + dz * (width - 1), doors[dx][dz]);
+			}
+		}
 	}
 
 	public void generate(AbstractPhasedStructure.LegacyBuilder world, int x, int y, int z, Random rand) {

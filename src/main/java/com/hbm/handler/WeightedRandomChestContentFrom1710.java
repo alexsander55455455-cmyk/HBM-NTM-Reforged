@@ -1,9 +1,15 @@
 package com.hbm.handler;
 
+import net.minecraft.block.BlockChest;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.WeightedRandom;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
@@ -38,6 +44,13 @@ public class WeightedRandomChestContentFrom1710 extends WeightedRandom.Item {
         this.theItemId = stack;
         this.theMinimumChanceToGenerateItem = minChance;
         this.theMaximumChanceToGenerateItem = maxChance;
+    }
+
+    public static void placeLootChest(World world, BlockPos pos, EnumFacing dir, WeightedRandomChestContentFrom1710[] pool, int rolls) {
+        world.setBlockState(pos, Blocks.CHEST.getDefaultState().withProperty(BlockChest.FACING, dir), 2 | 16);
+        TileEntity tile = world.getTileEntity(pos);
+        if (tile != null)
+            generateChestContents(world.rand, pool, tile, rolls);
     }
 
     public static void generateChestContents(Random random, WeightedRandomChestContentFrom1710[] pool, ICapabilityProvider capabilityProvider, int roll) {

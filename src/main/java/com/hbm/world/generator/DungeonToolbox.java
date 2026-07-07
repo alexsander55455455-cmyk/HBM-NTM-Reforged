@@ -1,11 +1,17 @@
 package com.hbm.world.generator;
 
+import com.hbm.blocks.BlockDummyable;
+import com.hbm.blocks.generic.BlockDoorGeneric;
+import com.hbm.handler.MultiblockHandlerXR;
+import com.hbm.lib.ForgeDirection;
+
 import com.hbm.world.feature.WorldGenMinableNonCascade;
 import com.hbm.world.phased.AbstractPhasedStructure;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFlower;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.world.World;
@@ -127,6 +133,101 @@ public class DungeonToolbox {
         }
     }
 
+    public static void generateBoxNoReplace(World world, int x, int y, int z, int sx, int sy, int sz, List<IBlockState> blocks) {
+        if (blocks.isEmpty())
+            return;
 
+        for (int i = x; i < x + sx; i++) {
+            for (int j = y; j < y + sy; j++) {
+                for (int k = z; k < z + sz; k++) {
+                    BlockPos pos = mutablePos.setPos(i, j, k);
+                    if (!world.isAirBlock(pos))
+                        continue;
+                    IBlockState b = getRandom(blocks, world.rand);
+                    if (b == null)
+                        b = Blocks.AIR.getDefaultState();
+                    world.setBlockState(pos, b, 2 | 16);
+                }
+            }
+        }
+    }
+
+    public static void generateWalls(World world, int x, int y, int z, int sx, int sy, int sz, List<IBlockState> blocks) {
+        if (blocks.isEmpty())
+            return;
+
+        for (int i = 0; i < sx; i++) {
+            for (int j = 0; j < sy; j++) {
+                for (int k = 0; k < sz; k++) {
+                    if ((i == 0 || i == sx - 1) || (k == 0 || k == sz - 1)) {
+                        IBlockState b = getRandom(blocks, world.rand);
+                        if (b == null)
+                            b = Blocks.AIR.getDefaultState();
+                        world.setBlockState(mutablePos.setPos(x + i, y + j, z + k), b, 2 | 16);
+                    }
+                }
+            }
+        }
+    }
+
+    public static void generateWalls(World world, int x, int y, int z, int sx, int sy, int sz, IBlockState block) {
+        for (int i = 0; i < sx; i++) {
+            for (int j = 0; j < sy; j++) {
+                for (int k = 0; k < sz; k++) {
+                    if ((i == 0 || i == sx - 1) || (k == 0 || k == sz - 1))
+                        world.setBlockState(mutablePos.setPos(x + i, y + j, z + k), block, 2 | 16);
+                }
+            }
+        }
+    }
+
+    public static void generateHollowBox(World world, int x, int y, int z, int sx, int sy, int sz, List<IBlockState> blocks) {
+        if (blocks.isEmpty())
+            return;
+
+        for (int i = 0; i < sx; i++) {
+            for (int j = 0; j < sy; j++) {
+                for (int k = 0; k < sz; k++) {
+                    if ((i == 0 || i == sx - 1) || (j == 0 || j == sy - 1) || (k == 0 || k == sz - 1)) {
+                        IBlockState b = getRandom(blocks, world.rand);
+                        if (b == null)
+                            b = Blocks.AIR.getDefaultState();
+                        world.setBlockState(mutablePos.setPos(x + i, y + j, z + k), b, 2 | 16);
+                    }
+                }
+            }
+        }
+    }
+
+    public static void generateHollowBox(World world, int x, int y, int z, int sx, int sy, int sz, IBlockState block) {
+        for (int i = 0; i < sx; i++) {
+            for (int j = 0; j < sy; j++) {
+                for (int k = 0; k < sz; k++) {
+                    if ((i == 0 || i == sx - 1) || (j == 0 || j == sy - 1) || (k == 0 || k == sz - 1))
+                        world.setBlockState(mutablePos.setPos(x + i, y + j, z + k), block, 2 | 16);
+                }
+            }
+        }
+    }
+
+    public static boolean placeDummyable(World world, int x, int y, int z, BlockDummyable block, EnumFacing facing) {
+        EnumFacing coreDir = facing.getOpposite();
+        ForgeDirection dir = ForgeDirection.getOrientation(coreDir.ordinal());
+
+        if (!block.checkRequirement(world, x, y, z, dir, 0))
+            return false;
+
+        BlockDummyable.safeRem = true;
+        world.setBlockState(mutablePos.setPos(x, y, z), block.getDefaultState().withProperty(BlockDummyable.META, coreDir.ordinal() + BlockDummyable.offset), 2 | 16);
+        MultiblockHandlerXR.fillSpace(world, x, y, z, block.getDimensions(), block, dir);
+
+        if (block instanceof BlockDoorGeneric door && door.type.getExtraDimensions() != null) {
+            for (int[] dims : door.type.getExtraDimensions())
+                MultiblockHandlerXR.fillSpace(world, x, y, z, dims, block, dir);
+        }
+
+        BlockDummyable.safeRem = false;
+        return true;
+    }
 
 }

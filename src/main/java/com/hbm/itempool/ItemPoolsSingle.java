@@ -21,6 +21,7 @@ public class ItemPoolsSingle {
     public static final String POOL_VAULT_STANDARD = "POOL_VAULT_STANDARD";
     public static final String POOL_VAULT_REINFORCED = "POOL_VAULT_REINFORCED";
     public static final String POOL_VAULT_UNBREAKABLE = "POOL_VAULT_UNBREAKABLE";
+    public static final String POOL_VAULT_DUNGEON = "POOL_VAULT_DUNGEON";
     public static final String POOL_METEORITE_TREASURE = "POOL_METEORITE_TREASURE";
     public static final String POOL_BLUEPRINTS = "POOL_BLUEPRINTS";
 
@@ -64,45 +65,78 @@ public class ItemPoolsSingle {
 
         new ItemPool(POOL_VAULT_STANDARD) {{
             this.pool = new WeightedRandomChestContentFrom1710[] {
-                    weighted(ModItems.ingot_desh, 0, 2, 6, 1),
+                    weighted(ModItems.ingot_desh, 0, 2, 8, 1),
+                    weighted(ModItems.nugget_schrabidium, 0, 2, 6, 2),
                     weighted(ModItems.powder_desh_mix, 0, 1, 5, 1),
-                    weighted(Items.DIAMOND, 0, 3, 6, 1),
-                    weighted(ModItems.ammo_nuke, 0, 1, 1, 1),
-                    weighted(ModItems.ammo_container, 0, 1, 1, 1),
-                    weighted(ItemGrenadeUniversal.make(EnumGrenadeShell.NUKE, EnumGrenadeFilling.NUCLEAR, EnumGrenadeFuze.S7), 1, 1, 1),
-                    weighted(ItemGrenadeUniversal.make(EnumGrenadeShell.TECH, EnumGrenadeFilling.EMP, EnumGrenadeFuze.S3), 1, 6, 1),
-                    weighted(ModItems.powder_yellowcake, 0, 16, 24, 1),
+                    weighted(Items.DIAMOND, 0, 3, 8, 1),
+                    weighted(ModItems.ammo_nuke, 0, 1, 2, 1),
+                    weighted(ModItems.ammo_container, 0, 1, 2, 1),
+                    weighted(ItemGrenadeUniversal.make(EnumGrenadeShell.NUKE, EnumGrenadeFilling.NUCLEAR, EnumGrenadeFuze.S7), 1, 1, 2),
+                    weighted(ItemGrenadeUniversal.make(EnumGrenadeShell.TECH, EnumGrenadeFilling.EMP, EnumGrenadeFuze.S3), 1, 6, 2),
+                    weighted(ModItems.powder_yellowcake, 0, 16, 32, 1),
                     weighted(ModItems.gun_uzi_sedna, 0, 1, 1, 1),
-                    weighted(ModItems.circuit, ItemEnums.EnumCircuitType.VACUUM_TUBE.ordinal(), 12, 16, 1),
-                    weighted(ModItems.circuit, ItemEnums.EnumCircuitType.CHIP.ordinal(), 2, 6, 1)
+                    weighted(ModItems.bottle_quantum, 0, 1, 2, 1),
+                    weighted(ModItems.circuit, ItemEnums.EnumCircuitType.VACUUM_TUBE.ordinal(), 12, 20, 1),
+                    weighted(ModItems.circuit, ItemEnums.EnumCircuitType.CHIP.ordinal(), 2, 8, 1)
             };
         }};
 
         new ItemPool(POOL_VAULT_REINFORCED) {{
             this.pool = new WeightedRandomChestContentFrom1710[] {
-                    weighted(ModItems.ingot_desh, 0, 6, 16, 1),
-                    weighted(ModItems.powder_power, 0, 1, 5, 1),
-                    weighted(ModItems.sat_chip, 0, 1, 1, 1),
-                    weighted(Items.DIAMOND, 0, 5, 9, 1),
-                    weighted(ModItems.ammo_nuke, 0, 1, 3, 1),
-                    weighted(ModItems.ammo_container, 0, 1, 4, 1),
-                    weighted(ItemGrenadeUniversal.make(EnumGrenadeShell.NUKE, EnumGrenadeFilling.NUCLEAR, EnumGrenadeFuze.S7), 1, 2, 1),
-                    weighted(ItemGrenadeUniversal.make(EnumGrenadeShell.STICK, EnumGrenadeFilling.HE, EnumGrenadeFuze.IMPACT, EnumGrenadeExtra.TRIPLEX), 1, 1, 1),
-                    weighted(ModItems.powder_yellowcake, 0, 26, 42, 1),
+                    weighted(ModItems.ingot_desh, 0, 6, 20, 1),
+                    weighted(ModItems.ingot_schrabidium, 0, 1, 3, 2),
+                    weighted(ModItems.nugget_schrabidium, 0, 4, 12, 2),
+                    weighted(ModItems.powder_power, 0, 1, 6, 1),
+                    weighted(ModItems.sat_chip, 0, 1, 2, 1),
+                    weighted(Items.DIAMOND, 0, 5, 12, 1),
+                    weighted(ModItems.ammo_nuke, 0, 1, 4, 1),
+                    weighted(ModItems.ammo_container, 0, 1, 5, 1),
+                    weighted(ItemGrenadeUniversal.make(EnumGrenadeShell.NUKE, EnumGrenadeFilling.NUCLEAR, EnumGrenadeFuze.S7), 1, 2, 2),
+                    weighted(ItemGrenadeUniversal.make(EnumGrenadeShell.STICK, EnumGrenadeFilling.HE, EnumGrenadeFuze.IMPACT, EnumGrenadeExtra.TRIPLEX), 1, 1, 2),
+                    weighted(ModItems.powder_yellowcake, 0, 26, 48, 1),
                     weighted(ModItems.gun_heavy_revolver, 0, 1, 1, 1),
-                    weighted(ModItems.circuit, ItemEnums.EnumCircuitType.CHIP.ordinal(), 18, 32, 1),
-                    weighted(ModItems.circuit, ItemEnums.EnumCircuitType.BASIC.ordinal(), 6, 12, 1)
+                    weighted(ModItems.stealth_boy, 0, 1, 1, 1),
+                    weighted(ModItems.circuit, ItemEnums.EnumCircuitType.CHIP.ordinal(), 18, 36, 1),
+                    weighted(ModItems.circuit, ItemEnums.EnumCircuitType.BASIC.ordinal(), 6, 16, 1)
             };
         }};
 
         new ItemPool(POOL_VAULT_UNBREAKABLE) {{
             this.pool = new WeightedRandomChestContentFrom1710[] {
-                    weighted(ModItems.ammo_container, 0, 3, 6, 1),
-                    weighted(ModItems.ammo_nuke, 0, 2, 3, 1),
+                    weighted(ModItems.ammo_container, 0, 3, 8, 1),
+                    weighted(ModItems.ammo_nuke, 0, 2, 4, 1),
+                    weighted(ModItems.ingot_schrabidium, 0, 2, 6, 2),
+                    weighted(ModItems.billet_schrabidium, 0, 1, 3, 1),
                     weighted(ModItems.gun_carbine, 0, 1, 1, 1),
-                    weighted(ModItems.ammo_standard, GunFactory.EnumAmmo.R762_DU.ordinal(), 16, 32, 1),
+                    weighted(ModItems.ammo_standard, GunFactory.EnumAmmo.R762_DU.ordinal(), 24, 48, 1),
                     weighted(ModItems.gun_congolake, 0, 1, 1, 1),
-                    weighted(ModItems.circuit, ItemEnums.EnumCircuitType.ADVANCED.ordinal(), 6, 12, 1)
+                    weighted(ModItems.fusion_core, 0, 1, 1, 1),
+                    weighted(ModItems.circuit, ItemEnums.EnumCircuitType.ADVANCED.ordinal(), 8, 16, 1)
+            };
+        }};
+
+        new ItemPool(POOL_VAULT_DUNGEON) {{
+            this.pool = new WeightedRandomChestContentFrom1710[] {
+                    weighted(ModItems.ingot_schrabidium, 0, 2, 6, 3),
+                    weighted(ModItems.nugget_schrabidium, 0, 4, 16, 4),
+                    weighted(ModItems.billet_schrabidium, 0, 1, 4, 2),
+                    weighted(ModItems.powder_schrabidium, 0, 2, 8, 2),
+                    weighted(ModItems.apple_euphemium, 0, 1, 1, 1),
+                    weighted(ModItems.ingot_starmetal, 0, 1, 3, 2),
+                    weighted(ModItems.ingot_desh, 0, 4, 16, 3),
+                    weighted(ModItems.bottle_quantum, 0, 1, 3, 2),
+                    weighted(ModItems.stealth_boy, 0, 1, 2, 2),
+                    weighted(ModItems.fusion_core, 0, 1, 1, 1),
+                    weighted(ModItems.sat_chip, 0, 1, 2, 2),
+                    weighted(ModItems.ammo_nuke, 0, 1, 3, 2),
+                    weighted(ModItems.ammo_container, 0, 2, 5, 2),
+                    weighted(ModItems.gun_heavy_revolver, 0, 1, 1, 2),
+                    weighted(ModItems.gun_congolake, 0, 1, 1, 1),
+                    weighted(Items.DIAMOND, 0, 4, 10, 3),
+                    weighted(ModItems.circuit, ItemEnums.EnumCircuitType.ADVANCED.ordinal(), 4, 10, 2),
+                    weighted(ModItems.circuit, ItemEnums.EnumCircuitType.CHIP.ordinal(), 8, 20, 2),
+                    weighted(ModItems.launch_code_piece, 0, 1, 2, 1),
+                    weighted(ModItems.gem_alexandrite, 0, 1, 1, 1)
             };
         }};
 

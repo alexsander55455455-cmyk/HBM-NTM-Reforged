@@ -78,6 +78,7 @@ public class WorldConfig {
 	public static int vaultfreq = 2500;
 	public static int arcticStructure = 500;
 	public static int jungleStructure = 2000;
+	public static int vaulttecStructure = 20000;
 	public static int pyramidStructure = 4000;
 
 	public static int meteorStrikeChance = 20 * 60 * 180;
@@ -172,6 +173,7 @@ public class WorldConfig {
 		capsuleStructure = convertToInt(CompatibilityConfig.capsuleStructure.get(0));
 		arcticStructure = convertToInt(CompatibilityConfig.arcticStructure.get(0));
 		jungleStructure = convertToInt(CompatibilityConfig.jungleStructure.get(0));
+		vaulttecStructure = convertToInt(CompatibilityConfig.vaulttecStructure.get(0));
 		pyramidStructure = convertToInt(CompatibilityConfig.pyramidStructure.get(0));
 
 

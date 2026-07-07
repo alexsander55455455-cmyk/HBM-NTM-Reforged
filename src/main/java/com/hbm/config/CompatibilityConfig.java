@@ -89,6 +89,7 @@ public class CompatibilityConfig {
 	public static HashMap<Integer, Integer> vaultfreq;
 	public static HashMap<Integer, Integer> arcticStructure;
 	public static HashMap<Integer, Integer> jungleStructure;
+	public static HashMap<Integer, Integer> vaulttecStructure;
 	public static HashMap<Integer, Integer> pyramidStructure;
 	
 	public static HashMap<Integer, Integer> meteorStrikeChance;
@@ -265,6 +266,7 @@ public class CompatibilityConfig {
 		capsuleStructure = CommonConfig.createConfigHashMap(config, CommonConfig.CATEGORY_DUNGEONS, "03.24_capsuleSpawn", "Spawn landing capsule on every nTH chunk - <dimID:n> (Int:Int)", Integer.class, Integer.class, new String[]{ "0:100" }, ":");
 		arcticStructure = CommonConfig.createConfigHashMap(config, CommonConfig.CATEGORY_DUNGEONS, "03.25_arcticVaultSpawn", "Spawn artic code vault on every nTH chunk - <dimID:n> (Int:Int)", Integer.class, Integer.class, new String[]{ "0:500" }, ":");
 		jungleStructure = CommonConfig.createConfigHashMap(config, CommonConfig.CATEGORY_DUNGEONS, "03.26_jungleDungeonSpawn", "Spawn jungle dungeon on every nTH chunk - <dimID:n> (Int:Int)", Integer.class, Integer.class, new String[]{ "0:2000" }, ":");
+		vaulttecStructure = CommonConfig.createConfigHashMap(config, CommonConfig.CATEGORY_DUNGEONS, "03.26.1_vaultDungeonSpawn", "Spawn vaulttec dungeon on every nTH chunk - <dimID:n> (Int:Int)", Integer.class, Integer.class, new String[]{ "0:20000", "-1:1000000" }, ":");
 		pyramidStructure = CommonConfig.createConfigHashMap(config, CommonConfig.CATEGORY_DUNGEONS, "03.27_pyramidSpawn", "Spawn pyramid on every nTH chunk - <dimID:n> (Int:Int)", Integer.class, Integer.class, new String[]{ "0:4000" }, ":");
 		
 		meteorStrikeChance = CommonConfig.createConfigHashMap(config, CommonConfig.CATEGORY_METEORS, "05.01_meteorStrikeChance", "The probability of a meteor spawning per tick (an average of once every nTH ticks) - <dimID:n> (Int:Int)", Integer.class, Integer.class, new String[]{ 

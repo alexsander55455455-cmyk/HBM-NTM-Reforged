@@ -28,6 +28,7 @@ import com.hbm.world.dungeon.AncientTombStructure;
 import com.hbm.world.dungeon.ArcticVault;
 import com.hbm.world.dungeon.LibraryDungeon;
 import com.hbm.world.feature.*;
+import com.hbm.world.generator.CellularDungeonFactory;
 import com.hbm.world.generator.DungeonToolbox;
 import com.hbm.world.generator.JungleDungeonStructure;
 import com.hbm.world.phased.AbstractPhasedStructure;
@@ -665,6 +666,15 @@ public class HbmWorldGen implements IWorldGenerator {
                 }
             }
 
+            if (biome.getTempCategory() != Biome.TempCategory.OCEAN) {
+                int dimVaultStructure = parseInt(CompatibilityConfig.vaulttecStructure.get(dimID));
+                if (dimVaultStructure > 0 && rand.nextInt(dimVaultStructure) == 0) {
+                    int x = chunkMinX + rand.nextInt(16);
+                    int z = chunkMinZ + rand.nextInt(16);
+                    generateVaultDungeon(world, x, z, rand);
+                }
+            }
+
             if (biome.getTempCategory() == Biome.TempCategory.COLD) {
                 int dimArcticStructure = parseInt(CompatibilityConfig.arcticStructure.get(dimID));
                 if (dimArcticStructure > 0 && rand.nextInt(dimArcticStructure) == 0) {
@@ -815,6 +825,13 @@ public class HbmWorldGen implements IWorldGenerator {
                 WeightedRandomChestContentFrom1710.generateChestContents(rand, ItemPool.getPool(ItemPoolsSingle.POOL_POWDER), te, 29);
             }
         }
+    }
+
+    public static void generateVaultDungeon(World world, int x, int z, Random rand) {
+        CellularDungeonFactory.vault.generate(world, x, 16, z, rand);
+
+        if (GeneralConfig.enableDebugMode)
+            MainRegistry.logger.info("[Debug] Successfully spawned vault dungeon at x={} y=16 z={}", x, z);
     }
 }
 
