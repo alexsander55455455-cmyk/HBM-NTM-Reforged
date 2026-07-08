@@ -40,8 +40,10 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -175,9 +177,11 @@ public class JEIConfig implements IModPlugin {
     private ZirnoxRecipeHandler zirnoxHandler;
     private PUREXRecipeHandler purexHandler;
     private final FluidIconRecipeRegistryPlugin fluidIconRecipeRegistryPlugin = new FluidIconRecipeRegistryPlugin();
+    private static IModRegistry modRegistry;
 
     @Override
     public void register(@NotNull IModRegistry registry) {
+        modRegistry = registry;
         if (!GeneralConfig.jei)
             return;
 
@@ -680,6 +684,8 @@ public class JEIConfig implements IModPlugin {
             if (fluidType == null) return "";
             return fluidType.getTranslationKey();
         });
+        subtypeRegistry.registerSubtypeInterpreter(ModItems.ammo_secret, stack -> "hbm:ammo_secret:" + stack.getMetadata());
+        subtypeRegistry.registerSubtypeInterpreter(ModItems.item_secret, stack -> "hbm:item_secret:" + stack.getMetadata());
 	}
 
     @Override
@@ -817,5 +823,26 @@ public class JEIConfig implements IModPlugin {
         if (!GeneralConfig.jei)
             return;
         fluidIconRecipeRegistryPlugin.setRecipeRegistry(jeiRuntime.getRecipeRegistry());
+        if (!ClientConfig.JEI_HIDE_SECRETS.get() && modRegistry != null) {
+            List<ItemStack> secretStacks = collectSecretIngredientStacks();
+            if (!secretStacks.isEmpty()) {
+                modRegistry.getIngredientRegistry().addIngredientsAtRuntime(VanillaTypes.ITEM, secretStacks);
+            }
+        }
+    }
+
+    private static List<ItemStack> collectSecretIngredientStacks() {
+        List<ItemStack> stacks = new ArrayList<>();
+        if (ModItems.ammo_secret != null) {
+            for (int i = 0; i < GunFactory.EnumAmmoSecret.values().length; i++) {
+                stacks.add(new ItemStack(ModItems.ammo_secret, 1, i));
+            }
+        }
+        if (ModItems.item_secret != null) {
+            for (int i = 0; i < ItemEnums.EnumSecretType.values().length; i++) {
+                stacks.add(new ItemStack(ModItems.item_secret, 1, i));
+            }
+        }
+        return stacks;
     }
 }

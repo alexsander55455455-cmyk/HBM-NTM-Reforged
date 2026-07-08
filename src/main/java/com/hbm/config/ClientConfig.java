@@ -28,7 +28,7 @@ public class ClientConfig extends RunningConfig {
     public static ConfigWrapper<Boolean> NUKE_HUD_FLASH =					new ConfigWrapper<>(true);
     public static ConfigWrapper<Boolean> NUKE_HUD_SHAKE =					new ConfigWrapper<>(true);
     public static ConfigWrapper<Boolean> RENDER_REEDS =						new ConfigWrapper<>(true);
-    public static ConfigWrapper<Boolean> JEI_HIDE_SECRETS =					new ConfigWrapper<>(true);
+    public static ConfigWrapper<Boolean> JEI_HIDE_SECRETS =					new ConfigWrapper<>(false);
     public static ConfigWrapper<Boolean> COOLING_TOWER_PARTICLES =			new ConfigWrapper<>(true);
     public static ConfigWrapper<Boolean> RENDER_REBAR_SIMPLE =				new ConfigWrapper<>(false);
     public static ConfigWrapper<Integer> RENDER_HELIOSTAT_BEAM_LIMIT =		new ConfigWrapper<>(250);
