@@ -341,8 +341,10 @@ public class ContaminationUtil {
 		}
 
 		if (receivedRadiation > MIN_RAD_ACTIVATION_RATE) {
-			neutronActivateInventory(player, (float) receivedRadiation, 1.0F);
-			syncNeutronInventoryToClient(player);
+			boolean changed = neutronActivateInventory(player, (float) receivedRadiation, 1.0F);
+			if (changed) {
+				syncNeutronInventoryToClient(player);
+			}
 		}
 	}
 

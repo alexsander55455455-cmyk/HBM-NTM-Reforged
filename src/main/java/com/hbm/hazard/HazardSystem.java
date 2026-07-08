@@ -838,21 +838,41 @@ public class HazardSystem {
      * Applies inventory hazards every tick (EE parity).
      */
     public static void updatePlayerInventory(EntityPlayer player) {
+        boolean changed = false;
+
         for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
             ItemStack stack = player.inventory.getStackInSlot(i);
-            if (!stack.isEmpty()) {
-                applyHazards(stack, player);
-                if (stack.isEmpty()) {
-                    player.inventory.setInventorySlotContents(i, ItemStack.EMPTY);
-                }
+            if (stack.isEmpty()) {
+                continue;
+            }
+
+            ItemStack before = getHazardsFromStack(stack).isEmpty() ? null : stack.copy();
+            applyHazards(stack, player);
+
+            if (stack.isEmpty()) {
+                player.inventory.setInventorySlotContents(i, ItemStack.EMPTY);
+                changed = true;
+            } else if (before != null && !ItemStack.areItemStacksEqual(stack, before)) {
+                changed = true;
             }
         }
+
         for (ItemStack offhand : player.inventory.offHandInventory) {
-            if (!offhand.isEmpty()) {
-                applyHazards(offhand, player);
+            if (offhand.isEmpty()) {
+                continue;
+            }
+
+            ItemStack before = getHazardsFromStack(offhand).isEmpty() ? null : offhand.copy();
+            applyHazards(offhand, player);
+
+            if (offhand.isEmpty()) {
+                changed = true;
+            } else if (before != null && !ItemStack.areItemStacksEqual(offhand, before)) {
+                changed = true;
             }
         }
-        if (player.inventoryContainer != null) {
+
+        if (changed && player.inventoryContainer != null) {
             player.inventoryContainer.detectAndSendChanges();
         }
     }

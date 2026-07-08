@@ -44,9 +44,11 @@ public class ItemModMedal extends ItemArmorMod {
             rad -= minusRads;
             HbmLivingProps.setRadiation(entity, Math.max(rad, 0));
 
-			if(entity instanceof EntityPlayer){
-				ContaminationUtil.neutronActivateInventory((EntityPlayer)entity, 0.0F, this.decayRate);
-				((EntityPlayer)entity).inventoryContainer.detectAndSendChanges();
+			if(entity instanceof EntityPlayer player){
+				boolean changed = ContaminationUtil.neutronActivateInventory(player, 0.0F, this.decayRate);
+				if (changed && player.inventoryContainer != null) {
+					player.inventoryContainer.detectAndSendChanges();
+				}
 			}
 		}
 	}

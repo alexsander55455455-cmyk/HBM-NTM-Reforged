@@ -49,9 +49,11 @@ public class TileEntityDeconRad extends TileEntity implements ITickable {
 							e.getCapability(EntityHbmPropsProvider.ENT_HBM_PROPS_CAP, null).decreaseRads(this.radRemove);
 						}
 					}
-					if(e instanceof EntityPlayer){
-						ContaminationUtil.neutronActivateInventory((EntityPlayer)e, -0.005F, decayRate);
-						((EntityPlayer)e).inventoryContainer.detectAndSendChanges();
+					if(e instanceof EntityPlayer player){
+						boolean changed = ContaminationUtil.neutronActivateInventory(player, -0.005F, decayRate);
+						if (changed && player.inventoryContainer != null) {
+							player.inventoryContainer.detectAndSendChanges();
+						}
 					}
 				}
 			}
