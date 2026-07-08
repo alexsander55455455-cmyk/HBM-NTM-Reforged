@@ -355,6 +355,11 @@ public class TileEntityDoorGeneric extends TileEntityLockableBase implements ITi
         return skinIndex;
     }
 
+    public void setSkinIndex(byte index) {
+        this.skinIndex = index;
+        this.markDirty();
+    }
+
     public boolean cycleSkinIndex() {
         if(!getDoorType().hasSkins()) return false;
         this.skinIndex++;

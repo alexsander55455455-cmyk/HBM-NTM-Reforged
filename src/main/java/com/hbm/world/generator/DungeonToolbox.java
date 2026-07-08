@@ -1,8 +1,10 @@
 package com.hbm.world.generator;
 
 import com.hbm.blocks.BlockDummyable;
+import com.hbm.blocks.ModBlocks;
 import com.hbm.blocks.generic.BlockDoorGeneric;
 import com.hbm.handler.MultiblockHandlerXR;
+import com.hbm.tileentity.TileEntityDoorGeneric;
 import com.hbm.lib.ForgeDirection;
 
 import com.hbm.world.feature.WorldGenMinableNonCascade;
@@ -227,6 +229,19 @@ public class DungeonToolbox {
         }
 
         BlockDummyable.safeRem = false;
+        return true;
+    }
+
+    /** Places a vault door with the label side facing {@code doorFacing}, matching EE {@code VaultDoor.placeVaultDoor}. */
+    public static boolean placeVaultDoor(World world, int x, int y, int z, EnumFacing doorFacing) {
+        if (!placeDummyable(world, x, y, z, (BlockDummyable) ModBlocks.vault_door, doorFacing.getOpposite())) {
+            return false;
+        }
+
+        if (world.getTileEntity(mutablePos.setPos(x, y, z)) instanceof TileEntityDoorGeneric door) {
+            door.setSkinIndex((byte) 0);
+        }
+
         return true;
     }
 

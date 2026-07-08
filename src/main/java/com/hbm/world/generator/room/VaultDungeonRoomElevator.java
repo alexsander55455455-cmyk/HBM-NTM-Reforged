@@ -1,6 +1,5 @@
 package com.hbm.world.generator.room;
 
-import com.hbm.blocks.BlockDummyable;
 import com.hbm.blocks.ModBlocks;
 import com.hbm.blocks.generic.BlockNTMLadder;
 import com.hbm.world.generator.CellularDungeon;
@@ -97,7 +96,7 @@ public class VaultDungeonRoomElevator extends VaultDungeonRoom {
         DungeonToolbox.generateBox(world, x + doorRoomX - 5, y + 1, z - 5, 1, 7, 7, ducRef);
         DungeonToolbox.generateBox(world, x + doorRoomX - 6, y + 2, z - 4, 3, 5, 5, air);
 
-        DungeonToolbox.placeDummyable(world, x + doorRoomX - 6, y + 2, z - 2, (BlockDummyable) ModBlocks.vault_door, EnumFacing.EAST);
+        DungeonToolbox.placeVaultDoor(world, x + doorRoomX - 6, y + 2, z - 2, EnumFacing.EAST);
         world.setBlockState(new BlockPos(x + doorRoomX - 7, y + 4, z - 5), Blocks.LEVER.getStateFromMeta(2), 2 | 16);
         world.setBlockState(new BlockPos(x + doorRoomX - 5, y + 4, z - 4), Blocks.STONE_BUTTON.getStateFromMeta(3), 2 | 16);
 
