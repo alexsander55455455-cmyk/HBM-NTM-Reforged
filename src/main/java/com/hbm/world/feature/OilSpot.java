@@ -39,6 +39,10 @@ public class OilSpot {
                 IBlockState groundState = world.getBlockState(pos);
                 Block ground = groundState.getBlock();
 
+                if (isTreeBlock(belowState) || isTreeBlock(groundState)) {
+                    break;
+                }
+
                 if (ground instanceof BlockPlantEnumMeta) {
                     int meta = groundState.getValue(META);
                     if (ground == ModBlocks.plant_flower && (meta == MUSTARD_WILLOW_0.ordinal() || meta == MUSTARD_WILLOW_1.ordinal())) {
@@ -106,13 +110,17 @@ public class OilSpot {
                     world.setBlockState(pos, ModBlocks.stone_cracked.getDefaultState(), 2 | 16);
                     break;
 
-                } else if (groundState.getMaterial() == Material.LEAVES) {
-                    pos.setPos(rX, y, rZ);
-                    // Th3_Sl1ze: debatable ig. flag 3 (1+2) may probably cause cascading lag, but otherwise snow layers will be left floating (check #1184)
-                    world.setBlockState(pos, Blocks.AIR.getDefaultState(), 3);
-                    break;
                 }
             }
         }
+    }
+
+    private static boolean isTreeBlock(IBlockState state) {
+        Material material = state.getMaterial();
+        if (material == Material.WOOD || material == Material.LEAVES) {
+            return true;
+        }
+        Block block = state.getBlock();
+        return block == Blocks.LOG || block == Blocks.LOG2 || block == Blocks.LEAVES || block == Blocks.LEAVES2;
     }
 }

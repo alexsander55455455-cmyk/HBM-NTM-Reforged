@@ -10,6 +10,7 @@ import com.hbm.world.phased.AbstractPhasedStructure;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
@@ -129,11 +130,19 @@ public class OilBubble extends AbstractPhasedStructure {
                 pos.setPos(absX, y, absZ);
                 IBlockState state = world.getBlockState(pos);
 
+                if (isTreeBlock(state)) {
+                    break;
+                }
+
                 if (state.isFullCube()) {
                     for (int oy = 1; oy > -3; oy--) {
                         BlockPos subPos = pos.add(0, oy, 0);
                         IBlockState subState = world.getBlockState(subPos);
                         Block b = subState.getBlock();
+
+                        if (isTreeBlock(subState)) {
+                            break;
+                        }
 
                         int distSq = offX * offX + offZ * offZ;
                         boolean inner = distSq < (spotWidth / 2) * (spotWidth / 2);
@@ -173,6 +182,7 @@ public class OilBubble extends AbstractPhasedStructure {
                 pos.setPos(x, y, z);
                 IBlockState state = world.getBlockState(pos);
                 if (state.getBlock() == Blocks.AIR) continue;
+                if (isTreeBlock(state)) break;
                 if (state.getMaterial().isLiquid()) break;
 
                 if (state.isFullCube()) {
@@ -191,6 +201,15 @@ public class OilBubble extends AbstractPhasedStructure {
                 }
             }
         }
+    }
+
+    private static boolean isTreeBlock(IBlockState state) {
+        Material material = state.getMaterial();
+        if (material == Material.WOOD || material == Material.LEAVES) {
+            return true;
+        }
+        Block block = state.getBlock();
+        return block == Blocks.LOG || block == Blocks.LOG2 || block == Blocks.LEAVES || block == Blocks.LEAVES2;
     }
 
     public void writeToBuf(@NotNull ByteBuf out) {
