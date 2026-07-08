@@ -34,6 +34,21 @@ public class SolarSystemWorldSavedData extends WorldSavedData {
 
 	private HashMap<String, HashMap<Class<? extends CelestialBodyTrait>, CelestialBodyTrait>> traitMap = new HashMap<String, HashMap<Class<? extends CelestialBodyTrait>, CelestialBodyTrait>>();
 	private HashMap<ChunkPos, OrbitalStation> stations = new HashMap<>();
+	private boolean traitsSyncDirty = true;
+
+	public boolean shouldSyncTraits(long worldTime) {
+		return traitsSyncDirty || worldTime % 20 == 1;
+	}
+
+	public void acknowledgeTraitsSync() {
+		traitsSyncDirty = false;
+	}
+
+	@Override
+	public void markDirty() {
+		super.markDirty();
+		traitsSyncDirty = true;
+	}
 	
 	public static SolarSystemWorldSavedData get() {
 		return get(DimensionManager.getWorld(0));

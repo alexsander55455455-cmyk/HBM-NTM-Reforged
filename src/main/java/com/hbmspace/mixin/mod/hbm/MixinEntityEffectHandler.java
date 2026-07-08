@@ -8,8 +8,11 @@ import com.hbm.lib.ModDamageSource;
 import com.hbmspace.api.entity.ISuffocationImmune;
 import com.hbmspace.capability.HbmLivingCapabilitySpace;
 import com.hbmspace.capability.HbmLivingPropsSpace;
+import com.hbmspace.dim.WorldProviderCelestial;
+import com.hbmspace.dim.orbit.WorldProviderOrbit;
 import com.hbmspace.dim.trait.CBT_Atmosphere;
 import com.hbmspace.entity.missile.EntityRideableRocket;
+import com.hbmspace.handler.SpaceSyncTracker;
 import com.hbmspace.handler.atmosphere.ChunkAtmosphereManager;
 import com.hbmspace.packet.toclient.ExtPropSpacePacket;
 import com.hbmspace.util.ArmorUtilSpace;
@@ -28,16 +31,64 @@ public class MixinEntityEffectHandler {
     @Inject(method = "onUpdate", at = @At("TAIL"))
     private static void onUpdateSpace(EntityLivingBase entity, CallbackInfo ci) {
         if (!entity.world.isRemote) {
-            if(entity instanceof EntityPlayerMP) {
-                NBTTagCompound data = new NBTTagCompound();
-                HbmLivingCapabilitySpace.IEntityHbmProps props = HbmLivingPropsSpace.getData(entity);
-                props.saveNBTData(data);
-                PacketThreading.createSendToThreadedPacket(new ExtPropSpacePacket(data), (EntityPlayerMP) entity);
-            }
             CBT_Atmosphere atmosphere = getAtmosphereCached(entity);
             handleOxy(entity, atmosphere);
             handleCorrosion(entity, atmosphere);
+
+            if (entity instanceof EntityPlayerMP player) {
+                maybeSyncSpaceProps(player, atmosphere);
+            }
         }
+    }
+
+    @Unique
+    private static void maybeSyncSpaceProps(EntityPlayerMP player, CBT_Atmosphere atmosphere) {
+        if (player.connection == null || !player.isEntityAlive()) {
+            SpaceSyncTracker.remove(player.getUniqueID());
+            return;
+        }
+
+        HbmLivingCapabilitySpace.IEntityHbmProps props = HbmLivingPropsSpace.getData(player);
+        int oxy = props.getOxy();
+        boolean gravity = props.hasGravity();
+        boolean warped = props.hasWarped();
+
+        SpaceSyncTracker.State state = SpaceSyncTracker.getOrCreate(player.getUniqueID());
+        state.ticksSinceSync++;
+
+        boolean changed = oxy != state.lastOxy || gravity != state.lastGravity || warped != state.lastWarped;
+        boolean inSpaceContext = needsSpaceSync(player, atmosphere);
+        boolean keepalive = state.ticksSinceSync >= SpaceSyncTracker.KEEPALIVE_TICKS;
+
+        if (!changed && (!inSpaceContext || !keepalive)) {
+            return;
+        }
+
+        NBTTagCompound data = new NBTTagCompound();
+        props.saveNBTData(data);
+        PacketThreading.createSendToThreadedPacket(new ExtPropSpacePacket(data), player);
+
+        state.lastOxy = oxy;
+        state.lastGravity = gravity;
+        state.lastWarped = warped;
+        state.ticksSinceSync = 0;
+    }
+
+    @Unique
+    private static boolean needsSpaceSync(EntityPlayerMP player, CBT_Atmosphere atmosphere) {
+        if (player.world.provider instanceof WorldProviderOrbit || player.world.provider instanceof WorldProviderCelestial) {
+            return true;
+        }
+        if (player.world.provider.getDimension() != 0) {
+            return true;
+        }
+        if (player.getRidingEntity() instanceof EntityRideableRocket) {
+            return true;
+        }
+        if (HbmLivingPropsSpace.getOxy(player) < 100) {
+            return true;
+        }
+        return atmosphere != null && !ChunkAtmosphereManager.proxy.canBreathe(atmosphere);
     }
 
     @Unique

@@ -1,7 +1,7 @@
 package com.hbmspace.mixin.mod.hbm.particle;
 
 import com.hbm.particle.ParticleRocketFlame;
-import com.hbmspace.main.SpaceMain;
+import com.hbmspace.config.SpaceConfig;
 import com.hbmspace.particle.IParticleRocketFlame;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -14,8 +14,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.Random;
 
 @Mixin(value = ParticleRocketFlame.class)
 public abstract class MixinParticleRocketFlame extends Particle implements IParticleRocketFlame {
@@ -68,10 +66,11 @@ public abstract class MixinParticleRocketFlame extends Particle implements IPart
             return;
         }
 
-        Random urandom = new Random(this.randSeed);
+        int renderPasses = Math.max(1, SpaceConfig.rocketFlameRenderPasses);
+        this.rand.setSeed((long) this.randSeed ^ ((long) this.age << 16));
 
-        for (int i = 0; i < 10; i++) {
-            float add = urandom.nextFloat() * 0.3F;
+        for (int i = 0; i < renderPasses; i++) {
+            float add = this.rand.nextFloat() * 0.3F;
             float dark = 1.0F - Math.min(((float) (this.age) / (this.maxAge * 0.25F)), 1.0F);
 
             this.particleRed = MathHelper.clamp((this.customRed != 0 ? this.customRed : 1.0F) * dark + add, 0.0F, 1.0F);
@@ -87,10 +86,10 @@ public abstract class MixinParticleRocketFlame extends Particle implements IPart
             float spread = (float) Math.pow(((float) (this.age) / (float) this.maxAge) * 4.0F, 1.5) + 1.0F;
             spread *= this.particleScale;
 
-            float scale = (urandom.nextFloat() * 0.5F + 0.1F + ((float) (this.age) / (float) this.maxAge) * 2.0F) * this.particleScale;
-            float pX = (float) ((this.prevPosX + (this.posX - this.prevPosX) * (double) partialTicks - Particle.interpPosX) + (urandom.nextGaussian() - 1.0) * 0.2F * spread);
-            float pY = (float) ((this.prevPosY + (this.posY - this.prevPosY) * (double) partialTicks - Particle.interpPosY) + (urandom.nextGaussian() - 1.0) * 0.5F * spread);
-            float pZ = (float) ((this.prevPosZ + (this.posZ - this.prevPosZ) * (double) partialTicks - Particle.interpPosZ) + (urandom.nextGaussian() - 1.0) * 0.2F * spread);
+            float scale = (this.rand.nextFloat() * 0.5F + 0.1F + ((float) (this.age) / (float) this.maxAge) * 2.0F) * this.particleScale;
+            float pX = (float) ((this.prevPosX + (this.posX - this.prevPosX) * (double) partialTicks - Particle.interpPosX) + (this.rand.nextGaussian() - 1.0) * 0.2F * spread);
+            float pY = (float) ((this.prevPosY + (this.posY - this.prevPosY) * (double) partialTicks - Particle.interpPosY) + (this.rand.nextGaussian() - 1.0) * 0.5F * spread);
+            float pZ = (float) ((this.prevPosZ + (this.posZ - this.prevPosZ) * (double) partialTicks - Particle.interpPosZ) + (this.rand.nextGaussian() - 1.0) * 0.2F * spread);
 
             buffer.pos(pX - rotationX * scale - rotationXY * scale, pY - rotationZ * scale, pZ - rotationYZ * scale - rotationXZ * scale)
                     .tex(this.particleTexture.getMaxU(), this.particleTexture.getMaxV())

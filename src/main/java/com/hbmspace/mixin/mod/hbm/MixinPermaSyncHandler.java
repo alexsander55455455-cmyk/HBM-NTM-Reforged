@@ -33,10 +33,9 @@ public class MixinPermaSyncHandler {
     @Inject(method = "writePacket", at = @At("TAIL"))
     private static void afterWritePacket(ByteBuf buf, World world, EntityPlayerMP player, CallbackInfo ci) {
         /// CBT ///
-        if(world.getTotalWorldTime() % 5 == 1) { // update a little less frequently to not blast the players with large packets
+        SolarSystemWorldSavedData solarSystemData = SolarSystemWorldSavedData.get(world);
+        if(solarSystemData.shouldSyncTraits(world.getTotalWorldTime())) {
             buf.writeBoolean(true);
-
-            SolarSystemWorldSavedData solarSystemData = SolarSystemWorldSavedData.get(world);
             for(CelestialBody body : CelestialBody.getAllBodies()) {
                 HashMap<Class<? extends CelestialBodyTrait>, CelestialBodyTrait> traits = solarSystemData.getTraits(body.name);
                 if(traits != null) {
@@ -67,6 +66,8 @@ public class MixinPermaSyncHandler {
                 buf.writeInt(station.dX);
                 buf.writeInt(station.dZ);
             }
+
+            solarSystemData.acknowledgeTraitsSync();
         } else {
             buf.writeBoolean(false);
         }

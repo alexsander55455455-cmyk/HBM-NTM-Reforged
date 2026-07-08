@@ -58,6 +58,8 @@ public class SpaceConfig {
 
     public static boolean combatPodDespawn = false;
 
+    public static int rocketFlameRenderPasses = 10;
+
     public SpaceConfig() {
     }
 
@@ -84,6 +86,7 @@ public class SpaceConfig {
         crashOnBiomeConflict = CommonConfig.createConfigBool(config, CATEGORY_GENERAL, "1.92_crashOnBiomeConflict", "To avoid biome ID collisions, the game will crash if one occurs, and give instructions on how to fix. Only disable this if you know what you're doing!", crashOnBiomeConflict);
         showOreLocations = CommonConfig.createConfigBool(config, CATEGORY_GENERAL, "1.93_showOreLocations", "Should ores indicate which planets they can be found on.", showOreLocations);
         combatPodDespawn = CommonConfig.createConfigBool(config, CATEGORY_GENERAL, "1.94_combatPodDespawn", "Whether combat pods should despawn after a certian amount of time.", combatPodDespawn);
+        rocketFlameRenderPasses = CommonConfig.createConfigInt(config, CATEGORY_GENERAL, "1.95_rocketFlameRenderPasses", "Sub-quad passes per rocket flame particle render. Lower values improve FPS near rockets.", rocketFlameRenderPasses);
 
         final String CATEGORY_BIOME = "16_biomes";
         moonBiome = CommonConfig.createConfigInt(config, CATEGORY_BIOME, "16.02_moonBiome", "Mun Biome ID", moonBiome);

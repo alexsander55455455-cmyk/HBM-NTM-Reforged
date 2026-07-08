@@ -16,7 +16,10 @@ import com.hbmspace.dim.*;
 import com.hbmspace.dim.orbit.OrbitalStation;
 import com.hbmspace.dim.orbit.WorldProviderOrbit;
 import com.hbmspace.dim.trait.CBT_Atmosphere;
+import com.hbmspace.dim.trait.CBT_Destroyed;
+import com.hbmspace.dim.trait.CBT_Invasion;
 import com.hbmspace.dim.trait.CBT_Lights;
+import com.hbmspace.dim.trait.CBT_War;
 import com.hbmspace.dim.trait.CBT_Weather;
 import com.hbmspace.dim.trait.CelestialBodyTrait;
 import com.hbmspace.entity.missile.EntityRideableRocket;
@@ -62,6 +65,7 @@ import net.minecraftforge.event.terraingen.DecorateBiomeEvent;
 import net.minecraftforge.event.terraingen.OreGenEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -79,6 +83,8 @@ public class ModEventHandler {
     public static final ResourceLocation ENT_HBM_PROP_ID = new ResourceLocation(Tags.MODID, "HBMLIVINGPROPS");
 
     public static Random rand = new Random();
+
+    private static int appliedWaterOpacity = Integer.MIN_VALUE;
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void tweakRecipes(RegistryEvent.Register<IRecipe> event) {
@@ -354,12 +360,16 @@ public class ModEventHandler {
     }
 
     private static void updateWaterOpacity(World world) {
-        // Per world water opacity!
         int waterOpacity = 3;
         if (world.provider instanceof WorldProviderCelestial) {
             waterOpacity = ((WorldProviderCelestial) world.provider).getWaterOpacity();
         }
 
+        if (appliedWaterOpacity == waterOpacity) {
+            return;
+        }
+
+        appliedWaterOpacity = waterOpacity;
         Blocks.WATER.setLightOpacity(waterOpacity);
         Blocks.FLOWING_WATER.setLightOpacity(waterOpacity);
     }
@@ -473,16 +483,31 @@ public class ModEventHandler {
 
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
-        if(event.phase == TickEvent.Phase.START) {
-            CBT_Weather.updateGlobalWeather();
-            for(CelestialBody body : CelestialBody.getAllBodies()) {
-                List<CelestialBodyTrait> traits = new ArrayList<>(body.getTraits().values());
-                for (CelestialBodyTrait trait : traits) {
-                    trait.update(false, body);
+        if(event.phase != TickEvent.Phase.START) {
+            return;
+        }
+
+        long tick = FMLCommonHandler.instance().getMinecraftServerInstance().getTickCounter();
+
+        CBT_Weather.updateGlobalWeather();
+
+        for(CelestialBody body : CelestialBody.getAllBodies()) {
+            for (CelestialBodyTrait trait : body.getTraits().values()) {
+                if (trait instanceof CBT_War war) {
+                    if (war.projectiles != null && !war.projectiles.isEmpty()) {
+                        trait.update(false, body);
+                    }
+                } else if (trait instanceof CBT_Invasion invasion) {
+                    if (invasion.isInvading || invasion.waveTime >= 0) {
+                        trait.update(false, body);
+                    }
+                } else if (!(trait instanceof CBT_Destroyed)) {
+                    // Default trait updates are no-ops on the server.
                 }
             }
+        }
 
-            // Dyson Swarms
+        if (tick % 20 == 0) {
             CelestialBody.updateSwarms();
         }
     }
