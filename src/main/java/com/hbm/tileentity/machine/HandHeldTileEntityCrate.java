@@ -37,10 +37,13 @@ public class HandHeldTileEntityCrate extends TileEntityCrate implements IHandHel
 
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+                if (!HandHeldTileEntityCrate.this.isItemValidForSlot(slot, stack)) {
+                    return false;
+                }
                 if (!boundItem.isEmpty() && (stack == boundItem || ItemStack.areItemStacksEqual(stack, boundItem))) {
                     return false;
                 }
-                return super.isItemValid(slot, stack);
+                return true;
             }
 
             @Override

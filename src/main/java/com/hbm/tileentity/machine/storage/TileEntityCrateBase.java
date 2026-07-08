@@ -4,6 +4,7 @@ import com.hbm.api.tile.ILootContainerModifiable;
 import com.hbm.api.tile.IWorldRenameable;
 import com.hbm.lib.HBMSoundHandler;
 import com.hbm.lib.ItemStackHandlerWrapper;
+import com.hbm.util.CrateUtil;
 import com.hbm.tileentity.machine.TileEntityLockableBase;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -108,6 +109,11 @@ public abstract class TileEntityCrateBase extends TileEntityLockableBase impleme
             public int getSlotLimit(int slot) {
                 return slotlimit;
             }
+
+            @Override
+            public boolean isItemValid(int slot, ItemStack stack) {
+                return TileEntityCrateBase.this.isItemValidForSlot(slot, stack);
+            }
         };
     }
 
@@ -196,7 +202,7 @@ public abstract class TileEntityCrateBase extends TileEntityLockableBase impleme
     }
 
     public boolean isItemValidForSlot(int i, ItemStack stack) {
-        return true;
+        return !CrateUtil.isCrateItem(stack);
     }
 
     @Override
@@ -275,9 +281,10 @@ public abstract class TileEntityCrateBase extends TileEntityLockableBase impleme
                 @Override
                 public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
                     ensureFilled();
-                    if (facing == null || canInsertItem(slot, stack, stack.getCount()))
-                        return super.insertItem(slot, stack, simulate);
-                    return stack;
+                    if (!canInsertItem(slot, stack, stack.getCount())) {
+                        return stack;
+                    }
+                    return super.insertItem(slot, stack, simulate);
                 }
             });
         }

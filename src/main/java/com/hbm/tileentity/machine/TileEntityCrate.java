@@ -98,6 +98,11 @@ public abstract class TileEntityCrate extends TileEntityCrateBase implements IGU
             public int getSlotLimit(int slot) {
                 return slotlimit;
             }
+
+            @Override
+            public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+                return TileEntityCrate.this.isItemValidForSlot(slot, stack);
+            }
         };
     }
 

@@ -31,7 +31,12 @@ public class ContainerCrateBase extends Container implements ISortableContainer 
         for (int row = 0; row < crate.getCrateRows(); row++) {
             for (int col = 0; col < crate.getCrateColumns(); col++) {
                 int slot = col + row * crate.getCrateColumns();
-                this.addSlotToContainer(new SlotItemHandler(crate.inventory, slot, crate.getCrateX() + col * 18, crate.getCrateY() + row * 18));
+                this.addSlotToContainer(new SlotItemHandler(crate.inventory, slot, crate.getCrateX() + col * 18, crate.getCrateY() + row * 18) {
+                    @Override
+                    public boolean isItemValid(@NotNull ItemStack stack) {
+                        return crate.isItemValidForSlot(this.getSlotIndex(), stack);
+                    }
+                });
             }
         }
 
