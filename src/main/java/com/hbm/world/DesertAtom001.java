@@ -22,6 +22,9 @@ import java.util.Random;
 @SuppressWarnings({"UnnecessaryUnaryMinus", "PointlessArithmeticExpression"})
 public class DesertAtom001 extends AbstractPhasedStructure {
 	public static final DesertAtom001 INSTANCE = new DesertAtom001();
+	private static final int[] TERRAIN_SAMPLE_X = {0, 10, 20, 30, 40};
+	private static final int[] TERRAIN_SAMPLE_Z = {0, 8, 16, 24, 33};
+	private static final int MAX_TERRAIN_HEIGHT_DELTA = 6;
 	private final DesertAtom002 part2 = new DesertAtom002();
 	private final DesertAtom003 part3 = new DesertAtom003();
 	private DesertAtom001() {}
@@ -61,7 +64,29 @@ public class DesertAtom001 extends AbstractPhasedStructure {
 
 	@Override
 	public boolean checkSpawningConditions(@NotNull World world, long pos) {
-		return locationIsValidSpawn(world, Library.shiftBlockPos(pos, 20, 0, 16));
+		int ox = Library.getBlockPosX(pos);
+		int oz = Library.getBlockPosZ(pos);
+		int minHeight = Integer.MAX_VALUE;
+		int maxHeight = Integer.MIN_VALUE;
+
+		for (int sx : TERRAIN_SAMPLE_X) {
+			for (int sz : TERRAIN_SAMPLE_Z) {
+				int x = ox + sx;
+				int z = oz + sz;
+				int height = world.getHeight(x, z);
+				if (height < minHeight) {
+					minHeight = height;
+				}
+				if (height > maxHeight) {
+					maxHeight = height;
+				}
+				if (!locationIsValidSpawn(world, Library.blockPosToLong(x, height, z))) {
+					return false;
+				}
+			}
+		}
+
+		return maxHeight - minHeight <= MAX_TERRAIN_HEIGHT_DELTA;
 	}
 
     @Override
@@ -75,9 +100,16 @@ public class DesertAtom001 extends AbstractPhasedStructure {
     }
 
 	@Override
-	public @NotNull LongArrayList getHeightPoints(long origin){
-		LongArrayList points = new LongArrayList(1);
-		points.add(Library.shiftBlockPos(origin, 20, 0, 16));
+	public @NotNull LongArrayList getHeightPoints(long origin) {
+		int ox = Library.getBlockPosX(origin);
+		int oy = Library.getBlockPosY(origin);
+		int oz = Library.getBlockPosZ(origin);
+		LongArrayList points = new LongArrayList(TERRAIN_SAMPLE_X.length * TERRAIN_SAMPLE_Z.length);
+		for (int sx : TERRAIN_SAMPLE_X) {
+			for (int sz : TERRAIN_SAMPLE_Z) {
+				points.add(Library.blockPosToLong(ox + sx, oy, oz + sz));
+			}
+		}
 		return points;
 	}
 

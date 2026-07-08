@@ -375,7 +375,7 @@ public class HbmWorldGen implements IWorldGenerator {
             if (biome.getDefaultTemperature() <= 0.5F) {
                 generateAStructure(world, rand, chunkMinX, chunkMinZ, Antenna.INSTANCE, parseInt(CompatibilityConfig.antennaStructure.get(dimID)));
             }
-            if (!biome.canRain() && biome.getDefaultTemperature() >= 2F) {
+            if (!biome.canRain() && biome.getDefaultTemperature() >= 2F && biome.getHeightVariation() <= 0.2F) {
                 generateAStructure(world, rand, chunkMinX, chunkMinZ, DesertAtom001.INSTANCE, parseInt(CompatibilityConfig.atomStructure.get(dimID)));
             }
             if (biome.getDefaultTemperature() > 1.8F) {
