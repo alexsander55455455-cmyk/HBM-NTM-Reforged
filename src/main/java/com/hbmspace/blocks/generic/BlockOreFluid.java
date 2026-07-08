@@ -128,7 +128,7 @@ public class BlockOreFluid extends BlockOre {
         if (meta == SolarSystem.Body.MUN.ordinal()) return WorldConfigSpace.munBrineDrainChance;
         if (meta == SolarSystem.Body.MINMUS.ordinal()) return WorldConfigSpace.minmusBrineDrainChance;
         if (meta == SolarSystem.Body.IKE.ordinal()) return WorldConfigSpace.ikeBrineDrainChance;
-        //if (meta == SolarSystem.Body.TEKTO.ordinal()) return WorldConfigSpace.tektoOilDrainChance;
+        if (meta == SolarSystem.Body.TEKTO.ordinal()) return WorldConfigSpace.tektoOilDrainChance;
         return WorldConfigSpace.earthOilDrainChance;
     }
 
