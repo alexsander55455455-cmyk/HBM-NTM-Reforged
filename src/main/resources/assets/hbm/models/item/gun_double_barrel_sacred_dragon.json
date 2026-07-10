@@ -1,6 +1,6 @@
 {
 	"parent": "item/generated",
 	"textures": {
-		"layer0": "hbm:items/gun_double_barrel_sacred_dragon"
+		"layer0": "hbm:models/weapons/double_barrel_sacred_dragon"
 	}
 }

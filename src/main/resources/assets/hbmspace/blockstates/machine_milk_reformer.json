@@ -1,0 +1,5 @@
+{
+	"variants": {
+		"normal": { "model": "hbmspace:machine_milk_reformer" }
+	}
+}

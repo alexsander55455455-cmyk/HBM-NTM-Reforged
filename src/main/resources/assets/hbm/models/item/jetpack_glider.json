@@ -1,6 +1,6 @@
 {
 	"parent": "item/generated",
 	"textures": {
-		"layer0": "hbm:items/jetpack_glider"
+		"layer0": "hbm:armor/jetpack_anim"
 	}
 }

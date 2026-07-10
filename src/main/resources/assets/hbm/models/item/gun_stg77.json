@@ -1,6 +1,6 @@
 {
 	"parent": "item/generated",
 	"textures": {
-		"layer0": "hbm:items/gun_stg77"
+		"layer0": "hbm:models/weapons/stg77"
 	}
 }

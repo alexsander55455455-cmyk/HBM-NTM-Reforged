@@ -1,6 +1,6 @@
 {
 	"parent": "item/generated",
 	"textures": {
-		"layer0": "hbm:items/gun_heavy_revolver"
+		"layer0": "hbm:models/weapons/heavy_revolver"
 	}
 }

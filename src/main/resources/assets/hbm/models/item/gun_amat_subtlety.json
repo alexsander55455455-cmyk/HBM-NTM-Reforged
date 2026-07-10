@@ -1,6 +1,6 @@
 {
 	"parent": "item/generated",
 	"textures": {
-		"layer0": "hbm:items/gun_amat_subtlety"
+		"layer0": "hbm:models/weapons/amat_subtlety"
 	}
 }

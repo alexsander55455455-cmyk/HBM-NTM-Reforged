@@ -160,7 +160,10 @@ public class BlockRefueler extends BlockContainerBakeable {
             event.getModelRegistry().putObject(worldLocation, blockBaked);
             if (!ClaimedModelLocationRegistry.hasSyntheticTeisrBinding(Item.getItemFromBlock(this))) {
                 IModel itemBaseModel = ModelLoaderRegistry.getModel(new ResourceLocation("item/generated"));
-                ImmutableMap<String, String> itemTextures = ImmutableMap.of("layer0", "hbm:blocks/" + getRegistryName().getPath());
+                String itemTexture = "refueler".equals(getRegistryName().getPath())
+                        ? "hbm:models/machines/refueler"
+                        : "hbm:blocks/" + getRegistryName().getPath();
+                ImmutableMap<String, String> itemTextures = ImmutableMap.of("layer0", itemTexture);
                 IModel itemRetextured = itemBaseModel.retexture(itemTextures);
                 IBakedModel itemBaked = itemRetextured.bake(
                         ModelRotation.X0_Y0,

@@ -1,0 +1,6 @@
+{
+	"parent": "item/generated",
+	"textures": {
+		"layer0": "hbm:models/missile_parts/thrusters/mp_t_10_solid"
+	}
+}

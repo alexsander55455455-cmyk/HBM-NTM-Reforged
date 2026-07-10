@@ -1,6 +1,6 @@
 {
 	"parent": "item/generated",
 	"textures": {
-		"layer0": "hbm:items/gun_g3_zebra"
+		"layer0": "hbm:models/weapons/g3"
 	}
 }

@@ -1,6 +1,6 @@
 {
 	"parent": "item/generated",
 	"textures": {
-		"layer0": "hbm:items/gun_light_revolver_atlas"
+		"layer0": "hbm:models/weapons/bio_revolver"
 	}
 }

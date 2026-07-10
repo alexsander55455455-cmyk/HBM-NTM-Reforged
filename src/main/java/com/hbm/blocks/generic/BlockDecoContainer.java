@@ -189,7 +189,10 @@ public class BlockDecoContainer<E extends Enum<E>, T extends TileEntity> extends
             event.getModelRegistry().putObject(worldLocation, blockBaked);
             if (!ClaimedModelLocationRegistry.hasSyntheticTeisrBinding(Item.getItemFromBlock(this))) {
                 IModel itemBaseModel = ModelLoaderRegistry.getModel(new ResourceLocation("item/generated"));
-                ImmutableMap<String, String> itemTextures = ImmutableMap.of("layer0", "hbm:blocks/" + getRegistryName().getPath());
+                String itemTexture = "filing_cabinet".equals(getRegistryName().getPath())
+                        ? "hbm:models/file_cabinet"
+                        : "hbm:blocks/" + getRegistryName().getPath();
+                ImmutableMap<String, String> itemTextures = ImmutableMap.of("layer0", itemTexture);
                 IModel itemRetextured = itemBaseModel.retexture(itemTextures);
                 IBakedModel itemBaked = itemRetextured.bake(
                         ModelRotation.X0_Y0,

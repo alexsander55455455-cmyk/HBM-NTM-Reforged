@@ -1,6 +1,6 @@
 {
 	"parent": "item/generated",
 	"textures": {
-		"layer0": "hbm:items/gun_mas36"
+		"layer0": "hbm:models/weapons/mas36"
 	}
 }

@@ -1,6 +1,6 @@
 {
 	"parent": "item/generated",
 	"textures": {
-		"layer0": "hbm:items/gun_laser_pistol_pew_pew"
+		"layer0": "hbm:models/weapons/laser_pistol_pew_pew"
 	}
 }
