@@ -1,6 +1,9 @@
 package com.hbm.handler.jei.transfer;
 
+import com.hbm.config.GeneralConfig;
 import com.hbm.items.machine.ItemFluidIcon;
+import com.hbm.main.MainRegistry;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntLists;
@@ -16,15 +19,20 @@ import mezz.jei.config.ServerInfo;
 import mezz.jei.network.packets.PacketRecipeTransfer;
 import mezz.jei.startup.StackHelper;
 import mezz.jei.util.Translator;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.Color;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public final class HbmTransferInfo<C extends Container> implements IRecipeTransferHandler<C> {
 
@@ -52,6 +60,10 @@ public final class HbmTransferInfo<C extends Container> implements IRecipeTransf
             if (alt != null && !alt.isEmpty() && !(alt.getItem() instanceof ItemFluidIcon)) return false;
         }
         return true;
+    }
+
+    private static boolean verboseJeiTransferLogging() {
+        return GeneralConfig.debugJeiTransfer;
     }
 
     /**
@@ -92,6 +104,8 @@ public final class HbmTransferInfo<C extends Container> implements IRecipeTransf
                     Translator.translateToLocal("jei.tooltip.error.recipe.transfer.no.server"));
         }
 
+        String recipeUid = recipeLayout.getRecipeCategory().getUid();
+
         Map<Integer, ? extends IGuiIngredient<ItemStack>> rawIngredients = recipeLayout.getItemStacks()
                                                                                        .getGuiIngredients();
         int itemInputCount = 0;
@@ -103,6 +117,7 @@ public final class HbmTransferInfo<C extends Container> implements IRecipeTransf
         }
 
         if (itemInputCount > recipeSlots.length) {
+            logTransferFailure(recipeUid, maxTransfer, doTransfer, "internal error: itemInputCount > recipeSlots");
             return handlerHelper.createInternalError();
         }
 
@@ -120,6 +135,17 @@ public final class HbmTransferInfo<C extends Container> implements IRecipeTransf
             matchIngredients = filtered;
         }
 
+        SlotValidationResult validation = filterIngredientsBySlotValidity(container, matchIngredients, recipeUid);
+
+        if (!validation.invalidSlotGuiIndices.isEmpty()) {
+            for (int guiIndex : validation.invalidSlotGuiIndices) {
+                logTransferFailure(recipeUid, maxTransfer, doTransfer,
+                        "invalid slot guiIndex=" + guiIndex + " reason=no valid alternative for target slot");
+            }
+            return handlerHelper.createUserErrorForSlots(
+                    Translator.translateToLocal("jei.tooltip.error.recipe.transfer.missing"), validation.invalidSlotGuiIndices);
+        }
+
         Int2ObjectOpenHashMap<ItemStack> availableItems = new Int2ObjectOpenHashMap<>(
                 recipeSlots.length + playerSlots.length);
         int filledRecipeSlotCount = 0;
@@ -127,7 +153,10 @@ public final class HbmTransferInfo<C extends Container> implements IRecipeTransf
             Slot s = container.getSlot(idx);
             ItemStack stack = s.getStack();
             if (stack.isEmpty()) continue;
-            if (!s.canTakeStack(player)) return handlerHelper.createInternalError();
+            if (!s.canTakeStack(player)) {
+                logTransferFailure(recipeUid, maxTransfer, doTransfer, "internal error: cannot take from slot " + idx);
+                return handlerHelper.createInternalError();
+            }
             filledRecipeSlotCount++;
             availableItems.put(idx, stack.copy());
         }
@@ -138,21 +167,154 @@ public final class HbmTransferInfo<C extends Container> implements IRecipeTransf
             else availableItems.put(idx, stack.copy());
         }
         if (filledRecipeSlotCount - itemInputCount > emptyInventorySlotCount) {
+            logTransferFailure(recipeUid, maxTransfer, doTransfer, "inventory full");
             return handlerHelper.createUserErrorWithTooltip(
                     Translator.translateToLocal("jei.tooltip.error.recipe.transfer.inventory.full"));
         }
 
-        StackHelper.MatchingItemsResult match = stackHelper.getMatchingItems(availableItems, matchIngredients);
+        StackHelper.MatchingItemsResult match =
+                stackHelper.getMatchingItems(availableItems, validation.ingredients);
         if (!match.missingItems.isEmpty()) {
+            for (Integer missingGuiIndex : match.missingItems) {
+                IGuiIngredient<ItemStack> ing = validation.ingredients.get(missingGuiIndex);
+                logTransferFailure(recipeUid, maxTransfer, doTransfer,
+                        "missing items guiIndex=" + missingGuiIndex + " alternatives=" + describeAlternatives(ing));
+            }
             return handlerHelper.createUserErrorForSlots(
                     Translator.translateToLocal("jei.tooltip.error.recipe.transfer.missing"), match.missingItems);
         }
 
         if (doTransfer) {
+            logTransferAttempt(recipeUid, maxTransfer, match, validation.recipeSlotToGuiIndex, availableItems);
             PacketRecipeTransfer packet = new PacketRecipeTransfer(match.matchingItems, craftingSlotsList,
                     inventorySlotsList, maxTransfer ? Integer.MAX_VALUE : 1, false, false);
             JustEnoughItems.getProxy().sendPacketToServer(packet);
         }
         return null;
+    }
+
+    private void logTransferFailure(String recipeUid, boolean maxTransfer, boolean doTransfer, String reason) {
+        MainRegistry.logger.warn("[JEI Transfer] failed: container={} recipe={} maxTransfer={} doTransfer={} {}",
+                containerClass.getName(), recipeUid, maxTransfer, doTransfer, reason);
+    }
+
+    private void logTransferAttempt(String recipeUid, boolean maxTransfer, StackHelper.MatchingItemsResult match,
+                                    Int2IntOpenHashMap recipeSlotToGuiIndex,
+                                    Int2ObjectOpenHashMap<ItemStack> availableItems) {
+        MainRegistry.logger.info("[JEI Transfer] sending: container={} recipe={} maxTransfer={}",
+                containerClass.getName(), recipeUid, maxTransfer);
+        for (Map.Entry<Integer, Integer> entry : match.matchingItems.entrySet()) {
+            int recipeSlotIndex = entry.getKey();
+            int sourceContainerSlot = entry.getValue();
+            int guiIndex = recipeSlotToGuiIndex.getOrDefault(recipeSlotIndex, -1);
+            int targetContainerSlot = recipeSlotIndex < recipeSlots.length ? recipeSlots[recipeSlotIndex] : -1;
+            ItemStack selected = availableItems.get(sourceContainerSlot);
+            MainRegistry.logger.info(
+                    "[JEI Transfer] slot: container={} recipe={} maxTransfer={} guiIndex={} targetSlot={} sourceSlot={} selected={}",
+                    containerClass.getName(), recipeUid, maxTransfer, guiIndex, targetContainerSlot, sourceContainerSlot,
+                    selected == null ? "null" : selected);
+        }
+    }
+
+    private SlotValidationResult filterIngredientsBySlotValidity(
+            C container,
+            Map<Integer, ? extends IGuiIngredient<ItemStack>> matchIngredients,
+            String recipeUid) {
+        Int2ObjectOpenHashMap<IGuiIngredient<ItemStack>> filtered =
+                new Int2ObjectOpenHashMap<>(matchIngredients.size());
+        IntArrayList invalidSlotGuiIndices = new IntArrayList();
+        Int2IntOpenHashMap recipeSlotToGuiIndex = new Int2IntOpenHashMap();
+        int recipeSlotIndex = 0;
+        SortedSet<Integer> keys = new TreeSet<>(matchIngredients.keySet());
+        for (Integer key : keys) {
+            IGuiIngredient<ItemStack> ing = matchIngredients.get(key);
+            if (!ing.isInput() || ing.getAllIngredients().isEmpty()) {
+                filtered.put(key.intValue(), ing);
+                continue;
+            }
+            if (isFluidIcon(ing)) {
+                filtered.put(key.intValue(), ing);
+                continue;
+            }
+            if (recipeSlotIndex >= recipeSlots.length) {
+                filtered.put(key.intValue(), ing);
+                continue;
+            }
+
+            Slot targetSlot = container.getSlot(recipeSlots[recipeSlotIndex]);
+            List<ItemStack> validAlternatives = new ArrayList<>();
+            for (ItemStack alt : ing.getAllIngredients()) {
+                if (alt != null && !alt.isEmpty() && targetSlot.isItemValid(alt)) {
+                    validAlternatives.add(alt);
+                }
+            }
+
+            if (verboseJeiTransferLogging()) {
+                MainRegistry.logger.info(
+                        "[JEI Transfer] slot check: container={} recipe={} guiIndex={} targetSlot={} requested={} valid={}",
+                        containerClass.getName(), recipeUid, key, recipeSlots[recipeSlotIndex],
+                        describeAlternatives(ing), validAlternatives);
+            }
+
+            recipeSlotToGuiIndex.put(recipeSlotIndex, key.intValue());
+            if (validAlternatives.isEmpty()) {
+                invalidSlotGuiIndices.add(key.intValue());
+            } else {
+                filtered.put(key.intValue(), new FilteredGuiIngredient(ing, validAlternatives));
+            }
+            recipeSlotIndex++;
+        }
+        return new SlotValidationResult(filtered, invalidSlotGuiIndices, recipeSlotToGuiIndex);
+    }
+
+    private static String describeAlternatives(@Nullable IGuiIngredient<ItemStack> ing) {
+        if (ing == null) {
+            return "[]";
+        }
+        List<ItemStack> alts = ing.getAllIngredients();
+        StringBuilder sb = new StringBuilder("[");
+        for (int i = 0; i < alts.size(); i++) {
+            if (i > 0) sb.append(", ");
+            ItemStack alt = alts.get(i);
+            sb.append(alt == null || alt.isEmpty() ? "empty" : alt);
+        }
+        sb.append(']');
+        return sb.toString();
+    }
+
+    private record SlotValidationResult(
+            Map<Integer, IGuiIngredient<ItemStack>> ingredients,
+            IntArrayList invalidSlotGuiIndices,
+            Int2IntOpenHashMap recipeSlotToGuiIndex) {
+    }
+
+    private static final class FilteredGuiIngredient implements IGuiIngredient<ItemStack> {
+        private final IGuiIngredient<ItemStack> base;
+        private final List<ItemStack> filtered;
+
+        private FilteredGuiIngredient(IGuiIngredient<ItemStack> base, List<ItemStack> filtered) {
+            this.base = base;
+            this.filtered = filtered;
+        }
+
+        @Override
+        public @Nullable ItemStack getDisplayedIngredient() {
+            return filtered.isEmpty() ? null : filtered.get(0);
+        }
+
+        @Override
+        public List<ItemStack> getAllIngredients() {
+            return filtered;
+        }
+
+        @Override
+        public boolean isInput() {
+            return base.isInput();
+        }
+
+        @Override
+        public void drawHighlight(Minecraft minecraft, Color color, int xOffset, int yOffset) {
+            base.drawHighlight(minecraft, color, xOffset, yOffset);
+        }
     }
 }

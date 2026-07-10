@@ -25,6 +25,8 @@ public abstract class JEIUniversalHandler implements IRecipeCategory<JeiRecipes.
     protected final String titleKey;
     protected final String uid;
     protected final List<JeiRecipes.JeiUniversalRecipe> recipes;
+    private final Set<String> loggedEmptyOreDicts = new HashSet<>();
+    private final Set<String> loggedExtractFailures = new HashSet<>();
 
     public JEIUniversalHandler(IGuiHelper helper, String uid, String titleKey, ItemStack[] machines, HashMap<Object, Object> recipeMap) {
         this.uid = uid;
@@ -63,7 +65,12 @@ public abstract class JEIUniversalHandler implements IRecipeCategory<JeiRecipes.
             }
         }
 
-        MainRegistry.logger.warn("JEIUniversalHandler: extractInputLists failed for type " + o.getClass());
+        if (o instanceof RecipesCommon.OreDictStack ore) {
+            warnEmptyOreDictOnce(ore.name);
+            return Collections.emptyList();
+        }
+
+        warnExtractFailureOnce(o);
         return Collections.emptyList();
     }
 
@@ -77,6 +84,16 @@ public abstract class JEIUniversalHandler implements IRecipeCategory<JeiRecipes.
         if (slotObject instanceof ItemStack[]) {
             for (ItemStack s : (ItemStack[]) slotObject) {
                 if (s != null && !s.isEmpty()) items.add(s.copy());
+            }
+            return items;
+        }
+
+        if (slotObject instanceof RecipesCommon.OreDictStack ore) {
+            List<ItemStack> ores = ore.extractForJEI();
+            if (ores.isEmpty()) {
+                warnEmptyOreDictOnce(ore.name);
+            } else {
+                items.addAll(ores);
             }
             return items;
         }
@@ -97,6 +114,13 @@ public abstract class JEIUniversalHandler implements IRecipeCategory<JeiRecipes.
             for (Object obj : (Collection<?>) slotObject) {
                 if (obj instanceof ItemStack s) {
                     if (!s.isEmpty()) items.add(s.copy());
+                } else if (obj instanceof RecipesCommon.OreDictStack ore) {
+                    List<ItemStack> ores = ore.extractForJEI();
+                    if (ores.isEmpty()) {
+                        warnEmptyOreDictOnce(ore.name);
+                    } else {
+                        items.addAll(ores);
+                    }
                 } else if (obj instanceof RecipesCommon.AStack) {
                     items.addAll(((RecipesCommon.AStack) obj).extractForJEI());
                 }
@@ -105,6 +129,24 @@ public abstract class JEIUniversalHandler implements IRecipeCategory<JeiRecipes.
         }
 
         return items;
+    }
+
+    private void warnEmptyOreDictOnce(String oreName) {
+        String key = uid + "|" + oreName;
+        if (loggedEmptyOreDicts.add(key)) {
+            MainRegistry.logger.warn("JEIUniversalHandler [{}]: no items registered for ore dict '{}'", uid, oreName);
+        }
+    }
+
+    private void warnExtractFailureOnce(Object o) {
+        String key = uid + "|" + o.getClass().getName();
+        if (loggedExtractFailures.add(key)) {
+            String detail = o.getClass().getName();
+            if (o instanceof RecipesCommon.OreDictStack ore) {
+                detail = "OreDictStack('" + ore.name + "')";
+            }
+            MainRegistry.logger.warn("JEIUniversalHandler [{}]: extractInputLists could not resolve input type {}", uid, detail);
+        }
     }
 
     public List<JeiUniversalRecipe> getRecipes() {
@@ -124,6 +166,15 @@ public abstract class JEIUniversalHandler implements IRecipeCategory<JeiRecipes.
             return Arrays.stream((ItemStack[]) o).map(ItemStack::copy).toArray(ItemStack[]::new);
         }
 
+        if (o instanceof RecipesCommon.OreDictStack ore) {
+            List<ItemStack> ores = ore.extractForJEI();
+            if (ores.isEmpty()) {
+                warnEmptyOreDictOnce(ore.name);
+                return new ItemStack[0];
+            }
+            return ores.toArray(new ItemStack[0]);
+        }
+
         if (o instanceof RecipesCommon.AStack) {
             return ((RecipesCommon.AStack) o).extractForJEI().toArray(new ItemStack[0]);
         }
@@ -141,6 +192,13 @@ public abstract class JEIUniversalHandler implements IRecipeCategory<JeiRecipes.
             for (Object obj : (Object[]) o) {
                 if (obj instanceof ItemStack) {
                     list.add(((ItemStack) obj).copy());
+                } else if (obj instanceof RecipesCommon.OreDictStack ore) {
+                    List<ItemStack> ores = ore.extractForJEI();
+                    if (ores.isEmpty()) {
+                        warnEmptyOreDictOnce(ore.name);
+                    } else {
+                        list.addAll(ores);
+                    }
                 } else if (obj instanceof RecipesCommon.AStack) {
                     list.addAll((((RecipesCommon.AStack) obj).extractForJEI()));
                 }
@@ -148,7 +206,7 @@ public abstract class JEIUniversalHandler implements IRecipeCategory<JeiRecipes.
             return list.toArray(new ItemStack[0]);
         }
 
-        MainRegistry.logger.warn("JEIUniversalHandler: extract failed for type " + o.getClass());
+        MainRegistry.logger.warn("JEIUniversalHandler [{}]: extract failed for type {}", uid, o.getClass().getName());
         return new ItemStack[0];
     }
 
