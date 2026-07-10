@@ -142,12 +142,10 @@ public abstract class AbstractPhasedStructure extends WorldGenerator implements 
 
         if (useDynamicScheduler()) {
             if (force) {
-                if (GeneralConfig.enableDebugWorldGen)
-                    MainRegistry.logger.info("Forcing dynamic {} generation at {}", getClass().getSimpleName(), originSerialized);
+                MainRegistry.logger.info("Forcing dynamic {} generation at {}", getClass().getSimpleName(), originSerialized);
                 DynamicStructureDispatcher.forceGenerate(server, rand, originSerialized, this);
             } else {
-                if (GeneralConfig.enableDebugWorldGen)
-                    MainRegistry.logger.info("Proposing dynamic {} generation at {}", getClass().getSimpleName(), originSerialized);
+                logWorldGenProposal("Proposing dynamic {} generation at {}", getClass().getSimpleName(), originSerialized);
                 DynamicStructureDispatcher.schedule(server, originSerialized, this, layoutSeed);
             }
             return true;
@@ -156,12 +154,10 @@ public abstract class AbstractPhasedStructure extends WorldGenerator implements 
         Long2ObjectOpenHashMap<Long2ObjectOpenHashMap<Object>> layout = buildLayout(originSerialized, layoutSeed);
 
         if (force) {
-            if (GeneralConfig.enableDebugWorldGen)
-                MainRegistry.logger.info("Forcing {} generation at {}", getClass().getSimpleName(), originSerialized);
+            MainRegistry.logger.info("Forcing {} generation at {}", getClass().getSimpleName(), originSerialized);
             PhasedStructureGenerator.forceGenerateStructure(server, rand, originSerialized, this, layout);
         } else {
-            if (GeneralConfig.enableDebugWorldGen)
-                MainRegistry.logger.info("Proposing {} generation at {}", getClass().getSimpleName(), originSerialized);
+            logWorldGenProposal("Proposing {} generation at {}", getClass().getSimpleName(), originSerialized);
             PhasedStructureGenerator.scheduleStructureForValidation(server, originSerialized, this, layout, layoutSeed);
         }
         
@@ -169,9 +165,21 @@ public abstract class AbstractPhasedStructure extends WorldGenerator implements 
         return true;
     }
 
+    private static void logWorldGenProposal(String format, Object... args) {
+        if (GeneralConfig.enableDebugMode) {
+            MainRegistry.logger.info(format, args);
+        } else {
+            MainRegistry.logger.debug(format, args);
+        }
+    }
+
     protected void logGenerationSuccess(World world, long origin) {
-        if (GeneralConfig.enableDebugWorldGen) {
+        if (GeneralConfig.enableDebugMode) {
             MainRegistry.logger.info("[PhasedGen] Structure {} scheduled for generation at BlockPos {}, {}, {} " +
+                    "in dimension {} ({})", getClass().getSimpleName(), Library.getBlockPosX(origin), Library.getBlockPosY(origin),
+            Library.getBlockPosZ(origin), world.provider.getDimension(), world.provider.getDimensionType().getName());
+        } else {
+            MainRegistry.logger.debug("[PhasedGen] Structure {} scheduled for generation at BlockPos {}, {}, {} " +
                     "in dimension {} ({})", getClass().getSimpleName(), Library.getBlockPosX(origin), Library.getBlockPosY(origin),
             Library.getBlockPosZ(origin), world.provider.getDimension(), world.provider.getDimensionType().getName());
         }

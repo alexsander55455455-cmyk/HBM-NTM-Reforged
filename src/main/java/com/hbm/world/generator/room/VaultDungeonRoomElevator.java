@@ -5,6 +5,7 @@ import com.hbm.blocks.generic.BlockNTMLadder;
 import com.hbm.world.generator.CellularDungeon;
 import com.hbm.world.generator.DungeonToolbox;
 import com.hbm.world.generator.VaultDungeon;
+import com.hbm.world.generator.VaultDungeonPlacer;
 import net.minecraft.block.BlockColored;
 import net.minecraft.block.BlockStairs;
 import net.minecraft.block.state.IBlockState;
@@ -59,7 +60,12 @@ public class VaultDungeonRoomElevator extends VaultDungeonRoom {
 
     @Override
     public void generateMain(World world, int x, int y, int z) {
-        super.generateMain(world, x, y, z);
+        generateMain(VaultDungeonPlacer.forWorld(world), x, y, z);
+    }
+
+    @Override
+    protected void generateMain(VaultDungeonPlacer placer, int x, int y, int z) {
+        super.generateMain(placer, x, y, z);
 
         if (parent instanceof VaultDungeon vault && !vault.hasElevator) {
             vault.eX = x + parent.width / 2;
@@ -67,22 +73,34 @@ public class VaultDungeonRoomElevator extends VaultDungeonRoom {
             vault.hasElevator = true;
             this.line = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.YELLOW);
             vault.elevatorRoom = this;
-
-            int surfaceY = world.getHeight(vault.eX, vault.eZ);
-            int h = Math.max(surfaceY - 25, y + parent.height + 10);
-            generateVaultDoorRoom(world, vault.eX, h, vault.eZ);
-            generateElevator(world, vault.eX, y, vault.eZ, h, doorRoomY - 2);
+            if (placer.isPhased()) {
+                // Door room, shaft, and surface exit are deferred to VaultDungeonStructure.postGenerate.
+            } else {
+                World world = placer.world();
+                int h = Math.max(world.getHeight(vault.eX, vault.eZ) - 25, y + parent.height + 10);
+                generateVaultDoorRoom(world, vault.eX, h, vault.eZ);
+                generateElevator(world, vault.eX, y, vault.eZ, h, doorRoomY - 2);
+            }
         } else {
-            generateRoom(world, x, y, z);
-            if (spawnGlow())
-                world.setBlockState(new BlockPos(x + parent.width / 2, y + 2, z + parent.width / 2), ModBlocks.glow_spawner.getDefaultState(), 2 | 16);
+            generateRoom(placer, x, y, z);
+            if (spawnGlow()) {
+                placer.setBlockState(new BlockPos(x + parent.width / 2, y + 2, z + parent.width / 2), ModBlocks.glow_spawner.getDefaultState());
+            }
         }
     }
 
     public void generateRoom(World world, int x, int y, int z) {
+        generateRoom(VaultDungeonPlacer.forWorld(world), x, y, z);
+    }
+
+    public void generateRoom(VaultDungeonPlacer placer, int x, int y, int z) {
     }
 
     public void placeLoot(World world, int x, int y, int z) {
+        placeLoot(VaultDungeonPlacer.forWorld(world), x, y, z);
+    }
+
+    public void placeLoot(VaultDungeonPlacer placer, int x, int y, int z) {
     }
 
     public void generateVaultDoorRoom(World world, int x, int y, int z) {

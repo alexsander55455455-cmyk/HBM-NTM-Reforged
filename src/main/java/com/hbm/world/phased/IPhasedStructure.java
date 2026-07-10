@@ -43,8 +43,10 @@ public interface IPhasedStructure {
             long serialized = Library.blockPosToLong(x, newY, z);
             if (checkSpawningConditions(world, serialized)) {
                 return new PhasedStructureGenerator.ReadyToGenerateStructure(pending, serialized);
-            } else if (GeneralConfig.enableDebugWorldGen) {
+            } else if (GeneralConfig.enableDebugMode) {
                 MainRegistry.logger.info("Structure {} at [{}, {}, {}] did not pass spawn condition check.", this.getClass().getSimpleName(), x, newY, z);
+            } else {
+                MainRegistry.logger.debug("Structure {} at [{}, {}, {}] did not pass spawn condition check.", this.getClass().getSimpleName(), x, newY, z);
             }
         }
         return null;

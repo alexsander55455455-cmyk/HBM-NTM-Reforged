@@ -4,6 +4,8 @@ import com.hbm.blocks.ModBlocks;
 import com.hbm.world.generator.CellularDungeon;
 import com.hbm.world.generator.CellularDungeonRoom;
 import com.hbm.world.generator.DungeonToolbox;
+import com.hbm.world.generator.VaultDungeonPlacer;
+import com.hbm.world.phased.AbstractPhasedStructure;
 import net.minecraft.block.BlockColored;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -32,19 +34,45 @@ public class VaultDungeonRoom extends CellularDungeonRoom {
         this.line = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.byMetadata(this.lineColor));
     }
 
+    @Override
+    public void generate(World world, int x, int y, int z, EnumFacing door) {
+        generate(VaultDungeonPlacer.forWorld(world), x, y, z, door);
+    }
+
+    @Override
+    public void generate(AbstractPhasedStructure.LegacyBuilder world, int x, int y, int z, EnumFacing door) {
+        generate(VaultDungeonPlacer.forBuilder(world), x, y, z, door);
+    }
+
+    public void generate(VaultDungeonPlacer placer, int x, int y, int z, EnumFacing door) {
+        generateMain(placer, x, y, z);
+        for (int i = 2; i < 6; i++) {
+            EnumFacing dir = EnumFacing.byIndex(i);
+            generateWall(placer, x, y, z, dir, dir == door);
+        }
+    }
+
     public void generateMain(World world, int x, int y, int z, int w, int h) {
-        DungeonToolbox.generateBox(world, x, y, z, w, h, w, shielding);
-        DungeonToolbox.generateBox(world, x + 1, y + 1, z + 1, w - 2, 1, w - 2, parent.floor);
-        DungeonToolbox.generateBox(world, x + 1, y + h - 2, z + 1, w - 2, 1, w - 2, parent.ceiling);
-        DungeonToolbox.generateBox(world, x + 1, y + 2, z + 1, w - 2, h - 4, w - 2, air);
+        generateMain(VaultDungeonPlacer.forWorld(world), x, y, z, w, h);
+    }
+
+    protected void generateMain(VaultDungeonPlacer placer, int x, int y, int z, int w, int h) {
+        placer.generateBox(x, y, z, w, h, w, shielding);
+        placer.generateBox(x + 1, y + 1, z + 1, w - 2, 1, w - 2, parent.floor);
+        placer.generateBox(x + 1, y + h - 2, z + 1, w - 2, 1, w - 2, parent.ceiling);
+        placer.generateBox(x + 1, y + 2, z + 1, w - 2, h - 4, w - 2, air);
     }
 
     @Override
     public void generateMain(World world, int x, int y, int z) {
-        generateMain(world, x, y, z, getW(), getH());
+        generateMain(VaultDungeonPlacer.forWorld(world), x, y, z);
+    }
+
+    protected void generateMain(VaultDungeonPlacer placer, int x, int y, int z) {
+        generateMain(placer, x, y, z, getW(), getH());
         for (int dx = -4; dx < 5; dx += 2) {
             for (int dz = -4; dz < 5; dz += 2) {
-                world.setBlockState(new BlockPos(x + getW() / 2 + dx, y + getH() - 2, z + getW() / 2 + dz), light, 2 | 16);
+                placer.setBlockState(new BlockPos(x + getW() / 2 + dx, y + getH() - 2, z + getW() / 2 + dz), light);
             }
         }
     }
@@ -63,45 +91,49 @@ public class VaultDungeonRoom extends CellularDungeonRoom {
 
     @Override
     public void generateWall(World world, int x, int y, int z, EnumFacing wall, boolean door) {
+        generateWall(VaultDungeonPlacer.forWorld(world), x, y, z, wall, door);
+    }
+
+    protected void generateWall(VaultDungeonPlacer placer, int x, int y, int z, EnumFacing wall, boolean door) {
         if (wall == EnumFacing.NORTH) {
-            DungeonToolbox.generateBox(world, x + 1, y + 2, z + 1, getW() - 2, getH() - 4, 1, parent.wall);
-            DungeonToolbox.generateBox(world, x + 1, y + 3, z + 1, getW() - 2, 1, 1, getLine(x, z));
+            placer.generateBox(x + 1, y + 2, z + 1, getW() - 2, getH() - 4, 1, parent.wall);
+            placer.generateBox(x + 1, y + 3, z + 1, getW() - 2, 1, 1, getLine(x, z));
 
             if (door) {
-                DungeonToolbox.generateBox(world, x + getW() / 2 - 2, y + 2, z, 5, 4, 1, tunnel);
-                DungeonToolbox.generateBox(world, x + getW() / 2 - 2, y + 1, z, 5, 1, 1, parent.floor);
-                DungeonToolbox.generateBox(world, x + getW() / 2 - 1, y + 2, z - 1, 3, 3, 3, air);
-                DungeonToolbox.generateBox(world, x + 1, y + getH() - 2, z, getW() - 2, 1, 1, cableLine);
+                placer.generateBox(x + getW() / 2 - 2, y + 2, z, 5, 4, 1, tunnel);
+                placer.generateBox(x + getW() / 2 - 2, y + 1, z, 5, 1, 1, parent.floor);
+                placer.generateBox(x + getW() / 2 - 1, y + 2, z - 1, 3, 3, 3, air);
+                placer.generateBox(x + 1, y + getH() - 2, z, getW() - 2, 1, 1, cableLine);
             }
         } else if (wall == EnumFacing.SOUTH) {
-            DungeonToolbox.generateBox(world, x + 1, y + 2, z + getW() - 2, getW() - 2, getH() - 4, 1, parent.wall);
-            DungeonToolbox.generateBox(world, x + 1, y + 3, z + getW() - 2, getW() - 2, 1, 1, getLine(x, z));
+            placer.generateBox(x + 1, y + 2, z + getW() - 2, getW() - 2, getH() - 4, 1, parent.wall);
+            placer.generateBox(x + 1, y + 3, z + getW() - 2, getW() - 2, 1, 1, getLine(x, z));
 
             if (door) {
-                DungeonToolbox.generateBox(world, x + getW() / 2 - 2, y + 2, z + getW() - 1, 5, 4, 1, tunnel);
-                DungeonToolbox.generateBox(world, x + getW() / 2 - 2, y + 1, z + getW() - 1, 5, 1, 1, parent.floor);
-                DungeonToolbox.generateBox(world, x + getW() / 2 - 1, y + 2, z + getW() - 2, 3, 3, 3, air);
-                DungeonToolbox.generateBox(world, x + 1, y + getH() - 2, z + getW() - 1, getW() - 2, 1, 1, cableLine);
+                placer.generateBox(x + getW() / 2 - 2, y + 2, z + getW() - 1, 5, 4, 1, tunnel);
+                placer.generateBox(x + getW() / 2 - 2, y + 1, z + getW() - 1, 5, 1, 1, parent.floor);
+                placer.generateBox(x + getW() / 2 - 1, y + 2, z + getW() - 2, 3, 3, 3, air);
+                placer.generateBox(x + 1, y + getH() - 2, z + getW() - 1, getW() - 2, 1, 1, cableLine);
             }
         } else if (wall == EnumFacing.WEST) {
-            DungeonToolbox.generateBox(world, x + 1, y + 2, z + 1, 1, getH() - 4, getW() - 2, parent.wall);
-            DungeonToolbox.generateBox(world, x + 1, y + 3, z + 1, 1, 1, getW() - 2, getLine(x, z));
+            placer.generateBox(x + 1, y + 2, z + 1, 1, getH() - 4, getW() - 2, parent.wall);
+            placer.generateBox(x + 1, y + 3, z + 1, 1, 1, getW() - 2, getLine(x, z));
 
             if (door) {
-                DungeonToolbox.generateBox(world, x, y + 2, z + getW() / 2 - 2, 1, 4, 5, tunnel);
-                DungeonToolbox.generateBox(world, x, y + 1, z + getW() / 2 - 2, 1, 1, 5, parent.floor);
-                DungeonToolbox.generateBox(world, x - 1, y + 2, z + getW() / 2 - 1, 3, 3, 3, air);
-                DungeonToolbox.generateBox(world, x, y + getH() - 2, z + 1, 1, 1, getW() - 2, cableLine);
+                placer.generateBox(x, y + 2, z + getW() / 2 - 2, 1, 4, 5, tunnel);
+                placer.generateBox(x, y + 1, z + getW() / 2 - 2, 1, 1, 5, parent.floor);
+                placer.generateBox(x - 1, y + 2, z + getW() / 2 - 1, 3, 3, 3, air);
+                placer.generateBox(x, y + getH() - 2, z + 1, 1, 1, getW() - 2, cableLine);
             }
         } else if (wall == EnumFacing.EAST) {
-            DungeonToolbox.generateBox(world, x + getW() - 2, y + 2, z + 1, 1, getH() - 4, getW() - 2, parent.wall);
-            DungeonToolbox.generateBox(world, x + getW() - 2, y + 3, z + 1, 1, 1, getW() - 2, getLine(x, z));
+            placer.generateBox(x + getW() - 2, y + 2, z + 1, 1, getH() - 4, getW() - 2, parent.wall);
+            placer.generateBox(x + getW() - 2, y + 3, z + 1, 1, 1, getW() - 2, getLine(x, z));
 
             if (door) {
-                DungeonToolbox.generateBox(world, x + getW() - 1, y + 2, z + getW() / 2 - 2, 1, 4, 5, tunnel);
-                DungeonToolbox.generateBox(world, x + getW() - 1, y + 1, z + getW() / 2 - 2, 1, 1, 5, parent.floor);
-                DungeonToolbox.generateBox(world, x + getW() - 2, y + 2, z + getW() / 2 - 1, 3, 3, 3, air);
-                DungeonToolbox.generateBox(world, x + getW() - 1, y + getH() - 2, z + 1, 1, 1, getW() - 2, cableLine);
+                placer.generateBox(x + getW() - 1, y + 2, z + getW() / 2 - 2, 1, 4, 5, tunnel);
+                placer.generateBox(x + getW() - 1, y + 1, z + getW() / 2 - 2, 1, 1, 5, parent.floor);
+                placer.generateBox(x + getW() - 2, y + 2, z + getW() / 2 - 1, 3, 3, 3, air);
+                placer.generateBox(x + getW() - 1, y + getH() - 2, z + 1, 1, 1, getW() - 2, cableLine);
             }
         }
     }

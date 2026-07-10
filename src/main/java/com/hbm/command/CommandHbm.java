@@ -62,7 +62,7 @@ public class CommandHbm extends CommandBase {
 			if ("subcommands".equals(args[0])) {
 				return Lists.newArrayList("gen", "tom").stream().filter(s -> s.startsWith(args[1])).collect(Collectors.toList());
 			} else if ("gen".equals(args[0])) {
-				return Lists.newArrayList("antenna", "dud", "silo_shaft", "silo", "silo_component", "factory", "barrel", "vertibird", "vertibird_crashed", "satellite", "spaceship", "sellafield", "radio", "bunker", "desert_atom", "library", "geysir_water", "geysir_vapor", "geysir_chlorine").stream().filter(s -> s.startsWith(args[1])).collect(Collectors.toList());
+				return Lists.newArrayList("antenna", "dud", "silo_shaft", "silo", "silo_component", "factory", "barrel", "vertibird", "vertibird_crashed", "satellite", "spaceship", "sellafield", "radio", "bunker", "desert_atom", "library", "vault_dungeon", "geysir_water", "geysir_vapor", "geysir_chlorine").stream().filter(s -> s.startsWith(args[1])).collect(Collectors.toList());
 			} else if ("tom".equals(args[0])) {
 				return Lists.newArrayList("reset").stream().filter(s -> s.startsWith(args[1])).collect(Collectors.toList());
 			}
@@ -89,6 +89,9 @@ public class CommandHbm extends CommandBase {
 				return;
 			} else if ("gen".equals(args[0])) {
 				doGenCommand(server, sender, args);
+				return;
+			} else if ("vault_dungeon".equals(args[0])) {
+				doGenCommand(server, sender, new String[] { "gen", "vault_dungeon", "f" });
 				return;
 			} else if ("tom".equals(args[0])) {
 				doTomCommand(server, sender, args);
@@ -333,7 +336,7 @@ public class CommandHbm extends CommandBase {
                 case "vertibird_crashed" -> StructureManager.crashed_vertibird.build(world, genPos.getX(), genPos.getY(), genPos.getZ());
                 case "desert_atom" -> DesertAtom001.INSTANCE.generate(world, rand, genPos, force);
                 case "library" -> LibraryDungeon.INSTANCE.generate(world, rand, genPos, force);
-                case "vault_dungeon" -> HbmWorldGen.generateVaultDungeon(world, (int) senderPos.x, (int) senderPos.z, rand);
+                case "vault_dungeon" -> HbmWorldGen.generateVaultDungeon(world, (int) senderPos.x, (int) senderPos.z, rand, true);
                 case "geysir_water" -> {
                     if (force) {
                         GeyserLarge.INSTANCE.generate(world, rand, genPos);

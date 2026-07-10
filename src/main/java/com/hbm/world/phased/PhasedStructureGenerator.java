@@ -305,8 +305,10 @@ public class PhasedStructureGenerator implements IWorldGenerator {
         ReadyToGenerateStructure ready = pending.structure.validate(world, pending);
 
         if (ready == null) {
-            if (GeneralConfig.enableDebugWorldGen) {
+            if (GeneralConfig.enableDebugMode) {
                 MainRegistry.logger.info("Structure {} at {} failed to validate on fast path.", pending.structure.getClass().getSimpleName(), pending.origin);
+            } else {
+                MainRegistry.logger.debug("Structure {} at {} failed to validate on fast path.", pending.structure.getClass().getSimpleName(), pending.origin);
             }
             return;
         }
@@ -396,8 +398,10 @@ public class PhasedStructureGenerator implements IWorldGenerator {
 
             ReadyToGenerateStructure ready = pending.structure.validate(world, pending);
             if (ready == null) {
-                if (GeneralConfig.enableDebugWorldGen) {
+                if (GeneralConfig.enableDebugMode) {
                     MainRegistry.logger.info("Structure {} at {} failed to validate on queued path.", pending.structure.getClass().getSimpleName(), pending.origin);
+                } else {
+                    MainRegistry.logger.debug("Structure {} at {} failed to validate on queued path.", pending.structure.getClass().getSimpleName(), pending.origin);
                 }
                 unregisterJobFromAllWaitLists(state, this);
                 recycle(this);

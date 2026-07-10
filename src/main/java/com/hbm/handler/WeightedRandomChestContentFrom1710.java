@@ -1,11 +1,13 @@
 package com.hbm.handler;
 
+import com.hbm.world.phased.AbstractPhasedStructure;
 import net.minecraft.block.BlockChest;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.WeightedRandom;
 import net.minecraft.util.math.BlockPos;
@@ -51,6 +53,14 @@ public class WeightedRandomChestContentFrom1710 extends WeightedRandom.Item {
         TileEntity tile = world.getTileEntity(pos);
         if (tile != null)
             generateChestContents(world.rand, pool, tile, rolls);
+    }
+
+    public static void placeLootChest(AbstractPhasedStructure.LegacyBuilder builder, BlockPos pos, EnumFacing dir, WeightedRandomChestContentFrom1710[] pool, int rolls) {
+        builder.setBlockState(pos, Blocks.CHEST.getDefaultState().withProperty(BlockChest.FACING, dir), (world, random, blockPos, te) -> {
+            if (te instanceof TileEntityChest) {
+                generateChestContents(random, pool, te, rolls);
+            }
+        });
     }
 
     public static void generateChestContents(Random random, WeightedRandomChestContentFrom1710[] pool, ICapabilityProvider capabilityProvider, int roll) {

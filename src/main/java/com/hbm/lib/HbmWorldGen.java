@@ -28,7 +28,7 @@ import com.hbm.world.dungeon.AncientTombStructure;
 import com.hbm.world.dungeon.ArcticVault;
 import com.hbm.world.dungeon.LibraryDungeon;
 import com.hbm.world.feature.*;
-import com.hbm.world.generator.CellularDungeonFactory;
+import com.hbm.world.generator.VaultDungeonStructure;
 import com.hbm.world.generator.DungeonToolbox;
 import com.hbm.world.generator.JungleDungeonStructure;
 import com.hbm.world.phased.AbstractPhasedStructure;
@@ -828,7 +828,11 @@ public class HbmWorldGen implements IWorldGenerator {
     }
 
     public static void generateVaultDungeon(World world, int x, int z, Random rand) {
-        CellularDungeonFactory.vault.generate(world, x, 16, z, rand);
+        generateVaultDungeon(world, x, z, rand, false);
+    }
+
+    public static void generateVaultDungeon(World world, int x, int z, Random rand, boolean force) {
+        VaultDungeonStructure.INSTANCE.generate(world, rand, new BlockPos(x, 0, z), force);
 
         if (GeneralConfig.enableDebugMode)
             MainRegistry.logger.info("[Debug] Successfully spawned vault dungeon at x={} y=16 z={}", x, z);
