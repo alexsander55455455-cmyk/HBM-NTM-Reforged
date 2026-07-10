@@ -1,7 +1,10 @@
 package com.hbm.items.weapon.sedna.factory;
 
 import com.hbm.Tags;
+import com.hbm.capability.HbmLivingCapability;
+import com.hbm.capability.HbmLivingProps;
 import com.hbm.config.ClientConfig;
+import com.hbm.entity.projectile.EntityBulletBaseMK4;
 import com.hbm.items.ItemEnums;
 import com.hbm.items.ModItems;
 import com.hbm.items.weapon.sedna.BulletConfig;
@@ -19,8 +22,10 @@ import com.hbm.render.anim.sedna.BusAnimationKeyframeSedna.IType;
 import com.hbm.render.anim.sedna.BusAnimationSedna;
 import com.hbm.render.anim.sedna.BusAnimationSequenceSedna;
 import com.hbm.render.misc.RenderScreenOverlay.Crosshair;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.RayTraceResult;
 
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -39,6 +44,15 @@ public class XFactory556mm {
     public static BulletConfig r556_inc_jhp;
     public static BulletConfig r556_inc_ap;
 
+    public static final BiConsumer<EntityBulletBaseMK4, RayTraceResult> INCENDIARY = (bullet, mop) -> {
+        if (mop.entityHit instanceof EntityLivingBase living) {
+            HbmLivingCapability.IEntityHbmProps data = HbmLivingProps.getData(living);
+            if (data.getPhosphorus() < 300) {
+                data.setPhosphorus(300);
+            }
+        }
+    };
+
     public static void init() {
         SpentCasing casing556 = new SpentCasing(SpentCasing.CasingType.BOTTLENECK).setColor(SpentCasing.COLOR_CASE_BRASS).setScale(0.8F);
         r556_sp = new BulletConfig().setItem(GunFactory.EnumAmmo.R556_SP).setCasing(ItemEnums.EnumCasingType.SMALL, 8)
@@ -49,6 +63,11 @@ public class XFactory556mm {
                 .setCasing(casing556.clone().register("r556jhp"));
         r556_ap = new BulletConfig().setItem(GunFactory.EnumAmmo.R556_AP).setCasing(ItemEnums.EnumCasingType.SMALL_STEEL, 8).setDoesPenetrate(true).setDamageFalloffByPen(false).setDamage(1.5F).setThresholdNegation(10F).setArmorPiercing(0.15F)
                 .setCasing(casing556.clone().setColor(SpentCasing.COLOR_CASE_44).register("r556ap"));
+
+        r556_inc_sp = r556_sp.clone().setOnImpact(INCENDIARY);
+        r556_inc_fmj = r556_fmj.clone().setOnImpact(INCENDIARY);
+        r556_inc_jhp = r556_jhp.clone().setOnImpact(INCENDIARY);
+        r556_inc_ap = r556_ap.clone().setOnImpact(INCENDIARY);
 
         ModItems.gun_g3 = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.A_SIDE, "gun_g3", new GunConfig()
                 .dura(3_000).draw(10).inspect(33).crosshair(Crosshair.CIRCLE).smoke(LAMBDA_SMOKE)

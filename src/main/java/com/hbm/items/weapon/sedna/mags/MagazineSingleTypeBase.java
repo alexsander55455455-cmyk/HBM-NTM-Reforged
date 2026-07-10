@@ -11,7 +11,6 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public abstract class MagazineSingleTypeBase implements IMagazine<BulletConfig> {
@@ -34,30 +33,75 @@ public abstract class MagazineSingleTypeBase implements IMagazine<BulletConfig> 
     }
 
     public MagazineSingleTypeBase addConfigs(BulletConfig... cfgs) {
-        acceptedBullets.addAll(Arrays.asList(cfgs));
-        return this; }
+        if (cfgs == null) {
+            return this;
+        }
+        for (BulletConfig cfg : cfgs) {
+            if (cfg != null) {
+                acceptedBullets.add(cfg);
+            }
+        }
+        return this;
+    }
 
-    @Override
-    public BulletConfig getType(ItemStack stack, IInventory inventory) {
-        int type = getMagType(stack, index);
-        if(type >= 0 && type < BulletConfig.configs.size()) {
-            BulletConfig cfg = BulletConfig.configs.get(type);
-            if(acceptedBullets.contains(cfg)) return cfg;
-            return acceptedBullets.get(0);
+    private static boolean isValidConfig(BulletConfig config) {
+        return config != null && config.ammo != null;
+    }
+
+    private BulletConfig firstAcceptedConfig() {
+        for (BulletConfig cfg : acceptedBullets) {
+            if (isValidConfig(cfg)) {
+                return cfg;
+            }
         }
         return null;
     }
 
+    private BulletConfig resolveConfig(ItemStack stack) {
+        BulletConfig config = this.getType(stack, null);
+        if (!isValidConfig(config)) {
+            config = firstAcceptedConfig();
+            if (isValidConfig(config)) {
+                this.setType(stack, config);
+            }
+        }
+        return config;
+    }
+
+    private static boolean matchesConfigAmmo(BulletConfig config, ItemStack slot) {
+        return isValidConfig(config) && config.ammo.matchesRecipe(slot, true);
+    }
+
+    @Override
+    public BulletConfig getType(ItemStack stack, IInventory inventory) {
+        int type = getMagType(stack, index);
+        if (type >= 0 && type < BulletConfig.configs.size()) {
+            BulletConfig cfg = BulletConfig.configs.get(type);
+            if (isValidConfig(cfg) && acceptedBullets.contains(cfg)) {
+                return cfg;
+            }
+            return firstAcceptedConfig();
+        }
+        return firstAcceptedConfig();
+    }
+
     @Override
     public void setType(ItemStack stack, BulletConfig type) {
+        if (!isValidConfig(type)) {
+            return;
+        }
         int i = BulletConfig.configs.indexOf(type);
-        if(i >= 0) setMagType(stack, index, i);
+        if (i >= 0) {
+            setMagType(stack, index, i);
+        }
     }
 
     @Override
     public ItemStack getIconForHUD(ItemStack stack, EntityPlayer player) {
         BulletConfig config = this.getType(stack, player.inventory);
-        if(config != null) return config.ammo != null ? config.ammo.toStack() : ItemStack.EMPTY;
+        if (isValidConfig(config)) {
+            return config.ammo.toStack();
+        }
         return ItemStack.EMPTY;
     }
 
@@ -68,105 +112,123 @@ public abstract class MagazineSingleTypeBase implements IMagazine<BulletConfig> 
 
     @Override
     public SpentCasing getCasing(ItemStack stack, IInventory inventory) {
-        return this.getType(stack, inventory).casing;
+        BulletConfig config = this.getType(stack, inventory);
+        return config != null ? config.casing : null;
     }
 
     @Override
     public void useUpAmmo(ItemStack stack, IInventory inventory, int amount) {
+        BulletConfig config = this.getType(stack, inventory);
+        if (!isValidConfig(config)) {
+            return;
+        }
         this.setAmount(stack, this.getAmount(stack, inventory) - amount);
-        IMagazine.handleAmmoBag(inventory, this.getType(stack, inventory), amount);
+        IMagazine.handleAmmoBag(inventory, config, amount);
     }
 
     /** Returns true if the player has the same ammo if partially loaded, or any valid ammo if not */
     @Override
     public boolean canReload(ItemStack stack, IInventory inventory) {
-        if(this.getAmount(stack, inventory) >= this.getCapacity(stack)) return false;
-        if(inventory == null) return true;
-        BulletConfig nextConfig = getFirstConfig(stack, inventory);
-        return nextConfig != null;
+        if (this.getAmount(stack, inventory) >= this.getCapacity(stack)) {
+            return false;
+        }
+        if (inventory == null) {
+            return true;
+        }
+        return getFirstConfig(stack, inventory) != null;
     }
 
     public void standardReload(ItemStack stack, IInventory inventory, int loadLimit) {
 
-        if(inventory == null) {
-            BulletConfig config = this.getType(stack, inventory);
-            if(config == null) { config = this.acceptedBullets.get(0); this.setType(stack, config); } //fixing broken NBT
+        if (inventory == null) {
+            BulletConfig config = resolveConfig(stack);
+            if (!isValidConfig(config)) {
+                return;
+            }
             this.setAmount(stack, this.capacity);
             return;
         }
 
-        for(int i = 0; i < inventory.getSizeInventory(); i++) {
+        for (int i = 0; i < inventory.getSizeInventory(); i++) {
             ItemStack slot = inventory.getStackInSlot(i);
 
-            if(loadLimit <= 0) return;
+            if (loadLimit <= 0) {
+                return;
+            }
 
-            if(!slot.isEmpty()) {
+            if (!slot.isEmpty()) {
 
                 //mag is empty, assume next best type
-                if(this.getAmount(stack, null) == 0) {
+                if (this.getAmount(stack, null) == 0) {
 
-                    for(BulletConfig config : this.acceptedBullets) {
-                        if(config.ammo.matchesRecipe(slot, true)) {
-                            this.setType(stack, config);
-                            int wantsToLoad = (int) Math.ceil((double) this.getCapacity(stack) / (double) config.ammoReloadCount);
-                            int toLoad = BobMathUtil.min(wantsToLoad, slot.getCount(), loadLimit);
-                            this.setAmount(stack, Math.min(toLoad * config.ammoReloadCount, this.capacity));
-                            inventory.decrStackSize(i, toLoad);
-                            loadLimit -= toLoad;
-                            break;
+                    for (BulletConfig config : this.acceptedBullets) {
+                        if (!matchesConfigAmmo(config, slot)) {
+                            continue;
                         }
+                        this.setType(stack, config);
+                        int wantsToLoad = (int) Math.ceil((double) this.getCapacity(stack) / (double) config.ammoReloadCount);
+                        int toLoad = BobMathUtil.min(wantsToLoad, slot.getCount(), loadLimit);
+                        this.setAmount(stack, Math.min(toLoad * config.ammoReloadCount, this.capacity));
+                        inventory.decrStackSize(i, toLoad);
+                        loadLimit -= toLoad;
+                        break;
                     }
                     //mag has a type set, only load that
                 } else {
-                    BulletConfig config = this.getType(stack, null);
-                    if(config == null) { config = this.acceptedBullets.get(0); this.setType(stack, config); } //fixing broken NBT
-
-                    if(config.ammo.matchesRecipe(slot, true)) {
-                        int alreadyLoaded = this.getAmount(stack, null);
-                        int wantsToLoad = (int) Math.ceil((double) (this.getCapacity(stack) - alreadyLoaded) / (double) config.ammoReloadCount);
-                        int toLoad = BobMathUtil.min(wantsToLoad, slot.getCount(), loadLimit);
-                        this.setAmount(stack, Math.min((toLoad * config.ammoReloadCount) + alreadyLoaded, this.capacity));
-                        inventory.decrStackSize(i, toLoad);
-                        loadLimit -= toLoad;
+                    BulletConfig config = resolveConfig(stack);
+                    if (!isValidConfig(config) || !matchesConfigAmmo(config, slot)) {
+                        continue;
                     }
+
+                    int alreadyLoaded = this.getAmount(stack, null);
+                    int wantsToLoad = (int) Math.ceil((double) (this.getCapacity(stack) - alreadyLoaded) / (double) config.ammoReloadCount);
+                    int toLoad = BobMathUtil.min(wantsToLoad, slot.getCount(), loadLimit);
+                    this.setAmount(stack, Math.min((toLoad * config.ammoReloadCount) + alreadyLoaded, this.capacity));
+                    inventory.decrStackSize(i, toLoad);
+                    loadLimit -= toLoad;
                 }
 
                 boolean infBag = slot.getItem() == ModItems.ammo_bag_infinite;
-                if(slot.getItem() == ModItems.ammo_bag || infBag) {
+                if (slot.getItem() == ModItems.ammo_bag || infBag) {
                     ItemAmmoBag.InventoryAmmoBag bag = new ItemAmmoBag.InventoryAmmoBag(slot);
 
-                    for(int j = 0; j < bag.getSlots(); j++) {
+                    for (int j = 0; j < bag.getSlots(); j++) {
                         ItemStack bagslot = bag.getStackInSlot(j);
 
-                        if(!bagslot.isEmpty()) {
+                        if (!bagslot.isEmpty()) {
 
                             //mag is empty, assume next best type
-                            if(this.getAmount(stack, null) == 0) {
+                            if (this.getAmount(stack, null) == 0) {
 
-                                for(BulletConfig config : this.acceptedBullets) {
-                                    if(config.ammo.matchesRecipe(bagslot, true)) {
-                                        this.setType(stack, config);
-                                        int wantsToLoad = (int) Math.ceil((double) this.getCapacity(stack) / (double) config.ammoReloadCount);
-                                        int toLoad = BobMathUtil.min(wantsToLoad, infBag ? 9_999 : bagslot.getCount(), loadLimit);
-                                        this.setAmount(stack, Math.min(toLoad * config.ammoReloadCount, this.capacity));
-                                        if(!infBag) bag.setStackInSlot(j, new ItemStack(bagslot.getItem(), bagslot.getCount() - toLoad, bagslot.getMetadata()));
-                                        loadLimit -= toLoad;
-                                        break;
+                                for (BulletConfig config : this.acceptedBullets) {
+                                    if (!matchesConfigAmmo(config, bagslot)) {
+                                        continue;
                                     }
+                                    this.setType(stack, config);
+                                    int wantsToLoad = (int) Math.ceil((double) this.getCapacity(stack) / (double) config.ammoReloadCount);
+                                    int toLoad = BobMathUtil.min(wantsToLoad, infBag ? 9_999 : bagslot.getCount(), loadLimit);
+                                    this.setAmount(stack, Math.min(toLoad * config.ammoReloadCount, this.capacity));
+                                    if (!infBag) {
+                                        bag.setStackInSlot(j, new ItemStack(bagslot.getItem(), bagslot.getCount() - toLoad, bagslot.getMetadata()));
+                                    }
+                                    loadLimit -= toLoad;
+                                    break;
                                 }
                                 //mag has a type set, only load that
                             } else {
-                                BulletConfig config = this.getType(stack, null);
-                                if(config == null) { config = this.acceptedBullets.get(0); this.setType(stack, config); } //fixing broken NBT
-
-                                if(config.ammo.matchesRecipe(bagslot, true)) {
-                                    int alreadyLoaded = getMagCount(stack, index);
-                                    int wantsToLoad = (int) Math.ceil((double) (this.getCapacity(stack) - alreadyLoaded) / (double) config.ammoReloadCount);
-                                    int toLoad = BobMathUtil.min(wantsToLoad, infBag ? 9_999 : bagslot.getCount(), loadLimit);
-                                    this.setAmount(stack, Math.min((toLoad * config.ammoReloadCount) + alreadyLoaded, this.capacity));
-                                    if(!infBag) bag.setStackInSlot(j, new ItemStack(bagslot.getItem(), bagslot.getCount() - toLoad, bagslot.getMetadata()));
-                                    loadLimit -= toLoad;
+                                BulletConfig config = resolveConfig(stack);
+                                if (!isValidConfig(config) || !matchesConfigAmmo(config, bagslot)) {
+                                    continue;
                                 }
+
+                                int alreadyLoaded = getMagCount(stack, index);
+                                int wantsToLoad = (int) Math.ceil((double) (this.getCapacity(stack) - alreadyLoaded) / (double) config.ammoReloadCount);
+                                int toLoad = BobMathUtil.min(wantsToLoad, infBag ? 9_999 : bagslot.getCount(), loadLimit);
+                                this.setAmount(stack, Math.min((toLoad * config.ammoReloadCount) + alreadyLoaded, this.capacity));
+                                if (!infBag) {
+                                    bag.setStackInSlot(j, new ItemStack(bagslot.getItem(), bagslot.getCount() - toLoad, bagslot.getMetadata()));
+                                }
+                                loadLimit -= toLoad;
                             }
                         }
                     }
@@ -177,37 +239,45 @@ public abstract class MagazineSingleTypeBase implements IMagazine<BulletConfig> 
 
     /** Returns the config of the first potential loadable round, either what's already chambered or the first valid one if empty */
     public BulletConfig getFirstConfig(ItemStack stack, IInventory inventory) {
-        if(inventory == null) return null;
+        if (inventory == null) {
+            return null;
+        }
 
-        for(int i = 0; i < inventory.getSizeInventory(); i++) {
+        for (int i = 0; i < inventory.getSizeInventory(); i++) {
             ItemStack slot = inventory.getStackInSlot(i);
 
-            if(!slot.isEmpty()) {
-                if(this.getAmount(stack, null) == 0) {
-                    for(BulletConfig config : this.acceptedBullets) {
-                        if(config.ammo.matchesRecipe(slot, true)) return config;
+            if (!slot.isEmpty()) {
+                if (this.getAmount(stack, null) == 0) {
+                    for (BulletConfig config : this.acceptedBullets) {
+                        if (matchesConfigAmmo(config, slot)) {
+                            return config;
+                        }
                     }
                 } else {
-                    BulletConfig config = this.getType(stack, null);
-                    if(config == null) { config = this.acceptedBullets.get(0); this.setType(stack, config); }
-                    if(config.ammo.matchesRecipe(slot, true)) return config;
+                    BulletConfig config = resolveConfig(stack);
+                    if (matchesConfigAmmo(config, slot)) {
+                        return config;
+                    }
                 }
 
-                if(slot.getItem() == ModItems.ammo_bag || slot.getItem() == ModItems.ammo_bag_infinite) {
+                if (slot.getItem() == ModItems.ammo_bag || slot.getItem() == ModItems.ammo_bag_infinite) {
                     ItemAmmoBag.InventoryAmmoBag bag = new ItemAmmoBag.InventoryAmmoBag(slot);
 
-                    for(int j = 0; j < bag.getSlots(); j++) {
+                    for (int j = 0; j < bag.getSlots(); j++) {
                         ItemStack bagslot = bag.getStackInSlot(j);
 
-                        if(!bagslot.isEmpty()) {
-                            if(this.getAmount(stack, null) == 0) {
-                                for(BulletConfig config : this.acceptedBullets) {
-                                    if(config.ammo.matchesRecipe(bagslot, true)) return config;
+                        if (!bagslot.isEmpty()) {
+                            if (this.getAmount(stack, null) == 0) {
+                                for (BulletConfig config : this.acceptedBullets) {
+                                    if (matchesConfigAmmo(config, bagslot)) {
+                                        return config;
+                                    }
                                 }
                             } else {
-                                BulletConfig config = this.getType(stack, null);
-                                if(config == null) { config = this.acceptedBullets.get(0); this.setType(stack, config); }
-                                if(config.ammo.matchesRecipe(bagslot, true)) return config;
+                                BulletConfig config = resolveConfig(stack);
+                                if (matchesConfigAmmo(config, bagslot)) {
+                                    return config;
+                                }
                             }
                         }
                     }
@@ -219,9 +289,11 @@ public abstract class MagazineSingleTypeBase implements IMagazine<BulletConfig> 
     }
 
     @Override public void initNewType(ItemStack stack, IInventory inventory) {
-        if(inventory == null) return;
+        if (inventory == null) {
+            return;
+        }
         BulletConfig nextConfig = getFirstConfig(stack, inventory);
-        if(nextConfig != null) {
+        if (nextConfig != null) {
             int i = BulletConfig.configs.indexOf(nextConfig);
             this.setMagType(stack, index, i);
         }
