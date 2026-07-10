@@ -82,12 +82,16 @@ public class HazardSystem {
     private static final int VOLATILITY_THRESHOLD = 16;
     private static final int VOLATILITY_WINDOW_SECONDS = 30;
     private static final int FINAL_HAZARD_CACHE_SIZE = 2048;
+    /** Returned by {@link #getSanitizedNbtHashSafe} when live NBT cannot be read without racing writers. */
+    private static final int SANITIZED_NBT_UNREADABLE = Integer.MIN_VALUE;
     private static final ConcurrentHashMap<ComparableStack, List<HazardData>> hazardDataChronologyCache = new ConcurrentHashMap<>();
     private static final Cache<NbtSensitiveCacheKey, List<HazardEntry>> finalHazardEntryCache =
             CacheBuilder.newBuilder().maximumSize(FINAL_HAZARD_CACHE_SIZE).build();
-    private static final Cache<ComparableStack, AtomicInteger> volatilityTracker =
+    private static final Cache<NbtSensitiveCacheKey, Double> rawRadsCache =
+            CacheBuilder.newBuilder().maximumSize(FINAL_HAZARD_CACHE_SIZE).build();
+    private static final Cache<ImmutableStackKey, AtomicInteger> volatilityTracker =
             CacheBuilder.newBuilder().expireAfterWrite(VOLATILITY_WINDOW_SECONDS, TimeUnit.SECONDS).build();
-    private static final Set<ComparableStack> volatileItemsBlacklist = ConcurrentHashMap.newKeySet();
+    private static final Set<ImmutableStackKey> volatileItemsBlacklist = ConcurrentHashMap.newKeySet();
     private static final ConcurrentHashMap<UUID, PlayerHazardData> playerHazardDataMap = new ConcurrentHashMap<>();
     private static final Queue<InventoryDelta> inventoryDeltas = new ConcurrentLinkedQueue<>();
     private static final Set<UUID> playersToUpdate = ConcurrentHashMap.newKeySet();
@@ -262,6 +266,7 @@ public class HazardSystem {
         MainRegistry.logger.info("Clearing HBM hazard calculation caches.");
         hazardDataChronologyCache.clear();
         finalHazardEntryCache.invalidateAll();
+        rawRadsCache.invalidateAll();
         volatilityTracker.invalidateAll();
         volatileItemsBlacklist.clear();
     }
@@ -683,26 +688,38 @@ public class HazardSystem {
         }
 
         final ComparableStack compStack = ItemStackUtil.comparableStackFrom(stack).makeSingular();
+        final ImmutableStackKey stackKey = ImmutableStackKey.fromStack(stack);
 
-        if (volatileItemsBlacklist.contains(compStack)) {
-            return computeHazards(stack, compStack);
+        if (volatileItemsBlacklist.contains(stackKey)) {
+            return computeHazards(stack.copy(), compStack);
         }
 
-        int nbtHash = getSanitizedNbtHash(stack.getTagCompound());
+        int nbtHash = getSanitizedNbtHashSafe(stack.getTagCompound());
+        if (nbtHash == SANITIZED_NBT_UNREADABLE) {
+            return computeHazards(stack.copy(), compStack);
+        }
 
-        final NbtSensitiveCacheKey nbtKey = new NbtSensitiveCacheKey(compStack, nbtHash);
+        final NbtSensitiveCacheKey nbtKey = new NbtSensitiveCacheKey(stackKey, nbtHash);
 
         try {
             return finalHazardEntryCache.get(nbtKey, () -> {
-                AtomicInteger missCount = volatilityTracker.get(compStack, AtomicInteger::new);
+                AtomicInteger missCount = volatilityTracker.get(stackKey, AtomicInteger::new);
                 if (missCount.incrementAndGet() > VOLATILITY_THRESHOLD) {
-                    volatileItemsBlacklist.add(compStack);
-                    volatilityTracker.invalidate(compStack);
+                    volatileItemsBlacklist.add(stackKey);
+                    volatilityTracker.invalidate(stackKey);
                 }
-                return computeHazards(stack, compStack);
+                return computeHazards(stack.copy(), compStack);
             });
         } catch (ExecutionException e) {
             throw new RuntimeException("Error calculating hazard entries for stack: " + stack, e.getCause());
+        }
+    }
+
+    private static int getSanitizedNbtHashSafe(@Nullable NBTTagCompound tag) {
+        try {
+            return getSanitizedNbtHash(tag);
+        } catch (ConcurrentModificationException e) {
+            return SANITIZED_NBT_UNREADABLE;
         }
     }
 
@@ -805,6 +822,29 @@ public class HazardSystem {
      * @apiNote lookup count insensitive; value may be count-sensitive via modifiers
      */
     public static double getRawRadsFromStack(ItemStack stack) {
+        if (stack.isEmpty() || isItemBlacklisted(stack)) {
+            return 0.0D;
+        }
+
+        final ImmutableStackKey stackKey = ImmutableStackKey.fromStack(stack);
+        if (volatileItemsBlacklist.contains(stackKey)) {
+            return computeRawRads(stack);
+        }
+
+        int nbtHash = getSanitizedNbtHashSafe(stack.getTagCompound());
+        if (nbtHash == SANITIZED_NBT_UNREADABLE) {
+            return computeRawRads(stack);
+        }
+
+        final NbtSensitiveCacheKey cacheKey = new NbtSensitiveCacheKey(stackKey, nbtHash);
+        try {
+            return rawRadsCache.get(cacheKey, () -> computeRawRads(stack));
+        } catch (ExecutionException e) {
+            return computeRawRads(stack);
+        }
+    }
+
+    private static double computeRawRads(ItemStack stack) {
         return getHazardLevelFromStack(stack, HazardRegistry.RADIATION);
     }
 
@@ -985,7 +1025,13 @@ public class HazardSystem {
         }
     }
 
-    private record NbtSensitiveCacheKey(ComparableStack stack, int nbtHash) {
+    private record ImmutableStackKey(Item item, int meta) {
+        private static ImmutableStackKey fromStack(ItemStack stack) {
+            return new ImmutableStackKey(stack.getItem(), stack.getMetadata());
+        }
+    }
+
+    private record NbtSensitiveCacheKey(ImmutableStackKey stack, int nbtHash) {
     }
 
     private record InventoryDelta(UUID playerUUID, int serverSlotIndex, ItemStack oldStack, ItemStack newStack) {

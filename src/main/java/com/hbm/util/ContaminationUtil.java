@@ -42,7 +42,7 @@ import net.minecraft.entity.passive.EntitySkeletonHorse;
 import net.minecraft.entity.passive.EntityZombieHorse;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.inventory.Slot;
+
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
@@ -56,12 +56,18 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
+import java.util.ConcurrentModificationException;
 import java.util.List;
 
 public class ContaminationUtil {
 
 	public static final String NTM_NEUTRON_NBT_KEY = "ntmNeutron";
 	public static final float MIN_RAD_ACTIVATION_RATE = 0.000005F;
+	/** Player inventory neutron NBT batch interval (ticks). Dose is scaled by this to preserve per-second accumulation. */
+	public static final int NEUTRON_ITEM_UPDATE_INTERVAL = 20;
+
+	public record NeutronItemUpdate(ItemStack stack, boolean changed, float prevActivation, float newActivation) {
+	}
     public static final String RAD_MULT_KEY = "hbmradmultiplier";
     /**
 	 * Calculates how much radiation can be applied to this entity by calculating resistance
@@ -252,13 +258,15 @@ public class ContaminationUtil {
     }
 
 	public static float getNeutronRads(ItemStack stack){
-		if(stack != null && !stack.isEmpty() && !isRadItem(stack)){
-			if(stack.hasTagCompound()){
-				NBTTagCompound nbt = stack.getTagCompound();
-				if(nbt.hasKey(NTM_NEUTRON_NBT_KEY)){
-					return nbt.getFloat(NTM_NEUTRON_NBT_KEY) * stack.getCount();
-				}
+		if(stack == null || stack.isEmpty() || isRadItem(stack) || !stack.hasTagCompound()){
+			return 0F;
+		}
+		try {
+			NBTTagCompound nbt = stack.getTagCompound();
+			if(nbt.hasKey(NTM_NEUTRON_NBT_KEY)){
+				return nbt.getFloat(NTM_NEUTRON_NBT_KEY) * stack.getCount();
 			}
+		} catch (ConcurrentModificationException ignored) {
 		}
 		return 0F;
 	}
@@ -280,37 +288,56 @@ public class ContaminationUtil {
 
 	public static boolean neutronActivateInventory(EntityPlayer player, float rad, float decay) {
 		boolean changed = false;
+		int tick = player.ticksExisted;
+
 		for (int slotI = 0; slotI < player.inventory.mainInventory.size(); slotI++) {
-			if (slotI != player.inventory.currentItem) {
-				if (neutronActivateItem(player.inventory.getStackInSlot(slotI), rad, decay)) {
-					changed = true;
-				}
+			if (slotI == player.inventory.currentItem) {
+				continue;
 			}
-		}
-		for (ItemStack slotA : player.inventory.armorInventory) {
-			if (neutronActivateItem(slotA, rad, decay)) {
+			ItemStack current = player.inventory.getStackInSlot(slotI);
+			NeutronItemUpdate update = neutronActivateItemCopy(current, rad, decay);
+			if (update.changed()) {
+				player.inventory.setInventorySlotContents(slotI, update.stack());
+				logNeutronSlotRewrite(player, tick, "main", slotI, current, update);
 				changed = true;
 			}
 		}
-		for (ItemStack offhand : player.inventory.offHandInventory) {
-			if (neutronActivateItem(offhand, rad, decay)) {
+		for (int slotI = 0; slotI < player.inventory.armorInventory.size(); slotI++) {
+			ItemStack current = player.inventory.armorInventory.get(slotI);
+			NeutronItemUpdate update = neutronActivateItemCopy(current, rad, decay);
+			if (update.changed()) {
+				player.inventory.armorInventory.set(slotI, update.stack());
+				logNeutronSlotRewrite(player, tick, "armor", slotI, current, update);
+				changed = true;
+			}
+		}
+		for (int slotI = 0; slotI < player.inventory.offHandInventory.size(); slotI++) {
+			ItemStack current = player.inventory.offHandInventory.get(slotI);
+			NeutronItemUpdate update = neutronActivateItemCopy(current, rad, decay);
+			if (update.changed()) {
+				player.inventory.offHandInventory.set(slotI, update.stack());
+				logNeutronSlotRewrite(player, tick, "offhand", slotI, current, update);
 				changed = true;
 			}
 		}
 		return changed;
 	}
 
-	public static void syncNeutronInventoryToClient(EntityPlayer player) {
-		player.inventory.markDirty();
-		if (player.inventoryContainer == null) {
+	private static void logNeutronSlotRewrite(EntityPlayer player, int tick, String group, int slotIndex,
+			ItemStack previous, NeutronItemUpdate update) {
+		if (!GeneralConfig.debugNeutronInventorySync) {
 			return;
 		}
-		for (Slot slot : player.inventoryContainer.inventorySlots) {
-			if (slot.inventory == player.inventory) {
-				slot.onSlotChanged();
-			}
+		MainRegistry.logger.info(
+				"[NeutronInv] player={} tick={} group={} slot={} stack={} prevNtmNeutron={} newNtmNeutron={} rewritten=true",
+				player.getName(), tick, group, slotIndex, previous, update.prevActivation(), update.newActivation());
+	}
+
+	public static void syncNeutronInventoryToClient(EntityPlayer player) {
+		player.inventory.markDirty();
+		if (player.inventoryContainer != null) {
+			player.inventoryContainer.detectAndSendChanges();
 		}
-		player.inventoryContainer.detectAndSendChanges();
 	}
 
 	/**
@@ -340,47 +367,77 @@ public class ContaminationUtil {
 					RadiationConfig.neutronActivationThreshold);
 		}
 
-		if (receivedRadiation > MIN_RAD_ACTIVATION_RATE) {
-			boolean changed = neutronActivateInventory(player, (float) receivedRadiation, 1.0F);
+		if (receivedRadiation > MIN_RAD_ACTIVATION_RATE
+				&& player.ticksExisted % NEUTRON_ITEM_UPDATE_INTERVAL == 0) {
+			float effectiveRad = (float) receivedRadiation * NEUTRON_ITEM_UPDATE_INTERVAL;
+			boolean changed = neutronActivateInventory(player, effectiveRad, 1.0F);
 			if (changed) {
 				syncNeutronInventoryToClient(player);
 			}
 		}
 	}
 
-	public static boolean neutronActivateItem(ItemStack stack, float rad, float decay) {
-		if (stack == null || stack.isEmpty() || stack.getCount() != 1 || isRadItem(stack)) return false;
-		float prevActivation = 0;
-		if (stack.hasTagCompound() && stack.getTagCompound().hasKey(NTM_NEUTRON_NBT_KEY)) {
-			prevActivation = stack.getTagCompound().getFloat(NTM_NEUTRON_NBT_KEY);
+	public static NeutronItemUpdate neutronActivateItemCopy(ItemStack stack, float rad, float decay) {
+		if (stack == null || stack.isEmpty() || stack.getCount() != 1 || isRadItem(stack)) {
+			return new NeutronItemUpdate(stack == null ? ItemStack.EMPTY : stack, false, 0F, 0F);
 		}
 
-		float newActivation = prevActivation * decay + (rad / stack.getCount());
+		ItemStack copy = stack.copy();
+		float prevActivation = 0F;
+		if (copy.hasTagCompound() && copy.getTagCompound().hasKey(NTM_NEUTRON_NBT_KEY)) {
+			prevActivation = copy.getTagCompound().getFloat(NTM_NEUTRON_NBT_KEY);
+		}
+
+		float newActivation = prevActivation * decay + (rad / copy.getCount());
 
 		if (newActivation < 0.0001F) {
-			if (prevActivation > 0) {
-				NBTTagCompound nbt = stack.getTagCompound();
+			if (prevActivation > 0F) {
+				NBTTagCompound nbt = copy.getTagCompound();
 				nbt.removeTag(NTM_NEUTRON_NBT_KEY);
 				if (nbt.isEmpty()) {
-					stack.setTagCompound(null);
+					copy.setTagCompound(null);
 				}
-				return true;
+				return new NeutronItemUpdate(copy, true, prevActivation, 0F);
 			}
-		} else {
-			if (Math.abs(newActivation - prevActivation) > 1e-6) {
-				NBTTagCompound nbt = stack.hasTagCompound() ? stack.getTagCompound() : new NBTTagCompound();
-				nbt.setFloat(NTM_NEUTRON_NBT_KEY, newActivation);
-				stack.setTagCompound(nbt);
-				return true;
-			}
+			return new NeutronItemUpdate(copy, false, prevActivation, newActivation);
 		}
-		return false;
+
+		if (Math.abs(newActivation - prevActivation) > 1e-6F) {
+			NBTTagCompound nbt = copy.hasTagCompound() ? copy.getTagCompound() : new NBTTagCompound();
+			nbt.setFloat(NTM_NEUTRON_NBT_KEY, newActivation);
+			copy.setTagCompound(nbt);
+			return new NeutronItemUpdate(copy, true, prevActivation, newActivation);
+		}
+		return new NeutronItemUpdate(copy, false, prevActivation, newActivation);
+	}
+
+	/** Tile/non-player callers: applies neutron NBT from a copied result onto the live stack reference. */
+	public static boolean neutronActivateItem(ItemStack stack, float rad, float decay) {
+		NeutronItemUpdate update = neutronActivateItemCopy(stack, rad, decay);
+		if (!update.changed()) {
+			return false;
+		}
+		applyNeutronNbtFromCopy(stack, update.stack());
+		return true;
+	}
+
+	private static void applyNeutronNbtFromCopy(ItemStack target, ItemStack source) {
+		if (source.hasTagCompound()) {
+			target.setTagCompound(source.getTagCompound().copy());
+		} else {
+			target.setTagCompound(null);
+		}
 	}
 
 	public static boolean isContaminated(ItemStack stack){
-		if(!stack.hasTagCompound())
+		if(stack == null || stack.isEmpty() || !stack.hasTagCompound()){
 			return false;
-        return stack.getTagCompound().hasKey(NTM_NEUTRON_NBT_KEY);
+		}
+		try {
+			return stack.getTagCompound().hasKey(NTM_NEUTRON_NBT_KEY);
+		} catch (ConcurrentModificationException ignored) {
+			return false;
+		}
     }
 
     public static String getPreffixFromRad(double rads) {

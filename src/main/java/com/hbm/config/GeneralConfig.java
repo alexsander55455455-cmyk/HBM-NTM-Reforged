@@ -68,6 +68,8 @@ public class GeneralConfig {
 	public static boolean heatDistortion = true;
 	public static boolean recipes = true;
 	public static boolean jei = true;
+	public static boolean debugJeiTransfer = false;
+	public static boolean debugNeutronInventorySync = false;
 	public static boolean changelog = true;
 	public static boolean registerTanks = true;
 	public static boolean duckButton = true;
@@ -187,6 +189,10 @@ public class GeneralConfig {
 		registerTanks = config.get(CommonConfig.CATEGORY_GENERAL, "1.28_registerTanks", true, "A general switch for ALL the tanks items in the mod (e.g. universal fluid, lead, barrels, packed containers). If set to false, they won't be registered as items in the game." ).getBoolean(true);
 		
 		jei = config.get(CommonConfig.CATEGORY_GENERAL, "1.28_enableJei", true, "Enables JEI compatibility").getBoolean(true);
+		debugJeiTransfer = config.get(CommonConfig.CATEGORY_GENERAL, "1.29_debugJeiTransfer", false,
+				"Logs verbose JEI recipe transfer diagnostics (slot validation, ingredient alternatives). Failed transfers are always logged.").getBoolean(false);
+		debugNeutronInventorySync = config.get(CommonConfig.CATEGORY_GENERAL, "1.30_debugNeutronInventorySync", false,
+				"Logs neutron item NBT slot rewrites during player inventory contamination updates.").getBoolean(false);
 		changelog = config.get(CommonConfig.CATEGORY_GENERAL, "1.28_enableChangelog", true, "Enables the update notification in the chat. NOT USED FOR NOW").getBoolean(true);
 		duckButton = config.get(CommonConfig.CATEGORY_GENERAL, "1.28_enableDuckButton", true, "Allows you to summon the duck via pressing O").getBoolean(true);
 		bloom = config.get(CommonConfig.CATEGORY_GENERAL, "1.30_enableBloom", true, "Enables the bloom effect which can be visible on the Crucible. Only active if enableShaders2 is set to true.").getBoolean(true);

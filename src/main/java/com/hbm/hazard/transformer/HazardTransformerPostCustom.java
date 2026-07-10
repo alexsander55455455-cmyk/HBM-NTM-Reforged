@@ -5,6 +5,7 @@ import com.hbm.inventory.RecipesCommon;
 import com.hbm.main.MainRegistry;
 import com.hbm.util.ItemStackUtil;
 import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.item.Item;
@@ -13,6 +14,7 @@ import net.minecraft.nbt.NBTTagCompound;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -24,9 +26,33 @@ public class HazardTransformerPostCustom implements IHazardTransformer {
     private static final Object2DoubleOpenHashMap<Item> ITEM_MULTIPLIERS = new Object2DoubleOpenHashMap<>();
     private static final Map<Item, ObjectArrayList<BiFunction<ItemStack, List<HazardEntry>, List<HazardEntry>>>> ITEM_POST = new Object2ObjectOpenHashMap<>();
     private static final Map<StackKey, ObjectArrayList<BiFunction<ItemStack, List<HazardEntry>, List<HazardEntry>>>> STACK_POST = new Object2ObjectOpenHashMap<>();
+    /** item/meta keys that have at least one meta-only (nbt=null) stack post transformer */
+    private static final Object2IntOpenHashMap<RecipesCommon.ComparableStack> STACK_POST_GENERIC_CANDIDATES = new Object2IntOpenHashMap<>();
+    /** item/meta keys that have at least one NBT-sensitive stack post transformer */
+    private static final Object2IntOpenHashMap<RecipesCommon.ComparableStack> STACK_POST_NBT_CANDIDATES = new Object2IntOpenHashMap<>();
 
     static {
         ITEM_MULTIPLIERS.defaultReturnValue(1.0);
+        STACK_POST_GENERIC_CANDIDATES.defaultReturnValue(0);
+        STACK_POST_NBT_CANDIDATES.defaultReturnValue(0);
+    }
+
+    private static void incrementStackPostCandidate(StackKey key) {
+        Object2IntOpenHashMap<RecipesCommon.ComparableStack> map = key.nbt() == null ? STACK_POST_GENERIC_CANDIDATES : STACK_POST_NBT_CANDIDATES;
+        map.addTo(key.base(), 1);
+    }
+
+    private static void decrementStackPostCandidate(StackKey key) {
+        Object2IntOpenHashMap<RecipesCommon.ComparableStack> map = key.nbt() == null ? STACK_POST_GENERIC_CANDIDATES : STACK_POST_NBT_CANDIDATES;
+        int count = map.addTo(key.base(), -1);
+        if (count <= 0) {
+            map.removeInt(key.base());
+        }
+    }
+
+    private static boolean hasStackPostCandidate(RecipesCommon.ComparableStack base, boolean nbtSensitive) {
+        Object2IntOpenHashMap<RecipesCommon.ComparableStack> map = nbtSensitive ? STACK_POST_NBT_CANDIDATES : STACK_POST_GENERIC_CANDIDATES;
+        return map.getInt(base) > 0;
     }
 
     private static List<HazardEntry> safeApply(BiFunction<ItemStack, List<HazardEntry>, List<HazardEntry>> fn, ItemStack stack, List<HazardEntry> input) {
@@ -51,14 +77,21 @@ public class HazardTransformerPostCustom implements IHazardTransformer {
     }
 
     public static void addStackPost(StackKey key, BiFunction<ItemStack, List<HazardEntry>, List<HazardEntry>> fn) {
-        STACK_POST.computeIfAbsent(key, k -> new ObjectArrayList<>()).add(fn);
+        ObjectArrayList<BiFunction<ItemStack, List<HazardEntry>, List<HazardEntry>>> list = STACK_POST.computeIfAbsent(key, k -> new ObjectArrayList<>());
+        if (list.isEmpty()) {
+            incrementStackPostCandidate(key);
+        }
+        list.add(fn);
     }
 
     public static void removeStackPost(StackKey key, BiFunction<ItemStack, List<HazardEntry>, List<HazardEntry>> fn) {
         ObjectArrayList<BiFunction<ItemStack, List<HazardEntry>, List<HazardEntry>>> list = STACK_POST.get(key);
         if (list != null) {
             list.remove(fn);
-            if (list.isEmpty()) STACK_POST.remove(key);
+            if (list.isEmpty()) {
+                STACK_POST.remove(key);
+                decrementStackPostCandidate(key);
+            }
         }
     }
 
@@ -102,14 +135,12 @@ public class HazardTransformerPostCustom implements IHazardTransformer {
         if (stack == null || stack.isEmpty()) return;
 
         final Item item = stack.getItem();
+        RecipesCommon.ComparableStack compStack = ItemStackUtil.comparableStackFrom(stack).makeSingular();
         boolean hasItemLevel = ITEM_MULTIPLIERS.containsKey(item) || ITEM_POST.containsKey(item);
-        StackKey genericKey = null, nbtKey = null;
-        if (!hasItemLevel) {
-            genericKey = StackKey.of(stack, false);
-            if (!STACK_POST.containsKey(genericKey)) {
-                nbtKey = StackKey.of(stack, true);
-                if (!STACK_POST.containsKey(nbtKey)) return;
-            }
+        boolean hasGenericStackPost = hasStackPostCandidate(compStack, false);
+        boolean hasNbtStackPost = hasStackPostCandidate(compStack, true);
+        if (!hasItemLevel && !hasGenericStackPost && !hasNbtStackPost) {
+            return;
         }
 
         // 1) Apply item-wide multiplier, if present
@@ -141,21 +172,36 @@ public class HazardTransformerPostCustom implements IHazardTransformer {
         }
 
         // 3) Apply stack-level post transforms: generic (meta-only) first, then NBT-sensitive.
-        if (genericKey == null) genericKey = StackKey.of(stack, false);
-        applyStackPostList(genericKey, stack, entries);
-        if (nbtKey == null) nbtKey = StackKey.of(stack, true);
-        applyStackPostList(nbtKey, stack, entries);
+        if (hasGenericStackPost) {
+            applyStackPostList(StackKey.of(stack, false), stack, entries);
+        }
+        if (hasNbtStackPost && stack.hasTagCompound()) {
+            StackKey nbtKey = StackKey.of(stack, true);
+            if (nbtKey.nbt() != null) {
+                applyStackPostList(nbtKey, stack, entries);
+            }
+        }
     }
 
     public record StackKey(RecipesCommon.ComparableStack base, NBTTagCompound nbt) {
+        private static NBTTagCompound copyStackTagSansNeutron(ItemStack stack) {
+            if (!stack.hasTagCompound()) {
+                return null;
+            }
+            try {
+                NBTTagCompound copy = stack.getTagCompound().copy();
+                if (copy.hasKey(NTM_NEUTRON_NBT_KEY)) {
+                    copy.removeTag(NTM_NEUTRON_NBT_KEY);
+                }
+                return copy.isEmpty() ? null : copy;
+            } catch (ConcurrentModificationException e) {
+                return null;
+            }
+        }
+
         public static StackKey of(ItemStack stack, boolean respectNbt) {
             RecipesCommon.ComparableStack cs = ItemStackUtil.comparableStackFrom(stack).makeSingular();
-            NBTTagCompound tag = null;
-            if (respectNbt && stack.hasTagCompound()) {
-                NBTTagCompound copy = stack.getTagCompound().copy();
-                if (copy.hasKey(NTM_NEUTRON_NBT_KEY)) copy.removeTag(NTM_NEUTRON_NBT_KEY);
-                tag = copy;
-            }
+            NBTTagCompound tag = respectNbt ? copyStackTagSansNeutron(stack) : null;
             return new StackKey(cs, tag);
         }
 
