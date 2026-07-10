@@ -45,8 +45,8 @@ import java.util.Random;
 
 public class ItemGunEgon extends ItemGunBase {
 
-	public float charge = 1F;
-	public static float chargeScaling = 1.011619F; //double dmg every 2 sec
+	public float charge = 10.0F;
+	public static float chargeScaling = 1.034F; // ~250 HP + regen in ~2 sec despite beam wobble (20 tps)
 	public static int activeTicks = 0;
 	public static Map<EntityPlayer, ParticleGluonBurnTrail> activeTrailParticles = new HashMap<>();
 	public static Map<EntityPlayer, GunEgonSoundHandler> soundsByPlayer = new HashMap<>();
@@ -161,8 +161,8 @@ public class ItemGunEgon extends ItemGunBase {
 					}
 				}
 			} else {
-				this.charge = 1F;
-			}	
+				this.charge = 10.0F;
+			}
 		} else {
 			setIsFiring(stack, false);
 		}
