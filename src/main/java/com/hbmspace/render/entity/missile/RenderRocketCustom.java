@@ -8,11 +8,13 @@ import com.hbmspace.render.misc.RocketPronter;
 import com.hbmspace.interfaces.AutoRegister;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.registry.IRenderFactory;
 import org.jetbrains.annotations.NotNull;
+import org.lwjgl.opengl.GL11;
 
 @AutoRegister(factory = "FACTORY")
 public class RenderRocketCustom extends Render<EntityRideableRocket> {
@@ -21,25 +23,60 @@ public class RenderRocketCustom extends Render<EntityRideableRocket> {
 
     protected RenderRocketCustom(RenderManager renderManager) {
         super(renderManager);
+        this.shadowSize = 0.0F;
+    }
+
+    /**
+     * Always draw the rocket. Origin is at the thruster end while the pilot sits
+     * near the tip; vanilla/embeddium/optifine frustum tests against the origin or a
+     * too-small AABB fail under most seat camera angles, which made the ship vanish
+     * and left only the player.
+     */
+    @Override
+    public boolean shouldRender(EntityRideableRocket entity, ICamera camera, double camX, double camY, double camZ) {
+        if(entity == null || entity.isDead) {
+            return false;
+        }
+        entity.ignoreFrustumCheck = true;
+        return true;
     }
 
     @Override
     public void doRender(EntityRideableRocket entity, double x, double y, double z, float f, float interp) {
+        if(entity == null || entity.isDead) {
+            return;
+        }
+
+        entity.ignoreFrustumCheck = true;
         RocketStruct rocket = entity.getRocket();
+        if(rocket == null) {
+            return;
+        }
+
+        float yaw = entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * interp;
+        float pitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * interp;
+        if(Float.isNaN(yaw)) yaw = entity.rotationYaw;
+        if(Float.isNaN(pitch)) pitch = entity.rotationPitch;
 
         GlStateManager.pushMatrix();
-        {
-
+        try {
             GlStateManager.translate(x, y, z);
-            GlStateManager.rotate(entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * interp - 90.0F, 0.0F, 1.0F, 0.0F);
-            GlStateManager.rotate(entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * interp, 0.0F, 0.0F, 1.0F);
-            GlStateManager.rotate(entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * interp - 90.0F, 0.0F, -1.0F, 0.0F);
+            GlStateManager.rotate(yaw - 90.0F, 0.0F, 1.0F, 0.0F);
+            GlStateManager.rotate(pitch, 0.0F, 0.0F, 1.0F);
+            GlStateManager.rotate(yaw - 90.0F, 0.0F, -1.0F, 0.0F);
+
+            GlStateManager.enableTexture2D();
+            GlStateManager.enableRescaleNormal();
 
             RocketPronter.prontRocket(rocket, entity, Minecraft.getMinecraft().getTextureManager(), !CelestialBody.inOrbit(entity.world), entity.decoupleTimer, entity.shroudTimer, interp);
-
+        } finally {
+            // Hard reset in case shroud clip plane leaked and culled by camera angle.
+            GL11.glDisable(GL11.GL_CLIP_PLANE0);
+            GlStateManager.shadeModel(GL11.GL_FLAT);
+            GlStateManager.popMatrix();
         }
-        GlStateManager.popMatrix();
     }
+
     @Override
     protected ResourceLocation getEntityTexture(@NotNull EntityRideableRocket entity) {
         return ResourceManagerSpace.universal;

@@ -77,10 +77,14 @@ public class RocketPronter {
                             tex.bindTexture(ResourceManager.universal);
                             buffer.put(new double[]{0, -1, 0, thrusterPart.height});
                             buffer.rewind();
+                            // Always disable even if render throws — a stuck clip plane hides the rocket by camera angle.
                             GL11.glEnable(GL11.GL_CLIP_PLANE0);
-                            GL11.glClipPlane(GL11.GL_CLIP_PLANE0, buffer);
-                            fuselagePart.getShroud().renderAll();
-                            GL11.glDisable(GL11.GL_CLIP_PLANE0);
+                            try {
+                                GL11.glClipPlane(GL11.GL_CLIP_PLANE0, buffer);
+                                fuselagePart.getShroud().renderAll();
+                            } finally {
+                                GL11.glDisable(GL11.GL_CLIP_PLANE0);
+                            }
 
                             if(shroudTimer > 0) {
                                 GlStateManager.popMatrix();
