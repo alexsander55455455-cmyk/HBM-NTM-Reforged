@@ -314,22 +314,21 @@ public class ModEventHandler {
             for (EntityPlayer player : event.world.playerEntities) {
                 // handle dismount events, or our players will splat upon leaving tall rockets
                 Entity riding = player.getRidingEntity();
-                if (riding instanceof EntityRideableRocket rocket && player.isSneaking()) {
-                    // Prevent leaving a rocket in motion, for safety
-                    if (rocket.canExitCapsule() || rocket.forceExitTimer >= 60) {
-                        boolean inOrbit = event.world.provider instanceof WorldProviderOrbit;
-                        Entity ridingEntity = player.getRidingEntity();
-                        float prevHeight = ridingEntity.height;
+                if (!(riding instanceof EntityRideableRocket)) continue;
+                EntityRideableRocket rocket = (EntityRideableRocket) riding;
 
-                        ridingEntity.height = inOrbit ? (ridingEntity.height + 1.0F) : 1.0F;
-                        player.dismountRidingEntity();
-                        if (!inOrbit) player.setPositionAndUpdate(player.posX + 2, player.posY, player.posZ);
-                        ridingEntity.height = prevHeight;
+                if (player.isSneaking()) {
+                    // Hold sneak ~3s during flight to force exit; otherwise stay sealed.
+                    if (rocket.canExitCapsule() || rocket.forceExitTimer >= 60) {
+                        rocket.dismountPassengerSafely(player);
                     } else {
                         rocket.forceExitTimer++;
                     }
 
                     player.setSneaking(false);
+                } else {
+                    // Reset force-exit charge when not sneaking (was previously unreachable dead code).
+                    rocket.forceExitTimer = 0;
                 }
             }
         }
@@ -544,8 +543,12 @@ public class ModEventHandler {
 
     @SubscribeEvent
     public static void onEntityMount(EntityMountEvent event) {
+        // Cancel casual dismounts while the capsule is sealed in flight.
+        // Without this, client/server fight: player pops out, rocket remounts them
+        // every tick -> "teleporting around the rocket" desync.
+        // Force-exit (hold sneak ~3s, forceExitTimer >= 60) is still allowed.
         if (event.isDismounting() && event.getEntityBeingMounted() instanceof EntityRideableRocket rocket) {
-            if (rocket.getState() == EntityRideableRocket.RocketState.LAUNCHING) {
+            if (!rocket.canExitCapsule() && rocket.forceExitTimer < 60) {
                 event.setCanceled(true);
             }
         }

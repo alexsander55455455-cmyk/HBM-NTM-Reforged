@@ -287,11 +287,19 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
 
     @Override
     public void onUpdate() {
+        // Save for render interp before EntityMissileBaseNT/EntityThrowableInterp mutate pose.
+        this.prevRotationYaw = this.rotationYaw;
+        this.prevRotationPitch = this.rotationPitch;
+        // Re-assert every tick: some client spawn/sync paths drop the constructor flag.
+        this.ignoreFrustumCheck = true;
         super.onUpdate();
         RocketState state = getState();
 
-        if(!sizeSet) {
-            setSize(2.0F, (float) getRocket().getHeight() + 1.0F);
+        // Keep hitbox height in sync once rocket part data arrives (client spawn often starts empty).
+        float expectedHeight = (float) getRocket().getHeight() + 1.0F;
+        if(expectedHeight < 3.0F) expectedHeight = 8.0F;
+        if(!sizeSet || Math.abs(this.height - expectedHeight) > 0.5F) {
+            setSize(2.0F, expectedHeight);
             if(!world.isRemote && (state == RocketState.LANDED || state == RocketState.AWAITING || state == RocketState.NEEDSFUEL)) {
                 TileEntity te = CompatExternal.getCoreFromPos(world, new BlockPos(MathHelper.floor(posX), MathHelper.floor(posY + height - 1.0D), MathHelper.floor(posZ)));
                 if(te instanceof TileEntityOrbitalStation) {
@@ -535,6 +543,13 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
                 decoupleTimer = 0;
                 shroudTimer = 0;
             }
+
+            // EntityThrowableInterp client path never mounts passengers; keep seat on the stack
+            // so the player does not visually detach from the rocket while looking around.
+            for(Entity passenger : getPassengers()) {
+                updatePassenger(passenger);
+            }
+            this.ignoreFrustumCheck = true;
         }
 
         setStateTimer(++stateTimer);
@@ -584,29 +599,51 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
 
     @Override
     protected void onImpact(RayTraceResult result) {
+        // 1.7.10 parity: only LANDING/DOCKING react to block hits.
+        // Calling super.onImpact during LAUNCHING would setDead() (EntityMissileBaseNT),
+        // and even without that the throwable raytrace would clip motion and leave the rocket
+        // hanging a few blocks up with thruster FX still playing.
         RocketState state = getState();
-        if(state == RocketState.LANDING || state == RocketState.DOCKING) {
-            motionX = 0.0D;
-            motionY = 0.0D;
-            motionZ = 0.0D;
-
-            if(state == RocketState.DOCKING) {
-                return;
-            }
-
-            RocketStruct rocket = getRocket();
-            if(!rocket.stages.isEmpty() && rocket.stages.getFirst().fins == null) {
-                setState(RocketState.TIPPING);
-                willExplode = true;
-            } else {
-                setState(RocketState.LANDED);
-            }
-
-            posY = world.getHeight((int) posX, (int) posZ);
+        if(state != RocketState.LANDING && state != RocketState.DOCKING) {
             return;
         }
 
-        super.onImpact(result);
+        motionX = 0.0D;
+        motionY = 0.0D;
+        motionZ = 0.0D;
+
+        if(state == RocketState.DOCKING) {
+            return;
+        }
+
+        RocketStruct rocket = getRocket();
+        if(!rocket.stages.isEmpty() && rocket.stages.getFirst().fins == null) {
+            setState(RocketState.TIPPING);
+            willExplode = true;
+        } else {
+            setState(RocketState.LANDED);
+        }
+
+        posY = world.getHeight((int) posX, (int) posZ);
+    }
+
+    /**
+     * Skip block raytraces while ascending/transferring so gantries, pad towers, and
+     * thin structures cannot pin the rocket in mid-air (motion still advances).
+     */
+    @Override
+    public boolean isSpectral() {
+        RocketState state = getState();
+        return state == RocketState.LAUNCHING
+                || state == RocketState.UNDOCKING
+                || state == RocketState.TRANSFER
+                || state == RocketState.TIPPING;
+    }
+
+    /** Ballistic missile guidance must not fight capsule flight. */
+    @Override
+    public boolean hasPropulsion() {
+        return false;
     }
 
     @Override
@@ -631,11 +668,22 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
             if(isEntityInvulnerable(source)) {
                 return false;
             } else if(getControllingPassenger() == null && source.getTrueSource() instanceof EntityPlayer player) {
-                if((getRocket().stages.isEmpty() && getRocket().capsule != ModItemsSpace.rp_pod_20) || getState() == RocketState.TIPPING) {
+                RocketState st = getState();
+                // Only pick up / break when grounded (not mid-flight).
+                boolean grounded = st == RocketState.LANDED
+                        || st == RocketState.AWAITING
+                        || st == RocketState.NEEDSFUEL
+                        || st == RocketState.TIPPING;
+                if(!grounded) {
+                    return true;
+                }
+                if((getRocket().stages.isEmpty() && getRocket().capsule != ModItemsSpace.rp_pod_20) || st == RocketState.TIPPING) {
                     dropNDie(source);
                 } else {
                     ItemStack stack = player.getHeldItemMainhand();
-                    if(!stack.isEmpty() && stack.getItem().canHarvestBlock(Blocks.STONE.getDefaultState(), stack)) {
+                    // Any pickaxe-class tool, or creative mode, can pack the rocket.
+                    if(player.capabilities.isCreativeMode
+                            || (!stack.isEmpty() && stack.getItem().canHarvestBlock(Blocks.STONE.getDefaultState(), stack))) {
                         dropNDie(source);
                     }
                 }
@@ -1009,23 +1057,121 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
         super.clearChunkLoader();
     }
 
+    /**
+     * Minecraft passes squared distance here. Always render rideable rockets:
+     * the entity origin is at the thrusters while the camera sits near the capsule top,
+     * so pitch-up easily fails a normal distance/frustum test and the whole ship pops out.
+     */
     @Override
+    @SideOnly(Side.CLIENT)
     public boolean isInRangeToRenderDist(double distance) {
-        return distance < 500000;
+        return true;
     }
 
     @Override
-    @net.minecraftforge.fml.relauncher.SideOnly(net.minecraftforge.fml.relauncher.Side.CLIENT)
+    @SideOnly(Side.CLIENT)
+    public boolean isInRangeToRender3d(double x, double y, double z) {
+        return true;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
     public net.minecraft.util.math.AxisAlignedBB getRenderBoundingBox() {
-        return new net.minecraft.util.math.AxisAlignedBB(this.posX - 5000, this.posY - 5000, this.posZ - 5000, this.posX + 5000, this.posY + 5000, this.posZ + 5000);
+        // Cull-only BB (not used for mouse pick — see canBeCollidedWith / entity size).
+        //
+        // Origin is thruster base; pilot/camera is near capsule. During LAUNCHING pitch reaches
+        // ~45° (TRANSFER ~90°), so the mesh swings far outside an upright height box.
+        // Previous pads (~0.35 * h) were too small: looking from the seat culled the rocket
+        // while the player model still drew → "flying player only".
+        double h = Math.max(this.height, 8.0D);
+        try {
+            RocketStruct rocket = getRocket();
+            if(rocket != null) {
+                h = Math.max(h, rocket.getHeight() + 2.0D);
+            }
+        } catch (Throwable ignored) {
+            // data manager may not be ready during first client tick
+        }
+        // Full stack diagonal + large seat-camera margin. Finite (not ±Inf) for OptiFine/Embeddium.
+        double r = Math.max(128.0D, h * 3.0D + 48.0D);
+        return new net.minecraft.util.math.AxisAlignedBB(
+                this.posX - r, this.posY - r, this.posZ - r,
+                this.posX + r, this.posY + r, this.posZ + r
+        );
     }
 
+    /**
+     * Real entity size for mouse raycasts and physics.
+     * A previous client-only ±5000 AABB stole every click near the rocket, so the
+     * "Interact to enter" overlay appeared and nearby blocks could not be broken.
+     */
     @Override
-    public net.minecraft.util.math.AxisAlignedBB getEntityBoundingBox() {
-        if (this.world.isRemote) {
-            return new net.minecraft.util.math.AxisAlignedBB(this.posX - 5000, this.posY - 5000, this.posZ - 5000, this.posX + 5000, this.posY + 5000, this.posZ + 5000);
+    public boolean canBeCollidedWith() {
+        // 1.7.10: null BB while flying — no pick / no bump while ascending.
+        return !isDead && motionMult() <= 0.0D;
+    }
+
+    /**
+     * Place the rider beside the rocket on free ground instead of inside the pad
+     * (old path forced height=1 then +2 X, which buried players 1–2 blocks down).
+     */
+    public void dismountPassengerSafely(EntityPlayer player) {
+        if(player == null || world.isRemote) return;
+
+        boolean inOrbit = world.provider instanceof com.hbmspace.dim.orbit.WorldProviderOrbit;
+        double halfW = Math.max(player.width * 0.5D, 0.3D);
+        double height = Math.max(player.height, 1.6D);
+
+        double[][] offsets = {
+                {3.0D, 0.0D}, {-3.0D, 0.0D}, {0.0D, 3.0D}, {0.0D, -3.0D},
+                {3.0D, 3.0D}, {3.0D, -3.0D}, {-3.0D, 3.0D}, {-3.0D, -3.0D},
+                {2.0D, 0.0D}, {-2.0D, 0.0D}, {0.0D, 2.0D}, {0.0D, -2.0D},
+                {4.0D, 0.0D}, {-4.0D, 0.0D}, {0.0D, 4.0D}, {0.0D, -4.0D}
+        };
+
+        double bestX = posX + 3.0D;
+        double bestY = inOrbit ? player.posY : world.getHeight(MathHelper.floor(posX + 3.0D), MathHelper.floor(posZ));
+        double bestZ = posZ;
+        boolean found = false;
+
+        for(double[] o : offsets) {
+            double x = posX + o[0];
+            double z = posZ + o[1];
+            double y;
+            if(inOrbit) {
+                y = player.posY;
+            } else {
+                y = world.getHeight(MathHelper.floor(x), MathHelper.floor(z));
+                // Prefer standing next to pad, not under it; clamp near rocket base.
+                if(y < posY - 1.0D) y = posY;
+                if(y > posY + height + 2.0D) y = posY;
+            }
+
+            AxisAlignedBB bb = new AxisAlignedBB(
+                    x - halfW, y, z - halfW,
+                    x + halfW, y + height, z + halfW
+            );
+            if(world.getCollisionBoxes(player, bb).isEmpty() && !world.containsAnyLiquid(bb)) {
+                bestX = x;
+                bestY = y;
+                bestZ = z;
+                found = true;
+                break;
+            }
         }
-        return super.getEntityBoundingBox();
+
+        if(!found && !inOrbit) {
+            // Last resort: surface at rocket XZ + 3 east, one block above surface.
+            bestX = posX + 3.0D;
+            bestZ = posZ;
+            bestY = world.getHeight(MathHelper.floor(bestX), MathHelper.floor(bestZ));
+        }
+
+        // Mark force-exit so EntityMountEvent does not cancel this dismount.
+        forceExitTimer = 60;
+        player.dismountRidingEntity();
+        player.setPositionAndUpdate(bestX, bestY, bestZ);
+        forceExitTimer = 0;
     }
 
     @AutoRegister(name = "entity_rideable_rocket_dummy", trackingRange = 1000)
@@ -1050,23 +1196,28 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
         }
 
         @Override
+        @SideOnly(Side.CLIENT)
         public boolean isInRangeToRenderDist(double distance) {
-            return distance < 500000;
+            return true;
         }
 
         @Override
-        @net.minecraftforge.fml.relauncher.SideOnly(net.minecraftforge.fml.relauncher.Side.CLIENT)
+        @SideOnly(Side.CLIENT)
+        public boolean isInRangeToRender3d(double x, double y, double z) {
+            return true;
+        }
+
+        @Override
+        @SideOnly(Side.CLIENT)
         public net.minecraft.util.math.AxisAlignedBB getRenderBoundingBox() {
-            return new net.minecraft.util.math.AxisAlignedBB(this.posX - 5000, this.posY - 5000, this.posZ - 5000, this.posX + 5000, this.posY + 5000, this.posZ + 5000);
+            double pad = 16.0D;
+            return new net.minecraft.util.math.AxisAlignedBB(
+                    this.posX - pad, this.posY - pad, this.posZ - pad,
+                    this.posX + pad, this.posY + pad + 8.0D, this.posZ + pad
+            );
         }
 
-        @Override
-        public net.minecraft.util.math.AxisAlignedBB getEntityBoundingBox() {
-            if (this.world.isRemote) {
-                return new net.minecraft.util.math.AxisAlignedBB(this.posX - 5000, this.posY - 5000, this.posZ - 5000, this.posX + 5000, this.posY + 5000, this.posZ + 5000);
-            }
-            return super.getEntityBoundingBox();
-        }
+        // Do not inflate client hitbox — same mouse-steal bug as the parent rocket.
 
         @Override
         protected void entityInit() {
