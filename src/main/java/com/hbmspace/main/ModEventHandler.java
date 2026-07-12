@@ -543,12 +543,12 @@ public class ModEventHandler {
 
     @SubscribeEvent
     public static void onEntityMount(EntityMountEvent event) {
-        // Cancel casual dismounts while the capsule is sealed in flight.
-        // Without this, client/server fight: player pops out, rocket remounts them
-        // every tick -> "teleporting around the rocket" desync.
-        // Force-exit (hold sneak ~3s, forceExitTimer >= 60) is still allowed.
+        // Only dismounts started by EntityRideableRocket.dismountPassengerSafely are allowed.
+        // That path sets forceExitTimer >= 60, then teleports the player beside the stack.
+        // Vanilla sneak-dismount alone leaves the pilot standing at the seat (standing anim,
+        // no movement, still "in" the capsule) because worldTick only repositions while mounted.
         if (event.isDismounting() && event.getEntityBeingMounted() instanceof EntityRideableRocket rocket) {
-            if (!rocket.canExitCapsule() && rocket.forceExitTimer < 60) {
+            if (rocket.forceExitTimer < 60) {
                 event.setCanceled(true);
             }
         }

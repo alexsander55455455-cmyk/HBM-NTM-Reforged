@@ -91,6 +91,8 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
     public int decoupleTimer = 0;
     public int shroudTimer = 0;
     public int forceExitTimer = 0;
+    /** After intentional dismount, block auto-remount so landing/flight does not re-suck the pilot. */
+    public int remountLockTimer = 0;
 
     private double rocketVelocity = 0.0D;
     private boolean sizeSet = false;
@@ -329,7 +331,13 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
                 thrower = rider;
             }
 
-            if(thrower != null && rider == null && !canExitCapsule() && forceExitTimer < 60) {
+            if(remountLockTimer > 0) {
+                remountLockTimer--;
+            }
+
+            // Only re-seal mid-flight glitch dismounts. Intentional exit sets remountLockTimer
+            // (and may clear thrower) so the pilot is not pulled back every tick after shift-exit.
+            if(thrower != null && rider == null && !canExitCapsule() && remountLockTimer <= 0 && forceExitTimer < 60) {
                 thrower.startRiding(this, true);
             }
 
@@ -1107,8 +1115,15 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
      */
     @Override
     public boolean canBeCollidedWith() {
-        // 1.7.10: null BB while flying — no pick / no bump while ascending.
-        return !isDead && motionMult() <= 0.0D;
+        if(isDead) return false;
+        // motionMult()>0 during TIPPING (water tip) and active flight. Flight must not steal
+        // mouse clicks, but TIPPING/LANDED capsules must stay hittable to pick up / break.
+        RocketState st = getState();
+        return st == RocketState.LANDED
+                || st == RocketState.AWAITING
+                || st == RocketState.NEEDSFUEL
+                || st == RocketState.TIPPING
+                || motionMult() <= 0.0D;
     }
 
     /**
@@ -1117,21 +1132,24 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
      */
     public void dismountPassengerSafely(EntityPlayer player) {
         if(player == null || world.isRemote) return;
+        if(player.getRidingEntity() != this && !getPassengers().contains(player)) return;
 
+        boolean sealedFlight = !canExitCapsule();
         boolean inOrbit = world.provider instanceof com.hbmspace.dim.orbit.WorldProviderOrbit;
         double halfW = Math.max(player.width * 0.5D, 0.3D);
-        double height = Math.max(player.height, 1.6D);
+        double pHeight = Math.max(player.height, 1.6D);
+        // Clear of rocket footprint (width 2) plus a little margin for celestial heightmaps.
+        double side = Math.max(4.0D, this.width * 0.5D + 2.5D);
 
         double[][] offsets = {
-                {3.0D, 0.0D}, {-3.0D, 0.0D}, {0.0D, 3.0D}, {0.0D, -3.0D},
-                {3.0D, 3.0D}, {3.0D, -3.0D}, {-3.0D, 3.0D}, {-3.0D, -3.0D},
-                {2.0D, 0.0D}, {-2.0D, 0.0D}, {0.0D, 2.0D}, {0.0D, -2.0D},
-                {4.0D, 0.0D}, {-4.0D, 0.0D}, {0.0D, 4.0D}, {0.0D, -4.0D}
+                {side, 0.0D}, {-side, 0.0D}, {0.0D, side}, {0.0D, -side},
+                {side, side}, {side, -side}, {-side, side}, {-side, -side},
+                {side + 2.0D, 0.0D}, {-side - 2.0D, 0.0D}, {0.0D, side + 2.0D}, {0.0D, -side - 2.0D}
         };
 
-        double bestX = posX + 3.0D;
-        double bestY = inOrbit ? player.posY : world.getHeight(MathHelper.floor(posX + 3.0D), MathHelper.floor(posZ));
+        double bestX = posX + side;
         double bestZ = posZ;
+        double bestY = inOrbit ? player.posY : Math.max(posY, world.getHeight(MathHelper.floor(bestX), MathHelper.floor(bestZ)));
         boolean found = false;
 
         for(double[] o : offsets) {
@@ -1141,15 +1159,17 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
             if(inOrbit) {
                 y = player.posY;
             } else {
-                y = world.getHeight(MathHelper.floor(x), MathHelper.floor(z));
-                // Prefer standing next to pad, not under it; clamp near rocket base.
-                if(y < posY - 1.0D) y = posY;
-                if(y > posY + height + 2.0D) y = posY;
+                int surface = world.getHeight(MathHelper.floor(x), MathHelper.floor(z));
+                // Stand on surface near the pad; never below rocket base; avoid burying in pad.
+                y = Math.max(surface, MathHelper.floor(posY));
+                if(y > posY + Math.max(this.height, 4.0D) + 2.0D) {
+                    y = MathHelper.floor(posY);
+                }
             }
 
             AxisAlignedBB bb = new AxisAlignedBB(
                     x - halfW, y, z - halfW,
-                    x + halfW, y + height, z + halfW
+                    x + halfW, y + pHeight, z + halfW
             );
             if(world.getCollisionBoxes(player, bb).isEmpty() && !world.containsAnyLiquid(bb)) {
                 bestX = x;
@@ -1161,17 +1181,41 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
         }
 
         if(!found && !inOrbit) {
-            // Last resort: surface at rocket XZ + 3 east, one block above surface.
-            bestX = posX + 3.0D;
+            bestX = posX + side;
             bestZ = posZ;
-            bestY = world.getHeight(MathHelper.floor(bestX), MathHelper.floor(bestZ));
+            bestY = Math.max(MathHelper.floor(posY), world.getHeight(MathHelper.floor(bestX), MathHelper.floor(bestZ)));
         }
 
-        // Mark force-exit so EntityMountEvent does not cancel this dismount.
+        // EntityMountEvent allows dismount only while forceExitTimer >= 60 (see ModEventHandler).
         forceExitTimer = 60;
         player.dismountRidingEntity();
-        player.setPositionAndUpdate(bestX, bestY, bestZ);
+        // If anything still has them as passenger, strip it.
+        if(player.isRiding() || getPassengers().contains(player)) {
+            player.dismountRidingEntity();
+            removePassenger(player);
+        }
+
+        player.fallDistance = 0.0F;
+        player.motionX = 0.0D;
+        player.motionY = 0.0D;
+        player.motionZ = 0.0D;
+
+        if(player instanceof EntityPlayerMP) {
+            // Hard client resync: setPositionAndUpdate alone can leave the client at the seat.
+            ((EntityPlayerMP) player).connection.setPlayerLocation(bestX, bestY, bestZ, player.rotationYaw, player.rotationPitch);
+        } else {
+            player.setPositionAndUpdate(bestX, bestY, bestZ);
+        }
+
         forceExitTimer = 0;
+
+        if(sealedFlight) {
+            // Mid-landing / flight bail-out: stop sealed remount loop (moon landing bug).
+            thrower = null;
+            remountLockTimer = 200;
+        } else {
+            remountLockTimer = Math.max(remountLockTimer, 40);
+        }
     }
 
     @AutoRegister(name = "entity_rideable_rocket_dummy", trackingRange = 1000)
