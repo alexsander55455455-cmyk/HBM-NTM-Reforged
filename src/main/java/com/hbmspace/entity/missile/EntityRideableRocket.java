@@ -10,6 +10,7 @@ import com.hbm.items.weapon.ItemMissile;
 import com.hbm.lib.HBMSoundHandler;
 import com.hbm.saveddata.satellites.Satellite;
 import com.hbm.sound.AudioWrapper;
+import com.hbm.interfaces.IConstantRenderer;
 import com.hbm.tileentity.IBufPacketReceiver;
 import com.hbm.util.*;
 import com.hbmspace.dim.CelestialBody;
@@ -65,7 +66,7 @@ import java.util.List;
 import java.util.UUID;
 
 @AutoRegister(name = "entity_rideable_rocket", trackingRange = 1000)
-public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOverlay, IBufPacketReceiver {
+public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOverlay, IBufPacketReceiver, IConstantRenderer {
 
     private static final DataParameter<Integer> DP_STATE =
             EntityDataManager.createKey(EntityRideableRocket.class, DataSerializers.VARINT);

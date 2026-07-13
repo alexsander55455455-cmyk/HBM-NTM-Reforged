@@ -6,6 +6,7 @@ import com.hbmspace.handler.RocketStruct;
 import com.hbmspace.main.ResourceManagerSpace;
 import com.hbmspace.render.misc.RocketPronter;
 import com.hbmspace.interfaces.AutoRegister;
+import com.hbm.main.ClientProxy;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.culling.ICamera;
@@ -27,23 +28,18 @@ public class RenderRocketCustom extends Render<EntityRideableRocket> {
     }
 
     /**
-     * Always draw the rocket. Origin is at the thruster end while the pilot sits
-     * near the tip; vanilla/embeddium/optifine frustum tests against the origin or a
-     * too-small AABB fail under most seat camera angles, which made the ship vanish
-     * and left only the player.
+     * Rideable rockets draw in the IConstantRenderer pass (see doRender). The normal
+     * entity sweep culls them from F5 and steep seat angles because the mesh sits far
+     * from the entity origin.
      */
     @Override
     public boolean shouldRender(EntityRideableRocket entity, ICamera camera, double camX, double camY, double camZ) {
-        if(entity == null || entity.isDead) {
-            return false;
-        }
-        entity.ignoreFrustumCheck = true;
-        return true;
+        return false;
     }
 
     @Override
     public void doRender(EntityRideableRocket entity, double x, double y, double z, float f, float interp) {
-        if(entity == null || entity.isDead) {
+        if(!ClientProxy.renderingConstant || entity == null || entity.isDead) {
             return;
         }
 
@@ -67,11 +63,13 @@ public class RenderRocketCustom extends Render<EntityRideableRocket> {
 
             GlStateManager.enableTexture2D();
             GlStateManager.enableRescaleNormal();
+            GlStateManager.disableCull();
 
             RocketPronter.prontRocket(rocket, entity, Minecraft.getMinecraft().getTextureManager(), !CelestialBody.inOrbit(entity.world), entity.decoupleTimer, entity.shroudTimer, interp);
         } finally {
             // Hard reset in case shroud clip plane leaked and culled by camera angle.
             GL11.glDisable(GL11.GL_CLIP_PLANE0);
+            GlStateManager.enableCull();
             GlStateManager.shadeModel(GL11.GL_FLAT);
             GlStateManager.popMatrix();
         }
