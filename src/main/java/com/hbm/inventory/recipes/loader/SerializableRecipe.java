@@ -46,7 +46,6 @@ public abstract class SerializableRecipe {
         recipeHandlers.add(new AnvilRecipes());
         recipeHandlers.add(new ArcFurnaceRecipes());
         recipeHandlers.add(new ArcWelderRecipes());
-        recipeHandlers.add(new BlastFurnaceRecipes());
         recipeHandlers.add(new BreederRecipes());
         recipeHandlers.add(new CentrifugeRecipes());
         recipeHandlers.add(new CokerRecipes());
@@ -84,6 +83,7 @@ public abstract class SerializableRecipe {
         recipeHandlers.add(FusionRecipes.INSTANCE);
         recipeHandlers.add(PlasmaForgeRecipes.INSTANCE);
         recipeHandlers.add(PrecAssRecipes.INSTANCE);
+        recipeHandlers.add(BlastFurnaceRecipesNT.INSTANCE);
     }
 
     public static void initialize() {

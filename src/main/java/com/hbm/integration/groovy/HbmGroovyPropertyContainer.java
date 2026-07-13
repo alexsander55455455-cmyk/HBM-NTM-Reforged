@@ -30,7 +30,6 @@ public class HbmGroovyPropertyContainer extends GroovyPropertyContainer {
     public static final AnvilSmithing ANVILSMITHING = createProperty(new AnvilSmithing());
     public static final AnvilConstruction ANVILCONSTRUCTION = createProperty(new AnvilConstruction());
     public static final Press PRESS = createProperty(new Press());
-    public static final BlastFurnaceFuel BLASTFURNACEFUEL = createProperty(new BlastFurnaceFuel());
     public static final BlastFurnace BLASTFURNACE = createProperty(new BlastFurnace());
     public static final Shredder SHREDDER = createProperty(new Shredder());
     public static final Bobmazon BOBMAZON = createProperty(new Bobmazon());

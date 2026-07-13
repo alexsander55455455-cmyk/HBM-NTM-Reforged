@@ -394,6 +394,7 @@ public class ResourceManager {
     //Firebox, and the lot
     public static final WaveFrontObjectVAO sawmill = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/machines/sawmill.obj")).asVBO();
     public static final WaveFrontObjectVAO heater_firebox = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/machines/firebox.obj")).asVBO();
+    public static final WaveFrontObjectVAO blast_furnace = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/machines/blast_furnace.obj")).asVBO();
     public static final WaveFrontObjectVAO heater_oven = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/machines/heating_oven.obj")).asVBO();
     public static final WaveFrontObjectVAO heater_oilburner = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/machines/oilburner.obj")).asVBO();
     //Furnaces
@@ -755,6 +756,7 @@ public class ResourceManager {
     public static final ResourceLocation hs_sword_tex = new ResourceLocation(Tags.MODID, "textures/models/weapons/hs_sword.png");
     public static final ResourceLocation hf_sword_tex = new ResourceLocation(Tags.MODID, "textures/models/weapons/hf_sword.png");
     public static final ResourceLocation heater_firebox_tex = new ResourceLocation(Tags.MODID, "textures/models/machines/firebox.png");
+    public static final ResourceLocation blast_furnace_tex = new ResourceLocation(Tags.MODID, "textures/models/machines/blast_furnace.png");
     public static final ResourceLocation heater_oven_tex = new ResourceLocation(Tags.MODID, "textures/models/machines/heating_oven.png");
     public static final ResourceLocation ashpit_tex = new ResourceLocation(Tags.MODID, "textures/models/machines/ashpit.png");
     public static final ResourceLocation heater_oilburner_tex = new ResourceLocation(Tags.MODID, "textures/models/machines/oilburner.png");

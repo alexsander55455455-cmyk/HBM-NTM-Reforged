@@ -42,7 +42,7 @@ import java.util.Map.Entry;
 public class JeiRecipes {
 
 	private static List<CyclotronRecipe> cyclotronRecipes = null;
-	private static List<AlloyFurnaceRecipe> alloyFurnaceRecipes = null;
+
 	private static List<GasCentrifugeRecipe> gasCentRecipes = null;
     private static List<StorageDrumRecipe> storageDrumRecipes = null;
 	private static List<RBMKFuelRecipe> rbmkFuelRecipes = null;
@@ -59,7 +59,7 @@ public class JeiRecipes {
 	
 	private static List<ItemStack> batteries = null;
     private static List<ItemStack> blades = null;
-	private static List<ItemStack> alloyFuels = null;
+
 
 	public static final IIngredientType<FluidStack> FluidNTM = () -> FluidStack.class;
 	
@@ -81,25 +81,7 @@ public class JeiRecipes {
 		
 	}
 	
-	public static class AlloyFurnaceRecipe implements IRecipeWrapper {
-		
-		private final List<List<ItemStack>> inputs;
-		private final ItemStack output;
-		
-		public AlloyFurnaceRecipe(List<ItemStack>[] list, ItemStack output) {
-			this.inputs = Arrays.asList(list);
-			this.output = output; 
-		}
-		
-		@Override
-		public void getIngredients(IIngredients ingredients) {
-			List<List<ItemStack>> in = Library.copyItemStackListList(inputs);
-			ingredients.setInputLists(VanillaTypes.ITEM, in);
-			ingredients.setOutput(VanillaTypes.ITEM, output);
-		}
-		
-	}
-	
+
 	public static class GasCentrifugeRecipe implements IRecipeWrapper {
 		private final ItemStack input;
 		private final List<ItemStack> outputs;
@@ -546,16 +528,7 @@ public class JeiRecipes {
 	}
 	
 	
-	public static List<AlloyFurnaceRecipe> getAlloyRecipes() {
-		if(alloyFurnaceRecipes != null)
-			return alloyFurnaceRecipes;
-		alloyFurnaceRecipes = new ArrayList<>();
 
-		for(Entry<List<ItemStack>[], ItemStack> pairEntry : BlastFurnaceRecipes.getRecepiesforJEI().entrySet()){
-			alloyFurnaceRecipes.add(new AlloyFurnaceRecipe(pairEntry.getKey(), pairEntry.getValue()));
-		}
-		return alloyFurnaceRecipes;
-	}
 
 	public static List<RBMKFuelRecipe> getRBMKFuelRecipes() {
 		if(rbmkFuelRecipes != null)
@@ -596,12 +569,7 @@ public class JeiRecipes {
 		return new ShapelessOreRecipe(null, output, inputs);
 	}
 	
-	public static List<ItemStack> getAlloyFuels() {
-		if(alloyFuels != null)
-			return alloyFuels;
-		alloyFuels = BlastFurnaceRecipes.getAlloyFuels();
-		return alloyFuels;
-	}
+
 
     public static List<ItemStack> getBatteries() {
 		if(batteries != null)

@@ -280,7 +280,7 @@ public class CraftingManager {
 		addRecipeAuto(DictFrame.fromOne(ModItems.conveyor_wand, ItemConveyorWand.ConveyorType.DOUBLE), "CPC", 'C', DictFrame.fromOne(ModItems.conveyor_wand, ItemConveyorWand.ConveyorType.REGULAR), 'P', IRON.plate() );
 		addRecipeAuto(DictFrame.fromOne(ModItems.conveyor_wand, ItemConveyorWand.ConveyorType.TRIPLE), "DPC", 'C', DictFrame.fromOne(ModItems.conveyor_wand, ItemConveyorWand.ConveyorType.REGULAR), 'D', DictFrame.fromOne(ModItems.conveyor_wand, ItemConveyorWand.ConveyorType.DOUBLE), 'P', STEEL.plate() );
 
-		addRecipeAuto(new ItemStack(ModBlocks.machine_difurnace_ext, 1), " C ", "BGB", "BGB", 'C', CU.plate(), 'B', ModItems.ingot_firebrick, 'G', ModBlocks.steel_grate );
+
 		addRecipeAuto(new ItemStack(Item.getItemFromBlock(ModBlocks.machine_electric_furnace_off), 1), "BBB", "WFW", "RRR", 'B', BE.ingot(), 'R', ModItems.coil_tungsten, 'W', CU.plateCast(), 'F', Item.getItemFromBlock(Blocks.FURNACE) );
 		addRecipeAuto(new ItemStack(ModBlocks.red_wire_coated, 16), "WRW", "RIR", "WRW", 'W', ModItems.plate_polymer, 'I', MINGRADE.ingot(), 'R', MINGRADE.wireFine() );
 	    // TODO: paintable cables

@@ -11,7 +11,7 @@ public class RTGRecipeHandler extends JEIUniversalHandler {
 
     public RTGRecipeHandler(IGuiHelper helper) {
         super(helper, JEIConfig.RTG, "jei.rtg",
-                new ItemStack[]{new ItemStack(ModBlocks.machine_rtg_grey), new ItemStack(ModBlocks.machine_difurnace_rtg_off)}, wrap(ItemRTGPellet.getRecipeMap()));
+                new ItemStack[]{new ItemStack(ModBlocks.machine_rtg_grey)}, wrap(ItemRTGPellet.getRecipeMap()));
     }
 
     public static HashMap<Object, Object> wrap(HashMap<ItemStack, ItemStack> map) {

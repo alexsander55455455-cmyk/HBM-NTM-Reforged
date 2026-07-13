@@ -5,12 +5,12 @@ import com.hbm.blocks.machine.MachineDiFurnaceRTG;
 import com.hbm.interfaces.AutoRegister;
 import com.hbm.inventory.container.ContainerDiFurnaceRTG;
 import com.hbm.inventory.gui.GUIDiFurnaceRTG;
-import com.hbm.inventory.recipes.BlastFurnaceRecipes;
+
 import com.hbm.lib.Library;
 import com.hbm.tileentity.IGUIProvider;
 import com.hbm.tileentity.TileEntityMachineBase;
 import com.hbm.util.RTGUtil;
-import com.hbm.util.Tuple;
+
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.gui.GuiScreen;
@@ -144,61 +144,10 @@ public class TileEntityDiFurnaceRTG extends TileEntityMachineBase implements ITi
     }
 
     public boolean canProcess() {
-        ItemStack in0 = inventory.getStackInSlot(0);
-        ItemStack in1 = inventory.getStackInSlot(1);
-        if (in0.isEmpty() || in1.isEmpty()) return false;
-        if (!hasPower()) return false;
-
-        Tuple.Triplet<Integer, Integer, ItemStack> match = BlastFurnaceRecipes.getRequiredCounts(in0, in1);
-        if (match == null) return false;
-
-        int req0 = match.getX();
-        int req1 = match.getY();
-        if (in0.getCount() < req0 || in1.getCount() < req1) return false;
-
-        ItemStack recipeResult = match.getZ();
-        ItemStack outputStack = inventory.getStackInSlot(2);
-        if (outputStack.isEmpty()) {
-            return recipeResult.getCount() <= inventory.getSlotLimit(2) && recipeResult.getCount() <= recipeResult.getMaxStackSize();
-        }
-        if (!outputStack.isItemEqual(recipeResult)) return false;
-        int newCount = outputStack.getCount() + recipeResult.getCount();
-        return newCount <= inventory.getSlotLimit(2) && newCount <= outputStack.getMaxStackSize();
+        return false;
     }
 
     private void processItem() {
-        if (!canProcess()) return;
-
-        ItemStack in0 = inventory.getStackInSlot(0);
-        ItemStack in1 = inventory.getStackInSlot(1);
-        Tuple.Triplet<Integer, Integer, ItemStack> match = BlastFurnaceRecipes.getRequiredCounts(in0, in1);
-        if (match == null) return;
-
-        int req0 = match.getX();
-        int req1 = match.getY();
-        ItemStack recipeResult = match.getZ();
-
-        ItemStack outputStack = inventory.getStackInSlot(2);
-        if (outputStack.isEmpty()) {
-            inventory.setStackInSlot(2, recipeResult.copy());
-        } else if (outputStack.isItemEqual(recipeResult)) {
-            ItemStack newOutput = outputStack.copy();
-            newOutput.grow(recipeResult.getCount());
-            inventory.setStackInSlot(2, newOutput);
-        }
-
-        if (!in0.isEmpty()) {
-            ItemStack new0 = in0.copy();
-            new0.shrink(req0);
-            if (new0.getCount() <= 0) new0 = ItemStack.EMPTY;
-            inventory.setStackInSlot(0, new0);
-        }
-        if (!in1.isEmpty()) {
-            ItemStack new1 = in1.copy();
-            new1.shrink(req1);
-            if (new1.getCount() <= 0) new1 = ItemStack.EMPTY;
-            inventory.setStackInSlot(1, new1);
-        }
     }
 
     public boolean hasPower() {

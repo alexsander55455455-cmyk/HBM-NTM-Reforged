@@ -222,7 +222,7 @@ public class AdvGen {
                         .icon(new ItemStack(ModBlocks.machine_press))
                         .toast(true)
                         .announce(true),
-                "crafting", new ItemStack(ModBlocks.machine_difurnace_off))
+                "crafting", new ItemStack(ModBlocks.machine_blast_furnace))
         );
         batch.add(Templates.obtainAnyItemStack("achassembly",
                 "hbm:achburnerpress",

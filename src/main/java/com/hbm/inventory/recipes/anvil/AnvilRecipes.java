@@ -239,10 +239,10 @@ public class AnvilRecipes extends SerializableRecipe {
 		constructionRecipes.add(new AnvilConstructionRecipe(
 				new AStack[] {
 						new ComparableStack(Blocks.STONEBRICK, 4),
-						new ComparableStack(ModItems.ingot_firebrick, 4),
-						new OreDictStack(CU.plate(), 4)
+						new ComparableStack(ModItems.ingot_firebrick, 32),
+						new OreDictStack(CU.plate(), 8)
 				},
-				new AnvilOutput(new ItemStack(ModBlocks.machine_difurnace_off))).setTier(1));
+				new AnvilOutput(new ItemStack(ModBlocks.machine_blast_furnace))).setTier(1));
 
 		boolean exp = GeneralConfig.enableExpensiveMode;
 
