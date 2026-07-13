@@ -29,18 +29,27 @@ public class RenderRocketCustom extends Render<EntityRideableRocket> {
     }
 
     /**
-     * Rideable rockets draw in the IConstantRenderer pass (see doRender). The normal
-     * entity sweep culls them from F5 and steep seat angles because the mesh sits far
-     * from the entity origin.
+     * Grounded rockets use the normal entity pass (vanilla light setup, matches pad TESR).
+     * In-flight rockets use the IConstantRenderer pass so F5/seat angles do not cull them.
      */
     @Override
     public boolean shouldRender(EntityRideableRocket entity, ICamera camera, double camX, double camY, double camZ) {
-        return false;
+        if(entity == null || entity.isDead) {
+            return false;
+        }
+        entity.ignoreFrustumCheck = true;
+        return !useConstantPassOnly(entity);
     }
 
     @Override
     public void doRender(EntityRideableRocket entity, double x, double y, double z, float f, float interp) {
-        if(!ClientProxy.renderingConstant || entity == null || entity.isDead) {
+        if(entity == null || entity.isDead) {
+            return;
+        }
+
+        boolean constantPass = ClientProxy.renderingConstant;
+        boolean flightPass = useConstantPassOnly(entity);
+        if(constantPass != flightPass) {
             return;
         }
 
@@ -57,7 +66,9 @@ public class RenderRocketCustom extends Render<EntityRideableRocket> {
 
         GlStateManager.pushMatrix();
         try {
-            bindEntityLightmap(entity);
+            if(constantPass) {
+                bindEntityLightmap(entity);
+            }
 
             GlStateManager.translate(x, y, z);
             GlStateManager.rotate(yaw - 90.0F, 0.0F, 1.0F, 0.0F);
@@ -65,7 +76,6 @@ public class RenderRocketCustom extends Render<EntityRideableRocket> {
             GlStateManager.rotate(yaw - 90.0F, 0.0F, -1.0F, 0.0F);
 
             GlStateManager.enableTexture2D();
-            GlStateManager.enableLighting();
             GlStateManager.enableRescaleNormal();
             GlStateManager.disableCull();
 
@@ -82,6 +92,13 @@ public class RenderRocketCustom extends Render<EntityRideableRocket> {
     @Override
     protected ResourceLocation getEntityTexture(@NotNull EntityRideableRocket entity) {
         return ResourceManagerSpace.universal;
+    }
+
+    private static boolean useConstantPassOnly(EntityRideableRocket entity) {
+        return switch(entity.getState()) {
+            case LAUNCHING, LANDING, TRANSFER, UNDOCKING, DOCKING, TIPPING -> true;
+            default -> false;
+        };
     }
 
     /** IConstantRenderer pass skips RenderManager light setup; apply world lightmap manually. */
