@@ -64,6 +64,11 @@ public class RenderRocketCustom extends Render<EntityRideableRocket> {
         if(Float.isNaN(yaw)) yaw = entity.rotationYaw;
         if(Float.isNaN(pitch)) pitch = entity.rotationPitch;
 
+        Minecraft mc = Minecraft.getMinecraft();
+        if(constantPass) {
+            mc.entityRenderer.enableLightmap();
+        }
+
         GlStateManager.pushMatrix();
         try {
             if(constantPass) {
@@ -86,6 +91,10 @@ public class RenderRocketCustom extends Render<EntityRideableRocket> {
             GlStateManager.enableCull();
             GlStateManager.shadeModel(GL11.GL_FLAT);
             GlStateManager.popMatrix();
+
+            if(constantPass) {
+                mc.entityRenderer.disableLightmap();
+            }
         }
     }
 
