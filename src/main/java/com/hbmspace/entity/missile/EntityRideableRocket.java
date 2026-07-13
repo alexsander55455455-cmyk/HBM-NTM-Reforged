@@ -62,6 +62,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @AutoRegister(name = "entity_rideable_rocket", trackingRange = 1000)
 public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOverlay, IBufPacketReceiver {
@@ -98,6 +99,13 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
     public boolean safeDismountInProgress = false;
     /** After intentional dismount, block auto-remount so landing/flight does not re-suck the pilot. */
     public int remountLockTimer = 0;
+    /** Briefly pin the pilot inside the capsule after shift-exit so vanilla collision does not eject them. */
+    public static final int CAPSULE_DISMOUNT_GRACE_TICKS = 15;
+    public int capsuleDismountGraceTicks = 0;
+    public UUID capsuleDismountPlayerId = null;
+    public double capsuleDismountX;
+    public double capsuleDismountY;
+    public double capsuleDismountZ;
 
     private double rocketVelocity = 0.0D;
     private boolean sizeSet = false;
@@ -347,6 +355,8 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
             if(remountLockTimer > 0) {
                 remountLockTimer--;
             }
+
+            tickCapsuleDismountGrace();
 
             // Only re-seal mid-flight glitch dismounts. Intentional exit sets remountLockTimer
             // (and may clear thrower) so the pilot is not pulled back every tick after shift-exit.
@@ -620,10 +630,15 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
 
     @Override
     public void updatePassenger(Entity passenger) {
-        double offset = lastState == RocketState.TRANSFER ? 1.62D : 0;
+        Vec3d seat = getPassengerSeatPosition(passenger);
+        passenger.setPosition(seat.x, seat.y, seat.z);
+    }
+
+    private Vec3d getPassengerSeatPosition(Entity passenger) {
+        double offset = lastState == RocketState.TRANSFER ? 1.62D : 0.0D;
         double length = getMountedYOffset() + passenger.getYOffset() - offset;
         Vec3d target = BobMathUtil.getDirectionFromAxisAngle(rotationPitch - 90.0F, 180.0F - rotationYaw, length);
-        passenger.setPosition(posX + target.x, posY + target.y, posZ + target.z);
+        return new Vec3d(posX + target.x, posY + target.y, posZ + target.z);
     }
 
     @Override
@@ -1167,24 +1182,80 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
                 || motionMult() <= 0.0D;
     }
 
+    @Override
+    public void applyEntityCollision(Entity entity) {
+        if(capsuleDismountGraceTicks > 0
+                && capsuleDismountPlayerId != null
+                && entity instanceof EntityPlayer player
+                && player.getUniqueID().equals(capsuleDismountPlayerId)) {
+            return;
+        }
+        super.applyEntityCollision(entity);
+    }
+
+    private void tickCapsuleDismountGrace() {
+        if(capsuleDismountGraceTicks <= 0 || capsuleDismountPlayerId == null) return;
+
+        Entity playerEntity = world instanceof WorldServer
+                ? ((WorldServer) world).getEntityFromUuid(capsuleDismountPlayerId)
+                : null;
+        if(!(playerEntity instanceof EntityPlayer player) || player.isDead) {
+            capsuleDismountGraceTicks = 0;
+            capsuleDismountPlayerId = null;
+            return;
+        }
+
+        player.motionX = 0.0D;
+        player.motionY = 0.0D;
+        player.motionZ = 0.0D;
+        player.fallDistance = 0.0F;
+        player.setPosition(capsuleDismountX, capsuleDismountY, capsuleDismountZ);
+
+        if(player instanceof EntityPlayerMP mp && capsuleDismountGraceTicks > CAPSULE_DISMOUNT_GRACE_TICKS - 5) {
+            mp.connection.setPlayerLocation(
+                    capsuleDismountX, capsuleDismountY, capsuleDismountZ,
+                    player.rotationYaw, player.rotationPitch
+            );
+        }
+
+        capsuleDismountGraceTicks--;
+        if(capsuleDismountGraceTicks <= 0) {
+            capsuleDismountPlayerId = null;
+        }
+    }
+
     /**
-     * Dismount at the seat: keep the rider at the same X/Y/Z as the seated pose in the capsule.
+     * Dismount inside the capsule seat: same coords as the riding pose, with a short grace window
+     * so vanilla does not shove the pilot out of the rocket hitbox.
      */
     public void dismountPassengerSafely(EntityPlayer player) {
         if(player == null || world.isRemote) return;
         if(player.getRidingEntity() != this && !getPassengers().contains(player)) return;
 
         boolean sealedFlight = !canExitCapsule();
-        // Snapshot seat coords before vanilla dismount nudges the player.
-        double exitX = player.posX;
-        double exitY = player.posY;
-        double exitZ = player.posZ;
+        boolean inOrbit = world.provider instanceof com.hbmspace.dim.orbit.WorldProviderOrbit;
+
+        updatePassenger(player);
+        Vec3d seat = getPassengerSeatPosition(player);
+        double exitX = seat.x;
+        double exitY = seat.y;
+        double exitZ = seat.z;
         float exitYaw = player.rotationYaw;
         float exitPitch = player.rotationPitch;
+
+        float prevW = this.width;
+        float prevH = this.height;
 
         safeDismountInProgress = true;
         forceExitTimer = FORCE_EXIT_THRESHOLD;
         try {
+            // 1.7.10 parity: shrink hitbox during dismount so tall rockets do not splat the pilot.
+            if(inOrbit) {
+                setSize(prevW, prevH + 1.0F);
+            } else {
+                setSize(prevW, 1.0F);
+            }
+
             player.dismountRidingEntity();
 
             player.fallDistance = 0.0F;
@@ -1192,21 +1263,26 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
             player.motionY = 0.0D;
             player.motionZ = 0.0D;
 
+            capsuleDismountX = exitX;
+            capsuleDismountY = exitY;
+            capsuleDismountZ = exitZ;
+            capsuleDismountPlayerId = player.getUniqueID();
+            capsuleDismountGraceTicks = CAPSULE_DISMOUNT_GRACE_TICKS;
+
             if(player instanceof EntityPlayerMP) {
-                // Hard client resync: setPositionAndUpdate alone can leave the client at the seat.
                 ((EntityPlayerMP) player).connection.setPlayerLocation(exitX, exitY, exitZ, exitYaw, exitPitch);
             } else {
                 player.setPositionAndUpdate(exitX, exitY, exitZ);
             }
 
             if(sealedFlight) {
-                // Mid-landing / flight bail-out: stop sealed remount loop (moon landing bug).
                 thrower = null;
                 remountLockTimer = 200;
             } else {
                 remountLockTimer = Math.max(remountLockTimer, 40);
             }
         } finally {
+            setSize(prevW, prevH);
             safeDismountInProgress = false;
             forceExitTimer = 0;
         }
