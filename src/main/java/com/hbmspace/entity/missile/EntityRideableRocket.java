@@ -1142,8 +1142,16 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
     @Override
     @SideOnly(Side.CLIENT)
     public int getBrightnessForRender() {
-        // Sample mid-stack light; origin is at the thruster base so vanilla eye-height is too dark/low.
-        BlockPos sample = new BlockPos(this.posX, this.posY + this.height * 0.65D, this.posZ);
+        RocketState state = getState();
+        double sampleY = posY + this.height * 0.65D;
+        // Near the pad/surface use a lower sample so liftoff does not flash brighter than AWAITING.
+        if(state == RocketState.LAUNCHING || state == RocketState.LANDING) {
+            int surface = world.getHeight((int) posX, (int) posZ);
+            if(posY < surface + 32.0D) {
+                sampleY = posY + 2.0D;
+            }
+        }
+        BlockPos sample = new BlockPos(this.posX, sampleY, this.posZ);
         if(this.world.isBlockLoaded(sample)) {
             return this.world.getCombinedLight(sample, 0);
         }

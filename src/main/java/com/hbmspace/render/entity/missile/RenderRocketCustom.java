@@ -71,9 +71,8 @@ public class RenderRocketCustom extends Render<EntityRideableRocket> {
 
         GlStateManager.pushMatrix();
         try {
-            if(constantPass) {
-                bindEntityLightmap(entity);
-            }
+            // Same lightmap coords in both passes so AWAITING→LAUNCHING and LANDING→LANDED do not pop.
+            bindEntityLightmap(entity);
 
             GlStateManager.translate(x, y, z);
             GlStateManager.rotate(yaw - 90.0F, 0.0F, 1.0F, 0.0F);
