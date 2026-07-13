@@ -9,6 +9,7 @@ import com.hbmspace.interfaces.AutoRegister;
 import com.hbm.main.ClientProxy;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
@@ -56,12 +57,15 @@ public class RenderRocketCustom extends Render<EntityRideableRocket> {
 
         GlStateManager.pushMatrix();
         try {
+            bindEntityLightmap(entity);
+
             GlStateManager.translate(x, y, z);
             GlStateManager.rotate(yaw - 90.0F, 0.0F, 1.0F, 0.0F);
             GlStateManager.rotate(pitch, 0.0F, 0.0F, 1.0F);
             GlStateManager.rotate(yaw - 90.0F, 0.0F, -1.0F, 0.0F);
 
             GlStateManager.enableTexture2D();
+            GlStateManager.enableLighting();
             GlStateManager.enableRescaleNormal();
             GlStateManager.disableCull();
 
@@ -78,5 +82,16 @@ public class RenderRocketCustom extends Render<EntityRideableRocket> {
     @Override
     protected ResourceLocation getEntityTexture(@NotNull EntityRideableRocket entity) {
         return ResourceManagerSpace.universal;
+    }
+
+    /** IConstantRenderer pass skips RenderManager light setup; apply world lightmap manually. */
+    private static void bindEntityLightmap(EntityRideableRocket entity) {
+        int packed = entity.getBrightnessForRender();
+        OpenGlHelper.setLightmapTextureCoords(
+                OpenGlHelper.lightmapTexUnit,
+                (float) (packed & 0xFFFF),
+                (float) (packed >>> 16)
+        );
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
     }
 }

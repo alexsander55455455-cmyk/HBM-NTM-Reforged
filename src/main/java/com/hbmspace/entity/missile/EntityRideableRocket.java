@@ -1141,6 +1141,17 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
 
     @Override
     @SideOnly(Side.CLIENT)
+    public int getBrightnessForRender() {
+        // Sample mid-stack light; origin is at the thruster base so vanilla eye-height is too dark/low.
+        BlockPos sample = new BlockPos(this.posX, this.posY + this.height * 0.65D, this.posZ);
+        if(this.world.isBlockLoaded(sample)) {
+            return this.world.getCombinedLight(sample, 0);
+        }
+        return super.getBrightnessForRender();
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
     public net.minecraft.util.math.AxisAlignedBB getRenderBoundingBox() {
         // Cull-only BB (not used for mouse pick — see canBeCollidedWith / entity size).
         //
