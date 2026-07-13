@@ -7,6 +7,7 @@ import com.hbmspace.main.ResourceManagerSpace;
 import com.hbmspace.render.misc.RocketPronter;
 import com.hbmspace.interfaces.AutoRegister;
 import com.hbm.main.ClientProxy;
+import com.hbm.util.RenderUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -29,8 +30,8 @@ public class RenderRocketCustom extends Render<EntityRideableRocket> {
     }
 
     /**
-     * Grounded rockets use the normal entity pass (vanilla light setup, matches pad TESR).
-     * In-flight rockets use the IConstantRenderer pass so F5/seat angles do not cull them.
+     * Pad, ascent, and descent use the normal entity pass (vanilla lighting, matches pad TESR).
+     * True space flight uses the IConstantRenderer pass so F5/seat angles do not cull the mesh.
      */
     @Override
     public boolean shouldRender(EntityRideableRocket entity, ICamera camera, double camX, double camY, double camZ) {
@@ -65,13 +66,16 @@ public class RenderRocketCustom extends Render<EntityRideableRocket> {
         if(Float.isNaN(pitch)) pitch = entity.rotationPitch;
 
         Minecraft mc = Minecraft.getMinecraft();
+        boolean hadLighting = RenderUtil.isLightingEnabled();
         if(constantPass) {
             mc.entityRenderer.enableLightmap();
+        }
+        if(!hadLighting) {
+            GlStateManager.enableLighting();
         }
 
         GlStateManager.pushMatrix();
         try {
-            // Same lightmap coords in both passes so AWAITING→LAUNCHING and LANDING→LANDED do not pop.
             bindEntityLightmap(entity);
 
             GlStateManager.translate(x, y, z);
@@ -84,6 +88,12 @@ public class RenderRocketCustom extends Render<EntityRideableRocket> {
             GlStateManager.disableCull();
 
             RocketPronter.prontRocket(rocket, entity, Minecraft.getMinecraft().getTextureManager(), !CelestialBody.inOrbit(entity.world), entity.decoupleTimer, entity.shroudTimer, interp);
+
+            // Stage-separation clip plane / smooth shading can stomp lightmap coords.
+            bindEntityLightmap(entity);
+            if(constantPass) {
+                mc.entityRenderer.enableLightmap();
+            }
         } finally {
             // Hard reset in case shroud clip plane leaked and culled by camera angle.
             GL11.glDisable(GL11.GL_CLIP_PLANE0);
@@ -93,6 +103,9 @@ public class RenderRocketCustom extends Render<EntityRideableRocket> {
 
             if(constantPass) {
                 mc.entityRenderer.disableLightmap();
+            }
+            if(!hadLighting) {
+                GlStateManager.disableLighting();
             }
         }
     }
@@ -104,9 +117,16 @@ public class RenderRocketCustom extends Render<EntityRideableRocket> {
 
     private static boolean useConstantPassOnly(EntityRideableRocket entity) {
         return switch(entity.getState()) {
-            case LAUNCHING, LANDING, TRANSFER, UNDOCKING, DOCKING, TIPPING -> true;
+            case TRANSFER, UNDOCKING, DOCKING, TIPPING -> true;
+            case LAUNCHING, LANDING -> isHighAltitudeFlight(entity);
             default -> false;
         };
+    }
+
+    /** Pitched ascent/descent high above the surface still needs the constant pass for F5 culling. */
+    private static boolean isHighAltitudeFlight(EntityRideableRocket entity) {
+        int surface = entity.world.getHeight((int) entity.posX, (int) entity.posZ);
+        return entity.posY >= surface + 48.0D;
     }
 
     /** IConstantRenderer pass skips RenderManager light setup; apply world lightmap manually. */
