@@ -1168,30 +1168,63 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
     }
 
     /**
-     * Dismount at the seat: keep X/Z, lift slightly above the riding pose so the pilot
-     * can stand without being shoved to the side of the rocket.
+     * Place the rider beside the rocket on free ground instead of inside the pad
+     * (old path forced height=1 then +2 X, which buried players 1–2 blocks down).
      */
     public void dismountPassengerSafely(EntityPlayer player) {
         if(player == null || world.isRemote) return;
         if(player.getRidingEntity() != this && !getPassengers().contains(player)) return;
 
         boolean sealedFlight = !canExitCapsule();
+        boolean inOrbit = world.provider instanceof com.hbmspace.dim.orbit.WorldProviderOrbit;
         double halfW = Math.max(player.width * 0.5D, 0.3D);
         double pHeight = Math.max(player.height, 1.6D);
+        // Clear of rocket footprint (width 2) plus a little margin for celestial heightmaps.
+        double side = Math.max(4.0D, this.width * 0.5D + 2.5D);
 
-        double exitX = player.posX;
-        double exitZ = player.posZ;
-        // Just above the seated pose; nudge up only if the hitbox still clips blocks.
-        double exitY = player.posY + 0.35D;
-        for(int i = 0; i < 8; i++) {
+        double[][] offsets = {
+                {side, 0.0D}, {-side, 0.0D}, {0.0D, side}, {0.0D, -side},
+                {side, side}, {side, -side}, {-side, side}, {-side, -side},
+                {side + 2.0D, 0.0D}, {-side - 2.0D, 0.0D}, {0.0D, side + 2.0D}, {0.0D, -side - 2.0D}
+        };
+
+        double bestX = posX + side;
+        double bestZ = posZ;
+        double bestY = inOrbit ? player.posY : Math.max(posY, world.getHeight(MathHelper.floor(bestX), MathHelper.floor(bestZ)));
+        boolean found = false;
+
+        for(double[] o : offsets) {
+            double x = posX + o[0];
+            double z = posZ + o[1];
+            double y;
+            if(inOrbit) {
+                y = player.posY;
+            } else {
+                int surface = world.getHeight(MathHelper.floor(x), MathHelper.floor(z));
+                // Stand on surface near the pad; never below rocket base; avoid burying in pad.
+                y = Math.max(surface, MathHelper.floor(posY));
+                if(y > posY + Math.max(this.height, 4.0D) + 2.0D) {
+                    y = MathHelper.floor(posY);
+                }
+            }
+
             AxisAlignedBB bb = new AxisAlignedBB(
-                    exitX - halfW, exitY, exitZ - halfW,
-                    exitX + halfW, exitY + pHeight, exitZ + halfW
+                    x - halfW, y, z - halfW,
+                    x + halfW, y + pHeight, z + halfW
             );
             if(world.getCollisionBoxes(player, bb).isEmpty() && !world.containsAnyLiquid(bb)) {
+                bestX = x;
+                bestY = y;
+                bestZ = z;
+                found = true;
                 break;
             }
-            exitY += 0.25D;
+        }
+
+        if(!found && !inOrbit) {
+            bestX = posX + side;
+            bestZ = posZ;
+            bestY = Math.max(MathHelper.floor(posY), world.getHeight(MathHelper.floor(bestX), MathHelper.floor(bestZ)));
         }
 
         safeDismountInProgress = true;
@@ -1206,9 +1239,9 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
 
             if(player instanceof EntityPlayerMP) {
                 // Hard client resync: setPositionAndUpdate alone can leave the client at the seat.
-                ((EntityPlayerMP) player).connection.setPlayerLocation(exitX, exitY, exitZ, player.rotationYaw, player.rotationPitch);
+                ((EntityPlayerMP) player).connection.setPlayerLocation(bestX, bestY, bestZ, player.rotationYaw, player.rotationPitch);
             } else {
-                player.setPositionAndUpdate(exitX, exitY, exitZ);
+                player.setPositionAndUpdate(bestX, bestY, bestZ);
             }
 
             if(sealedFlight) {
