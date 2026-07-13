@@ -310,28 +310,6 @@ public class ModEventHandler {
     @SubscribeEvent
     public static void worldTick(TickEvent.WorldTickEvent event) {
         if(event.world == null) return;
-        if(!event.world.isRemote && event.phase == TickEvent.Phase.START) {
-            for (EntityPlayer player : event.world.playerEntities) {
-                // handle dismount events, or our players will splat upon leaving tall rockets
-                Entity riding = player.getRidingEntity();
-                if (!(riding instanceof EntityRideableRocket)) continue;
-                EntityRideableRocket rocket = (EntityRideableRocket) riding;
-
-                if (player.isSneaking()) {
-                    // Hold sneak ~3s during flight to force exit; otherwise stay sealed.
-                    if (rocket.canExitCapsule() || rocket.forceExitTimer >= 60) {
-                        rocket.dismountPassengerSafely(player);
-                    } else {
-                        rocket.forceExitTimer++;
-                    }
-
-                    player.setSneaking(false);
-                } else {
-                    // Reset force-exit charge when not sneaking (was previously unreachable dead code).
-                    rocket.forceExitTimer = 0;
-                }
-            }
-        }
         if (event.phase == TickEvent.Phase.END) {
             CelestialTeleporter.runQueuedTeleport();
             if (event.world.getTotalWorldTime() % 20 == 0) {
@@ -387,6 +365,7 @@ public class ModEventHandler {
         }
 
         if (!player.world.isRemote && event.phase == TickEvent.Phase.START) {
+            handleCapsuleExit(player);
 
             // Check for players attempting to cross over to another orbital grid
             if (player.world.provider instanceof WorldProviderOrbit && !(player.getRidingEntity() instanceof EntityRideableRocket)) {
@@ -541,16 +520,40 @@ public class ModEventHandler {
         }
     }
 
-    @SubscribeEvent
+    /** Strip riders stuck on a dead capsule entity after break/destroy. */
+    private static void handleCapsuleExit(EntityPlayer player) {
+        Entity riding = player.getRidingEntity();
+        if (riding != null && riding.isDead) {
+            player.dismountRidingEntity();
+        }
+    }
+
+    /**
+     * Shift while riding fires dismountRidingEntity() (not a persistent sneak flag).
+     * Intercept that attempt here; vanilla dismount leaves the pilot glued to the seat.
+     */
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onEntityMount(EntityMountEvent event) {
-        // Only dismounts started by EntityRideableRocket.dismountPassengerSafely are allowed.
-        // That path sets forceExitTimer >= 60, then teleports the player beside the stack.
-        // Vanilla sneak-dismount alone leaves the pilot standing at the seat (standing anim,
-        // no movement, still "in" the capsule) because worldTick only repositions while mounted.
-        if (event.isDismounting() && event.getEntityBeingMounted() instanceof EntityRideableRocket rocket) {
-            if (rocket.forceExitTimer < 60) {
-                event.setCanceled(true);
-            }
+        if (!event.isDismounting()) return;
+        if (!(event.getEntityBeingMounted() instanceof EntityRideableRocket rocket)) return;
+        if (!(event.getEntityMounting() instanceof EntityPlayer player)) return;
+        if (player.world.isRemote || rocket.isDead) return;
+
+        // Let dismountPassengerSafely finish its own detach without re-entering this handler.
+        if (rocket.safeDismountInProgress || rocket.forceExitTimer >= EntityRideableRocket.FORCE_EXIT_THRESHOLD) {
+            return;
+        }
+
+        event.setCanceled(true);
+
+        if (rocket.canExitCapsule()) {
+            rocket.dismountPassengerSafely(player);
+            return;
+        }
+
+        rocket.forceExitTimer++;
+        if (rocket.forceExitTimer >= EntityRideableRocket.FORCE_EXIT_THRESHOLD) {
+            rocket.dismountPassengerSafely(player);
         }
     }
 

@@ -113,10 +113,14 @@ public class PermaSyncHandler {
 
 		/// RIDING DESYNC FIX ///
 		int ridingId = buf.readInt();
-		if(ridingId >= 0 && player.getRidingEntity() == null) {
-			Entity entity = world.getEntityByID(ridingId);
-			// During dimension transfer the ridden entity can arrive on the client one tick after the player.
-			if(entity != null && !entity.isDead) player.startRiding(entity);
+		if(ridingId >= 0) {
+			if(player.getRidingEntity() == null) {
+				Entity entity = world.getEntityByID(ridingId);
+				// During dimension transfer the ridden entity can arrive on the client one tick after the player.
+				if(entity != null && !entity.isDead) player.startRiding(entity);
+			}
+		} else if(player.getRidingEntity() != null) {
+			player.dismountRidingEntity();
 		}
 		/// RIDING DESYNC FIX ///
 	}

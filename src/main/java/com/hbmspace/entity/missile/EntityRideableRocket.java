@@ -90,7 +90,12 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
     private int stateTimer = 0;
     public int decoupleTimer = 0;
     public int shroudTimer = 0;
+    /** Shift attempts required to bail out during sealed flight. */
+    public static final int FORCE_EXIT_THRESHOLD = 5;
+
     public int forceExitTimer = 0;
+    /** Guards EntityMountEvent while dismountPassengerSafely detaches the pilot. */
+    public boolean safeDismountInProgress = false;
     /** After intentional dismount, block auto-remount so landing/flight does not re-suck the pilot. */
     public int remountLockTimer = 0;
 
@@ -280,11 +285,19 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
 
     public boolean canExitCapsule() {
         RocketState state = getState();
-        return state != RocketState.LANDING
-                && state != RocketState.LAUNCHING
+        if(state == RocketState.LANDING) {
+            return isNearLandingSurface();
+        }
+        return state != RocketState.LAUNCHING
                 && state != RocketState.DOCKING
                 && state != RocketState.UNDOCKING
                 && state != RocketState.TRANSFER;
+    }
+
+    private boolean isNearLandingSurface() {
+        if(world.isRemote) return false;
+        int surface = world.getHeight((int) posX, (int) posZ);
+        return posY <= surface + 4.0D && Math.abs(motionY) < 1.0D;
     }
 
     @Override
@@ -337,7 +350,7 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
 
             // Only re-seal mid-flight glitch dismounts. Intentional exit sets remountLockTimer
             // (and may clear thrower) so the pilot is not pulled back every tick after shift-exit.
-            if(thrower != null && rider == null && !canExitCapsule() && remountLockTimer <= 0 && forceExitTimer < 60) {
+            if(thrower != null && rider == null && !canExitCapsule() && remountLockTimer <= 0 && forceExitTimer < FORCE_EXIT_THRESHOLD) {
                 thrower.startRiding(this, true);
             }
 
@@ -382,6 +395,14 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
 
                     posX = destination.x + 0.5D;
                     posZ = destination.z + 0.5D;
+                }
+
+                // Safety net: if block raytrace misses, still finish landing on the surface.
+                if(posY <= targetHeight + 3.0D && Math.abs(rocketVelocity) < 1.0D) {
+                    setState(RocketState.LANDED);
+                    posY = targetHeight;
+                    rocketVelocity = 0.0D;
+                    motionY = 0.0D;
                 }
             } else if(state == RocketState.TIPPING) {
                 float tipTime = stateTimer * 0.1F;
@@ -675,7 +696,7 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
         if(!world.isRemote && !isDead) {
             if(isEntityInvulnerable(source)) {
                 return false;
-            } else if(getControllingPassenger() == null && source.getTrueSource() instanceof EntityPlayer player) {
+            } else if(source.getTrueSource() instanceof EntityPlayer player) {
                 RocketState st = getState();
                 // Only pick up / break when grounded (not mid-flight).
                 boolean grounded = st == RocketState.LANDED
@@ -685,6 +706,12 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
                 if(!grounded) {
                     return true;
                 }
+
+                Entity controlling = getControllingPassenger();
+                if(controlling instanceof EntityPlayer rider) {
+                    dismountPassengerSafely(rider);
+                }
+
                 if((getRocket().stages.isEmpty() && getRocket().capsule != ModItemsSpace.rp_pod_20) || st == RocketState.TIPPING) {
                     dropNDie(source);
                 } else {
@@ -724,12 +751,26 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
 
     @Override
     public void setDead() {
+        ejectAllPassengers();
         super.setDead();
         if(capDummy != null) {
             capDummy.setDead();
         }
         pendingStageSeparation = false;
         stageSeparationDelay = 0;
+    }
+
+    private void ejectAllPassengers() {
+        if(world.isRemote || isDead) return;
+
+        for(Entity passenger : new ArrayList<>(getPassengers())) {
+            if(passenger instanceof EntityPlayer player) {
+                dismountPassengerSafely(player);
+            } else {
+                passenger.dismountRidingEntity();
+                removePassenger(passenger);
+            }
+        }
     }
 
     @Override
@@ -1186,35 +1227,33 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
             bestY = Math.max(MathHelper.floor(posY), world.getHeight(MathHelper.floor(bestX), MathHelper.floor(bestZ)));
         }
 
-        // EntityMountEvent allows dismount only while forceExitTimer >= 60 (see ModEventHandler).
-        forceExitTimer = 60;
-        player.dismountRidingEntity();
-        // If anything still has them as passenger, strip it.
-        if(player.isRiding() || getPassengers().contains(player)) {
+        safeDismountInProgress = true;
+        forceExitTimer = FORCE_EXIT_THRESHOLD;
+        try {
             player.dismountRidingEntity();
-            removePassenger(player);
-        }
 
-        player.fallDistance = 0.0F;
-        player.motionX = 0.0D;
-        player.motionY = 0.0D;
-        player.motionZ = 0.0D;
+            player.fallDistance = 0.0F;
+            player.motionX = 0.0D;
+            player.motionY = 0.0D;
+            player.motionZ = 0.0D;
 
-        if(player instanceof EntityPlayerMP) {
-            // Hard client resync: setPositionAndUpdate alone can leave the client at the seat.
-            ((EntityPlayerMP) player).connection.setPlayerLocation(bestX, bestY, bestZ, player.rotationYaw, player.rotationPitch);
-        } else {
-            player.setPositionAndUpdate(bestX, bestY, bestZ);
-        }
+            if(player instanceof EntityPlayerMP) {
+                // Hard client resync: setPositionAndUpdate alone can leave the client at the seat.
+                ((EntityPlayerMP) player).connection.setPlayerLocation(bestX, bestY, bestZ, player.rotationYaw, player.rotationPitch);
+            } else {
+                player.setPositionAndUpdate(bestX, bestY, bestZ);
+            }
 
-        forceExitTimer = 0;
-
-        if(sealedFlight) {
-            // Mid-landing / flight bail-out: stop sealed remount loop (moon landing bug).
-            thrower = null;
-            remountLockTimer = 200;
-        } else {
-            remountLockTimer = Math.max(remountLockTimer, 40);
+            if(sealedFlight) {
+                // Mid-landing / flight bail-out: stop sealed remount loop (moon landing bug).
+                thrower = null;
+                remountLockTimer = 200;
+            } else {
+                remountLockTimer = Math.max(remountLockTimer, 40);
+            }
+        } finally {
+            safeDismountInProgress = false;
+            forceExitTimer = 0;
         }
     }
 
