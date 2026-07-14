@@ -164,9 +164,11 @@ public abstract class EntityMissileBaseNT extends EntityThrowableInterp implemen
             float f2 = MathHelper.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
             this.rotationPitch = (float) (Math.atan2(this.motionY, f2) * 180.0D / Math.PI) - 90;
 
-            EntityTrackerEntry tracker = TrackerUtil.getTrackerEntry((WorldServer) world, this.getEntityId());
-            if (tracker != null) {
-                tracker.encodedRotationYaw += 100;
+            if (shouldCoaxTrackerRotation()) {
+                EntityTrackerEntry tracker = TrackerUtil.getTrackerEntry((WorldServer) world, this.getEntityId());
+                if (tracker != null) {
+                    tracker.encodedRotationYaw += 100;
+                }
             }
 
             loadNeighboringChunks((int) Math.floor(posX / 16), (int) Math.floor(posZ / 16));
@@ -176,6 +178,11 @@ public abstract class EntityMissileBaseNT extends EntityThrowableInterp implemen
     }
 
     public boolean hasPropulsion() {
+        return true;
+    }
+
+    /** When true, nudge the entity tracker so rotation changes also ship position updates. */
+    protected boolean shouldCoaxTrackerRotation() {
         return true;
     }
 

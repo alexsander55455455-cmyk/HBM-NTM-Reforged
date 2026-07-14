@@ -309,6 +309,15 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
         return posY <= surface + 4.0D && Math.abs(motionY) < 1.0D;
     }
 
+    private static boolean isActiveFlightState(RocketState state) {
+        return state == RocketState.LAUNCHING
+                || state == RocketState.LANDING
+                || state == RocketState.UNDOCKING
+                || state == RocketState.DOCKING
+                || state == RocketState.TRANSFER
+                || state == RocketState.TIPPING;
+    }
+
     @Override
     public void onUpdate() {
         // Save for render interp before EntityMissileBaseNT/EntityThrowableInterp mutate pose.
@@ -317,6 +326,9 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
         // Re-assert every tick: some client spawn/sync paths drop the constructor flag.
         this.ignoreFrustumCheck = true;
         super.onUpdate();
+        if(world.isRemote && isActiveFlightState(getState())) {
+            applyClientFlightRotation();
+        }
         RocketState state = getState();
 
         // Keep hitbox height in sync once rocket part data arrives (client spawn often starts empty).
@@ -408,13 +420,6 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
                     posZ = destination.z + 0.5D;
                 }
 
-                // Safety net: if block raytrace misses, still finish landing on the surface.
-                if(posY <= targetHeight + 3.0D && Math.abs(rocketVelocity) < 1.0D) {
-                    setState(RocketState.LANDED);
-                    posY = targetHeight;
-                    rocketVelocity = 0.0D;
-                    motionY = 0.0D;
-                }
             } else if(state == RocketState.TIPPING) {
                 float tipTime = stateTimer * 0.1F;
                 rotationPitch = tipTime * tipTime;
@@ -603,6 +608,36 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
     }
 
     @Override
+    protected boolean shouldCoaxTrackerRotation() {
+        return false;
+    }
+
+    @SideOnly(Side.CLIENT)
+    private void applyClientFlightRotation() {
+        RocketState state = getState();
+        int timer = stateTimer;
+        rotationYaw = -90.0F;
+
+        if(state == RocketState.LAUNCHING) {
+            if(isReusable()) {
+                rotationPitch = MathHelper.clamp((timer - 60) * 0.3F, 0.0F, 45.0F);
+            } else {
+                rotationPitch = MathHelper.clamp((timer - 80) * 0.3F, 0.0F, 45.0F);
+            }
+            if(FMLClientHandler.instance().hasOptifine()) {
+                rotationPitch = 0.0F;
+            }
+        } else if(state == RocketState.LANDING || state == RocketState.DOCKING || state == RocketState.UNDOCKING) {
+            rotationPitch = 0.0F;
+        } else if(state == RocketState.TRANSFER) {
+            rotationPitch = 90.0F;
+        } else if(state == RocketState.TIPPING) {
+            float tipTime = timer * 0.1F;
+            rotationPitch = Math.min(tipTime * tipTime, 90.0F);
+        }
+    }
+
+    @Override
     public boolean processInitialInteract(@NotNull EntityPlayer player, @NotNull EnumHand hand) {
         if(!canRide()) return false;
 
@@ -632,6 +667,16 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
     @Override
     public void updatePassenger(Entity passenger) {
         Vec3d seat = getPassengerSeatPosition(passenger);
+        if(world.isRemote && isActiveFlightState(getState())) {
+            // F5/third-person: vanilla interpolates rider between lastTickPos and pos each frame.
+            // Only during active flight; on LANDED vanilla seating is stable without this override.
+            passenger.lastTickPosX = passenger.posX;
+            passenger.lastTickPosY = passenger.posY;
+            passenger.lastTickPosZ = passenger.posZ;
+            passenger.prevPosX = passenger.posX;
+            passenger.prevPosY = passenger.posY;
+            passenger.prevPosZ = passenger.posZ;
+        }
         passenger.setPosition(seat.x, seat.y, seat.z);
     }
 
@@ -1142,20 +1187,42 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
     @Override
     @SideOnly(Side.CLIENT)
     public int getBrightnessForRender() {
-        RocketState state = getState();
         double sampleY = posY + this.height * 0.65D;
-        // Near the pad/surface use a lower sample so liftoff does not flash brighter than AWAITING.
-        if(state == RocketState.LAUNCHING || state == RocketState.LANDING) {
-            int surface = world.getHeight((int) posX, (int) posZ);
-            if(posY < surface + 32.0D) {
-                sampleY = posY + 2.0D;
-            }
+        int surface = world.getHeight((int) posX, (int) posZ);
+        BlockPos airSample = new BlockPos(this.posX, sampleY, this.posZ);
+        BlockPos groundSample = new BlockPos(this.posX, surface, this.posZ);
+
+        int packed = 0;
+        if(this.world.isBlockLoaded(airSample)) {
+            packed = brightenForFlight(this.world.getCombinedLight(airSample, 0));
         }
-        BlockPos sample = new BlockPos(this.posX, sampleY, this.posZ);
-        if(this.world.isBlockLoaded(sample)) {
-            return this.world.getCombinedLight(sample, 0);
+        if(this.world.isBlockLoaded(groundSample)) {
+            packed = maxPackedLight(packed, brightenForFlight(this.world.getCombinedLight(groundSample, 0)));
+        }
+        if(packed != 0) {
+            return packed;
         }
         return super.getBrightnessForRender();
+    }
+
+    @SideOnly(Side.CLIENT)
+    private static int brightenForFlight(int packed) {
+        int block = packed & 0xFFFF;
+        int sky = packed >>> 16;
+        if(sky > 8 && block < (sky * 3) / 4) {
+            int blendedBlock = Math.max(block, (sky * 3) / 4);
+            return blendedBlock | (sky << 16);
+        }
+        return packed;
+    }
+
+    @SideOnly(Side.CLIENT)
+    private static int maxPackedLight(int a, int b) {
+        if(a == 0) return b;
+        if(b == 0) return a;
+        int block = Math.max(a & 0xFFFF, b & 0xFFFF);
+        int sky = Math.max(a >>> 16, b >>> 16);
+        return block | (sky << 16);
     }
 
     @Override
