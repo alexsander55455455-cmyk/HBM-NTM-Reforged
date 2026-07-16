@@ -6,7 +6,6 @@ import com.hbmspace.dim.CelestialBody;
 import com.hbmspace.dim.trait.CelestialBodyTrait;
 import com.hbmspace.dim.WorldProviderCelestial;
 import com.hbmspace.lib.HBMSpaceSoundHandler;
-import net.minecraft.client.Minecraft;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -42,7 +41,15 @@ public class WorldProviderThatmo extends WorldProviderCelestial {
     public void updateWeather() {
         super.updateWeather();
 
-        if(CelestialBody.getTrait(world, CelestialBodyTrait.CBT_BATTLEFIELD.class) == null || !world.isRemote) {
+        // Battlefield flash/meteors are client visuals only; isolate Minecraft for dedicated server.
+        if(world.isRemote) {
+            updateWeatherClient();
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    private void updateWeatherClient() {
+        if(CelestialBody.getTrait(world, CelestialBodyTrait.CBT_BATTLEFIELD.class) == null) {
             return;
         }
 
@@ -50,8 +57,9 @@ public class WorldProviderThatmo extends WorldProviderCelestial {
             chargeTime++;
             flashDistance = 0;
         } else {
-            if(flashDistance <= 1 && Minecraft.getMinecraft().player != null) {
-                Minecraft.getMinecraft().player.playSound(HBMSpaceSoundHandler.fireFlash, 10F, 1F);
+            EntityPlayer clientPlayer = net.minecraft.client.Minecraft.getMinecraft().player;
+            if(flashDistance <= 1 && clientPlayer != null) {
+                clientPlayer.playSound(HBMSpaceSoundHandler.fireFlash, 10F, 1F);
             }
 
             flashDistance += 0.3F;
@@ -66,7 +74,7 @@ public class WorldProviderThatmo extends WorldProviderCelestial {
             meteors.get(i).update();
         }
 
-        EntityPlayer player = Minecraft.getMinecraft().player;
+        EntityPlayer player = net.minecraft.client.Minecraft.getMinecraft().player;
         if(player != null && world.rand.nextInt(4) == 0) {
             Meteor meteor = new Meteor(
                     (player.posX + world.rand.nextInt(16000)) - 8000,

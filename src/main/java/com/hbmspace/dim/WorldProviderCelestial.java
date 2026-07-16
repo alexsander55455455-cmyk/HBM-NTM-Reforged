@@ -20,7 +20,6 @@ import com.hbm.inventory.fluid.Fluids;
 import com.hbmspace.saveddata.satellites.SatelliteWar;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -162,7 +161,8 @@ public abstract class WorldProviderCelestial extends WorldProvider {
 	@Override
 	public boolean hasSkyLight() { return true; }
 
-	// Can be overridden to provide fog changing events based on weather
+	// Can be overridden to provide fog changing events based on weather (client fog event only)
+	@SideOnly(Side.CLIENT)
 	public float fogDensity(EntityViewRenderEvent.FogDensity event) {
 		CBT_Atmosphere atmosphere = CelestialBody.getTrait(world, CBT_Atmosphere.class);
 		if(atmosphere == null) return 0;
@@ -328,9 +328,11 @@ public abstract class WorldProviderCelestial extends WorldProvider {
 		// Fog intensity remains high to simulate a thin looking atmosphere on low pressure planets
 		float pressureFactor = MathHelper.clamp(totalPressure * 10.0F, 0.0F, 1.0F);
 		color = color.scale(pressureFactor);
-		if(Minecraft.getMinecraft().getRenderViewEntity() != null) {
-			if(Minecraft.getMinecraft().getRenderViewEntity().posY > 600) {
-				double curvature = MathHelper.clamp((1000.0F - (float)Minecraft.getMinecraft().getRenderViewEntity().posY) / 400.0F, 0.0F, 1.0F);
+		// FQCN inside @SideOnly method: keep dedicated server from resolving client classes via imports.
+		net.minecraft.entity.Entity view = net.minecraft.client.Minecraft.getMinecraft().getRenderViewEntity();
+		if(view != null) {
+			if(view.posY > 600) {
+				double curvature = MathHelper.clamp((1000.0F - (float)view.posY) / 400.0F, 0.0F, 1.0F);
 				color = color.scale(curvature);
 			}
 		}

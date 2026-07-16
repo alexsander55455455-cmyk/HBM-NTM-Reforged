@@ -43,6 +43,7 @@ public class WorldProviderLaythe extends WorldProviderCelestial {
 	}
 
 	@Override
+	@SideOnly(Side.CLIENT)
 	public float fogDensity(EntityViewRenderEvent.FogDensity event) {
 		if(event.getState().getMaterial() == Material.WATER) {
 			return 0.03F;

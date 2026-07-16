@@ -15,7 +15,6 @@ import com.hbm.util.ParticleUtil;
 import com.hbm.util.Vec3dUtil;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
@@ -24,6 +23,8 @@ import net.minecraft.world.DimensionType;
 import net.minecraft.world.gen.IChunkGenerator;
 import net.minecraft.world.gen.layer.*;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 
 public class WorldProviderDuna extends WorldProviderCelestial {
@@ -62,17 +63,25 @@ public class WorldProviderDuna extends WorldProviderCelestial {
 
 			dustStormTimer--;
 		} else {
-			if(dustStormSmoothed >= 0.05F && world.rand.nextFloat() < dustStormSmoothed) {
-				Entity viewEntity = Minecraft.getMinecraft().getRenderViewEntity();
-				Vec3d vec = new Vec3d(20, 0, 50);
-				vec = Vec3dUtil.rotateRoll(vec, (float)(world.rand.nextDouble() * Math.PI * 10));
-				vec = vec.rotateYaw((float)(world.rand.nextDouble() * Math.PI * 2 * 5));
-				ParticleUtil.spawnDustFlame(world, viewEntity.posX + vec.x, viewEntity.posY, viewEntity.posZ + vec.z, -4, 0, 0);
-			}
+			// Client-only particles; isolate Minecraft for dedicated server class load.
+			updateWeatherClient();
+		}
+	}
+
+	@SideOnly(Side.CLIENT)
+	private void updateWeatherClient() {
+		if(dustStormSmoothed >= 0.05F && world.rand.nextFloat() < dustStormSmoothed) {
+			Entity viewEntity = net.minecraft.client.Minecraft.getMinecraft().getRenderViewEntity();
+			if(viewEntity == null) return;
+			Vec3d vec = new Vec3d(20, 0, 50);
+			vec = Vec3dUtil.rotateRoll(vec, (float)(world.rand.nextDouble() * Math.PI * 10));
+			vec = vec.rotateYaw((float)(world.rand.nextDouble() * Math.PI * 2 * 5));
+			ParticleUtil.spawnDustFlame(world, viewEntity.posX + vec.x, viewEntity.posY, viewEntity.posZ + vec.z, -4, 0, 0);
 		}
 	}
 
 	@Override
+	@SideOnly(Side.CLIENT)
 	public float fogDensity(EntityViewRenderEvent.FogDensity event) {
         if(dustStormSmoothed >= 0.25F)
             return dustStormSmoothed * dustStormSmoothed * 0.075F;

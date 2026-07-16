@@ -10,7 +10,6 @@ import com.hbmspace.dim.eve.GenLayerEve.GenLayerEveRiverMix;
 import com.hbm.lib.HBMSoundHandler;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.Vec3d;
@@ -48,15 +47,21 @@ public class WorldProviderEve extends WorldProviderCelestial {
 				chargetime = 0;
 			}
 		} else {
-			if (chargetime >= 800) {
-				flashd = 0;
-			} else if (chargetime >= 100) {
-				if (flashd <= 1) {
-					Minecraft.getMinecraft().player.playSound(HBMSoundHandler.rumble, 10F, 1F);
-				}
-				flashd += 0.1f;
-				flashd = Math.min(100.0f, flashd + 0.1f * (100.0f - flashd) * 0.15f);
+			// Client-only FX; keep Minecraft out of this method's bytecode for dedicated servers.
+			updateWeatherClient();
+		}
+	}
+
+	@SideOnly(Side.CLIENT)
+	private void updateWeatherClient() {
+		if (chargetime >= 800) {
+			flashd = 0;
+		} else if (chargetime >= 100) {
+			if (flashd <= 1) {
+				net.minecraft.client.Minecraft.getMinecraft().player.playSound(HBMSoundHandler.rumble, 10F, 1F);
 			}
+			flashd += 0.1f;
+			flashd = Math.min(100.0f, flashd + 0.1f * (100.0f - flashd) * 0.15f);
 		}
 	}
 
