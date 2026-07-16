@@ -48,7 +48,7 @@ HBM NTM Reforged — это порт оригинального HBM's Nuclear Te
 3. Внизу **Artifacts** → скачай `HBM-NTM-Reforged-testbuild-…`
 4. Распакуй zip → jar в папку `mods` (старые HBM Reforged jar убери)
 
-Артефакты живут **30 дней**. Стабильные релизы — на CurseForge / Modrinth.
+Артефакты живут **15 дней**. Стабильные релизы — на CurseForge / Modrinth.
 
 Ручной запуск: **Actions → Test Build → Run workflow**.
 

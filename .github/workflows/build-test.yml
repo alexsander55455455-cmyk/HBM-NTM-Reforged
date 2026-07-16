@@ -90,5 +90,5 @@ jobs:
           name: HBM-NTM-Reforged-testbuild-${{ steps.stage.outputs.short_sha }}
           path: dist/*.jar
           if-no-files-found: error
-          # Keep long enough for bug reports / weekend testers
-          retention-days: 30
+          # Temporary test builds for players / bug reports
+          retention-days: 15

@@ -48,7 +48,7 @@ Every push to `main` and every pull request runs a **Test Build** on GitHub Acti
 3. Scroll to **Artifacts** → download `HBM-NTM-Reforged-testbuild-…`
 4. Unzip → put the `.jar` in your `mods` folder (and remove older HBM Reforged jars)
 
-Artifacts expire after **30 days**. For a stable public release, use CurseForge / Modrinth instead.
+Artifacts expire after **15 days**. For a stable public release, use CurseForge / Modrinth instead.
 
 You can also start a build manually: **Actions → Test Build → Run workflow**.
 
