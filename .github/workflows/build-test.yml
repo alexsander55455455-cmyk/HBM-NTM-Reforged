@@ -1,0 +1,92 @@
+# Test / CI builds for players and bug reporters.
+# Download: repo → Actions → latest successful run → Artifacts → HBM-NTM-Reforged-testbuild-*
+name: Test Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: test-build-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build jar
+    runs-on: ubuntu-latest
+    # RFG first-time Minecraft setup can be slow
+    timeout-minutes: 180
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          # Cache dependencies between runs (helps a lot after the first RFG setup)
+          cache-read-only: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
+
+      - name: Cap Gradle heap for GitHub runners
+        run: |
+          # Free runners are ~7GB RAM; project default is 6G and can OOM under load.
+          if grep -q '^org.gradle.jvmargs' gradle.properties; then
+            sed -i 's/^org.gradle.jvmargs.*/org.gradle.jvmargs = -Xmx5G -Dfile.encoding=UTF-8/' gradle.properties
+          else
+            echo 'org.gradle.jvmargs = -Xmx5G -Dfile.encoding=UTF-8' >> gradle.properties
+          fi
+
+      - name: Build release jar
+        env:
+          # Skip network call that can fail CI (buildscript version check)
+          DISABLE_BUILDSCRIPT_UPDATE_CHECK: "true"
+        run: |
+          chmod +x ./gradlew
+          ./gradlew build -x test --no-daemon -DDISABLE_BUILDSCRIPT_UPDATE_CHECK=true
+
+      - name: Stage player jar
+        id: stage
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          # Prefer the reobfuscated release jar only (not dev / sources / api)
+          shopt -s nullglob
+          for f in build/libs/HBM-NTM-Reforged-*.jar; do
+            base="$(basename "$f")"
+            case "$base" in
+              *-dev.jar|*-dev-shadow.jar|*-api.jar|*-sources.jar|*-downgraded.jar) continue ;;
+            esac
+            cp -v "$f" "dist/$base"
+          done
+          count="$(ls -1 dist/*.jar 2>/dev/null | wc -l | tr -d ' ')"
+          if [ "$count" = "0" ]; then
+            echo "No release jar found in build/libs"
+            ls -la build/libs || true
+            exit 1
+          fi
+          SHORT_SHA="${GITHUB_SHA::7}"
+          for f in dist/*.jar; do
+            base="$(basename "$f" .jar)"
+            mv -v "$f" "dist/${base}+g${SHORT_SHA}.jar"
+          done
+          echo "Files for testers:"
+          ls -la dist/
+          echo "short_sha=${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload test build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: HBM-NTM-Reforged-testbuild-${{ steps.stage.outputs.short_sha }}
+          path: dist/*.jar
+          if-no-files-found: error
+          # Keep long enough for bug reports / weekend testers
+          retention-days: 30

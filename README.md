@@ -39,13 +39,26 @@ Join the Discord community for bug reports, suggestions, development updates, mo
 - [MixinBooter](https://modrinth.com/mod/mixinbooter) - required library for Minecraft 1.12.2 mod compatibility.
 - [ConnectedTexturesMod / CTM](https://www.curseforge.com/minecraft/mc-mods/ctm/files/2915363) - required for connected texture/model support.
 
+## Test builds (for players)
+
+Every push to `main` and every pull request runs a **Test Build** on GitHub Actions and uploads a playable jar.
+
+1. Open [Actions](https://github.com/alexsander55455455-cmyk/HBM-NTM-Reforged/actions/workflows/build-test.yml)
+2. Pick a successful run (green check)
+3. Scroll to **Artifacts** → download `HBM-NTM-Reforged-testbuild-…`
+4. Unzip → put the `.jar` in your `mods` folder (and remove older HBM Reforged jars)
+
+Artifacts expire after **30 days**. For a stable public release, use CurseForge / Modrinth instead.
+
+You can also start a build manually: **Actions → Test Build → Run workflow**.
+
 ## Bug reports
 
 Found a crash, broken recipe, or visual bug?
 
 [Open a GitHub Issue](https://github.com/alexsander55455455-cmyk/HBM-NTM-Reforged/issues/new?template=bug_report.yml)
 
-Please include your mod version, Forge version, steps to reproduce, and `latest.log` or crash report if possible.
+Please include your mod version, Forge version, steps to reproduce, and `latest.log` or crash report if possible. For crashes on a fresh fix, say whether you used a **test build from Actions** or a release jar.
 
 ## CurseForge
 

@@ -39,13 +39,26 @@ HBM NTM Reforged — это порт оригинального HBM's Nuclear Te
 - [MixinBooter](https://modrinth.com/mod/mixinbooter) — обязательная библиотека для совместимости модов на Minecraft 1.12.2.
 - [ConnectedTexturesMod / CTM](https://www.curseforge.com/minecraft/mc-mods/ctm/files/2915363) — нужен для connected texture/model support.
 
+## Тестовые сборки (для игроков)
+
+Каждый push в `main` и каждый pull request собирает мод в **GitHub Actions** и выкладывает jar.
+
+1. Открой [Actions](https://github.com/alexsander55455455-cmyk/HBM-NTM-Reforged/actions/workflows/build-test.yml)
+2. Выбери успешный run (зелёная галочка)
+3. Внизу **Artifacts** → скачай `HBM-NTM-Reforged-testbuild-…`
+4. Распакуй zip → jar в папку `mods` (старые HBM Reforged jar убери)
+
+Артефакты живут **30 дней**. Стабильные релизы — на CurseForge / Modrinth.
+
+Ручной запуск: **Actions → Test Build → Run workflow**.
+
 ## Сообщить об ошибке
 
 Нашли краш, сломанный рецепт или визуальный баг?
 
 [Создайте Issue на GitHub](https://github.com/alexsander55455455-cmyk/HBM-NTM-Reforged/issues/new?template=bug_report.yml)
 
-Укажите версию мода, Forge, шаги воспроизведения и по возможности `latest.log` или crash-report.
+Укажите версию мода, Forge, шаги воспроизведения и по возможности `latest.log` или crash-report. Если тестировали свежий фикс — напишите, что брали **test build из Actions**, а не старый релиз.
 
 ## CurseForge
 
