@@ -50,8 +50,10 @@ jobs:
           # Skip network call that can fail CI (buildscript version check)
           DISABLE_BUILDSCRIPT_UPDATE_CHECK: "true"
         run: |
-          chmod +x ./gradlew
-          ./gradlew build -x test --no-daemon -DDISABLE_BUILDSCRIPT_UPDATE_CHECK=true
+          # Guard against CRLF shebang (Windows checkouts) breaking Linux exec
+          sed -i 's/\r$//' gradlew
+          chmod +x gradlew
+          bash ./gradlew build -x test --no-daemon -DDISABLE_BUILDSCRIPT_UPDATE_CHECK=true
 
       - name: Stage player jar
         id: stage

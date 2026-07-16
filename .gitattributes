@@ -1,0 +1,6 @@
+# Shell scripts must use LF so GitHub Actions (Linux) can execute them.
+gradlew text eol=lf
+*.sh text eol=lf
+
+# Windows helper can stay CRLF
+gradlew.bat text eol=crlf
