@@ -166,20 +166,14 @@ public abstract class AbstractPhasedStructure extends WorldGenerator implements 
     }
 
     private static void logWorldGenProposal(String format, Object... args) {
-        if (GeneralConfig.enableDebugMode) {
+        if (GeneralConfig.enableDebugWorldGen) {
             MainRegistry.logger.info(format, args);
-        } else {
-            MainRegistry.logger.debug(format, args);
         }
     }
 
     protected void logGenerationSuccess(World world, long origin) {
-        if (GeneralConfig.enableDebugMode) {
+        if (GeneralConfig.enableDebugWorldGen) {
             MainRegistry.logger.info("[PhasedGen] Structure {} scheduled for generation at BlockPos {}, {}, {} " +
-                    "in dimension {} ({})", getClass().getSimpleName(), Library.getBlockPosX(origin), Library.getBlockPosY(origin),
-            Library.getBlockPosZ(origin), world.provider.getDimension(), world.provider.getDimensionType().getName());
-        } else {
-            MainRegistry.logger.debug("[PhasedGen] Structure {} scheduled for generation at BlockPos {}, {}, {} " +
                     "in dimension {} ({})", getClass().getSimpleName(), Library.getBlockPosX(origin), Library.getBlockPosY(origin),
             Library.getBlockPosZ(origin), world.provider.getDimension(), world.provider.getDimensionType().getName());
         }
