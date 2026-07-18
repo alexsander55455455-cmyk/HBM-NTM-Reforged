@@ -1,6 +1,7 @@
 package com.hbm.world;
 
 import com.hbm.blocks.ModBlocks;
+import com.hbm.config.GeneralConfig;
 import com.hbm.lib.Library;
 import com.hbm.main.MainRegistry;
 import com.hbm.util.BufferUtil;
@@ -43,28 +44,43 @@ public class OilSandBubble extends AbstractPhasedStructure {
 		int ox = Library.getBlockPosX(finalOrigin);
 		int oy = Library.getBlockPosY(finalOrigin);
 		int oz = Library.getBlockPosZ(finalOrigin);
+		long startNanos = GeneralConfig.enableDebugMode ? System.nanoTime() : 0L;
 		OilSandBubble.spawnOil(world, rand, ox, oy, oz, this.radius);
+		if (GeneralConfig.enableDebugMode) {
+			double elapsedMs = (System.nanoTime() - startNanos) / 1_000_000.0D;
+			MainRegistry.logger.info("[WorldgenTiming] OilSandBubble radius={} at [{}, {}, {}] took {} ms",
+					this.radius, ox, oy, oz, String.format(java.util.Locale.ROOT, "%.3f", elapsedMs));
+		}
 	}
 
 	private static void spawnOil(World world, Random rand, int x, int y, int z, int radius) {
 		int r = radius;
 		int r2 = r * r;
 		int r22 = r2 / 2;
+		int randomBound = r22 / 3;
+		int maxThreshold = r22 + randomBound - 1;
 
 		MutableBlockPos pos = new BlockPos.MutableBlockPos();
 		for (int xx = -r; xx < r; xx++) {
 			int X = xx + x;
 			int XX = xx * xx;
+			if (XX >= maxThreshold) continue;
+
 			for (int yy = -r; yy < r; yy++) {
 				int Y = yy + y;
 				int YY = XX + yy * yy * 3;
-				for (int zz = -r; zz < r; zz++) {
+				if (YY >= maxThreshold) continue;
+
+				int maxZ = (int) Math.sqrt(maxThreshold - YY - 1);
+				int minZ = Math.max(-r, -maxZ);
+				int maxZInclusive = Math.min(r - 1, maxZ);
+				for (int zz = minZ; zz <= maxZInclusive; zz++) {
 					int Z = zz + z;
 					int ZZ = YY + zz * zz;
-					if (ZZ < r22 + rand.nextInt(r22 / 3)) {
+					if (ZZ < r22 + rand.nextInt(randomBound)) {
 						pos.setPos(X, Y, Z);
 						if(world.getBlockState(pos).getBlock() == Blocks.SAND)
-							world.setBlockState(pos, ModBlocks.ore_oil_sand.getDefaultState());
+							world.setBlockState(pos, ModBlocks.ore_oil_sand.getDefaultState(), 2 | 16);
 					}
 				}
 			}

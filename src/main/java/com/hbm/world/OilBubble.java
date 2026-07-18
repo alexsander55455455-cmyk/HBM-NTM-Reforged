@@ -22,12 +22,17 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Random;
 
 public class OilBubble extends AbstractPhasedStructure {
+    private static final int SURFACE_SPOT_COUNT = 150;
+    private static final int SURFACE_SPOT_WIDTH = 7;
+    private static final int SURFACE_SPOT_MAX_RADIUS = SURFACE_SPOT_WIDTH * 4;
+    private static final int SURFACE_SPOT_MAX_RADIUS_SQ = SURFACE_SPOT_MAX_RADIUS * SURFACE_SPOT_MAX_RADIUS;
+
     public final int radius;
     private final LongArrayList chunkOffsets;
 
     public OilBubble(int radius) {
         this.radius = radius;
-        this.chunkOffsets = collectChunkOffsetsByRadius(radius);
+        this.chunkOffsets = collectChunkOffsetsByRadius(Math.max(radius, SURFACE_SPOT_MAX_RADIUS));
     }
 
     public static OilBubble readFromBuf(@NotNull ByteBuf in) {
@@ -116,13 +121,18 @@ public class OilBubble extends AbstractPhasedStructure {
     }
 
     protected void addSurfaceSpot(World world, Random rand, int xCoord, int zCoord) {
-        int spotCount = 150;
-        int spotWidth = 7;
         MutableBlockPos pos = this.mutablePos;
 
-        for (int i = 0; i < spotCount; i++) {
-            int offX = (int) (rand.nextGaussian() * spotWidth);
-            int offZ = (int) (rand.nextGaussian() * spotWidth);
+        for (int i = 0; i < SURFACE_SPOT_COUNT; i++) {
+            int offX;
+            int offZ;
+            do {
+                offX = (int) (rand.nextGaussian() * SURFACE_SPOT_WIDTH);
+                offZ = (int) (rand.nextGaussian() * SURFACE_SPOT_WIDTH);
+            } while (offX < -SURFACE_SPOT_MAX_RADIUS || offX > SURFACE_SPOT_MAX_RADIUS
+                    || offZ < -SURFACE_SPOT_MAX_RADIUS || offZ > SURFACE_SPOT_MAX_RADIUS
+                    || offX * offX + offZ * offZ > SURFACE_SPOT_MAX_RADIUS_SQ);
+
             int absX = xCoord + offX;
             int absZ = zCoord + offZ;
 
@@ -145,7 +155,7 @@ public class OilBubble extends AbstractPhasedStructure {
                         }
 
                         int distSq = offX * offX + offZ * offZ;
-                        boolean inner = distSq < (spotWidth / 2) * (spotWidth / 2);
+                        boolean inner = distSq < (SURFACE_SPOT_WIDTH / 2) * (SURFACE_SPOT_WIDTH / 2);
 
                         if (b == Blocks.GRASS || b == Blocks.DIRT) {
                             world.setBlockState(subPos, inner ? ModBlocks.dirt_oily.getDefaultState() : ModBlocks.dirt_dead.getDefaultState(), 2 | 16);

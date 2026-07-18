@@ -324,7 +324,7 @@ public class CommandHbm extends CommandBase {
                 }
                 case "radio" -> Radio01.INSTANCE.generate(world, rand, genPos, force);
                 case "bunker" -> Bunker.INSTANCE.generate(world, rand, genPos, force);
-                case "silo", "silo_shaft" -> new Silo().generate(world, rand, genPos, force);
+                case "silo", "silo_shaft" -> Silo.INSTANCE.generate(world, rand, genPos, force);
                 case "silo_component" -> {
                     int minX = (int) senderPos.x - 21;
                     int minZ = (int) senderPos.z - 13;
