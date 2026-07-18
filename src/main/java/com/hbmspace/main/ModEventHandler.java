@@ -311,7 +311,6 @@ public class ModEventHandler {
     public static void worldTick(TickEvent.WorldTickEvent event) {
         if(event.world == null) return;
         if (event.phase == TickEvent.Phase.END) {
-            CelestialTeleporter.runQueuedTeleport();
             if (event.world.getTotalWorldTime() % 20 == 0) {
                 CelestialBody.updateChemistry(event.world);
             }
@@ -461,6 +460,10 @@ public class ModEventHandler {
 
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
+        if(event.phase == TickEvent.Phase.END) {
+            CelestialTeleporter.runQueuedTeleport();
+            return;
+        }
         if(event.phase != TickEvent.Phase.START) {
             return;
         }

@@ -59,6 +59,7 @@ public class SpaceConfig {
     public static boolean combatPodDespawn = false;
 
     public static int rocketFlameRenderPasses = 10;
+    public static boolean debugRocketTransfer = false;
 
     public SpaceConfig() {
     }
@@ -87,6 +88,7 @@ public class SpaceConfig {
         showOreLocations = CommonConfig.createConfigBool(config, CATEGORY_GENERAL, "1.93_showOreLocations", "Should ores indicate which planets they can be found on.", showOreLocations);
         combatPodDespawn = CommonConfig.createConfigBool(config, CATEGORY_GENERAL, "1.94_combatPodDespawn", "Whether combat pods should despawn after a certian amount of time.", combatPodDespawn);
         rocketFlameRenderPasses = CommonConfig.createConfigInt(config, CATEGORY_GENERAL, "1.95_rocketFlameRenderPasses", "Sub-quad passes per rocket flame particle render. Lower values improve FPS near rockets.", rocketFlameRenderPasses);
+        debugRocketTransfer = CommonConfig.createConfigBool(config, CATEGORY_GENERAL, "1.96_debugRocketTransfer", "Log detailed rideable rocket dimension transfer diagnostics.", debugRocketTransfer);
 
         final String CATEGORY_BIOME = "16_biomes";
         moonBiome = CommonConfig.createConfigInt(config, CATEGORY_BIOME, "16.02_moonBiome", "Mun Biome ID", moonBiome);

@@ -39,24 +39,35 @@ public class EntityBufPacket extends PrecompiledPacket {
 
         @Override
         public IMessage onMessage(EntityBufPacket m, MessageContext ctx) {
+            Minecraft mc = Minecraft.getMinecraft();
+            ByteBuf payload = m.buf;
+            m.buf = null;
+
             try {
-                if (Minecraft.getMinecraft().world == null)
-                    return null;
-
-                Entity entity = Minecraft.getMinecraft().world.getEntityByID(m.entityId);
-
-                if (entity instanceof IBufPacketReceiver) {
+                mc.addScheduledTask(() -> {
                     try {
-                        ((IBufPacketReceiver) entity).deserialize(m.buf);
-                    } catch (Exception e) { // just in case gamma fucked up
-                        MainRegistry.logger.warn(
-                                "An EntityByteBuf packet failed to be read and has thrown an error. This normally means that there was a buffer underflow and more data was read than was actually in the packet.");
-                        MainRegistry.logger.warn("Entity: {}", entity.getCommandSenderEntity().getName());
-                        MainRegistry.logger.warn(e.getMessage());
+                        if (mc.world == null)
+                            return;
+
+                        Entity entity = mc.world.getEntityByID(m.entityId);
+
+                        if (entity instanceof IBufPacketReceiver) {
+                            try {
+                                ((IBufPacketReceiver) entity).deserialize(payload);
+                            } catch (Exception e) { // just in case gamma fucked up
+                                MainRegistry.logger.warn(
+                                        "An EntityByteBuf packet failed to be read and has thrown an error. This normally means that there was a buffer underflow and more data was read than was actually in the packet.");
+                                MainRegistry.logger.warn("Entity: {}", entity.getCommandSenderEntity().getName());
+                                MainRegistry.logger.warn(e.getMessage());
+                            }
+                        }
+                    } finally {
+                        payload.release();
                     }
-                }
-            } finally {
-                m.buf.release();
+                });
+            } catch (RuntimeException e) {
+                payload.release();
+                throw e;
             }
 
             return null;

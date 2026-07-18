@@ -8,11 +8,11 @@ import com.hbmspace.render.misc.RocketPronter;
 import com.hbmspace.interfaces.AutoRegister;
 import com.hbm.main.ClientProxy;
 import com.hbm.util.BobMathUtil;
-import com.hbm.util.RenderUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
@@ -32,10 +32,7 @@ public class RenderRocketCustom extends Render<EntityRideableRocket> {
         this.shadowSize = 0.0F;
     }
 
-    /**
-     * Pad and near-surface ascent/descent use the normal entity pass (vanilla lighting).
-     * High-altitude and space flight use the IConstantRenderer pass so F5 does not cull the mesh.
-     */
+    /** Grounded rockets use vanilla rendering; active flight uses the uncullable constant pass. */
     @Override
     public boolean shouldRender(EntityRideableRocket entity, ICamera camera, double camX, double camY, double camZ) {
         if(entity == null || entity.isDead) {
@@ -69,19 +66,18 @@ public class RenderRocketCustom extends Render<EntityRideableRocket> {
         if(Float.isNaN(pitch)) pitch = entity.rotationPitch;
 
         Minecraft mc = Minecraft.getMinecraft();
-        boolean hadLighting = RenderUtil.isLightingEnabled();
         if(constantPass) {
             mc.entityRenderer.enableLightmap();
-        }
-        if(!hadLighting) {
-            GlStateManager.enableLighting();
+            RenderHelper.enableStandardItemLighting();
         }
 
         double[] renderPos = resolveRenderTranslation(entity, x, y, z, interp);
 
         GlStateManager.pushMatrix();
         try {
-            bindEntityLightmap(entity, constantPass);
+            if(constantPass) {
+                bindEntityLightmap(entity);
+            }
 
             GlStateManager.translate(renderPos[0], renderPos[1], renderPos[2]);
             GlStateManager.rotate(yaw - 90.0F, 0.0F, 1.0F, 0.0F);
@@ -94,9 +90,9 @@ public class RenderRocketCustom extends Render<EntityRideableRocket> {
 
             RocketPronter.prontRocket(rocket, entity, Minecraft.getMinecraft().getTextureManager(), !CelestialBody.inOrbit(entity.world), entity.decoupleTimer, entity.shroudTimer, interp);
 
-            // Stage-separation clip plane / smooth shading can stomp lightmap coords.
-            bindEntityLightmap(entity, constantPass);
             if(constantPass) {
+                // Stage-separation clip plane / smooth shading can stomp lightmap coords.
+                bindEntityLightmap(entity);
                 mc.entityRenderer.enableLightmap();
             }
         } finally {
@@ -107,10 +103,8 @@ public class RenderRocketCustom extends Render<EntityRideableRocket> {
             GlStateManager.popMatrix();
 
             if(constantPass) {
+                RenderHelper.disableStandardItemLighting();
                 mc.entityRenderer.disableLightmap();
-            }
-            if(!hadLighting) {
-                GlStateManager.disableLighting();
             }
         }
     }
@@ -122,17 +116,9 @@ public class RenderRocketCustom extends Render<EntityRideableRocket> {
 
     private static boolean useConstantPassOnly(EntityRideableRocket entity) {
         return switch(entity.getState()) {
-            case TRANSFER, UNDOCKING, DOCKING, TIPPING -> true;
-            case LAUNCHING, LANDING -> isHighAltitudeFlight(entity);
+            case LAUNCHING, LANDING, TRANSFER, UNDOCKING, DOCKING, TIPPING -> true;
             default -> false;
         };
-    }
-
-    /** Near the surface use vanilla lighting; high up use the constant pass for F5 culling. */
-    private static boolean isHighAltitudeFlight(EntityRideableRocket entity) {
-        int surface = entity.world.getHeight((int) entity.posX, (int) entity.posZ);
-        double nearSurface = entity.getState() == EntityRideableRocket.RocketState.LANDING ? 96.0D : 48.0D;
-        return entity.posY >= surface + nearSurface;
     }
 
     /**
@@ -173,14 +159,12 @@ public class RenderRocketCustom extends Render<EntityRideableRocket> {
     }
 
     /** IConstantRenderer pass skips RenderManager light setup; bind world lightmap manually. */
-    private static void bindEntityLightmap(EntityRideableRocket entity, boolean constantPass) {
+    private static void bindEntityLightmap(EntityRideableRocket entity) {
         Minecraft mc = Minecraft.getMinecraft();
-        if(constantPass) {
-            mc.entityRenderer.enableLightmap();
-            GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
-            GlStateManager.bindTexture(mc.entityRenderer.lightmapTexture.getGlTextureId());
-            GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
-        }
+        mc.entityRenderer.enableLightmap();
+        GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
+        GlStateManager.bindTexture(mc.entityRenderer.lightmapTexture.getGlTextureId());
+        GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
 
         int packed = entity.getBrightnessForRender();
         OpenGlHelper.setLightmapTextureCoords(

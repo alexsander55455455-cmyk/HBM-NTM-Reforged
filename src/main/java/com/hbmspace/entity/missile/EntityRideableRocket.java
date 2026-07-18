@@ -124,6 +124,11 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
     private boolean pendingStageSeparation = false;
     private int stageSeparationDelay = 0;
 
+    private boolean clientStationSyncInitialized = false;
+    private int clientStationOriginDimension;
+    private int clientStationTargetDimension;
+    private int clientStationMaxTimer;
+
     static {
         for(int i = 0; i < RocketStruct.MAX_STAGES; i++) {
             DP_ROCKET_STAGE_A[i] = EntityDataManager.createKey(EntityRideableRocket.class, DataSerializers.VARINT);
@@ -475,7 +480,9 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
                 OrbitalStation station = OrbitalStation.getStationFromPosition((int) posX, (int) posZ);
                 station.update(world);
 
-                if(station.getUnscaledProgress(0) > 0.99 || station.state == OrbitalStation.StationState.ARRIVING) {
+                boolean transferComplete = station.getUnscaledProgress(0) > 0.99
+                        || station.state == OrbitalStation.StationState.ARRIVING;
+                if(transferComplete) {
                     ItemVOTVdrive.Target from = CelestialBody.getTarget(world, (int) posX, (int) posZ);
                     ItemVOTVdrive.Target to = getTarget();
 
@@ -483,10 +490,10 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
 
                     SolarSystemWorldSavedData data = SolarSystemWorldSavedData.get(world);
                     data.removeStation(station);
-                }
-
-                if(rider instanceof EntityPlayerMP) {
-                    PacketThreading.createSendToThreadedPacket(new EntityBufPacket(getEntityId(), this), (EntityPlayerMP) rider);
+                } else if(rider instanceof EntityPlayerMP) {
+                    EntityBufPacket stationPacket = new EntityBufPacket(getEntityId(), this);
+                    stationPacket.getCompiledBuffer();
+                    PacketThreading.createSendToThreadedPacket(stationPacket, (EntityPlayerMP) rider);
                 }
             } else {
                 rocketVelocity = 0.0D;
@@ -1188,41 +1195,11 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
     @SideOnly(Side.CLIENT)
     public int getBrightnessForRender() {
         double sampleY = posY + this.height * 0.65D;
-        int surface = world.getHeight((int) posX, (int) posZ);
-        BlockPos airSample = new BlockPos(this.posX, sampleY, this.posZ);
-        BlockPos groundSample = new BlockPos(this.posX, surface, this.posZ);
-
-        int packed = 0;
-        if(this.world.isBlockLoaded(airSample)) {
-            packed = brightenForFlight(this.world.getCombinedLight(airSample, 0));
-        }
-        if(this.world.isBlockLoaded(groundSample)) {
-            packed = maxPackedLight(packed, brightenForFlight(this.world.getCombinedLight(groundSample, 0)));
-        }
-        if(packed != 0) {
-            return packed;
+        BlockPos sample = new BlockPos(this.posX, sampleY, this.posZ);
+        if(this.world.isBlockLoaded(sample)) {
+            return this.world.getCombinedLight(sample, 0);
         }
         return super.getBrightnessForRender();
-    }
-
-    @SideOnly(Side.CLIENT)
-    private static int brightenForFlight(int packed) {
-        int block = packed & 0xFFFF;
-        int sky = packed >>> 16;
-        if(sky > 8 && block < (sky * 3) / 4) {
-            int blendedBlock = Math.max(block, (sky * 3) / 4);
-            return blendedBlock | (sky << 16);
-        }
-        return packed;
-    }
-
-    @SideOnly(Side.CLIENT)
-    private static int maxPackedLight(int a, int b) {
-        if(a == 0) return b;
-        if(b == 0) return a;
-        int block = Math.max(a & 0xFFFF, b & 0xFFFF);
-        int sky = Math.max(a >>> 16, b >>> 16);
-        return block | (sky << 16);
     }
 
     @Override
@@ -1504,7 +1481,30 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
 
     @Override
     public void deserialize(ByteBuf buf) {
-        OrbitalStation.clientStation = OrbitalStation.deserialize(buf);
+        OrbitalStation incoming = OrbitalStation.deserialize(buf);
+        OrbitalStation current = OrbitalStation.clientStation;
+
+        boolean sameTransfer = clientStationSyncInitialized
+                && incoming.state == OrbitalStation.StationState.TRANSFER
+                && incoming.orbiting.dimensionId == clientStationOriginDimension
+                && incoming.target.dimensionId == clientStationTargetDimension
+                && incoming.maxStateTimer == clientStationMaxTimer;
+
+        if(sameTransfer
+                && current != null
+                && current.state == OrbitalStation.StationState.TRANSFER
+                && current.orbiting.dimensionId == incoming.orbiting.dimensionId
+                && current.target.dimensionId == incoming.target.dimensionId
+                && current.maxStateTimer == incoming.maxStateTimer
+                && current.stateTimer > incoming.stateTimer) {
+            incoming.stateTimer = Math.min(current.stateTimer, incoming.maxStateTimer);
+        }
+
+        OrbitalStation.clientStation = incoming;
+        clientStationSyncInitialized = true;
+        clientStationOriginDimension = incoming.orbiting.dimensionId;
+        clientStationTargetDimension = incoming.target.dimensionId;
+        clientStationMaxTimer = incoming.maxStateTimer;
     }
 
     private void scheduleStageSeparation(int delay) {
