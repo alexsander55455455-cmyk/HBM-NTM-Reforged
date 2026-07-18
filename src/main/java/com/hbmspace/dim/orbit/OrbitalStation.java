@@ -115,7 +115,7 @@ public class OrbitalStation {
 				}
 			}
 
-			SolarSystemWorldSavedData.get().markDirty();
+			SolarSystemWorldSavedData.get().markSaveDirty();
 
 			hasEngines = !engines.isEmpty();
 

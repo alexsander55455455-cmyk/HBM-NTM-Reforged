@@ -194,12 +194,12 @@ public class CloudProviderCelestial extends IRenderHandler {
 				GlStateManager.colorMask(true, true, true, true);
 			}
 
+			Tessellator tessellator = Tessellator.getInstance();
+			BufferBuilder buffer = tessellator.getBuffer();
+			buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+
 			for(int tileX = -FANCY_CLOUD_RADIUS + 1; tileX <= FANCY_CLOUD_RADIUS; tileX++) {
 				for(int tileZ = -FANCY_CLOUD_RADIUS + 1; tileZ <= FANCY_CLOUD_RADIUS; tileZ++) {
-					Tessellator tessellator = Tessellator.getInstance();
-					BufferBuilder buffer = tessellator.getBuffer();
-					buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-
 					float minCloudX = tileX * FANCY_CLOUD_TILE_SIZE;
 					float minCloudZ = tileZ * FANCY_CLOUD_TILE_SIZE;
 					float cloudX = minCloudX - cloudXOffset;
@@ -232,10 +232,10 @@ public class CloudProviderCelestial extends IRenderHandler {
 						addVerticalZFaces(buffer, cloudX, relativeCloudY, cloudZ, minCloudX, minCloudZ, cloudUBase, cloudVBase, 1.0F - 9.765625E-4F,
 							cloudRed * 0.8F, cloudGreen * 0.8F, cloudBlue * 0.8F, alpha);
 					}
-
-					tessellator.draw();
 				}
 			}
+
+			tessellator.draw();
 		}
 
 		GlStateManager.colorMask(true, true, true, true);

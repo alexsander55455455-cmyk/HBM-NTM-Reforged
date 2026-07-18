@@ -49,6 +49,10 @@ public class SolarSystemWorldSavedData extends WorldSavedData {
 		super.markDirty();
 		traitsSyncDirty = true;
 	}
+
+	public void markSaveDirty() {
+		super.markDirty();
+	}
 	
 	public static SolarSystemWorldSavedData get() {
 		return get(DimensionManager.getWorld(0));
