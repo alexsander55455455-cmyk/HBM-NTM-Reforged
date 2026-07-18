@@ -1,22 +1,16 @@
 [
   {
     "modid": "hbm",
-    "name": "HBM NTM X5687 for 1.12.2",
-    "description": "Source-integrated 1.12.2 port based on NTM:CE with NTM:Space X5687 content built in.",
+    "name": "HBM's NTM Reforged",
+    "description": "An unofficial Minecraft 1.12.2 edition of HBM's Nuclear Tech Mod with restored classic content, selected Extended Edition features, integrated space exploration, fixes, balance changes, and performance improvements.",
     "version": "${version}",
-    "credits": "\n\nHBMMods: creator\nDrillgon200: original 1.12.2 port\nTheOriginalGolem: 1.12.2 bug fixing\nAlcater: Custom 1.12.2 version, updating and texturing\n\nSten89: bug tester\nGB_Doge_9000: bug tester\nHoboy: textures and models\nDoctor17: Russian translations\ngrangerave\nrodolphito\nmexikoedi: log spam fix\nCrowbar Collective: gluon gun sounds\n70000HP: MIRV and configs\n",
+    "credits": "\n\nwayfame: Reforged maintainer\nHBMMods/The Bobcat: original creator\nDrillgon200: original 1.12.2 port\nWarfactory/CE team: 1.12.2 foundation\nMellow and JameH2: original NTM Space work\nTheOriginalGolem: 1.12.2 bug fixing\nAlcater: custom 1.12.2 version, updating and texturing\n\nSten89: bug tester\nGB_Doge_9000: bug tester\nHoboy: textures and models\nDoctor17: Russian translations\ngrangerave\nrodolphito\nmexikoedi: log spam fix\nCrowbar Collective: gluon gun sounds\n70000HP: MIRV and configs\n",
     "logoFile": "assets/hbm/textures/logo.png",
     "mcversion": "${mcversion}",
-    "url": "https://github.com/Warfactory-Official/Hbm-s-Nuclear-Tech-CE",
+    "url": "https://github.com/alexsander55455455-cmyk/HBM-NTM-Reforged",
     "updateUrl": "",
     "authorList": [
-      "MrNorwood",
-      "TheSlize",
-      "Movblock",
-      "EOS",
-      "Alcater",
-      "Drillgon200",
-      "HBMMods/The Bobcat"
+      "wayfame"
     ],
     "parent": "",
     "screenshots": [],
@@ -27,20 +21,16 @@
   },
   {
     "modid": "hbmspace",
-    "name": "HBM NTM X5687 Space Compatibility Layer",
-    "description": "Internal Space namespace for the integrated X5687 1.12.2 port. Kept for hbmspace registry compatibility.",
+    "name": "HBM NTM Reforged Space",
+    "description": "Integrated space content for HBM NTM Reforged. The hbmspace mod ID is retained for save and registry compatibility.",
     "version": "${version}",
-    "credits": "\n\nHBMMods: original creator\nMellow&JameH2: 1.7.10 space fork author\nWarfactory/CE team: 1.12.2 foundation\n",
+    "credits": "\n\nwayfame: Reforged maintainer\nHBMMods/The Bobcat: original creator\nMellow and JameH2: original NTM Space work\nWarfactory/CE team: 1.12.2 foundation\n",
     "logoFile": "assets/hbmspace/textures/logo.png",
     "mcversion": "${mcversion}",
-    "url": "https://github.com/Warfactory-Official/Hbm-s-Nuclear-Tech-CE-Space",
+    "url": "https://github.com/alexsander55455455-cmyk/HBM-NTM-Reforged",
     "updateUrl": "",
     "authorList": [
-      "Th3_Sl1ze",
-      "Movblock",
-      "Mellow",
-      "JameH2",
-      "HBMMods/The Bobcat"
+      "wayfame"
     ],
     "parent": "hbm",
     "screenshots": [],
