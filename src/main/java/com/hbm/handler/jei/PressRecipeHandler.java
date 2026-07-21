@@ -113,7 +113,12 @@ public class PressRecipeHandler implements IRecipeCategory<PressRecipeHandler.Wr
 		List<Wrapper> list = new ArrayList<>();
 		HashMap<Tuple.Pair<RecipesCommon.AStack, ItemStamp.StampType>, ItemStack> map = PressRecipes.recipes;
 		for (Map.Entry<Tuple.Pair<RecipesCommon.AStack, ItemStamp.StampType>, ItemStack> e : map.entrySet()) {
-			list.add(new Wrapper(e.getKey().getKey(), e.getKey().getValue(), e.getValue()));
+			Wrapper w = new Wrapper(e.getKey().getKey(), e.getKey().getValue(), e.getValue());
+			// Skip broken entries (empty ore dict / missing stamp type) so they do not poison focus.
+			if (w.inputAlts.isEmpty() || w.stampAlts.isEmpty() || w.results.isEmpty()) {
+				continue;
+			}
+			list.add(w);
 		}
 		return list;
 	}

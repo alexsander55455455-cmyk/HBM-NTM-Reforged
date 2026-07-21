@@ -245,14 +245,27 @@ public class AnvilRecipeHandler implements IRecipeCategory<AnvilRecipeHandler.An
 		List<AnvilRecipe> list = new ArrayList<>();
 		for (AnvilRecipes.AnvilConstructionRecipe recipe : AnvilRecipes.getConstruction()) {
 			List<List<ItemStack>> inputs = new ArrayList<>();
+			boolean missingInput = false;
 			for (RecipesCommon.AStack a : recipe.input) {
-				inputs.add(a.extractForJEI());
+				List<ItemStack> extracted = a.extractForJEI();
+				if (extracted == null || extracted.isEmpty()) {
+					missingInput = true;
+					break;
+				}
+				inputs.add(extracted);
+			}
+			if (missingInput || inputs.isEmpty()) {
+				continue;
 			}
 			List<ItemStack> outputs = new ArrayList<>();
 			List<Double> chances = new ArrayList<>();
 			for (AnvilRecipes.AnvilOutput ao : recipe.output) {
+				if (ao.stack == null || ao.stack.isEmpty()) continue;
 				outputs.add(ao.stack.copy());
 				chances.add((double) ao.chance);
+			}
+			if (outputs.isEmpty()) {
+				continue;
 			}
 			int tier = recipe.tierLower;
 			list.add(new AnvilRecipe(inputs, outputs, chances, tier, recipe.getOverlay()));

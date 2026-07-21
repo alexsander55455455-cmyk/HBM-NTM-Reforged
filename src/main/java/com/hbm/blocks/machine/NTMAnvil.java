@@ -35,6 +35,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class NTMAnvil extends BlockFalling implements IGUIProvider {
 	
@@ -70,19 +71,20 @@ public class NTMAnvil extends BlockFalling implements IGUIProvider {
 		ModBlocks.ALL_BLOCKS.add(this);
 	}
 
-	public static List<ItemStack> getAnvilsFromTier(int tier) {
-		List<NTMAnvil> anvils = tierMap.get(tier);
-
-		if(anvils != null) {
-			List<ItemStack> stacks = new ArrayList<>();
-
-			for(NTMAnvil anvil : anvils)
+	/**
+	 * Anvils that can run recipes requiring at least {@code minTier}
+	 * ({@link com.hbm.inventory.recipes.anvil.AnvilRecipes.AnvilConstructionRecipe#isTierValid}).
+	 * Used by JEI; must include higher tiers, not only the exact key.
+	 */
+	public static List<ItemStack> getAnvilsFromTier(int minTier) {
+		List<ItemStack> stacks = new ArrayList<>();
+		for(Map.Entry<Integer, List<NTMAnvil>> entry : tierMap.entrySet()) {
+			if(entry.getKey() < minTier) continue;
+			for(NTMAnvil anvil : entry.getValue()) {
 				stacks.add(new ItemStack(anvil));
-
-			return stacks;
+			}
 		}
-
-		return new ArrayList<>();
+		return stacks;
 	}
 
 	@Override

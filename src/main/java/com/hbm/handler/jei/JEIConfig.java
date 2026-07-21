@@ -688,6 +688,12 @@ public class JEIConfig implements IModPlugin {
         });
         subtypeRegistry.registerSubtypeInterpreter(ModItems.ammo_secret, stack -> "hbm:ammo_secret:" + stack.getMetadata());
         subtypeRegistry.registerSubtypeInterpreter(ModItems.item_secret, stack -> "hbm:item_secret:" + stack.getMetadata());
+        // ItemAutogen (wires, bolts, plates, ingots by meta) must distinguish mat.id so JEI
+        // recipe focus (R/U) can find press/anvil crafts per material.
+        for (com.hbm.items.special.ItemAutogen item : com.hbm.items.special.ItemAutogen.INSTANCES) {
+            subtypeRegistry.registerSubtypeInterpreter(item, stack ->
+                    item.getRegistryName() + ":" + stack.getMetadata());
+        }
 	}
 
     @Override
