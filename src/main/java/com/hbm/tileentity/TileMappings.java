@@ -175,6 +175,7 @@ public class TileMappings {
         put(TileEntityCoreInjector.class, "tileentity_v0_injector");
         put(TileEntityCoreStabilizer.class, "tileentity_v0_stabilizer");
         put(TileEntityCore.class, "tileentity_v0");
+        put(TileEntityMachineAmgen.class, "tileentity_machine_amgen");
         put(TileEntityMachineHephaestus.class, "tileentity_hephaestus");
         put(TileEntityGeysir.class, "tileentity_geysir");
         put(TileEntityMachineMissileAssembly.class, "tileentity_missile_assembly");

@@ -37,6 +37,7 @@ public class EEConfirmPortRecipes {
     }
 
     private static void addMachineCrafts() {
+        CraftingManager.addRecipeAuto(new ItemStack(ModBlocks.machine_geo, 1), "ITI", "PAP", "ITI", 'I', ALLOY.ingot(), 'T', ModItems.thermo_element, 'P', CU.plateCast(), 'A', ModBlocks.red_wire_coated);
         CraftingManager.addRecipeAuto(new ItemStack(ModBlocks.machine_minirtg, 1), "CRC", "CPC", "TAT", 'C', TI.plateCast(), 'R', ModItems.rtg_unit, 'P', ModItems.pellet_rtg, 'T', ModBlocks.brick_compound, 'A', DictFrame.fromOne(ModItems.circuit, EnumCircuitType.BASIC));
         CraftingManager.addRecipeAuto(new ItemStack(ModBlocks.machine_powerrtg, 1), "CRC", "CPC", "TAT", 'C', W.plateWelded(), 'R', ModItems.rtg_unit, 'P', ModItems.pellet_rtg_polonium, 'T', ModBlocks.brick_compound, 'A', DictFrame.fromOne(ModItems.circuit, EnumCircuitType.BISMOID));
         CraftingManager.addRecipeAuto(new ItemStack(ModBlocks.hadron_core, 1), "CCC", "DSD", "CCC", 'C', ModBlocks.hadron_coil_alloy, 'D', ModBlocks.hadron_diode, 'S', DictFrame.fromOne(ModItems.circuit, EnumCircuitType.CONTROLLER_QUANTUM));
