@@ -11,7 +11,7 @@
 		},
 		"frame": "goal"
 	},
-	"parent": "hbm:progress_modtable",
+	"parent": "hbm:root",
 	"criteria": {
         "crafting_table": {
             "trigger": "minecraft:inventory_changed",
