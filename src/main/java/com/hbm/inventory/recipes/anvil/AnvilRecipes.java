@@ -170,14 +170,12 @@ public class AnvilRecipes extends SerializableRecipe {
 		constructionRecipes.add(new AnvilConstructionRecipe(new OreDictStack(SA326.ingot()), new AnvilOutput(new ItemStack(ModItems.plate_schrabidium))).setTier(3));
 		constructionRecipes.add(new AnvilConstructionRecipe(new OreDictStack(CMB.ingot()), new AnvilOutput(new ItemStack(ModItems.plate_combine_steel))).setTier(3));
 
-		// Wire from ingot: same as press (StampType.WIRE). Tier 1 so early iron anvil shows in JEI;
-		// still valid on higher-tier anvils via isTierValid.
 		for(NTMMaterial mat : Mats.orderedList) {
 			if(mat.autogen.contains(MaterialShapes.WIRE) && OreDictionary.doesOreNameExist(MaterialShapes.INGOT.make(mat))) {
 				constructionRecipes.add(new AnvilConstructionRecipe(
 						new OreDictStack(MaterialShapes.INGOT.make(mat)),
 						new AnvilOutput(new ItemStack(ModItems.wire_fine, 8, mat.id))
-				).setTier(1));
+				).setTier(4));
 			}
 		}
 

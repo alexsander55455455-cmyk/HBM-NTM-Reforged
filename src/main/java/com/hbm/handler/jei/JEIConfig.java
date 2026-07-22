@@ -38,6 +38,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.oredict.OreDictionary;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -473,6 +474,7 @@ public class JEIConfig implements IModPlugin {
 
         // Some things are even beyond my control...or are they?
         blacklist.addIngredientToBlacklist(new ItemStack(ModItems.memory));
+        blacklist.addIngredientToBlacklist(new ItemStack(ModItems.wire_legacy, 1, OreDictionary.WILDCARD_VALUE));
         blacklist.addIngredientToBlacklist(new ItemStack(ModBlocks.machine_electric_furnace_on));
         blacklist.addIngredientToBlacklist(new ItemStack(ModBlocks.machine_difurnace_on));
         blacklist.addIngredientToBlacklist(new ItemStack(ModBlocks.machine_difurnace_off));

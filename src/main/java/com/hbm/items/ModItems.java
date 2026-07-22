@@ -3581,7 +3581,8 @@ public class ModItems {
     public static final Item waste_schrabidium_hot = new ItemCustomLore("waste_schrabidium_hot").setCreativeTab(MainRegistry.partsTab);
     public static final Item waste_thorium_hot = new ItemCustomLore("waste_thorium_hot").setCreativeTab(MainRegistry.partsTab);
     public static final Item waste_uranium_hot = new ItemCustomLore("waste_uranium_hot").setCreativeTab(MainRegistry.partsTab);
-    public static final Item wire = new ItemAutogen(MaterialShapes.WIRE, "wire")
+    // Keep the old registry entry for existing worlds, but use wire_fine in all runtime recipes.
+    public static final Item wire_legacy = new ItemAutogen(MaterialShapes.WIRE, "wire")
             .aot(Mats.MAT_GOLD, "wire_gold")
             .aot(Mats.MAT_CARBON, "wire_carbon")
             .aot(Mats.MAT_SCHRABIDIUM, "wire_schrabidium")
@@ -3593,7 +3594,9 @@ public class ModItems {
             .aot(Mats.MAT_MINGRADE, "wire_mingrade")
             .aot(Mats.MAT_ALLOY, "wire_advancedalloy")
             .aot(Mats.MAT_MAGTUNG, "wire_magnetizedtungsten")
-            .setCreativeTab(MainRegistry.partsTab);
+            .setCreativeTab(null);
+    @Deprecated
+    public static final Item wire = wire_fine;
 public static void registerItems() {
         GunFactory.init();
         excludeNEI.add(item_secret);
