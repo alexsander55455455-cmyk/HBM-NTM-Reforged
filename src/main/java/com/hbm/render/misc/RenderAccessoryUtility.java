@@ -113,6 +113,8 @@ public class RenderAccessoryUtility {
 	}
 
 	public static void loadCape(NetworkPlayerInfo info, ResourceLocation rl) {
-		info.playerTextures.put(Type.CAPE, rl);
+		if(info != null) {
+			info.playerTextures.put(Type.CAPE, rl);
+		}
 	}
 }
