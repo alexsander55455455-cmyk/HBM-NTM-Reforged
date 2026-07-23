@@ -10,6 +10,7 @@ public final class ModPresence {
     public static final boolean NOTHIRIUM = Launch.classLoader.getResource("meldexun/nothirium/mc/Nothirium.class") != null;
     public static final boolean CELERITAS = Launch.classLoader.getResource("org/taumc/celeritas/CeleritasVintage.class") != null;
     public static final boolean JEI = Launch.classLoader.getResource("mezz/jei/JustEnoughItems.class") != null;
+    public static final boolean VINTAGEFIX = Launch.classLoader.getResource("org/embeddedt/vintagefix/VintageFix.class") != null;
 
     private ModPresence() {
     }

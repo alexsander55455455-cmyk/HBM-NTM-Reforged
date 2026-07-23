@@ -14,7 +14,7 @@ public class RenderAAShell extends Render<EntityAAShell> {
 
 	public static final IRenderFactory<EntityAAShell> FACTORY = RenderAAShell::new;
 
-	private static final ResourceLocation boyTexture = new ResourceLocation(Tags.MODID, "textures/models/TheGadget3_.png");
+	private static final ResourceLocation boyTexture = new ResourceLocation(Tags.MODID, "textures/models/thegadget3_.png");
 
 	protected RenderAAShell(RenderManager renderManager) {
 		super(renderManager);

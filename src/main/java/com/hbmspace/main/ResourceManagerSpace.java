@@ -128,5 +128,5 @@ public class ResourceManagerSpace {
     public static final IModelCustom plane = new HFRWavefrontObject(new ResourceLocation("hbm", "models/misc/plane.obj")).asVBO();
     public static final IModelCustom sphere_v2 = new HFRWavefrontObject(new ResourceLocation("hbm", "models/misc/spherev2.obj")).asVBO();
 
-    public static final ResourceLocation universal = new ResourceLocation("hbm", "textures/models/TheGadget3_.png");
+    public static final ResourceLocation universal = new ResourceLocation("hbm", "textures/models/thegadget3_.png");
 }

@@ -16,6 +16,7 @@ import com.hbm.blocks.machine.rbmk.RBMKDebrisRadiating;
 import com.hbm.command.CommandRadVisClient;
 
 import com.hbm.config.GeneralConfig;
+import com.hbm.core.ModPresence;
 import com.hbm.entity.grenade.*;
 import com.hbm.entity.grenade.IGenericGrenade;
 import com.hbm.entity.particle.*;
@@ -182,6 +183,9 @@ public class ClientProxy extends ServerProxy {
         MinecraftForge.EVENT_BUS.register(new ModEventHandlerRenderer());
         MinecraftForge.EVENT_BUS.register(new PlacementPreviewHandler());
         MinecraftForge.EVENT_BUS.register(theInfoSystem);
+        if (ModPresence.VINTAGEFIX) {
+            MinecraftForge.EVENT_BUS.register(VintageFixTextureCompat.INSTANCE);
+        }
         ClientCommandHandler.instance.registerCommand(new CommandRadVisClient());
 
         HbmShaderManager.loadShaders();
