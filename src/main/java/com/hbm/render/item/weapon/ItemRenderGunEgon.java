@@ -41,6 +41,11 @@ public class ItemRenderGunEgon extends TEISRBase {
 		return true;
 	}
 
+	@Override
+	public boolean useFMMPerspective(Item item) {
+		return true;
+	}
+
 	public static void renderGluonBeam(EntityPlayer player, float partialTicks, boolean firstPerson) {
 		float[] angles = ItemGunEgon.getBeamDirectionOffset(player.world.getTotalWorldTime() + partialTicks);
 		Vec3d look = Library.changeByAngle(player.getLook(partialTicks), angles[0], angles[1]);

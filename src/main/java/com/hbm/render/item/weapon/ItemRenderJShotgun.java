@@ -45,6 +45,11 @@ public class ItemRenderJShotgun extends TEISRBase {
 	}
 
 	@Override
+	public boolean useFMMPerspective(Item item) {
+		return true;
+	}
+
+	@Override
 	public void renderByItem(ItemStack stack) {
 		boolean prevBlend = RenderUtil.isBlendEnabled();
 		int prevSrc = RenderUtil.getBlendSrcFactor();
