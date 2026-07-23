@@ -32,6 +32,11 @@ import org.lwjgl.opengl.GL11;
 public class ItemRenderGunEgon extends TEISRBase {
 
 	@Override
+	public ModelBinding createModelBinding(Item item) {
+		return bindingFullTeisr(item);
+	}
+
+	@Override
 	public boolean useRegistryPerspective(Item item) {
 		return true;
 	}
