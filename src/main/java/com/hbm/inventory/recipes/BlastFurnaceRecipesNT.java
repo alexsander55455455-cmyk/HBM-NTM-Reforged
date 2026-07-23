@@ -1,12 +1,15 @@
 package com.hbm.inventory.recipes;
 
+import com.hbm.blocks.ModBlocks;
 import com.hbm.handler.imc.IMCBlastFurnace;
 import com.hbm.inventory.RecipesCommon.ComparableStack;
 import com.hbm.inventory.RecipesCommon.OreDictStack;
+import com.hbm.inventory.fluid.Fluids;
 import com.hbm.inventory.material.Mats;
 import com.hbm.inventory.recipes.loader.GenericRecipe;
 import com.hbm.inventory.recipes.loader.GenericRecipes;
 import com.hbm.items.ModItems;
+import com.hbm.items.tool.ItemCanister;
 import com.hbm.main.MainRegistry;
 import com.hbmspace.items.ModItemsSpace;
 import net.minecraft.init.Items;
@@ -64,6 +67,20 @@ public class BlastFurnaceRecipesNT extends GenericRecipes<GenericRecipe> {
         this.register(new GenericRecipe("blast.meteorSword").setDuration(1_200)
                 .inputItems(new OreDictStack(CO.ingot()), new ComparableStack(ModItems.meteorite_sword_hardened, 1))
                 .outputItems(new ItemStack(ModItems.meteorite_sword_alloyed, 1)));
+        this.register(new GenericRecipe("blast.meteorSwordDust").setDuration(1_200)
+                .inputItems(new OreDictStack(CO.dust()), new ComparableStack(ModItems.meteorite_sword_hardened, 1))
+                .outputItems(new ItemStack(ModItems.meteorite_sword_alloyed, 1)));
+
+        this.register(new GenericRecipe("blast.meteorite").setDuration(400)
+                .inputItems(new ComparableStack(ModBlocks.block_meteor), new OreDictStack(CO.ingot()))
+                .outputItems(new ItemStack(ModItems.ingot_meteorite, 1)));
+        this.register(new GenericRecipe("blast.meteoriteDust").setDuration(400)
+                .inputItems(new ComparableStack(ModBlocks.block_meteor), new OreDictStack(CO.dust()))
+                .outputItems(new ItemStack(ModItems.ingot_meteorite, 1)));
+
+        this.register(new GenericRecipe("blast.napalm").setDuration(400)
+                .inputItems(new ComparableStack(ItemCanister.getStackFromFluid(Fluids.DIESEL)), new ComparableStack(Items.SLIME_BALL))
+                .outputItems(new ItemStack(ModItems.canister_napalm, 1)));
 
         this.register(new GenericRecipe("blast.starmetal").setDuration(600)
                 .inputItems(new OreDictStack(BIGMT.ingot()), new ComparableStack(ModItems.powder_meteorite, 1))
