@@ -8,6 +8,7 @@ import com.hbm.lib.HBMSoundHandler;
 import com.hbm.main.MainRegistry;
 import com.hbm.sound.AudioWrapper;
 import com.hbm.util.EnumUtil;
+import com.hbm.world.SecretBackpackLoot;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.Vec3d;
@@ -17,6 +18,9 @@ public class EntityC130 extends EntityPlaneBase {
 
     protected AudioWrapper audio;
     public C130PayloadType payload = C130PayloadType.SUPPLIES;
+    private boolean secretSmugglerRolled;
+    private boolean secretSmugglerPending;
+    private boolean payloadDropped;
 
     public EntityC130(World world) {
         super(world);
@@ -44,12 +48,19 @@ public class EntityC130 extends EntityPlaneBase {
             }
         }
 
-        if(!world.isRemote && this.ticksExisted == this.getLifetime() / 2 && this.health > 0) {
+        if(!world.isRemote && this.ticksExisted >= this.getLifetime() / 2 && !payloadDropped && this.health > 0) {
             EntityParachuteCrate crate = new EntityParachuteCrate(world);
             crate.setPosition(posX - motionX * 7, posY - 10, posZ - motionZ * 7);
 
             if(this.payload == C130PayloadType.SUPPLIES) {
+                if (!secretSmugglerRolled) {
+                    secretSmugglerRolled = true;
+                    secretSmugglerPending = SecretBackpackLoot.roll(this.rand, 12);
+                }
                 for(int i = 0; i < 5; i++) crate.items.add(ItemPool.getStack(ItemPoolsC130.POOL_SUPPLIES, this.rand));
+                if (secretSmugglerPending) {
+                    SecretBackpackLoot.insertBlueprint(crate.items, SecretBackpackLoot.SMUGGLER);
+                }
             }
             if(this.payload == C130PayloadType.WEAPONS) {
                 int amount = 1 + rand.nextInt(2);
@@ -57,7 +68,10 @@ public class EntityC130 extends EntityPlaneBase {
                 for(int i = 0; i < 6; i++) crate.items.add(ItemPool.getStack(ItemPoolsC130.POOL_AMMO, this.rand));
             }
 
-            world.spawnEntity(crate);
+            if (world.spawnEntity(crate)) {
+                payloadDropped = true;
+                secretSmugglerPending = false;
+            }
         }
     }
 
@@ -65,12 +79,18 @@ public class EntityC130 extends EntityPlaneBase {
     protected void readEntityFromNBT(NBTTagCompound nbt) {
         super.readEntityFromNBT(nbt);
         this.payload = EnumUtil.grabEnumSafely(C130PayloadType.VALUES, nbt.getInteger("payload"));
+        this.secretSmugglerRolled = nbt.getBoolean("secretSmugglerRolled");
+        this.secretSmugglerPending = nbt.getBoolean("secretSmugglerPending");
+        this.payloadDropped = nbt.getBoolean("payloadDropped");
     }
 
     @Override
     protected void writeEntityToNBT(NBTTagCompound nbt) {
         super.writeEntityToNBT(nbt);
         nbt.setInteger("payload", this.payload.ordinal());
+        nbt.setBoolean("secretSmugglerRolled", secretSmugglerRolled);
+        nbt.setBoolean("secretSmugglerPending", secretSmugglerPending);
+        nbt.setBoolean("payloadDropped", payloadDropped);
     }
 
     public void fac(World world, double x, double y, double z, C130PayloadType payload) {
@@ -80,6 +100,9 @@ public class EntityC130 extends EntityPlaneBase {
         vector = vector.scale(2);
 
         this.payload = payload;
+        this.secretSmugglerRolled = true;
+        this.secretSmugglerPending = payload == C130PayloadType.SUPPLIES && SecretBackpackLoot.roll(world.rand, 12);
+        this.payloadDropped = false;
 
         this.setLocationAndAngles(x - vector.x * 100, y + 100, z - vector.z * 100, 0.0F, 0.0F);
         this.loadNeighboringChunks((int) (x / 16), (int) (z / 16));

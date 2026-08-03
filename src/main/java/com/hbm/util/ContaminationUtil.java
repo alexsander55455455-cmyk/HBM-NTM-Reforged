@@ -1,5 +1,6 @@
 package com.hbm.util;
 
+import com.hbm.capability.BackpackCapability;
 import com.hbm.capability.HbmLivingCapability.EntityHbmProps;
 import com.hbm.capability.HbmLivingProps;
 import com.hbm.config.CompatibilityConfig;
@@ -18,12 +19,14 @@ import com.hbm.entity.projectile.EntityExplosiveBeam;
 import com.hbm.entity.projectile.EntityMiniMIRV;
 import com.hbm.entity.projectile.EntityMiniNuke;
 import com.hbm.handler.ArmorUtil;
+import com.hbm.handler.BackpackHandler;
 import com.hbm.handler.HazmatRegistry;
 import com.hbm.handler.radiation.ChunkRadiationManager;
 import com.hbm.hazard.HazardSystem;
 import com.hbm.hazard.type.HazardTypeRadiation;
 import com.hbm.interfaces.IRadiationImmune;
 import com.hbm.items.ModItems;
+import com.hbm.items.tool.ItemBackpack;
 import com.hbm.lib.Library;
 import com.hbm.lib.ModDamageSource;
 import com.hbm.potion.HbmPotion;
@@ -247,6 +250,7 @@ public class ContaminationUtil {
 		for (ItemStack offhand : player.inventory.offHandInventory) {
 			radBuffer += getNeutronRads(offhand);
 		}
+		radBuffer += getNeutronRads(BackpackCapability.getData(player).getEquippedBackpack());
 		return radBuffer;
 	}
 
@@ -287,11 +291,21 @@ public class ContaminationUtil {
 	}
 
 	public static boolean neutronActivateInventory(EntityPlayer player, float rad, float decay) {
+		return neutronActivateInventory(player, rad, decay, false);
+	}
+
+	/**
+	 * Applies neutron activation or decontamination to the inventory.
+	 * The held stack remains excluded for ordinary activation to preserve the
+	 * existing item-use behavior. Decontamination equipment can opt in so the
+	 * selected hotbar slot is cleaned as well.
+	 */
+	public static boolean neutronActivateInventory(EntityPlayer player, float rad, float decay, boolean includeHeldItem) {
 		boolean changed = false;
 		int tick = player.ticksExisted;
 
 		for (int slotI = 0; slotI < player.inventory.mainInventory.size(); slotI++) {
-			if (slotI == player.inventory.currentItem) {
+			if (!includeHeldItem && slotI == player.inventory.currentItem) {
 				continue;
 			}
 			ItemStack current = player.inventory.getStackInSlot(slotI);
@@ -320,6 +334,13 @@ public class ContaminationUtil {
 				changed = true;
 			}
 		}
+		ItemStack equipped = BackpackCapability.getData(player).getEquippedBackpack();
+		NeutronItemUpdate equippedUpdate = neutronActivateItemCopy(equipped, rad, decay);
+		if (equippedUpdate.changed()) {
+			BackpackCapability.getData(player).setEquippedBackpack(equippedUpdate.stack());
+			logNeutronSlotRewrite(player, tick, "backpack", 0, equipped, equippedUpdate);
+			changed = true;
+		}
 		return changed;
 	}
 
@@ -334,10 +355,7 @@ public class ContaminationUtil {
 	}
 
 	public static void syncNeutronInventoryToClient(EntityPlayer player) {
-		player.inventory.markDirty();
-		if (player.inventoryContainer != null) {
-			player.inventoryContainer.detectAndSendChanges();
-		}
+		BackpackHandler.syncEquipmentState(player);
 	}
 
 	/**
@@ -388,7 +406,12 @@ public class ContaminationUtil {
 			prevActivation = copy.getTagCompound().getFloat(NTM_NEUTRON_NBT_KEY);
 		}
 
-		float newActivation = prevActivation * decay + (rad / copy.getCount());
+		float adjustedRad = rad;
+		if (adjustedRad > 0F && copy.getItem() instanceof ItemBackpack backpack) {
+			adjustedRad *= (float) Math.max(0D, 1D - backpack.getRadiationShielding());
+		}
+
+		float newActivation = prevActivation * decay + (adjustedRad / copy.getCount());
 
 		if (newActivation < 0.0001F) {
 			if (prevActivation > 0F) {

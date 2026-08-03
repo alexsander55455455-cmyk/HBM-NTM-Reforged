@@ -50,10 +50,8 @@ public class TileEntityDeconRad extends TileEntity implements ITickable {
 						}
 					}
 					if(e instanceof EntityPlayer player){
-						boolean changed = ContaminationUtil.neutronActivateInventory(player, -0.005F, decayRate);
-						if (changed && player.inventoryContainer != null) {
-							player.inventoryContainer.detectAndSendChanges();
-						}
+						boolean changed = ContaminationUtil.neutronActivateInventory(player, -0.005F, decayRate, true);
+						if (changed) ContaminationUtil.syncNeutronInventoryToClient(player);
 					}
 				}
 			}

@@ -5,6 +5,7 @@ import com.hbm.entity.projectile.EntityRubble;
 import com.hbm.interfaces.AutoRegister;
 import com.hbm.interfaces.IConstantRenderer;
 import com.hbm.items.ModItems;
+import com.hbm.items.tool.ItemBackpack;
 import com.hbm.lib.ModDamageSource;
 import com.hbm.render.amlfrom1710.Vec3;
 import net.minecraft.block.Block;
@@ -158,9 +159,12 @@ public class EntityBlackHole extends Entity implements IConstantRenderer {
 				continue;
 
 			if (dist < size * 1.5F) {
+				boolean protectedBackpack = e instanceof EntityItem itemEntity
+						&& itemEntity.getItem().getItem() instanceof ItemBackpack backpack
+						&& backpack.protectsDroppedItemDamage(ModDamageSource.blackhole, 1000.0F);
 				e.attackEntityFrom(ModDamageSource.blackhole, 1000.0F);
 
-				if (!(e instanceof EntityLivingBase))
+				if (!(e instanceof EntityLivingBase) && !protectedBackpack)
 					e.setDead();
 
 				if (!world.isRemote && e instanceof EntityItem) {

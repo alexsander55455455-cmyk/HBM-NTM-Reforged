@@ -16,6 +16,7 @@ import com.hbm.util.BufferUtil;
 import com.hbm.util.DelayedTick;
 import com.hbm.util.I18nUtil;
 import com.hbm.util.LootGenerator;
+import com.hbm.world.SecretBackpackLoot;
 import com.hbm.world.gen.nbt.INBTTileEntityTransformable;
 import com.mojang.authlib.GameProfile;
 import io.netty.buffer.ByteBuf;
@@ -215,6 +216,8 @@ public class BlockWandLoot extends BlockContainerBakeable implements ILookOverla
         private String poolName = LootGenerator.LOOT_BOOKLET;
         private int minItems;
         private int maxItems = 1;
+        private String bonusBlueprintPool = "";
+        private int bonusBlueprintDenominator;
 
         private float placedRotation;
 
@@ -266,6 +269,10 @@ public class BlockWandLoot extends BlockContainerBakeable implements ILookOverla
                 LootGenerator.applyLoot(world, pos.getX(), pos.getY(), pos.getZ(), poolName);
             }
 
+            if (!bonusBlueprintPool.isEmpty() && SecretBackpackLoot.roll(world.rand, bonusBlueprintDenominator)) {
+                SecretBackpackLoot.insertBlueprint(world, pos, bonusBlueprintPool);
+            }
+
             if (!(world instanceof WorldServer)) return;
 
             try {
@@ -304,6 +311,10 @@ public class BlockWandLoot extends BlockContainerBakeable implements ILookOverla
             nbt.setInteger("min", minItems);
             nbt.setInteger("max", maxItems);
             nbt.setString("pool", poolName);
+            if (!bonusBlueprintPool.isEmpty() && bonusBlueprintDenominator > 0) {
+                nbt.setString("bonusBlueprintPool", bonusBlueprintPool);
+                nbt.setInteger("bonusBlueprintDenominator", bonusBlueprintDenominator);
+            }
             nbt.setFloat("rot", placedRotation);
 
             nbt.setBoolean("trigger", triggerReplace);
@@ -318,6 +329,8 @@ public class BlockWandLoot extends BlockContainerBakeable implements ILookOverla
             minItems = nbt.getInteger("min");
             maxItems = nbt.getInteger("max");
             poolName = nbt.getString("pool");
+            bonusBlueprintPool = nbt.getString("bonusBlueprintPool");
+            bonusBlueprintDenominator = nbt.getInteger("bonusBlueprintDenominator");
             placedRotation = nbt.getFloat("rot");
 
             if (replaceBlock == null) replaceBlock = ModBlocks.deco_loot;

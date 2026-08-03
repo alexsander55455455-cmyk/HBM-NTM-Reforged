@@ -25,6 +25,7 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
 import java.util.List;
@@ -186,6 +187,7 @@ public class ItemGlitch extends Item implements IBatteryItem {
 	@Override
 	public void addInformation(ItemStack stack, World worldIn, List<String> list, ITooltipFlag flagIn) {
 		list.add(I18nUtil.resolveKey("desc.glitch"));
+		list.add(TextFormatting.DARK_PURPLE + I18nUtil.resolveKey("desc.glitch.second_pass"));
 		list.add("");
 		if(MainRegistry.polaroidID > 0 && MainRegistry.polaroidID < 19)
 			list.add(I18nUtil.resolveKey("desc.glitch."+MainRegistry.polaroidID));
