@@ -61,7 +61,7 @@ public class EntityTaintCrab extends EntityCyberCrab {
 	@Override
 	protected void dropLoot(boolean wasRecentlyHit, int lootingModifier, DamageSource source) {
 		super.dropLoot(wasRecentlyHit, lootingModifier, source);
-		this.dropItem(ModItems.coil_advanced_alloy, 1);
+		this.dropItem(ModItems.coil_copper, 1);
 		if (this.rand.nextInt(200) == 0) {
 			this.dropItem(ModItems.coil_magnetized_tungsten, 1);
 		}

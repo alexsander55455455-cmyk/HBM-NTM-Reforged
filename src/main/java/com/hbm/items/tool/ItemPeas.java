@@ -28,10 +28,13 @@ public class ItemPeas extends Item {
 			player.getHeldItem(hand).shrink(1);
 		}
 		
-		List<EntityQuackos> quacc = world.getEntitiesWithinAABB(EntityQuackos.class, player.getEntityBoundingBox().grow(50, 50, 50));
-		
-		for(EntityQuackos ducc : quacc) {
-			ducc.despawn();
+		if (!world.isRemote) {
+			List<EntityQuackos> quacc = world.getEntitiesWithinAABB(EntityQuackos.class, player.getEntityBoundingBox().grow(50, 50, 50));
+
+			for(EntityQuackos ducc : quacc) {
+				ducc.entityDropItem(new ItemStack(ModItems.spawn_duck, 3), 0.0F);
+				ducc.despawn();
+			}
 		}
 		
 		return ActionResult.newResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
