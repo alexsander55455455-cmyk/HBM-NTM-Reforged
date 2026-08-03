@@ -20,6 +20,7 @@ import com.hbm.inventory.material.MaterialShapes;
 
 import com.hbm.items.ModItems;
 import com.hbm.items.machine.ItemBreedingRod;
+import com.hbm.items.machine.ItemPileRodMK2.EnumPileRod;
 import com.hbm.items.machine.ItemWatzPellet;
 import com.hbm.items.machine.ItemZirnoxRod;
 import net.minecraft.entity.item.EntityItem;
@@ -508,6 +509,12 @@ public class HazardRegistry {
 		HazardSystem.register(pellet_rtg_depleted_neptunium, makeData(RADIATION, 3.75F).addEntry(HOT, 5F));
 		HazardSystem.register(pellet_rtg_depleted_zirconium, makeData(RADIATION, 2F));
 
+		HazardSystem.register(new ItemStack(ModItems.pile_rod, 1, EnumPileRod.RA226BE.ordinal()), makeData(RADIATION, rabe * billet * 3));
+		HazardSystem.register(new ItemStack(ModItems.pile_rod, 1, EnumPileRod.PO210BE.ordinal()), makeData(RADIATION, pobe * billet * 3));
+		HazardSystem.register(new ItemStack(ModItems.pile_rod, 1, EnumPileRod.NU.ordinal()), makeData(RADIATION, u * billet * 3));
+		HazardSystem.register(new ItemStack(ModItems.pile_rod, 1, EnumPileRod.PU239.ordinal()), makeData(RADIATION, pu239 * billet * 3));
+		HazardSystem.register(new ItemStack(ModItems.pile_rod, 1, EnumPileRod.RGP.ordinal()), makeData(RADIATION, purg * billet * 3));
+		HazardSystem.register(new ItemStack(ModItems.pile_rod, 1, EnumPileRod.WASTE.ordinal()), makeData(RADIATION, wst * billet * 3));
 
 		HazardSystem.register(pile_rod_uranium, makeData(RADIATION, u * billet * 3));
 		HazardSystem.register(pile_rod_pu239, makeData(RADIATION, !GeneralConfig.enable528 ? purg * billet + pu239 * billet + u * billet : purg * billet + pu239 * billet + wst * billet));

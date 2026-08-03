@@ -55,6 +55,7 @@ public class XFactoryFlamer {
     public static BulletConfig flame_daybreaker_gas;
     public static BulletConfig flame_daybreaker_napalm;
     public static BulletConfig flame_daybreaker_balefire;
+    public static BulletConfig pile_debris;
 
     public static Consumer<Entity> LAMBDA_FIRE = (bullet) -> {
         if(bullet.world.isRemote && MainRegistry.proxy.me().getDistance(bullet) < 100) FlameCreator.composeEffectClient(bullet.world, bullet.posX, bullet.posY - 0.125, bullet.posZ, FlameCreator.META_FIRE);
@@ -135,6 +136,12 @@ public class XFactoryFlamer {
                 .setOnImpact((bullet, mop) -> { Lego.standardExplode(bullet, mop, 7.5F); spawnFire(bullet, mop, 6F, 2F, 300, EntityFireLingering.TYPE_DIESEL); bullet.setDead(); });
         flame_daybreaker_balefire = flame_balefire.clone().setLife(200).setVel(2F).setGrav(0.035F)
                 .setOnImpact((bullet, mop) -> { Lego.standardExplode(bullet, mop, 5F); spawnFire(bullet, mop, 7.5F, 2.5F, 400, EntityFireLingering.TYPE_BALEFIRE); bullet.setDead(); });
+        pile_debris = new BulletConfig().setLife(200).setVel(1F).setGrav(0.1F)
+                .setOnUpdate(LAMBDA_FIRE)
+                .setOnImpact((bullet, mop) -> {
+                    bullet.world.newExplosion(bullet, bullet.posX, bullet.posY, bullet.posZ, 5F, true, false);
+                    bullet.setDead();
+                });
 
         ModItems.gun_flamer_sedna = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.A_SIDE, "gun_flamer_sedna", new GunConfig()
                 .dura(20_000).draw(10).inspect(17).crosshair(Crosshair.L_CIRCLE)
