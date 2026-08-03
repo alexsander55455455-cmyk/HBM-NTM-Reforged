@@ -31,7 +31,7 @@ public class HbmLivingProps {
 
     public static final UUID digamma_UUID = UUID.fromString("2a3d8aec-5ab9-4218-9b8b-ca812bdf378b");
     public static final int maxAsbestos = 60 * 60 * 20;
-    public static final int maxBlacklung = 2 * 60 * 60 * 20;
+    public static final int maxBlacklung = HbmLivingCapability.EntityHbmProps.maxBlacklung;
 
     public static IEntityHbmProps getData(EntityLivingBase entity) {
         return entity.hasCapability(HbmLivingCapability.EntityHbmPropsProvider.ENT_HBM_PROPS_CAP, null)
@@ -195,10 +195,20 @@ public class HbmLivingProps {
     }
 
     public static void incrementBlackLung(EntityLivingBase entity, int blacklung) {
-        setBlackLung(entity, getBlackLung(entity) + blacklung);
+        int previousBlackLung = getBlackLung(entity);
+        int currentBlackLung = previousBlackLung + blacklung;
+        setBlackLung(entity, currentBlackLung);
 
-        if (entity instanceof EntityPlayerMP) {
-            PacketDispatcher.wrapper.sendTo(new PlayerInformPacketLegacy(new TextComponentTranslation("info.coaldust").setStyle(new Style().setColor(TextFormatting.RED)), 10, 3000), (EntityPlayerMP) entity);
+        if (blacklung > 0 && entity instanceof EntityPlayerMP) {
+            int warningThreshold = maxBlacklung / 10;
+            int symptomThreshold = maxBlacklung / 4;
+
+            if (previousBlackLung < warningThreshold && currentBlackLung >= warningThreshold) {
+                PacketDispatcher.wrapper.sendTo(new PlayerInformPacketLegacy(new TextComponentTranslation("info.coaldust").setStyle(new Style().setColor(TextFormatting.RED)), 10, 3000), (EntityPlayerMP) entity);
+            }
+            if (previousBlackLung < symptomThreshold && currentBlackLung >= symptomThreshold) {
+                PacketDispatcher.wrapper.sendTo(new PlayerInformPacketLegacy(new TextComponentTranslation("info.coaldust.symptoms").setStyle(new Style().setColor(TextFormatting.RED)), 10, 3000), (EntityPlayerMP) entity);
+            }
         }
     }
 

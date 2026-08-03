@@ -21,6 +21,8 @@ import java.util.List;
 
 public class HazardTypeCoal implements IHazardType {
 
+    private static final double REFERENCE_HAZARD_INTERVAL = 5D;
+
 	@Override
     public void onUpdate(final EntityLivingBase target, final double level, final ItemStack stack) {
 		
@@ -28,12 +30,29 @@ public class HazardTypeCoal implements IHazardType {
 			return;
 
         if (!ArmorRegistry.hasProtection(target, EntityEquipmentSlot.HEAD, HazardClass.PARTICLE_COARSE)) {
-            HbmLivingProps.incrementBlackLung(target, (int) Math.min(level * stack.getCount(), 10) * hazardRate);
+            double dose = calculateBlackLungDose(level, stack.getCount(), RadiationConfig.hazardRate);
+            int wholeDose = (int) dose;
+            if (target.getRNG().nextDouble() < dose - wholeDose) {
+                wholeDose++;
+            }
+            if (wholeDose > 0) {
+                HbmLivingProps.incrementBlackLung(target, wholeDose);
+            }
         } else {
             if (target.getRNG().nextInt(Math.max(65 - stack.getCount(), 1)) == 0) {
                 ArmorUtil.damageGasMaskFilter(target, (int) level * hazardRate);
             }
         }
+    }
+
+    static double calculateBlackLungDose(double level, int stackCount, int hazardInterval) {
+        if (level <= 0D || stackCount <= 0) {
+            return 0D;
+        }
+
+        double nonlinearStackScale = Math.sqrt(stackCount);
+        double referenceDose = level * (2D + (2D / 3D) * nonlinearStackScale);
+        return referenceDose * Math.max(hazardInterval, 1) / REFERENCE_HAZARD_INTERVAL;
     }
 
 	@Override

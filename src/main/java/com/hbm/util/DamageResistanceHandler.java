@@ -125,8 +125,10 @@ public class DamageResistanceHandler {
         itemStats.put(ModItems.jackt, new ResistanceStats().addCategory(CATEGORY_PHYSICAL, 5F, 0.5F));
         itemStats.put(ModItems.jackt2, new ResistanceStats().addCategory(CATEGORY_PHYSICAL, 5F, 0.5F));
 
-        registerSet(ModItems.steel_helmet, ModItems.steel_plate, ModItems.steel_legs, ModItems.steel_boots, new ResistanceStats());
-        registerSet(ModItems.titanium_helmet, ModItems.titanium_plate, ModItems.titanium_legs, ModItems.titanium_boots, new ResistanceStats());
+        registerSet(ModItems.steel_helmet, ModItems.steel_plate, ModItems.steel_legs, ModItems.steel_boots,
+                new ResistanceStats().addCategory(CATEGORY_PHYSICAL, 2F, 0.1F));
+        registerSet(ModItems.titanium_helmet, ModItems.titanium_plate, ModItems.titanium_legs, ModItems.titanium_boots,
+                new ResistanceStats().addCategory(CATEGORY_PHYSICAL, 3F, 0.1F));
         registerSet(ModItems.alloy_helmet, ModItems.alloy_plate, ModItems.alloy_legs, ModItems.alloy_boots,
                 new ResistanceStats().addCategory(CATEGORY_PHYSICAL, 2F, 0.1F));
         registerSet(ModItems.cobalt_helmet, ModItems.cobalt_plate, ModItems.cobalt_legs, ModItems.cobalt_boots,
