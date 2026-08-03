@@ -1,13 +1,15 @@
 package com.hbm.uninos.networkproviders;
 
 import com.hbm.api.ntl.ISlotMonitorProvider;
+import com.hbm.api.ntl.SlotMonitor;
+import com.hbm.api.ntl.StackCache;
 import com.hbm.lib.ForgeDirection;
+import com.hbm.lib.InventoryHelper;
 import com.hbm.tileentity.machine.TileEntityMachineAutocrafter;
 import com.hbm.tileentity.network.TileEntityPneumoTube;
 import com.hbm.uninos.INetworkProvider;
 import com.hbm.uninos.NodeNet;
 import com.hbm.util.BobMathUtil;
-import com.hbm.util.Compat;
 import com.hbm.util.ItemStackUtil;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
@@ -44,6 +46,57 @@ public class PneumaticNetwork extends NodeNet<PneumaticNetwork.ReceiverTarget, T
     // not actually individual items, but rather the total "mass", based on max stack size
     public static final int ITEMS_PER_TRANSFER = 64;
     public final HashMap<ISlotMonitorProvider, Long> storages = new HashMap<>();
+    public final LinkedHashSet<StackCache> accessors = new LinkedHashSet<>();
+
+    public void addStorage(ISlotMonitorProvider storage) {
+        if (storage == null) return;
+        boolean added = !storages.containsKey(storage);
+        storages.put(storage, System.currentTimeMillis());
+        if (added) {
+            for (StackCache cache : accessors) storage.onNewCacheHasJoined(cache, this);
+        }
+    }
+
+    public void removeStorage(ISlotMonitorProvider storage) {
+        if (storage == null || storages.remove(storage) == null) return;
+        for (SlotMonitor monitor : storage.getMonitors()) monitor.detachFromNetwork(this);
+    }
+
+    public void addStackCache(StackCache cache) {
+        if (cache == null || cache.hasExpired) return;
+        cache.attachTo(this);
+        if (accessors.add(cache)) {
+            for (ISlotMonitorProvider storage : storages.keySet()) storage.onNewCacheHasJoined(cache, this);
+        }
+    }
+
+    @Override
+    public void joinNetworks(NodeNet<ReceiverTarget, TileEntityPneumoTube, TileEntityPneumoTube.PneumaticNode, PneumaticNetwork> network) {
+        if (network == this || !network.isValid()) return;
+        PneumaticNetwork other = (PneumaticNetwork) network;
+
+        for (TileEntityPneumoTube.PneumaticNode conductor : new ArrayList<>(other.links)) forceJoinLink(conductor);
+        other.links.clear();
+        for (ReceiverTarget receiver : new ArrayList<>(other.receiverEntries.keySet())) addReceiver(receiver);
+        for (TileEntityPneumoTube provider : new ArrayList<>(other.providerEntries.keySet())) addProvider(provider);
+        for (ISlotMonitorProvider storage : new ArrayList<>(other.storages.keySet())) addStorage(storage);
+        for (StackCache cache : new ArrayList<>(other.accessors)) addStackCache(cache);
+
+        other.receiverEntries.clear();
+        other.providerEntries.clear();
+        other.storages.clear();
+        other.accessors.clear();
+        other.invalidate();
+    }
+
+    @Override
+    public void destroy() {
+        for (StackCache cache : new ArrayList<>(accessors)) cache.dissolveCache();
+        for (ISlotMonitorProvider storage : new ArrayList<>(storages.keySet())) removeStorage(storage);
+        accessors.clear();
+        storages.clear();
+        super.destroy();
+    }
 
     public record ReceiverTarget(BlockPos pos, ForgeDirection pipeDir, TileEntityPneumoTube endpointTube) {
         public ReceiverTarget(BlockPos pos, ForgeDirection pipeDir, TileEntityPneumoTube endpointTube) {
@@ -95,13 +148,22 @@ public class PneumaticNetwork extends NodeNet<PneumaticNetwork.ReceiverTarget, T
             World w = tube != null ? tube.getWorld() : null;
             if (w == null) continue;
 
-            TileEntity tile = Compat.getTileStandard(w, rt.pos.getX(), rt.pos.getY(), rt.pos.getZ());
+            TileEntity tile = getLoadedTile(w, rt.pos);
             if (tile == null || tile.isInvalid()) {
                 it.remove();
             }
         }
 
-        this.storages.entrySet().removeIf(e -> now - e.getValue() > TIMEOUT_MS);
+        Iterator<Map.Entry<ISlotMonitorProvider, Long>> storageIterator = storages.entrySet().iterator();
+        while (storageIterator.hasNext()) {
+            Map.Entry<ISlotMonitorProvider, Long> entry = storageIterator.next();
+            ISlotMonitorProvider storage = entry.getKey();
+            if (now - entry.getValue() > TIMEOUT_MS || storage.getRelevantNetwork() != this) {
+                for (SlotMonitor monitor : storage.getMonitors()) monitor.detachFromNetwork(this);
+                storageIterator.remove();
+            }
+        }
+        accessors.removeIf(cache -> cache.hasExpired || cache.getNetwork() != this);
     }
 
     public boolean send(TileEntity sourceTile, TileEntityPneumoTube tube, ForgeDirection accessDir, int sendOrder, int receiveOrder, int maxRange,
@@ -129,8 +191,11 @@ public class PneumaticNetwork extends NodeNet<PneumaticNetwork.ReceiverTarget, T
 
         // for round robin, receivers are ordered by proximity to the source
         candidates.sort(new ReceiverComparator(tube));
-        ReceiverCandidate chosen = selectCandidate(candidates, receiveOrder, nextReceiver);
-        if (chosen == null) return false;
+        if (receiveOrder == RECEIVE_RANDOM) Collections.shuffle(candidates, rand);
+        int receiverStart = receiveOrder == RECEIVE_ROBIN ? Math.floorMod(nextReceiver, candidates.size()) : 0;
+
+        for (int receiverAttempt = 0; receiverAttempt < candidates.size(); receiverAttempt++) {
+            ReceiverCandidate chosen = candidates.get((receiverStart + receiverAttempt) % candidates.size());
 
         TileEntity destTile = chosen.tile;
 
@@ -139,7 +204,7 @@ public class PneumaticNetwork extends NodeNet<PneumaticNetwork.ReceiverTarget, T
         int dy = sourceTile.getPos().getY() - destTile.getPos().getY();
         int dz = sourceTile.getPos().getZ() - destTile.getPos().getZ();
         int sq = dx * dx + dy * dy + dz * dz;
-        if (sq > maxRange * maxRange) return false;
+        if (sq > maxRange * maxRange) continue;
 
         IItemHandler destHandler = chosen.handler;
 
@@ -194,7 +259,7 @@ public class PneumaticNetwork extends NodeNet<PneumaticNetwork.ReceiverTarget, T
                 int attempt = Math.min(Math.min(space, currentSource.getCount()), maxByMass);
                 if (attempt <= 0) continue;
 
-                int moved = transferItems(sourceHandler, sourceSlot, destHandler, destSlot, attempt);
+                int moved = transferItems(sourceTile, sourceHandler, sourceSlot, destHandler, destSlot, attempt);
                 if (moved > 0) {
                     itemsLeftToSend -= moved * proportionalValue;
                     didSomething = true;
@@ -223,7 +288,7 @@ public class PneumaticNetwork extends NodeNet<PneumaticNetwork.ReceiverTarget, T
                 int attempt = Math.min(Math.min(slotLimit, currentSource.getMaxStackSize()), Math.min(currentSource.getCount(), maxByMass));
                 if (attempt <= 0) continue;
 
-                int moved = transferItems(sourceHandler, sourceSlot, destHandler, destSlot, attempt);
+                int moved = transferItems(sourceTile, sourceHandler, sourceSlot, destHandler, destSlot, attempt);
                 if (moved > 0) {
                     itemsLeftToSend -= moved * proportionalValue;
                     didSomething = true;
@@ -237,7 +302,9 @@ public class PneumaticNetwork extends NodeNet<PneumaticNetwork.ReceiverTarget, T
             destTile.markDirty();
         }
 
-        return didSomething;
+        if (didSomething) return true;
+        }
+        return false;
     }
 
     private List<ReceiverCandidate> collectCandidates(World world) {
@@ -248,7 +315,7 @@ public class PneumaticNetwork extends NodeNet<PneumaticNetwork.ReceiverTarget, T
             Object2LongMap.Entry<ReceiverTarget> e = it.next();
             ReceiverTarget rt = e.getKey();
 
-            TileEntity tile = Compat.getTileStandard(world, rt.pos.getX(), rt.pos.getY(), rt.pos.getZ());
+            TileEntity tile = getLoadedTile(world, rt.pos);
             if (tile == null || tile.isInvalid()) {
                 it.remove();
                 continue;
@@ -266,20 +333,18 @@ public class PneumaticNetwork extends NodeNet<PneumaticNetwork.ReceiverTarget, T
         return list;
     }
 
-    private ReceiverCandidate selectCandidate(List<ReceiverCandidate> candidates, int receiveOrder, int nextReceiver) {
-        if (candidates.isEmpty()) return null;
-        if (receiveOrder == RECEIVE_RANDOM) return candidates.get(rand.nextInt(candidates.size()));
-        int idx = Math.floorMod(nextReceiver, candidates.size());
-        return candidates.get(idx);
-    }
-
     private static int[] buildSlotOrder(IItemHandler handler) {
         int[] order = new int[handler.getSlots()];
         for (int i = 0; i < order.length; i++) order[i] = i;
         return order;
     }
 
-    private static int transferItems(IItemHandler source, int sourceSlot, IItemHandler dest, int destSlot, int maxAmount) {
+    private static TileEntity getLoadedTile(World world, BlockPos pos) {
+        if (world == null || pos == null || !world.isBlockLoaded(pos)) return null;
+        return world.getTileEntity(pos);
+    }
+
+    private static int transferItems(TileEntity sourceTile, IItemHandler source, int sourceSlot, IItemHandler dest, int destSlot, int maxAmount) {
         if (maxAmount <= 0) return 0;
 
         ItemStack simulatedExtraction = source.extractItem(sourceSlot, maxAmount, true);
@@ -299,10 +364,10 @@ public class PneumaticNetwork extends NodeNet<PneumaticNetwork.ReceiverTarget, T
             ItemStack remainder = ItemHandlerHelper.insertItem(source, leftover, false);
             if (!remainder.isEmpty()) {
                 remainder = source.insertItem(sourceSlot, remainder, false);
-                if (!remainder.isEmpty()) {
-                    inserted -= remainder.getCount();
-                    if (inserted < 0) inserted = 0;
-                }
+            }
+            if (!remainder.isEmpty() && sourceTile.getWorld() != null && !sourceTile.getWorld().isRemote) {
+                InventoryHelper.spawnItemStack(sourceTile.getWorld(), sourceTile.getPos().getX() + 0.5D,
+                        sourceTile.getPos().getY() + 0.5D, sourceTile.getPos().getZ() + 0.5D, remainder);
             }
         }
 
@@ -316,6 +381,14 @@ public class PneumaticNetwork extends NodeNet<PneumaticNetwork.ReceiverTarget, T
 
         if (facing != null && tile.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, facing)) {
             IItemHandler h = tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, facing);
+            if (h != null && h.getSlots() > 0) return h;
+        }
+
+        // A capability exposed only on other sides must not fall through to an unsided legacy wrapper.
+        if (facing != null && tile.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null)) return null;
+
+        if (facing == null && tile.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null)) {
+            IItemHandler h = tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
             if (h != null && h.getSlots() > 0) return h;
         }
 

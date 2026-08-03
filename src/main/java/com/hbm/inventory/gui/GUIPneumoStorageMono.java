@@ -2,10 +2,10 @@ package com.hbm.inventory.gui;
 
 import com.hbm.Tags;
 import com.hbm.handler.threading.PacketThreading;
-import com.hbm.inventory.container.ContainerPneumoStorageClutter;
+import com.hbm.inventory.container.ContainerPneumoStorageMono;
 import com.hbm.packet.toserver.NBTControlPacket;
 import com.hbm.render.util.GaugeUtil;
-import com.hbm.tileentity.network.TileEntityPneumoStorageClutter;
+import com.hbm.tileentity.network.TileEntityPneumoStorageMono;
 import com.hbm.tileentity.network.TileEntityPneumoTube;
 import com.hbm.util.I18nUtil;
 import net.minecraft.client.Minecraft;
@@ -17,18 +17,18 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
+import java.util.Locale;
 
-public class GUIPneumoStorageClutter extends GuiInfoContainer {
+public class GUIPneumoStorageMono extends GuiInfoContainer {
 
-    private static final ResourceLocation TEXTURE = new ResourceLocation(Tags.MODID + ":textures/gui/storage/gui_pneumatic_clutter.png");
+    private static final ResourceLocation TEXTURE = new ResourceLocation(Tags.MODID, "textures/gui/storage/gui_pneumatic_mono.png");
+    private final TileEntityPneumoStorageMono storage;
 
-    protected final TileEntityPneumoStorageClutter storage;
-
-    public GUIPneumoStorageClutter(InventoryPlayer invPlayer, TileEntityPneumoStorageClutter storage) {
-        super(new ContainerPneumoStorageClutter(invPlayer, storage));
+    public GUIPneumoStorageMono(InventoryPlayer player, TileEntityPneumoStorageMono storage) {
+        super(new ContainerPneumoStorageMono(player, storage));
         this.storage = storage;
         this.xSize = 200;
-        this.ySize = 235;
+        this.ySize = 181;
     }
 
     @Override
@@ -53,16 +53,29 @@ public class GUIPneumoStorageClutter extends GuiInfoContainer {
 
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-        String name = I18nUtil.resolveKey(this.storage.getName());
-        this.fontRenderer.drawString(name, this.xSize / 2 - this.fontRenderer.getStringWidth(name) / 2, 5, 4210752);
-        this.fontRenderer.drawString(I18nUtil.resolveKey("container.inventory"), 8, this.ySize - 96 + 2, 4210752);
+        String name = I18nUtil.resolveKey(storage.getName());
+        fontRenderer.drawString(name, 88 - fontRenderer.getStringWidth(name) / 2, 5, 4210752);
+        fontRenderer.drawString(I18nUtil.resolveKey("container.inventory"), 8, ySize - 94, 4210752);
+        for (int i = 0; i < 3; i++) {
+            if (!storage.inventory.getStackInSlot(i).isEmpty()) {
+                int amount = storage.amounts[i];
+                String percent = " (" + ((int) (amount * 1000D / TileEntityPneumoStorageMono.CAPACITY) / 10D) + "%)";
+                fontRenderer.drawString(String.format(Locale.US, "%,d", amount) + percent, 50, 22 + i * 18, 0);
+            }
+        }
     }
 
     @Override
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        GL11.glColor4f(1F, 1F, 1F, 1F);
         Minecraft.getMinecraft().getTextureManager().bindTexture(TEXTURE);
         drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
+        for (int i = 0; i < 3; i++) {
+            if (!storage.inventory.getStackInSlot(i).isEmpty()) {
+                int bar = storage.amounts[i] * 124 / TileEntityPneumoStorageMono.CAPACITY;
+                drawTexturedModalRect(guiLeft + 44, guiTop + 17 + i * 18, 0, 181, bar, 16);
+            }
+        }
         drawTexturedModalRect(guiLeft + 174 + 4 * (storage.compair.getPressure() - 1), guiTop + 36, 200, 0, 4, 8);
         GaugeUtil.drawSmoothGauge(guiLeft + 184, guiTop + 25, zLevel,
                 (double) storage.compair.getFill() / storage.compair.getMaxFill(), 5, 2, 1, 0xCA6C43, 0xAB4223);

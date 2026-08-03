@@ -1,6 +1,7 @@
 package com.hbm.tileentity.network;
 
 import com.hbm.api.ntl.IPneumaticConnector;
+import com.hbm.api.ntl.StackCache;
 import com.hbm.interfaces.AutoRegister;
 import com.hbm.inventory.container.ContainerPneumoStorageAccess;
 import com.hbm.inventory.gui.GUIPneumoStorageAccess;
@@ -25,11 +26,13 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class TileEntityPneumoStorageAccess extends TileEntityLoadedBase implements ITickable, IPneumaticConnector, IGUIProvider {
 
     protected TileEntityPneumoTube.PneumaticNode node;
+    public StackCache cache;
 
     @Override
     public void update() {
         if (!world.isRemote) {
             if (this.node == null || this.node.expired) {
+                if (this.cache != null) this.cache.dissolveCache();
                 this.node = UniNodespace.getNode(world, pos, PneumaticNetwork.THE_PNEUMATIC_PROVIDER);
                 if (this.node == null || this.node.expired) {
                     this.node = new TileEntityPneumoTube.PneumaticNode(new BlockPos(pos.getX(), pos.getY(), pos.getZ())).setConnections(
@@ -43,6 +46,12 @@ public class TileEntityPneumoStorageAccess extends TileEntityLoadedBase implemen
                     UniNodespace.createNode(world, this.node);
                 }
             }
+            if (this.cache == null || this.cache.hasExpired) {
+                this.cache = new StackCache(pos.getX(), pos.getY(), pos.getZ());
+            }
+            if (this.node != null && !this.node.expired && this.node.hasValidNet()) {
+                this.node.net.addStackCache(this.cache);
+            }
         }
     }
 
@@ -53,6 +62,23 @@ public class TileEntityPneumoStorageAccess extends TileEntityLoadedBase implemen
             UniNodespace.destroyNode(world, pos, PneumaticNetwork.THE_PNEUMATIC_PROVIDER);
             this.node = null;
         }
+        if (this.cache != null) {
+            this.cache.dissolveCache();
+            this.cache = null;
+        }
+    }
+
+    @Override
+    public void onChunkUnload() {
+        if (!world.isRemote && this.node != null) {
+            UniNodespace.destroyNode(world, pos, PneumaticNetwork.THE_PNEUMATIC_PROVIDER);
+            this.node = null;
+        }
+        if (this.cache != null) {
+            this.cache.dissolveCache();
+            this.cache = null;
+        }
+        super.onChunkUnload();
     }
 
     @Override

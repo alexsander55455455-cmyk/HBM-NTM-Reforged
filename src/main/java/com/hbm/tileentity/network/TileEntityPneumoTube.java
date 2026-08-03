@@ -19,7 +19,6 @@ import com.hbm.tileentity.TileEntityMachineBase;
 import com.hbm.uninos.GenNode;
 import com.hbm.uninos.UniNodespace;
 import com.hbm.uninos.networkproviders.PneumaticNetwork;
-import com.hbm.util.Compat;
 import com.hbm.util.EnumUtil;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.gui.GuiScreen;
@@ -228,10 +227,8 @@ public class TileEntityPneumoTube extends TileEntityMachineBase implements IGUIP
             if (randTime % 5 == 0
                     && this.node != null && !this.node.expired && this.node.net != null
                     && this.compair.getFill() >= 50) {
-                TileEntity sendFrom = Compat.getTileStandard(world,
-                        pos.getX() + insertionDir.offsetX,
-                        pos.getY() + insertionDir.offsetY,
-                        pos.getZ() + insertionDir.offsetZ);
+                BlockPos sourcePos = pos.add(insertionDir.offsetX, insertionDir.offsetY, insertionDir.offsetZ);
+                TileEntity sendFrom = world.isBlockLoaded(sourcePos) ? world.getTileEntity(sourcePos) : null;
 
                 if (sendFrom != null) {
                     PneumaticNetwork net = node.net;
@@ -266,10 +263,8 @@ public class TileEntityPneumoTube extends TileEntityMachineBase implements IGUIP
         }
 
         if (this.isEndpoint() && this.node != null && this.node.net != null && world.getTotalWorldTime() % 10 == 0) {
-            TileEntity tile = Compat.getTileStandard(world,
-                    pos.getX() + this.ejectionDir.offsetX,
-                    pos.getY() + this.ejectionDir.offsetY,
-                    pos.getZ() + this.ejectionDir.offsetZ);
+            BlockPos targetPos = pos.add(this.ejectionDir.offsetX, this.ejectionDir.offsetY, this.ejectionDir.offsetZ);
+            TileEntity tile = world.isBlockLoaded(targetPos) ? world.getTileEntity(targetPos) : null;
 
             if (tile != null && PneumaticNetwork.hasItemHandler(tile, this.ejectionDir.getOpposite())) {
                 this.node.net.addReceiver(new PneumaticNetwork.ReceiverTarget(tile.getPos(), this.ejectionDir, this));
