@@ -2,6 +2,7 @@ package com.hbm.tileentity.machine;
 
 import com.hbm.api.energymk2.IEnergyReceiverMK2;
 import com.hbm.api.fluidmk2.IFluidStandardTransceiverMK2;
+import com.hbm.api.redstoneoverradio.IRORValueProvider;
 import com.hbm.blocks.ModBlocks;
 import com.hbm.interfaces.AutoRegister;
 import com.hbm.interfaces.IControlReceiver;
@@ -46,7 +47,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @AutoRegister
-public class TileEntityMachinePUREX extends TileEntityMachineBase implements ITickable, IEnergyReceiverMK2, IFluidStandardTransceiverMK2, IUpgradeInfoProvider, IControlReceiver, IGUIProvider, IConnectionAnchors {
+public class TileEntityMachinePUREX extends TileEntityMachineBase implements ITickable, IEnergyReceiverMK2, IFluidStandardTransceiverMK2, IUpgradeInfoProvider, IControlReceiver, IGUIProvider, IConnectionAnchors, IRORValueProvider {
 
     public FluidTankNTM[] inputTanks;
     public FluidTankNTM[] outputTanks;
@@ -263,7 +264,7 @@ public class TileEntityMachinePUREX extends TileEntityMachineBase implements ITi
             int index = data.getInteger("index");
             String selection = data.getString("selection");
             if(index == 0) {
-                this.purexModule.recipe = selection;
+                this.purexModule.setRecipe(selection, false);
                 this.markChanged();
             }
         }
@@ -313,5 +314,22 @@ public class TileEntityMachinePUREX extends TileEntityMachineBase implements ITi
         upgrades.put(UpgradeType.POWER, 3);
         upgrades.put(UpgradeType.OVERDRIVE, 3);
         return upgrades;
+    }
+
+    @Override
+    public String[] getFunctionInfo() {
+        return new String[] {
+                PREFIX_VALUE + "progress",
+                PREFIX_VALUE + "recipe",
+                PREFIX_VALUE + "active"
+        };
+    }
+
+    @Override
+    public String provideRORValue(String name) {
+        if((PREFIX_VALUE + "progress").equals(name)) return "" + (int) Math.round(this.purexModule.progress * 100D);
+        if((PREFIX_VALUE + "recipe").equals(name)) return this.purexModule.getRecipeName();
+        if((PREFIX_VALUE + "active").equals(name)) return this.didProcess ? "1" : "0";
+        return null;
     }
 }

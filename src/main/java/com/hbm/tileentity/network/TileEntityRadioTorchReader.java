@@ -52,7 +52,7 @@ public class TileEntityRadioTorchReader extends TileEntityLoadedBase implements 
                     if (channel == null || channel.isEmpty()) continue;
                     if (name == null || name.isEmpty()) continue;
 
-                    String value = prov.provideRORValue(IRORValueProvider.PREFIX_VALUE + name);
+                    String value = prov.provideRORValue(IRORValueProvider.resolveValueName(prov, name));
                     if (value == null) continue;
 
                     if (polling || !value.equals(previous)) {

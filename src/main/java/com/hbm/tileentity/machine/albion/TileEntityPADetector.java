@@ -1,5 +1,6 @@
 package com.hbm.tileentity.machine.albion;
 
+import com.hbm.api.redstoneoverradio.IRORValueProvider;
 import com.hbm.interfaces.AutoRegister;
 import com.hbm.inventory.container.ContainerPADetector;
 import com.hbm.inventory.gui.GUIPADetector;
@@ -10,6 +11,10 @@ import com.hbm.lib.DirPos;
 import com.hbm.lib.ForgeDirection;
 import com.hbm.lib.Library;
 import com.hbm.main.AdvancementManager;
+import com.hbm.saveddata.satellites.SatelliteDetector;
+import com.hbm.saveddata.satellites.SatelliteDetector.BurstIntensity;
+import com.hbm.saveddata.satellites.SatelliteRayScan;
+import com.hbm.saveddata.satellites.SatelliteRayScan.RayEvent;
 import com.hbm.tileentity.IGUIProvider;
 import com.hbm.tileentity.machine.albion.TileEntityPASource.PAState;
 import com.hbm.tileentity.machine.albion.TileEntityPASource.Particle;
@@ -28,7 +33,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import java.util.List;
 
 @AutoRegister
-public class TileEntityPADetector extends TileEntityCooledBase implements IGUIProvider, IParticleUser {
+public class TileEntityPADetector extends TileEntityCooledBase implements IGUIProvider, IParticleUser, IRORValueProvider {
 
     public static final long usage = 100_000;
     AxisAlignedBB bb = null;
@@ -167,6 +172,8 @@ public class TileEntityPADetector extends TileEntityCooledBase implements IGUIPr
                 List<EntityPlayerMP> players = world.getEntitiesWithinAABB(EntityPlayerMP.class, new AxisAlignedBB(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5).grow(100, 50, 100));
                 for(EntityPlayerMP player : players) AdvancementManager.grantAchievement(player, AdvancementManager.achOmega12);
             }
+            SatelliteDetector.reportEvent(world, SatelliteDetector.DURATION_MEDIUM, BurstIntensity.MEDIUM, pos.getX(), pos.getZ());
+            SatelliteRayScan.reportEvent(world, pos.getX(), pos.getY(), pos.getZ(), RayEvent.INFO_PARTICLE, 600);
             particle.crash(PAState.SUCCESS);
             return;
         }
@@ -198,6 +205,19 @@ public class TileEntityPADetector extends TileEntityCooledBase implements IGUIPr
 
     @Override
     public BlockPos getExitPos(Particle particle) {
+        return null;
+    }
+
+    @Override
+    public String[] getFunctionInfo() {
+        return new String[] { PREFIX_VALUE + "temperature", PREFIX_VALUE + "pfmcold", PREFIX_VALUE + "pfm" };
+    }
+
+    @Override
+    public String provideRORValue(String name) {
+        if((PREFIX_VALUE + "temperature").equals(name)) return "" + (int) this.temperature;
+        if((PREFIX_VALUE + "pfmcold").equals(name)) return "" + coolantTanks[0].getFill();
+        if((PREFIX_VALUE + "pfm").equals(name)) return "" + coolantTanks[1].getFill();
         return null;
     }
 }

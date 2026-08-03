@@ -1,5 +1,6 @@
 package com.hbm.tileentity.machine.albion;
 
+import com.hbm.api.redstoneoverradio.IRORValueProvider;
 import com.hbm.interfaces.AutoRegister;
 import com.hbm.inventory.container.ContainerPAQuadrupole;
 import com.hbm.inventory.gui.GUIPAQuadrupole;
@@ -22,7 +23,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @AutoRegister
-public class TileEntityPAQuadrupole extends TileEntityCooledBase implements IGUIProvider, IParticleUser {
+public class TileEntityPAQuadrupole extends TileEntityCooledBase implements IGUIProvider, IParticleUser, IRORValueProvider {
 
     public static final long usage = 100_000;
     public static final int focusGain = 100;
@@ -132,5 +133,18 @@ public class TileEntityPAQuadrupole extends TileEntityCooledBase implements IGUI
     @SideOnly(Side.CLIENT)
     public GuiScreen provideGUI(int ID, EntityPlayer player, World world, int x, int y, int z) {
         return new GUIPAQuadrupole(player.inventory, this);
+    }
+
+    @Override
+    public String[] getFunctionInfo() {
+        return new String[] { PREFIX_VALUE + "temperature", PREFIX_VALUE + "pfmcold", PREFIX_VALUE + "pfm" };
+    }
+
+    @Override
+    public String provideRORValue(String name) {
+        if((PREFIX_VALUE + "temperature").equals(name)) return "" + (int) this.temperature;
+        if((PREFIX_VALUE + "pfmcold").equals(name)) return "" + coolantTanks[0].getFill();
+        if((PREFIX_VALUE + "pfm").equals(name)) return "" + coolantTanks[1].getFill();
+        return null;
     }
 }

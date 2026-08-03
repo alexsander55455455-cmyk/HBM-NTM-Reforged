@@ -1,5 +1,6 @@
 package com.hbm.tileentity.machine.rbmk;
 
+import com.hbm.api.redstoneoverradio.IRORInteractive;
 import com.hbm.explosion.vanillant.ExplosionVNT;
 import com.hbm.explosion.vanillant.standard.EntityProcessorCrossSmooth;
 import com.hbm.explosion.vanillant.standard.ExplosionEffectWeapon;
@@ -22,7 +23,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @AutoRegister
-public class TileEntityRBMKTerminal extends TileEntityLoadedBase implements ITickable, IGUIProvider, IControlReceiver {
+public class TileEntityRBMKTerminal extends TileEntityLoadedBase implements ITickable, IGUIProvider, IControlReceiver, IRORInteractive {
 
     public final String[] history = new String[17];
     public String channel = "";
@@ -182,5 +183,41 @@ public class TileEntityRBMKTerminal extends TileEntityLoadedBase implements ITic
     @SideOnly(Side.CLIENT)
     public GuiScreen provideGUI(int ID, EntityPlayer player, World world, int x, int y, int z) {
         return new GUIScreenRBMKTerminal(this);
+    }
+
+    @Override
+    public String[] getFunctionInfo() {
+        return new String[] {
+                PREFIX_FUNCTION + "clear",
+                PREFIX_FUNCTION + "write" + NAME_SEPARATOR + "text",
+                PREFIX_FUNCTION + "set<line#>" + NAME_SEPARATOR + "text",
+                PREFIX_FUNCTION + "submit" + NAME_SEPARATOR + "command"
+        };
+    }
+
+    @Override
+    public String runRORFunction(String name, String[] params) {
+        if((PREFIX_FUNCTION + "clear").equals(name)) {
+            for(int i = 0; i < history.length; i++) history[i] = "";
+            this.markChanged();
+            return null;
+        }
+
+        String allParams = String.join(" ", params);
+        if((PREFIX_FUNCTION + "write").equals(name)) {
+            this.push(allParams);
+            return null;
+        }
+        if(name.startsWith(PREFIX_FUNCTION + "set")) {
+            int line = IRORInteractive.parseInt(name.substring(PREFIX_FUNCTION.length() + 3), 1, 17) - 1;
+            this.history[line] = allParams;
+            this.markChanged();
+            return null;
+        }
+        if((PREFIX_FUNCTION + "submit").equals(name)) {
+            this.eval(allParams);
+            return null;
+        }
+        return null;
     }
 }

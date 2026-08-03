@@ -2,6 +2,7 @@ package com.hbm.blocks.machine;
 
 import com.hbm.api.energymk2.IEnergyProviderMK2;
 import com.hbm.api.energymk2.IEnergyReceiverMK2;
+import com.hbm.api.redstoneoverradio.IRORValueProvider;
 import com.hbm.blocks.ILookOverlay;
 import com.hbm.blocks.IPersistentInfoProvider;
 import com.hbm.blocks.ITooltipProvider;
@@ -187,7 +188,7 @@ public class MachineCapacitor extends BlockContainer implements ILookOverlay, IP
 
     @Optional.InterfaceList({@Optional.Interface(iface = "li.cil.oc.api.network.SimpleComponent", modid = "opencomputers")})
     @AutoRegister
-    public static class TileEntityCapacitor extends TileEntityLoadedBase implements IEnergyProviderMK2, IEnergyReceiverMK2, IPersistentNBT, ITickable, CompatHandler.OCComponent {
+    public static class TileEntityCapacitor extends TileEntityLoadedBase implements IEnergyProviderMK2, IEnergyReceiverMK2, IPersistentNBT, ITickable, CompatHandler.OCComponent, IRORValueProvider {
 
         public long power;
         protected long maxPower;
@@ -364,6 +365,18 @@ public class MachineCapacitor extends BlockContainer implements ILookOverlay, IP
             nbt.setLong("power", power);
             nbt.setLong("maxPower", maxPower);
             return super.writeToNBT(nbt);
+        }
+
+        @Override
+        public String[] getFunctionInfo() {
+            return new String[] { PREFIX_VALUE + "fill", PREFIX_VALUE + "fillpercent" };
+        }
+
+        @Override
+        public String provideRORValue(String name) {
+            if((PREFIX_VALUE + "fill").equals(name)) return "" + this.power;
+            if((PREFIX_VALUE + "fillpercent").equals(name)) return "" + (this.maxPower > 0 ? this.power * 100 / this.maxPower : 0);
+            return null;
         }
 
         @Override

@@ -1,5 +1,6 @@
 package com.hbm.tileentity.machine.fusion;
 
+import com.hbm.api.redstoneoverradio.IRORInteractive;
 import com.hbm.api.redstoneoverradio.IRORValueProvider;
 import com.hbm.interfaces.AutoRegister;
 import com.hbm.interfaces.IControlReceiver;
@@ -15,6 +16,8 @@ import com.hbm.lib.HBMSoundHandler;
 import com.hbm.lib.Library;
 import com.hbm.main.MainRegistry;
 import com.hbm.modules.machine.ModuleMachineFusion;
+import com.hbm.saveddata.satellites.SatelliteRayScan;
+import com.hbm.saveddata.satellites.SatelliteRayScan.RayEvent;
 import com.hbm.sound.AudioWrapper;
 import com.hbm.tileentity.IGUIProvider;
 import com.hbm.tileentity.TileEntityLoadedBase;
@@ -45,7 +48,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 
 @AutoRegister
-public class TileEntityFusionTorus extends TileEntityCooledBase implements ITickable, IGUIProvider, IControlReceiver, IRORValueProvider {
+public class TileEntityFusionTorus extends TileEntityCooledBase implements ITickable, IGUIProvider, IControlReceiver, IRORValueProvider, IRORInteractive {
 
     public boolean didProcess = false;
 
@@ -179,6 +182,9 @@ public class TileEntityFusionTorus extends TileEntityCooledBase implements ITick
             if(didProcess && recipe != null) {
                 this.plasmaEnergy = (long) Math.ceil(recipe.outputTemp * factor);
                 this.fuelConsumption = factor;
+                if(world.getTotalWorldTime() % 20 == 15) {
+                    SatelliteRayScan.reportEvent(world, pos.getX(), pos.getY(), pos.getZ(), RayEvent.INFO_PARTICLE, 200);
+                }
             }
 
             double outputIntensity = getOuputIntensity(receiverCount);
@@ -472,7 +478,7 @@ public class TileEntityFusionTorus extends TileEntityCooledBase implements ITick
             int index = data.getInteger("index");
             String selection = data.getString("selection");
             if(index == 0) {
-                this.fusionModule.recipe = selection;
+                this.fusionModule.setRecipe(selection, false);
                 this.markChanged();
             }
         }
@@ -482,7 +488,12 @@ public class TileEntityFusionTorus extends TileEntityCooledBase implements ITick
     public String[] getFunctionInfo() {
         return new String[] {
                 PREFIX_VALUE + "plasma",
-                PREFIX_VALUE + "consumption"
+                PREFIX_VALUE + "consumption",
+                PREFIX_VALUE + "progress",
+                PREFIX_VALUE + "recipe",
+                PREFIX_VALUE + "active",
+                PREFIX_VALUE + "temp",
+                PREFIX_FUNCTION + "setrecipe" + NAME_SEPARATOR + "recipe"
         };
     }
 
@@ -490,6 +501,19 @@ public class TileEntityFusionTorus extends TileEntityCooledBase implements ITick
     public String provideRORValue(String name) {
         if ((PREFIX_VALUE + "plasma").equals(name))      return "" + this.plasmaEnergy;
         if ((PREFIX_VALUE + "consumption").equals(name)) return "" + (int) (this.fuelConsumption * 100);
+        if ((PREFIX_VALUE + "progress").equals(name)) return "" + (int) Math.round(this.fusionModule.progress * 100);
+        if ((PREFIX_VALUE + "recipe").equals(name)) return this.fusionModule.getRecipeName();
+        if ((PREFIX_VALUE + "active").equals(name)) return this.didProcess ? "1" : "0";
+        if ((PREFIX_VALUE + "temp").equals(name)) return "" + (int) this.temperature;
+        return null;
+    }
+
+    @Override
+    public String runRORFunction(String name, String[] params) {
+        if((PREFIX_FUNCTION + "setrecipe").equals(name) && params.length == 1) {
+            this.fusionModule.setRecipe(params[0], false);
+            this.markChanged();
+        }
         return null;
     }
 }

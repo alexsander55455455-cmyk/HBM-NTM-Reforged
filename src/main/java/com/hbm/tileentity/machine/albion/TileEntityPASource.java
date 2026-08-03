@@ -1,6 +1,8 @@
 package com.hbm.tileentity.machine.albion;
 
 import com.hbm.blocks.BlockDummyable;
+import com.hbm.api.redstoneoverradio.IRORInteractive;
+import com.hbm.api.redstoneoverradio.IRORValueProvider;
 import com.hbm.interfaces.AutoRegister;
 import com.hbm.interfaces.IControlReceiver;
 import com.hbm.inventory.container.ContainerPASource;
@@ -28,7 +30,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 
 @AutoRegister
-public class TileEntityPASource extends TileEntityCooledBase implements IGUIProvider, IControlReceiver {
+public class TileEntityPASource extends TileEntityCooledBase implements IGUIProvider, IControlReceiver, IRORValueProvider, IRORInteractive {
 
     public static final long usage = 100_000;
     public Particle particle;
@@ -265,6 +267,35 @@ public class TileEntityPASource extends TileEntityCooledBase implements IGUIProv
             this.particle = null;
             this.state = PAState.IDLE;
         }
+    }
+
+    @Override
+    public String[] getFunctionInfo() {
+        return new String[] {
+                PREFIX_VALUE + "status", PREFIX_VALUE + "momentum", PREFIX_VALUE + "defocus",
+                PREFIX_VALUE + "temperature", PREFIX_VALUE + "pfmcold", PREFIX_VALUE + "pfm",
+                PREFIX_FUNCTION + "cancel"
+        };
+    }
+
+    @Override
+    public String provideRORValue(String name) {
+        if((PREFIX_VALUE + "status").equals(name)) return "" + this.state;
+        if((PREFIX_VALUE + "momentum").equals(name)) return "" + this.lastSpeed;
+        if((PREFIX_VALUE + "defocus").equals(name)) return this.particle != null ? "" + this.particle.defocus : "0";
+        if((PREFIX_VALUE + "temperature").equals(name)) return "" + (int) this.temperature;
+        if((PREFIX_VALUE + "pfmcold").equals(name)) return "" + coolantTanks[0].getFill();
+        if((PREFIX_VALUE + "pfm").equals(name)) return "" + coolantTanks[1].getFill();
+        return null;
+    }
+
+    @Override
+    public String runRORFunction(String name, String[] params) {
+        if((PREFIX_FUNCTION + "cancel").equals(name)) {
+            this.particle = null;
+            this.state = PAState.IDLE;
+        }
+        return null;
     }
 
     @NotNull

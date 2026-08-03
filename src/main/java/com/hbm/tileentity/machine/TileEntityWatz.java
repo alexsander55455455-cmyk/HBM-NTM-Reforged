@@ -1,6 +1,7 @@
 package com.hbm.tileentity.machine;
 
 import com.hbm.api.fluid.IFluidStandardTransceiver;
+import com.hbm.api.redstoneoverradio.IRORValueProvider;
 import com.hbm.blocks.ModBlocks;
 import com.hbm.entity.projectile.EntityShrapnel;
 import com.hbm.handler.radiation.ChunkRadiationManager;
@@ -54,7 +55,7 @@ import java.util.List;
 import java.util.Random;
 
 @AutoRegister
-public class TileEntityWatz extends TileEntityMachineBase implements ITickable, IFluidStandardTransceiver, IControlReceiver, IGUIProvider, IFluidCopiable, IConnectionAnchors {
+public class TileEntityWatz extends TileEntityMachineBase implements ITickable, IFluidStandardTransceiver, IControlReceiver, IGUIProvider, IFluidCopiable, IConnectionAnchors, IRORValueProvider {
 
 	public FluidTankNTM[] tanks;
 	private FluidTankNTM[] sharedTanks;
@@ -607,7 +608,27 @@ public class TileEntityWatz extends TileEntityMachineBase implements ITickable, 
 	}
 
 	@Override
-	public FluidTankNTM getTankToPaste() {
-		return null;
-	}
+    public FluidTankNTM getTankToPaste() {
+        return null;
+    }
+
+    public static final String[] ROR = new String[] {
+            PREFIX_VALUE + "heat", PREFIX_VALUE + "flux", PREFIX_VALUE + "mud",
+            PREFIX_VALUE + "coolant_hot", PREFIX_VALUE + "coolant_cold"
+    };
+
+    @Override
+    public String[] getFunctionInfo() {
+        return ROR;
+    }
+
+    @Override
+    public String provideRORValue(String name) {
+        if((PREFIX_VALUE + "heat").equals(name)) return "" + this.heat;
+        if((PREFIX_VALUE + "flux").equals(name)) return "" + (int) (this.fluxLastBase + this.fluxLastReaction);
+        if((PREFIX_VALUE + "mud").equals(name)) return "" + this.tanks[2].getFill();
+        if((PREFIX_VALUE + "coolant_hot").equals(name)) return "" + this.tanks[1].getFill();
+        if((PREFIX_VALUE + "coolant_cold").equals(name)) return "" + this.tanks[0].getFill();
+        return null;
+    }
 }

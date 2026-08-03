@@ -2,6 +2,7 @@ package com.hbm.tileentity.machine;
 
 import com.hbm.api.energymk2.IEnergyReceiverMK2;
 import com.hbm.api.fluidmk2.IFluidStandardTransceiverMK2;
+import com.hbm.api.redstoneoverradio.IRORValueProvider;
 import com.hbm.blocks.ModBlocks;
 import com.hbm.interfaces.AutoRegister;
 import com.hbm.interfaces.IControlReceiver;
@@ -50,7 +51,7 @@ import java.util.List;
 import java.util.Random;
 
 @AutoRegister
-public class TileEntityMachineAssemblyFactory extends TileEntityMachineBase implements ITickable, IEnergyReceiverMK2, IFluidStandardTransceiverMK2, IUpgradeInfoProvider, IControlReceiver, IGUIProvider, TileEntityProxyDyn.IProxyDelegateProvider, IConnectionAnchors {
+public class TileEntityMachineAssemblyFactory extends TileEntityMachineBase implements ITickable, IEnergyReceiverMK2, IFluidStandardTransceiverMK2, IUpgradeInfoProvider, IControlReceiver, IGUIProvider, TileEntityProxyDyn.IProxyDelegateProvider, IConnectionAnchors, IRORValueProvider {
 
     public FluidTankNTM[] allTanks;
     public FluidTankNTM[] inputTanks;
@@ -390,7 +391,7 @@ public class TileEntityMachineAssemblyFactory extends TileEntityMachineBase impl
             int index = data.getInteger("index");
             String selection = data.getString("selection");
             if(index >= 0 && index < 4) {
-                this.assemblerModule[index].recipe = selection;
+                this.assemblerModule[index].setRecipe(selection, false);
                 this.markChanged();
             }
         }
@@ -455,6 +456,33 @@ public class TileEntityMachineAssemblyFactory extends TileEntityMachineBase impl
 
         for(DirPos dPos : coolantLine) if(dPos.compare(tPos.getX(), tPos.getY(), tPos.getZ())) return this.delegate; // this actually fucking works
 
+        return null;
+    }
+
+    @Override
+    public String[] getFunctionInfo() {
+        return new String[] {
+                PREFIX_VALUE + "progress1", PREFIX_VALUE + "progress2",
+                PREFIX_VALUE + "progress3", PREFIX_VALUE + "progress4",
+                PREFIX_VALUE + "recipe1", PREFIX_VALUE + "recipe2",
+                PREFIX_VALUE + "recipe3", PREFIX_VALUE + "recipe4",
+                PREFIX_VALUE + "anyactive",
+                PREFIX_VALUE + "active1", PREFIX_VALUE + "active2",
+                PREFIX_VALUE + "active3", PREFIX_VALUE + "active4"
+        };
+    }
+
+    @Override
+    public String provideRORValue(String name) {
+        if((PREFIX_VALUE + "anyactive").equals(name)) {
+            return didProcess[0] || didProcess[1] || didProcess[2] || didProcess[3] ? "1" : "0";
+        }
+        for(int i = 0; i < 4; i++) {
+            int channel = i + 1;
+            if((PREFIX_VALUE + "progress" + channel).equals(name)) return "" + (int) Math.round(this.assemblerModule[i].progress * 100D);
+            if((PREFIX_VALUE + "recipe" + channel).equals(name)) return this.assemblerModule[i].getRecipeName();
+            if((PREFIX_VALUE + "active" + channel).equals(name)) return this.didProcess[i] ? "1" : "0";
+        }
         return null;
     }
 

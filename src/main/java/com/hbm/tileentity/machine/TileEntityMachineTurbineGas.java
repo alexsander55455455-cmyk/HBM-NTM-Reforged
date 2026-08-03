@@ -3,6 +3,7 @@ package com.hbm.tileentity.machine;
 import com.hbm.api.energymk2.IEnergyProviderMK2;
 import com.hbm.api.fluid.IFluidStandardTransceiver;
 import com.hbm.api.redstoneoverradio.IRORValueProvider;
+import com.hbm.api.redstoneoverradio.IRORInteractive;
 import com.hbm.blocks.BlockDummyable;
 import com.hbm.handler.CompatHandler;
 import com.hbm.handler.pollution.PollutionHandler;
@@ -50,7 +51,7 @@ import java.util.HashMap;
 
 @Optional.InterfaceList({@Optional.Interface(iface = "li.cil.oc.api.network.SimpleComponent", modid = "opencomputers")})
 @AutoRegister
-public class TileEntityMachineTurbineGas extends TileEntityMachineBase implements IFluidStandardTransceiver, IEnergyProviderMK2, IControlReceiver, IGUIProvider, SimpleComponent, CompatHandler.OCComponent, IFluidCopiable, IRORValueProvider, ITickable, IConnectionAnchors {
+public class TileEntityMachineTurbineGas extends TileEntityMachineBase implements IFluidStandardTransceiver, IEnergyProviderMK2, IControlReceiver, IGUIProvider, SimpleComponent, CompatHandler.OCComponent, IFluidCopiable, IRORValueProvider, IRORInteractive, ITickable, IConnectionAnchors {
 
 	public long power;
 	public static final long maxPower = 1000000L;
@@ -723,7 +724,12 @@ public class TileEntityMachineTurbineGas extends TileEntityMachineBase implement
 		return new String[] {
 				PREFIX_VALUE + "turbinepercent",
 				PREFIX_VALUE + "turbinespeed",
-				PREFIX_VALUE + "output"
+				PREFIX_VALUE + "output",
+				PREFIX_VALUE + "state", PREFIX_VALUE + "automode", PREFIX_VALUE + "temp", PREFIX_VALUE + "power",
+				PREFIX_VALUE + "fuel", PREFIX_VALUE + "lubricant", PREFIX_VALUE + "water", PREFIX_VALUE + "steam",
+				PREFIX_FUNCTION + "setauto" + NAME_SEPARATOR + "auto",
+				PREFIX_FUNCTION + "setthrottle" + NAME_SEPARATOR + "percent",
+				PREFIX_FUNCTION + "setstate" + NAME_SEPARATOR + "state"
 		};
 	}
 
@@ -731,7 +737,37 @@ public class TileEntityMachineTurbineGas extends TileEntityMachineBase implement
 	public String provideRORValue(String name) {
 		if ((PREFIX_VALUE + "turbinepercent").equals(name)) return "" + (int) (this.powerSliderPos * 100D / 60D);
 		if ((PREFIX_VALUE + "turbinespeed").equals(name))   return "" + this.rpm;
-		if ((PREFIX_VALUE + "output").equals(name))         return "" + (int) this.instantPowerOutput;
+		if ((PREFIX_VALUE + "output").equals(name))         return "" + (int) (this.instantPowerOutput * 20D);
+		if ((PREFIX_VALUE + "state").equals(name)) return "" + this.state;
+		if ((PREFIX_VALUE + "automode").equals(name)) return this.autoMode ? "1" : "0";
+		if ((PREFIX_VALUE + "temp").equals(name)) return "" + this.temp;
+		if ((PREFIX_VALUE + "power").equals(name)) return "" + this.power;
+		if ((PREFIX_VALUE + "fuel").equals(name)) return "" + tanks[0].getFill();
+		if ((PREFIX_VALUE + "lubricant").equals(name)) return "" + tanks[1].getFill();
+		if ((PREFIX_VALUE + "water").equals(name)) return "" + tanks[2].getFill();
+		if ((PREFIX_VALUE + "steam").equals(name)) return "" + tanks[3].getFill();
+		return null;
+	}
+
+	@Override
+	public String runRORFunction(String name, String[] params) {
+		if((PREFIX_FUNCTION + "setauto").equals(name) && params.length > 0) {
+			this.autoMode = IRORInteractive.parseInt(params[0], 0, 1) == 1;
+			this.markDirty();
+			return null;
+		}
+		if((PREFIX_FUNCTION + "setthrottle").equals(name) && params.length > 0) {
+			int percent = IRORInteractive.parseInt(params[0], 0, 100);
+			this.powerSliderPos = percent * 60 / 100;
+			this.markDirty();
+			return null;
+		}
+		if((PREFIX_FUNCTION + "setstate").equals(name) && params.length > 0) {
+			int newState = IRORInteractive.parseInt(params[0], 0, 1);
+			if(newState == 1 && this.state == 0) this.state = -1;
+			if(newState == 0 && this.state == 1) this.state = 0;
+			this.markDirty();
+		}
 		return null;
 	}
 /*

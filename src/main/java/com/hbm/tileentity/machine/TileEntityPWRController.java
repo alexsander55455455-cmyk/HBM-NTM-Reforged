@@ -21,6 +21,8 @@ import com.hbm.lib.DirPos;
 import com.hbm.lib.ForgeDirection;
 import com.hbm.lib.HBMSoundHandler;
 import com.hbm.main.MainRegistry;
+import com.hbm.saveddata.satellites.SatelliteRayScan;
+import com.hbm.saveddata.satellites.SatelliteRayScan.RayEvent;
 import com.hbm.sound.AudioWrapper;
 import com.hbm.tileentity.IConnectionAnchors;
 import com.hbm.tileentity.IGUIProvider;
@@ -247,6 +249,10 @@ public class TileEntityPWRController extends TileEntityMachineBase implements IT
 
                             this.amountLoaded--;
                             this.markDirty();
+                        }
+
+                        if (world.getTotalWorldTime() % 100 == 0) {
+                            SatelliteRayScan.reportEvent(world, pos.getX(), pos.getY(), pos.getZ(), RayEvent.INFO_NUCLEAR, 200);
                         }
                     }
 
@@ -577,14 +583,16 @@ public class TileEntityPWRController extends TileEntityMachineBase implements IT
 
     @Override
     public String[] getFunctionInfo() {
-        return new String[]{PREFIX_VALUE + "rods", PREFIX_VALUE + "coreheat", PREFIX_VALUE + "hullheat", PREFIX_VALUE + "flux", PREFIX_VALUE + "depletion", PREFIX_FUNCTION + "setrods" + NAME_SEPARATOR + "percent", PREFIX_FUNCTION + "jettison",};
+        return new String[]{PREFIX_VALUE + "rods", PREFIX_VALUE + "coreheat", PREFIX_VALUE + "hullheat", PREFIX_VALUE + "coldbuf", PREFIX_VALUE + "hotbuf", PREFIX_VALUE + "flux", PREFIX_VALUE + "depletion", PREFIX_FUNCTION + "setrods" + NAME_SEPARATOR + "percent", PREFIX_FUNCTION + "jettison",};
     }
 
     @Override
     public String provideRORValue(String name) {
-        if ((PREFIX_VALUE + "rods").equals(name)) return "" + (int) this.rodLevel;
+        if ((PREFIX_VALUE + "rods").equals(name)) return "" + (int) (100 - this.rodLevel);
         if ((PREFIX_VALUE + "coreheat").equals(name)) return "" + this.coreHeat;
         if ((PREFIX_VALUE + "hullheat").equals(name)) return "" + this.hullHeat;
+        if ((PREFIX_VALUE + "coldbuf").equals(name)) return "" + this.tanks[0].getFill();
+        if ((PREFIX_VALUE + "hotbuf").equals(name)) return "" + this.tanks[1].getFill();
         if ((PREFIX_VALUE + "flux").equals(name)) return "" + (int) this.flux;
         if ((PREFIX_VALUE + "depletion").equals(name)) return "" + (int) (this.progress * 100 / this.processTime);
         return null;

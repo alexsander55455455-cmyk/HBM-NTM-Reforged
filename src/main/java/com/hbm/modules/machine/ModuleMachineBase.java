@@ -26,6 +26,7 @@ public abstract class ModuleMachineBase {
     // running vars
     public String recipe = "null";
     public double progress;
+    public boolean restrictedMode = false;
     // return signals
     public boolean didProcess = false;
     public boolean markDirty = false;
@@ -114,6 +115,8 @@ public abstract class ModuleMachineBase {
 
     public void process(GenericRecipe recipe, double speed, double power) {
 
+        if(this.restrictedMode) speed *= 0.25D;
+
         this.battery.setPower(this.battery.getPower() - (power == 1 ? recipe.power : (long) (recipe.power * power)));
         double step = Math.min(speed / recipe.duration, 1D); // can't do more than one recipe per tick, might look into that later
         this.progress += step;
@@ -184,6 +187,15 @@ public abstract class ModuleMachineBase {
         return (GenericRecipe) getRecipeSet().recipeNameMap.get(this.recipe);
     }
 
+    public String getRecipeName() {
+        return this.recipe;
+    }
+
+    public void setRecipe(String name, boolean ror) {
+        this.recipe = name;
+        this.restrictedMode = ror;
+    }
+
     public abstract GenericRecipes getRecipeSet();
 
     public void update(double speed, double power, boolean extraCondition, ItemStack blueprint) {
@@ -248,21 +260,26 @@ public abstract class ModuleMachineBase {
 
     public void serialize(ByteBuf buf) {
         buf.writeDouble(progress);
+        buf.writeBoolean(restrictedMode);
         ByteBufUtils.writeUTF8String(buf, recipe);
     }
 
     public void deserialize(ByteBuf buf) {
         this.progress = buf.readDouble();
+        this.restrictedMode = buf.readBoolean();
         this.recipe = ByteBufUtils.readUTF8String(buf);
     }
 
     public void readFromNBT(NBTTagCompound nbt) {
         this.progress = nbt.getDouble("progress" + index);
         this.recipe = nbt.getString("recipe" + index);
+        String restrictedKey = "restrictedMode" + index;
+        this.restrictedMode = nbt.hasKey(restrictedKey) ? nbt.getBoolean(restrictedKey) : nbt.getBoolean("restrictedMode");
     }
 
     public void writeToNBT(NBTTagCompound nbt) {
         nbt.setDouble("progress" + index, progress);
         nbt.setString("recipe" + index, recipe);
+        nbt.setBoolean("restrictedMode" + index, restrictedMode);
     }
 }

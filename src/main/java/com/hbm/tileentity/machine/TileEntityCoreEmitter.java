@@ -2,6 +2,7 @@ package com.hbm.tileentity.machine;
 
 import com.hbm.api.energymk2.IEnergyReceiverMK2;
 import com.hbm.api.fluid.IFluidStandardReceiver;
+import com.hbm.api.redstoneoverradio.IRORInteractive;
 import com.hbm.handler.CompatHandler;
 import com.hbm.interfaces.AutoRegister;
 import com.hbm.interfaces.ILaserable;
@@ -44,7 +45,7 @@ import java.util.List;
 
 @Optional.InterfaceList({@Optional.Interface(iface = "li.cil.oc.api.network.SimpleComponent", modid = "opencomputers")})
 @AutoRegister
-public class TileEntityCoreEmitter extends TileEntityMachineBase implements ITickable, IEnergyReceiverMK2,  ILaserable, IFluidStandardReceiver, IGUIProvider, SimpleComponent, CompatHandler.OCComponent {
+public class TileEntityCoreEmitter extends TileEntityMachineBase implements ITickable, IEnergyReceiverMK2, ILaserable, IFluidStandardReceiver, IGUIProvider, SimpleComponent, CompatHandler.OCComponent, IRORInteractive {
 
 	public long power;
 	public static final long maxPower = 1000000000L;
@@ -353,6 +354,42 @@ public class TileEntityCoreEmitter extends TileEntityMachineBase implements ITic
 	@SideOnly(Side.CLIENT)
 	public GuiScreen provideGUI(int ID, EntityPlayer player, World world, int x, int y, int z) {
 		return new GUICoreEmitter(player, this);
+	}
+
+	@Override
+	public String[] getFunctionInfo() {
+		return new String[] {
+				PREFIX_FUNCTION + "setpower" + NAME_SEPARATOR + "percent",
+				PREFIX_FUNCTION + "toggle",
+				PREFIX_FUNCTION + "switch" + NAME_SEPARATOR + "on/off"
+		};
+	}
+
+	@Override
+	public String runRORFunction(String name, String[] params) {
+		if((PREFIX_FUNCTION + "setpower").equals(name) && params.length > 0) {
+			this.watts = IRORInteractive.parseInt(params[0], 0, 100);
+			this.markDirty();
+			return null;
+		}
+		if((PREFIX_FUNCTION + "toggle").equals(name)) {
+			this.isOn = !this.isOn;
+			this.markDirty();
+			return null;
+		}
+		if((PREFIX_FUNCTION + "switch").equals(name) && params.length > 0) {
+			if("on".equals(params[0])) {
+				this.isOn = true;
+				this.markDirty();
+				return null;
+			}
+			if("off".equals(params[0])) {
+				this.isOn = false;
+				this.markDirty();
+				return null;
+			}
+		}
+		return null;
 	}
 
 }

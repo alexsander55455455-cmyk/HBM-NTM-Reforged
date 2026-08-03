@@ -1,5 +1,7 @@
 package com.hbm.tileentity.machine.albion;
 
+import com.hbm.api.redstoneoverradio.IRORInteractive;
+import com.hbm.api.redstoneoverradio.IRORValueProvider;
 import com.hbm.interfaces.AutoRegister;
 import com.hbm.interfaces.IControlReceiver;
 import com.hbm.inventory.container.ContainerPADipole;
@@ -27,7 +29,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @AutoRegister
-public class TileEntityPADipole extends TileEntityCooledBase implements IGUIProvider, IControlReceiver, IParticleUser {
+public class TileEntityPADipole extends TileEntityCooledBase implements IGUIProvider, IControlReceiver, IParticleUser, IRORValueProvider, IRORInteractive {
 
     public static final long usage = 100_000;
     public int dirLower;
@@ -242,5 +244,30 @@ public class TileEntityPADipole extends TileEntityCooledBase implements IGUIProv
         if (this.dirRedstone > 3) this.dirRedstone -= 4;
 
         this.threshold = MathHelper.clamp(threshold, 0, 999_999_999);
+    }
+
+    @Override
+    public String[] getFunctionInfo() {
+        return new String[] {
+                PREFIX_VALUE + "temperature", PREFIX_VALUE + "pfmcold", PREFIX_VALUE + "pfm",
+                PREFIX_FUNCTION + "setthreshold" + NAME_SEPARATOR + "threshold"
+        };
+    }
+
+    @Override
+    public String provideRORValue(String name) {
+        if((PREFIX_VALUE + "temperature").equals(name)) return "" + (int) this.temperature;
+        if((PREFIX_VALUE + "pfmcold").equals(name)) return "" + coolantTanks[0].getFill();
+        if((PREFIX_VALUE + "pfm").equals(name)) return "" + coolantTanks[1].getFill();
+        return null;
+    }
+
+    @Override
+    public String runRORFunction(String name, String[] params) {
+        if((PREFIX_FUNCTION + "setthreshold").equals(name) && params.length > 0) {
+            this.threshold = IRORInteractive.parseInt(params[0], 0, 999_999_999);
+            this.markChanged();
+        }
+        return null;
     }
 }

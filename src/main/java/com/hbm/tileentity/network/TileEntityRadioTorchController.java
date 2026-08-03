@@ -54,7 +54,7 @@ public class TileEntityRadioTorchController extends TileEntityLoadedBase impleme
                         if ((this.polling && chan.timeStamp >= world.getTotalWorldTime() - 1) || !rec.equals(prev)) {
                             try {
                                 if (!rec.isEmpty())
-                                    ror.runRORFunction(IRORInteractive.PREFIX_FUNCTION + IRORInteractive.getCommand(rec), IRORInteractive.getParams(rec));
+                                    ror.runRORFunction(IRORInteractive.resolveFunctionName(ror, rec), IRORInteractive.getParams(rec));
                             } catch (RORFunctionException _) {
                             }
                             prev = rec;

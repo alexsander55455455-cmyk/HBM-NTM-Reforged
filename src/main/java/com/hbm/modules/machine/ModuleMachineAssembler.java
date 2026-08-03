@@ -5,7 +5,9 @@ import com.hbm.inventory.fluid.tank.FluidTankNTM;
 import com.hbm.inventory.recipes.AssemblyMachineRecipes;
 import com.hbm.inventory.recipes.loader.GenericRecipe;
 import com.hbm.inventory.recipes.loader.GenericRecipes;
+import com.hbm.items.tool.ItemBackpack;
 import com.hbm.util.BobMathUtil;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.ItemStackHandler;
 
 public class ModuleMachineAssembler extends ModuleMachineBase {
@@ -29,6 +31,26 @@ public class ModuleMachineAssembler extends ModuleMachineBase {
         if(recipe == null) return;
         for(int i = 0; i < inputTanks.length; i++) if(recipe.inputFluid != null && recipe.inputFluid.length > i) inputTanks[i].changeTankSize(BobMathUtil.max(inputTanks[i].getFill(), recipe.inputFluid[i].fill * 2, 4_000));
         for(int i = 0; i < outputTanks.length; i++) if(recipe.outputFluid != null && recipe.outputFluid.length > i) outputTanks[i].changeTankSize(BobMathUtil.max(outputTanks[i].getFill(), recipe.outputFluid[i].fill * 2, 4_000));
+    }
+
+    @Override
+    protected boolean hasInput(GenericRecipe recipe) {
+        if(recipe.inputItem == null) return super.hasInput(recipe);
+        for(int i = 0; i < Math.min(recipe.inputItem.length, inputSlots.length); i++) {
+            ItemStack stack = inventory.getStackInSlot(inputSlots[i]);
+            if(stack.getItem() instanceof ItemBackpack && !((ItemBackpack) stack.getItem()).isEmptyForUpgrade(stack)) {
+                return false;
+            }
+        }
+        return super.hasInput(recipe);
+    }
+
+    @Override
+    public boolean isItemValid(int slot, ItemStack stack) {
+        if(stack.getItem() instanceof ItemBackpack && !((ItemBackpack) stack.getItem()).isEmptyForUpgrade(stack)) {
+            return false;
+        }
+        return super.isItemValid(slot, stack);
     }
 
     public ModuleMachineAssembler itemInput(int from) { for(int i = 0; i < inputSlots.length; i++) inputSlots[i] = from + i; return this; }
