@@ -5,6 +5,7 @@ import com.hbm.util.Tuple.Pair;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 // A set of pieces with weights
 public class JigsawPool {
@@ -58,6 +59,43 @@ public class JigsawPool {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Selects a required piece when this pool contains one, otherwise uses normal weighted selection.
+	 */
+	public JigsawPiece getRequired(Random rand, Set<JigsawPiece> requiredPieces) {
+		if(requiredPieces == null || requiredPieces.isEmpty()) return get(rand);
+
+		int requiredWeight = 0;
+		for(Pair<JigsawPiece, Integer> pair : pieces) {
+			if(requiredPieces.contains(pair.getKey())) requiredWeight += pair.getValue();
+		}
+		if(requiredWeight <= 0) return get(rand);
+
+		int weight = rand.nextInt(requiredWeight);
+		for(int i = 0; i < pieces.size(); i++) {
+			Pair<JigsawPiece, Integer> pair = pieces.get(i);
+			if(!requiredPieces.contains(pair.getKey())) continue;
+
+			weight -= pair.getValue();
+			if(weight < 0) {
+				if(isClone) {
+					pieces.remove(i);
+					totalWeight -= pair.getValue();
+				}
+				return pair.getKey();
+			}
+		}
+		return null;
+	}
+
+	public boolean containsRequired(Set<JigsawPiece> requiredPieces) {
+		if(requiredPieces == null || requiredPieces.isEmpty()) return false;
+		for(Pair<JigsawPiece, Integer> pair : pieces) {
+			if(requiredPieces.contains(pair.getKey())) return true;
+		}
+		return false;
 	}
 
 }

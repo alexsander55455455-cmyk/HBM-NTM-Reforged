@@ -4,12 +4,14 @@ import com.hbm.blocks.ModBlocks;
 import com.hbm.itempool.ItemPool;
 import com.hbm.itempool.ItemPoolsComponent;
 import com.hbm.itempool.ItemPoolsLegacy;
+import com.hbm.world.SecretBackpackLoot;
 import com.hbm.world.gen.ProceduralStructureStart;
 import com.hbm.world.gen.ProceduralStructureStart.ProceduralComponent;
 import com.hbm.world.gen.component.Component.ConcreteBricks;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.MapGenStructureIO;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
@@ -69,19 +71,27 @@ public class BunkerComponents {
 	public static class StartingHub extends Component implements ProceduralComponent {
 		
 		private boolean[] paths = new boolean[3];
+		private boolean secretStalkerRolled;
+		private boolean secretStalkerPending;
 		
 		public StartingHub() { }
 
 		@Override
 		protected void writeStructureToNBT(NBTTagCompound tagCompound) {
+			tagCompound.setBoolean("secretStalkerRolled", secretStalkerRolled);
+			tagCompound.setBoolean("secretStalkerPending", secretStalkerPending);
 		}
 
 		@Override
 		protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_) {
+			secretStalkerRolled = tagCompound.getBoolean("secretStalkerRolled");
+			secretStalkerPending = tagCompound.getBoolean("secretStalkerPending");
 		}
 
 		public StartingHub(Random rand, int x, int z) {
 			super(rand, x, 64, z, 7, 5, 7);
+			secretStalkerRolled = true;
+			secretStalkerPending = SecretBackpackLoot.roll(rand, 8);
 		}
 		
 		public StartingHub(int componentType, StructureBoundingBox box, int coordMode) {
@@ -115,6 +125,10 @@ public class BunkerComponents {
 		
 		@Override
 		public boolean addComponentParts(World world, Random rand, StructureBoundingBox box) {
+			if (!secretStalkerRolled) {
+				secretStalkerRolled = true;
+				secretStalkerPending = SecretBackpackLoot.roll(rand, 8);
+			}
 			
 			fillWithAir(world, box, 1, 1, 1, 6, 3, 6);
 			//floor
@@ -171,6 +185,13 @@ public class BunkerComponents {
 			setBlockState(world, ModBlocks.concrete_smooth_stairs.getStateFromMeta(getStairMeta(3) | 4), 4, 1, 4, box);
 			setBlockState(world, ModBlocks.concrete_smooth_stairs.getStateFromMeta(getStairMeta(0) | 4), 5, 1, 4, box);
 			setBlockState(world, ModBlocks.deco_computer.getStateFromMeta(getDecoModelMeta(1)), 4, 2, 4, box);
+			// One personal locker exists in every bunker; its secret reward is rolled once per structure.
+			generateInvContents(world, box, rand, Blocks.CHEST, getDecoMeta(5), 1, 1, 1, ItemPool.getPool(ItemPoolsComponent.POOL_VAULT_LOCKERS), 4);
+			BlockPos personalLocker = new BlockPos(getXWithOffset(1, 1), getYWithOffset(1), getZWithOffset(1, 1));
+			if (secretStalkerPending && box.isVecInside(personalLocker)
+					&& SecretBackpackLoot.insertBlueprint(world, personalLocker, SecretBackpackLoot.STALKER)) {
+				secretStalkerPending = false;
+			}
 			//clear out entryways based on path
 			if(paths[0]) fillWithAir(world, box, 7, 1, 2, 7, 2, 3);
 			if(paths[1]) fillWithAir(world, box, 3, 1, 0, 4, 2, 0);

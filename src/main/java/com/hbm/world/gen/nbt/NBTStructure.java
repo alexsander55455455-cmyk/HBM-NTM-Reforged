@@ -1032,9 +1032,18 @@ public class NBTStructure {
                 boolean fallbacksOnly = (requiredPieces.isEmpty() && (this.components.size() >= spawn.sizeLimit || distance >= spawn.rangeLimit))
                         || this.components.size() > 1024;
 
-				for (List<JigsawConnection> unshuffledList : fromComponent.piece.structure.fromConnections) {
+				List<List<JigsawConnection>> connectionGroups =
+						new ArrayList<>(fromComponent.piece.structure.fromConnections);
+				connectionGroups.sort((first, second) -> Boolean.compare(
+						groupCanPlaceRequired(spawn, second, requiredPieces),
+						groupCanPlaceRequired(spawn, first, requiredPieces)));
+
+				for (List<JigsawConnection> unshuffledList : connectionGroups) {
 					List<JigsawConnection> connectionList = new ArrayList<>(unshuffledList);
 					Collections.shuffle(connectionList, rand);
+					connectionList.sort((first, second) -> Boolean.compare(
+							connectionCanPlaceRequired(spawn, second, requiredPieces),
+							connectionCanPlaceRequired(spawn, first, requiredPieces)));
 
 					for (JigsawConnection fromConnection : connectionList) {
 						if (fromComponent.connectedFrom == fromConnection) continue; // if we already connected to this piece, don't process
@@ -1060,7 +1069,7 @@ public class NBTStructure {
 
 						// Iterate randomly through the pool, attempting each piece until one fits
 						while (nextPool.totalWeight > 0) {
-							nextComponent = buildNextComponent(rand, spawn, nextPool, fromComponent, fromConnection);
+							nextComponent = buildNextComponent(rand, spawn, nextPool, fromComponent, fromConnection, requiredPieces);
 							if (nextComponent != null && !fromComponent.hasIntersectionIgnoringSelf(this.components, nextComponent.getBoundingBox())) break;
 							nextComponent = null;
 						}
@@ -1076,8 +1085,10 @@ public class NBTStructure {
 								BlockPos checkPos = getConnectionTargetPosition(fromComponent, fromConnection);
 
 								if (!fromComponent.isInsideIgnoringSelf(this.components, checkPos.getX(), checkPos.getY(), checkPos.getZ())) {
-									nextComponent = buildNextComponent(rand, spawn, spawn.pools.get(nextPool.fallback), fromComponent, fromConnection);
+									nextComponent = buildNextComponent(rand, spawn, spawn.pools.get(nextPool.fallback),
+											fromComponent, fromConnection, requiredPieces);
 									addComponent(nextComponent, fromConnection.placementPriority); // don't add to queued list, we don't want to try continue from fallback
+									if(nextComponent != null) requiredPieces.remove(nextComponent.piece);
 								}
 							}
 						}
@@ -1133,8 +1144,27 @@ public class NBTStructure {
             return requiredPieces;
         }
 
+		private boolean groupCanPlaceRequired(SpawnCondition spawn, List<JigsawConnection> connections,
+				Set<JigsawPiece> requiredPieces) {
+			for(JigsawConnection connection : connections) {
+				if(connectionCanPlaceRequired(spawn, connection, requiredPieces)) return true;
+			}
+			return false;
+		}
+
+		private boolean connectionCanPlaceRequired(SpawnCondition spawn, JigsawConnection connection,
+				Set<JigsawPiece> requiredPieces) {
+			JigsawPool pool = spawn.pools.get(connection.poolName);
+			return pool != null && pool.containsRequired(requiredPieces);
+		}
+
 		private Component buildNextComponent(Random rand, SpawnCondition spawn, JigsawPool pool, Component fromComponent, JigsawConnection fromConnection) {
-			JigsawPiece nextPiece = pool.get(rand);
+			return buildNextComponent(rand, spawn, pool, fromComponent, fromConnection, Collections.emptySet());
+		}
+
+		private Component buildNextComponent(Random rand, SpawnCondition spawn, JigsawPool pool, Component fromComponent,
+				JigsawConnection fromConnection, Set<JigsawPiece> requiredPieces) {
+			JigsawPiece nextPiece = pool.getRequired(rand, requiredPieces);
 			if (nextPiece == null) {
 				MainRegistry.logger.warn("[Jigsaw] Pool returned null piece: " + fromConnection.poolName);
 				return null;

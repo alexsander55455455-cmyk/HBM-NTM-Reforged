@@ -12,6 +12,7 @@ import com.hbm.lib.ForgeDirection;
 import com.hbm.tileentity.bomb.TileEntityLandmine;
 import com.hbm.tileentity.bomb.TileEntityLaunchPadRusted;
 import com.hbm.tileentity.network.TileEntityRadioTorchBase;
+import com.hbm.world.SecretBackpackLoot;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockStairs;
 import net.minecraft.init.Blocks;
@@ -30,6 +31,8 @@ public class SiloComponent extends Component {
 
     public int freq = 0; //frequency of RTTY torches, this is the easiest way to sync them up.
     public int freqHatch = 0;
+    private boolean secretSapperRolled;
+    private boolean secretSapperPending;
 
     public SiloComponent() {
 
@@ -37,16 +40,22 @@ public class SiloComponent extends Component {
 
     @Override
     protected void writeStructureToNBT(NBTTagCompound tagCompound) {
+        tagCompound.setBoolean("secretSapperRolled", secretSapperRolled);
+        tagCompound.setBoolean("secretSapperPending", secretSapperPending);
     }
 
     @Override
     protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_) {
+        secretSapperRolled = tagCompound.getBoolean("secretSapperRolled");
+        secretSapperPending = tagCompound.getBoolean("secretSapperPending");
     }
 
     public SiloComponent(Random rand, int minX, int minZ) {
         super(rand, minX, 64, minZ, 42, 29, 26);
         this.freq = rand.nextInt(); //so other silos won't conflict, hopefully
         this.freqHatch = rand.nextInt();
+        this.secretSapperRolled = true;
+        this.secretSapperPending = SecretBackpackLoot.roll(rand, 10);
     }
 
     /** Set to NBT */
@@ -65,6 +74,11 @@ public class SiloComponent extends Component {
 
     @Override
     public boolean addComponentParts(World world, Random rand, StructureBoundingBox box) {
+        if (!secretSapperRolled) {
+            secretSapperRolled = true;
+            secretSapperPending = SecretBackpackLoot.roll(rand, 10);
+        }
+
         //seems to work
         if(this.hpos == -1) {
             StructureBoundingBox area = getRotatedBoundingBox(getXWithOffset(13, 2), getYWithOffset(25), getZWithOffset(13, 2), 29, 3, 18); //anchor offset/world pos already accounted for with offset methods
@@ -1033,6 +1047,11 @@ public class SiloComponent extends Component {
 
         //Containers
         generateInvContents(world, box, rand, ModBlocks.crate_steel, 2, 32, 13, 9, ItemPool.getPool(ItemPoolsComponent.POOL_SILO), 6);
+        BlockPos missileCrate = new BlockPos(getXWithOffset(32, 9), getYWithOffset(13), getZWithOffset(32, 9));
+        if (secretSapperPending && box.isVecInside(missileCrate)
+                && SecretBackpackLoot.insertBlueprint(world, missileCrate, SecretBackpackLoot.SAPPER)) {
+            secretSapperPending = false;
+        }
         generateInvContents(world, box, rand, ModBlocks.safe, decoN, 33, 13, 9, ItemPool.getPool(ItemPoolsComponent.POOL_MACHINE_PARTS), 6);
 
         generateInvContents(world, box, rand, ModBlocks.crate_steel, 2, 33, 13, 21, ItemPool.getPool(ItemPoolsComponent.POOL_VAULT_LAB), 8);
