@@ -10,7 +10,6 @@ import com.hbm.saveddata.satellites.Satellite;
 import com.hbm.saveddata.satellites.SatelliteSavedData;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.ints.*;
-import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -61,14 +60,10 @@ public class PermaSyncHandler {
 
 		/// SATELLITES ///
 		// Only syncs data required for rendering satellites on the client
-		Int2ObjectOpenHashMap<Satellite> sats = SatelliteSavedData.getData(world).sats;
-		buf.writeInt(sats.size());
-        ObjectIterator<Int2ObjectMap.Entry<Satellite>> iter = sats.int2ObjectEntrySet().fastIterator();
-        while (iter.hasNext()) {
-            Int2ObjectMap.Entry<Satellite> entry = iter.next();
-            buf.writeInt(entry.getIntKey());
-            buf.writeInt(entry.getValue().getID());
-        }
+		// Satellite rendering is synchronized by SatelliteSnapshotPacket when the
+		// body changes or its registry changes. Keep a fixed sentinel here so the
+		// trailing packet layout remains compatible with the Space mixin.
+		buf.writeInt(-1);
         /// SATELLITES ///
 
 		/// RIDING DESYNC FIX ///
@@ -104,11 +99,13 @@ public class PermaSyncHandler {
 
 		/// SATELLITES ///
 		int satSize = buf.readInt();
-		Int2ObjectOpenHashMap<Satellite> sats = new Int2ObjectOpenHashMap<>();
-		for(int i = 0; i < satSize; i++) {
-			sats.put(buf.readInt(), Satellite.create(buf.readInt()));
+		if(satSize >= 0) {
+			Int2ObjectOpenHashMap<Satellite> sats = new Int2ObjectOpenHashMap<>();
+			for(int i = 0; i < satSize; i++) {
+				sats.put(buf.readInt(), Satellite.create(buf.readInt()));
+			}
+			SatelliteSavedData.setClientSats(sats);
 		}
-		SatelliteSavedData.setClientSats(sats);
 		/// SATELLITES ///
 
 		/// RIDING DESYNC FIX ///

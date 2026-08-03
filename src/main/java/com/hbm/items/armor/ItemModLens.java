@@ -7,8 +7,8 @@ import com.hbm.items.ISatChip;
 import com.hbm.main.MainRegistry;
 import com.hbm.packet.toclient.AuxParticlePacketNT;
 import com.hbm.saveddata.satellites.Satellite;
-import com.hbm.saveddata.satellites.SatelliteSavedData;
 import com.hbm.saveddata.satellites.SatelliteScanner;
+import com.hbm.saveddata.satellites.SatelliteResolver;
 import com.hbm.util.I18nUtil;
 import net.minecraft.block.Block;
 import net.minecraft.client.util.ITooltipFlag;
@@ -58,7 +58,10 @@ public class ItemModLens extends ItemArmorMod implements ISatChip {
         if(lens == null) return;
 
         int freq = this.getFreq(lens);
-        Satellite sat = SatelliteSavedData.getData(world).getSatFromFreq(freq);
+        SatelliteResolver.Result resolution = SatelliteResolver.resolve(world,
+                (int)Math.floor(player.posX), (int)Math.floor(player.posZ), lens, true);
+        Satellite sat = resolution.getSatellite();
+        if(resolution.getContext() == null || resolution.getContext().getSurfaceWorld() != world) return;
         if(!(sat instanceof SatelliteScanner)){
             MainRegistry.logger.debug("Satellite not found: " + freq);
             return;

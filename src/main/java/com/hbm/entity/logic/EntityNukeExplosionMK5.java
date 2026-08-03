@@ -12,6 +12,8 @@ import com.hbm.interfaces.AutoRegister;
 import com.hbm.interfaces.IExplosionRay;
 import com.hbm.main.AdvancementManager;
 import com.hbm.main.MainRegistry;
+import com.hbm.saveddata.satellites.SatelliteDetector;
+import com.hbm.saveddata.satellites.SatelliteDetector.BurstIntensity;
 import com.hbm.util.ContaminationUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -145,6 +147,7 @@ public class EntityNukeExplosionMK5 extends EntityExplosionChunkloading {
             else
                 explosion = new ExplosionNukeRayBatched(world, (int) posX, (int) posY, (int) posZ, strength, radius);
             explosion.setDetonator(detonator);
+            SatelliteDetector.reportEvent(world, SatelliteDetector.DURATION_HIGH, BurstIntensity.HIGH, posX, posZ);
             initialized = true;
         }
 

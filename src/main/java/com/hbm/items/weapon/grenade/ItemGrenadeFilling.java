@@ -17,6 +17,8 @@ import com.hbm.items.weapon.sedna.factory.Lego;
 import com.hbm.lib.HBMSoundHandler;
 import com.hbm.main.MainRegistry;
 import com.hbm.packet.toclient.AuxParticlePacketNT;
+import com.hbm.saveddata.satellites.SatelliteDetector;
+import com.hbm.saveddata.satellites.SatelliteDetector.BurstIntensity;
 import com.hbm.util.DamageResistanceHandler.DamageClass;
 import com.hbm.util.Vec3NT;
 import net.minecraft.entity.EntityLivingBase;
@@ -258,6 +260,7 @@ public class ItemGrenadeFilling extends ItemEnumMulti<ItemGrenadeFilling.EnumGre
     }
 
     public static void spawnMush(EntityGrenadeUniversal grenade) {
+        SatelliteDetector.reportEvent(grenade.world, SatelliteDetector.DURATION_LOW, BurstIntensity.LOW, grenade.posX, grenade.posZ);
         grenade.world.playSound(null, grenade.posX, grenade.posY, grenade.posZ,
                 HBMSoundHandler.mukeExplosion, SoundCategory.HOSTILE, 15.0F, 1.0F);
         NBTTagCompound data = new NBTTagCompound();

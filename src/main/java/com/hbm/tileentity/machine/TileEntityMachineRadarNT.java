@@ -30,6 +30,7 @@ import com.hbm.tileentity.IRadarCommandReceiver;
 import com.hbm.tileentity.TileEntityMachineBase;
 import com.hbm.util.Tuple;
 import com.hbm.world.WorldUtil;
+import com.hbmspace.tileentity.TESpaceUtil;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.Reference2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
@@ -235,6 +236,12 @@ public class TileEntityMachineRadarNT extends TileEntityMachineBase implements I
             this.power = Library.chargeTEFromItems(inventory, 0, power, maxPower);
             this.jammed = false;
             allocateTargets();
+            if (power > 0 && world.getTotalWorldTime() % 20 == 0) {
+                SatelliteDetector.reportEvent(world, SatelliteDetector.DURATION_MEDIUM,
+                        SatelliteDetector.BurstIntensity.MEDIUM, pos.getX(), pos.getZ());
+                SatelliteRayScan.reportEvent(world, pos.getX(), pos.getY(), pos.getZ(),
+                        SatelliteRayScan.RayEvent.INFO_RADAR, 200);
+            }
 
             if (this.lastPower != getRedPower()) {
                 this.markChanged();
@@ -530,33 +537,41 @@ public class TileEntityMachineRadarNT extends TileEntityMachineBase implements I
 
             if (!link.isEmpty() && link.getItem() == ModItems.sat_relay) {
                 World world = player.getEntityWorld();
-                Satellite sat = SatelliteSavedData.getData(world).getSatFromFreq(ISatChip.getFreqS(link));
-                if (sat instanceof SatelliteLaser) {
+                SatelliteResolver.Result resolution = SatelliteResolver.resolve(world, pos.getX(), pos.getZ(), link, true);
+                SatelliteSavedData satelliteData = resolution.getData();
+                Satellite sat = resolution.getSatellite();
+                World actionWorld = resolution.getContext() == null ? null : resolution.getContext().getSurfaceWorld();
+                boolean satelliteUsed = false;
+                if (actionWorld != null && sat instanceof SatelliteLaser) {
                     if (data.hasKey("launchPosX")) {
                         int x = data.getInteger("launchPosX");
                         int z = data.getInteger("launchPosZ");
                         world.playSound(null, player.posX, player.posY, player.posZ, HBMSoundHandler.techBleep, SoundCategory.AMBIENT, 1.0F, 1.0F);
-                        sat.onClick(world, player, x, z);
+                        sat.onClick(actionWorld, player, x, z);
+                        satelliteUsed = true;
                     }
                 }
-                if (sat instanceof SatelliteHorizons) {
+                if (actionWorld != null && sat instanceof SatelliteHorizons) {
                     if (data.hasKey("launchPosX")) {
                         int x = data.getInteger("launchPosX");
                         int z = data.getInteger("launchPosZ");
                         int y = 60; //one day I will make radars transmit Y coordinate as well and you will be butchered alhamdulila
                         world.playSound(null, player.posX, player.posY, player.posZ, HBMSoundHandler.techBleep, SoundCategory.AMBIENT, 1.0F, 1.0F);
-                        sat.onCoordAction(world, player, x, y, z);
+                        sat.onCoordAction(actionWorld, player, x, y, z);
+                        satelliteUsed = true;
                     }
                 }
-                if (sat instanceof SatelliteResonator) {
+                if (actionWorld != null && sat instanceof SatelliteResonator) {
                     if (data.hasKey("launchPosX")) {
                         int x = data.getInteger("launchPosX");
                         int z = data.getInteger("launchPosZ");
-                        int y = world.getTopSolidOrLiquidBlock(new BlockPos(x, pos.getY() + 1, z)).getY(); //the top fucking block because I will never make radars transmit Y coordinates as well!
+                        int y = actionWorld.getTopSolidOrLiquidBlock(new BlockPos(x, pos.getY() + 1, z)).getY(); //the top fucking block because I will never make radars transmit Y coordinates as well!
                         world.playSound(null, player.posX, player.posY, player.posZ, HBMSoundHandler.techBleep, SoundCategory.AMBIENT, 1.0F, 1.0F);
-                        sat.onCoordAction(world, player, x, y, z);
+                        sat.onCoordAction(actionWorld, player, x, y, z);
+                        satelliteUsed = true;
                     }
                 }
+                if(satelliteUsed && satelliteData != null) satelliteData.markSatelliteDirty();
             }
             if (!link.isEmpty() && link.getItem() == ModItems.radar_linker) {
                 BlockPos pos = ItemCoordinateBase.getPosition(link);
