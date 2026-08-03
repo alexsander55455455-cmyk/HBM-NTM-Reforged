@@ -31,6 +31,7 @@ import com.hbm.lib.HBMSoundHandler;
 import com.hbm.lib.Library;
 import com.hbm.lib.RecoilHandler;
 import com.hbm.packet.PacketDispatcher;
+import com.hbm.packet.toclient.BackpackSlotSyncPacket;
 import com.hbm.packet.toserver.AuxButtonPacket;
 import com.hbm.packet.toserver.GunButtonPacket;
 import com.hbm.packet.toserver.MeathookJumpPacket;
@@ -59,6 +60,7 @@ import com.hbm.render.modelrenderer.EgonBackpackRenderer;
 import com.hbm.render.util.RenderOverhead;
 import com.hbm.render.world.RenderNTMSkyboxChainloader;
 import com.hbm.render.world.RenderNTMSkyboxImpact;
+import com.hbm.saveddata.satellites.SatelliteSavedData;
 import com.hbm.sound.*;
 import com.hbm.sound.MovingSoundPlayerLoop.EnumHbmSound;
 import com.hbm.tileentity.bomb.TileEntityNukeCustom;
@@ -328,6 +330,7 @@ public class ModEventHandlerClient {
         Minecraft mc = Minecraft.getMinecraft();
         ArmorNo9.updateWorldHook(mc.world);
         if (e.phase == Phase.END) {
+            BackpackSlotSyncPacket.applyPending();
             if (!firstPersonAuxParticles.isEmpty()) {
                 Iterator<ParticleFirstPerson> i = firstPersonAuxParticles.iterator();
                 while (i.hasNext()) {
@@ -1445,6 +1448,8 @@ public class ModEventHandlerClient {
 
     @SubscribeEvent
     public void onPlayerLeaveServer(ClientDisconnectionFromServerEvent event) {
+        BackpackSlotSyncPacket.clearPending();
+        SatelliteSavedData.clearClientSnapshots();
         SerializableRecipe.clearReceivedRecipes();
         RBMKDials.resetClientColumnHeightRuleValue();
     }
@@ -1452,6 +1457,8 @@ public class ModEventHandlerClient {
     @SubscribeEvent
     public void onClientWorldUnload(WorldEvent.Unload event) {
         if (event.getWorld().isRemote) {
+            BackpackSlotSyncPacket.clearPending();
+            SatelliteSavedData.clearClientSnapshots();
             RBMKDials.resetClientColumnHeightRuleValue();
         }
     }

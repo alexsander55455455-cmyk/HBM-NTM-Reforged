@@ -456,6 +456,7 @@ public class ModItems {
     public static final Item spawn_chopper = new ItemChopper("chopper").setMaxStackSize(1).setCreativeTab(MainRegistry.consumableTab);
     public static final Item spawn_worm = new ItemChopper("spawn_worm").setMaxStackSize(1).setCreativeTab(MainRegistry.consumableTab);
     public static final Item spawn_ufo = new ItemChopper("spawn_ufo").setMaxStackSize(1).setCreativeTab(MainRegistry.consumableTab);
+    public static final Item spawn_duck = new ItemChopper("spawn_duck").setMaxStackSize(16).setCreativeTab(MainRegistry.consumableTab);
     public static final Item bomb_caller = new ItemBombCaller("bomb_caller").setMaxStackSize(1).setFull3D().setCreativeTab(MainRegistry.consumableTab);
     public static final Item crate_caller = new ItemCrateCaller("crate_caller").setMaxStackSize(1).setFull3D().setCreativeTab(MainRegistry.consumableTab);
     public static final Item meteor_remote = new ItemMeteorRemote("meteor_remote").setMaxStackSize(1).setFull3D().setCreativeTab(MainRegistry.consumableTab);
@@ -1297,14 +1298,60 @@ public class ModItems {
     public static final Item ammo_bag = new ItemAmmoBag("ammo_bag").setCreativeTab(MainRegistry.consumableTab);
     public static final Item ammo_bag_infinite = new ItemAmmoBag("ammo_bag_infinite").setCreativeTab(MainRegistry.consumableTab);
     public static final Item casing_bag = new ItemCasingBag("casing_bag").setCreativeTab(MainRegistry.consumableTab);
+    public static final Item backpack_steel = new ItemBackpack("backpack_steel", 36, 0.35D, false);
+    public static final Item backpack_titanium = new ItemBackpack("backpack_titanium", 45, 0.40D, false);
+    public static final Item backpack_lead = new ItemBackpack("backpack_lead", 45, 0.99D, true);
+    public static final Item backpack_reinforced_steel = new ItemBackpack("backpack_reinforced_steel", 54, 0.55D, false);
+    public static final Item backpack_asbestos = new ItemBackpack("backpack_asbestos", 54, 0.75D, false);
+    public static final Item backpack_duralumin = new ItemBackpack("backpack_duralumin", 54, 0.25D, false);
+    public static final Item backpack_beryllium = new ItemBackpack("backpack_beryllium", 66, 0.65D, false);
+    public static final Item backpack_high_strength_steel = new ItemBackpack("backpack_high_strength_steel", 88, 0.95D, false);
+    public static final Item backpack_tungsten = new ItemBackpack("backpack_tungsten", 77, 1D, false);
+    public static final Item backpack_desh = new ItemBackpack("backpack_desh", 130, 0.99D, false);
+    public static final Item backpack_schrabidium = new ItemBackpack("backpack_schrabidium", 156, 1D, false);
+    public static final Item backpack_dineutronium = new ItemDineutroniumBackpack("backpack_dineutronium");
+    public static final Item backpack_black_hole = new ItemBlackHoleBackpack("backpack_black_hole");
+    public static final Item backpack_stalker = new ItemStalkerBackpack("backpack_stalker");
+    public static final Item backpack_black_box = new ItemBlackBoxBackpack("backpack_black_box");
+    public static final Item backpack_ash = new ItemAshBackpack("backpack_ash");
+    public static final Item backpack_nuclear_tourist = new ItemNuclearTouristBackpack("backpack_nuclear_tourist");
+    public static final Item backpack_pocket_hole = new ItemPocketHoleBackpack("backpack_pocket_hole");
+    public static final Item backpack_sapper = new ItemSapperBackpack("backpack_sapper");
+    public static final Item backpack_smuggler = new ItemSmugglerBackpack("backpack_smuggler");
+    public static final Item backpack_reality_error = new ItemRealityErrorBackpack("backpack_reality_error");
+    public static final Item backpack_upgrade_capacity_1 = new ItemBackpackUpgrade(
+            "backpack_upgrade_capacity_1", "backpack_upgrade_capacity_1", BackpackUpgradeType.CAPACITY, 1, 9, 0D, false);
+    public static final Item backpack_upgrade_capacity_2 = new ItemBackpackUpgrade(
+            "backpack_upgrade_capacity_2", "backpack_upgrade_capacity_2", BackpackUpgradeType.CAPACITY, 2, 18, 0D, false);
+    public static final Item backpack_upgrade_capacity_3 = new ItemBackpackUpgrade(
+            "backpack_upgrade_capacity_3", "backpack_upgrade_capacity_3", BackpackUpgradeType.CAPACITY, 3, 27, 0D, false);
+    public static final Item backpack_upgrade_magnet_1 = new ItemBackpackMagnetUpgrade(
+            "backpack_upgrade_magnet_1", "backpack_upgrade_magnet_1", 1, 100_000L, 10_000L, 250L, 2.5D, false);
+    public static final Item backpack_upgrade_magnet_2 = new ItemBackpackMagnetUpgrade(
+            "backpack_upgrade_magnet_2", "backpack_upgrade_magnet_2", 2, 1_000_000L, 50_000L, 500L, 4D, false);
+    public static final Item backpack_upgrade_magnet_3 = new ItemBackpackMagnetUpgrade(
+            "backpack_upgrade_magnet_3", "backpack_upgrade_magnet_3", 3, 10_000_000L, 100_000L, 1_000L, 6D, true);
+    public static final Item backpack_upgrade_range_1 = new ItemBackpackUpgrade(
+            "backpack_upgrade_range_1", "backpack_upgrade_range_1", BackpackUpgradeType.RANGE, 1, 0, 2D, false);
+    public static final Item backpack_upgrade_range_2 = new ItemBackpackUpgrade(
+            "backpack_upgrade_range_2", "backpack_upgrade_range_2", BackpackUpgradeType.RANGE, 2, 0, 5D, false);
+    public static final Item backpack_upgrade_range_3 = new ItemBackpackUpgrade(
+            "backpack_upgrade_range_3", "backpack_upgrade_range_3", BackpackUpgradeType.RANGE, 3, 0, 8D, true);
+    public static final Item backpack_upgrade_workbench = new ItemBackpackUpgrade(
+            "backpack_upgrade_workbench", "backpack_upgrade_workbench", BackpackUpgradeType.WORKBENCH, 0, 0, 0D, false);
+    public static final Item backpack_upgrade_ammo_feeder = new ItemBackpackUpgrade(
+            "backpack_upgrade_ammo_feeder", "backpack_upgrade_ammo_feeder", BackpackUpgradeType.AMMO_FEEDER, 0, 0, 0D, true);
+    public static final Item backpack_upgrade_auto_sort = new ItemBackpackUpgrade(
+            "backpack_upgrade_auto_sort", "backpack_upgrade_auto_sort", BackpackUpgradeType.AUTO_SORT, 0, 0, 0D, false);
     public static final Item tritium_deuterium_cake = new ItemCustomLore("tritium_deuterium_cake").setCreativeTab(MainRegistry.controlTab).setMaxStackSize(1);
-    public static final Item pile_rod_uranium = new ItemPileRod("pile_rod_uranium").setCreativeTab(MainRegistry.controlTab);
-    public static final Item pile_rod_pu239 = new ItemPileRod("pile_rod_pu239").setCreativeTab(MainRegistry.controlTab);
-    public static final Item pile_rod_plutonium = new ItemPileRod("pile_rod_plutonium").setCreativeTab(MainRegistry.controlTab);
-    public static final Item pile_rod_source = new ItemPileRod("pile_rod_source").setCreativeTab(MainRegistry.controlTab);
-    public static final Item pile_rod_boron = new ItemPileRod("pile_rod_boron").setCreativeTab(MainRegistry.controlTab);
-    public static final Item pile_rod_lithium = new ItemPileRod("pile_rod_lithium").setCreativeTab(MainRegistry.controlTab);
-    public static final Item pile_rod_detector = new ItemPileRod("pile_rod_detector").setCreativeTab(MainRegistry.controlTab);
+    public static final Item pile_rod_uranium = new ItemPileRod("pile_rod_uranium").setCreativeTab(null);
+    public static final Item pile_rod_pu239 = new ItemPileRod("pile_rod_pu239").setCreativeTab(null);
+    public static final Item pile_rod_plutonium = new ItemPileRod("pile_rod_plutonium").setCreativeTab(null);
+    public static final Item pile_rod_source = new ItemPileRod("pile_rod_source").setCreativeTab(null);
+    public static final Item pile_rod_boron = new ItemPileRod("pile_rod_boron").setCreativeTab(null);
+    public static final Item pile_rod_lithium = new ItemPileRod("pile_rod_lithium").setCreativeTab(null);
+    public static final Item pile_rod_detector = new ItemPileRod("pile_rod_detector").setCreativeTab(null);
+    public static final Item pile_rod = new ItemPileRodMK2("pile_rod").setCreativeTab(MainRegistry.controlTab);
     //That's a lot of rods
     public static final Item rod_empty = new ItemBase("rod_empty").setCreativeTab(MainRegistry.controlTab);
     public static final Item rod_dual_empty = new ItemBase("rod_dual_empty").setCreativeTab(MainRegistry.controlTab);
@@ -1579,7 +1626,8 @@ public class ModItems {
             .addAbility(IWeaponAbility.BEHEADER, 0).setMaxStackSize(1);
     public static final Item titanium_shovel = new ItemToolAbility(3.5F, -2.8F, 0, MaterialRegistry.enumToolMaterialTitanium, EnumToolType.SHOVEL, "titanium_shovel");
     public static final Item titanium_hoe = new ModHoe(MaterialRegistry.enumToolMaterialTitanium, "titanium_hoe").setMaxStackSize(1).setCreativeTab(CreativeTabs.TOOLS);
-    public static final Item steel_sword = new ItemSwordAbility(6F, 0, MaterialRegistry.enumToolMaterialSteel, "steel_sword");
+    public static final Item steel_sword = new ItemSwordAbility(6F, 0, MaterialRegistry.enumToolMaterialSteel, "steel_sword")
+            .addAbility(IWeaponAbility.STUN, 0);
     public static final Item steel_pickaxe = new ItemToolAbility(4F, -2.8F, 0, MaterialRegistry.enumToolMaterialSteel, EnumToolType.PICKAXE, "steel_pickaxe")
             .addAbility(IToolAreaAbility.RECURSION, 0);
     public static final Item steel_axe = new ItemToolAbility(5F, -2.8F, 0, MaterialRegistry.enumToolMaterialSteel, EnumToolType.AXE, "steel_axe")
@@ -2580,14 +2628,15 @@ public class ModItems {
     public static final Item loot_15 = new ItemLootCrate("loot_15").setMaxStackSize(1).setCreativeTab(MainRegistry.missileTab);
     public static final Item loot_misc = new ItemLootCrate("loot_misc").setMaxStackSize(1).setCreativeTab(MainRegistry.missileTab);
     //Satellites
-    public static final Item sat_mapper = new ItemSatellite("sat_mapper").setMaxStackSize(1).setCreativeTab(MainRegistry.missileTab);
-    public static final Item sat_scanner = new ItemSatellite("sat_scanner").setMaxStackSize(1).setCreativeTab(MainRegistry.missileTab);
-    public static final Item sat_radar = new ItemSatellite("sat_radar").setMaxStackSize(1).setCreativeTab(MainRegistry.missileTab);
-    public static final Item sat_laser = new ItemSatellite("sat_laser").setMaxStackSize(1).setCreativeTab(MainRegistry.missileTab);
-    public static final Item sat_foeq = new ItemSatellite("sat_foeq").setMaxStackSize(1).setCreativeTab(MainRegistry.missileTab);
-    public static final Item sat_resonator = new ItemSatellite("sat_resonator").setMaxStackSize(1).setCreativeTab(MainRegistry.missileTab);
-    public static final Item sat_miner = new ItemSatellite("sat_miner").setMaxStackSize(1).setCreativeTab(MainRegistry.missileTab);
-    public static final Item sat_lunar_miner = new ItemSatellite("sat_lunar_miner").setMaxStackSize(1).setCreativeTab(MainRegistry.missileTab);
+    public static final Item satellite = new ItemSatellitePayload("satellite").setCreativeTab(MainRegistry.missileTab);
+    public static final Item sat_mapper = new ItemSatellite("sat_mapper").setMaxStackSize(1).setCreativeTab(null);
+    public static final Item sat_scanner = new ItemSatellite("sat_scanner").setMaxStackSize(1).setCreativeTab(null);
+    public static final Item sat_radar = new ItemSatellite("sat_radar").setMaxStackSize(1).setCreativeTab(null);
+    public static final Item sat_laser = new ItemSatellite("sat_laser").setMaxStackSize(1).setCreativeTab(null);
+    public static final Item sat_foeq = new ItemSatellite("sat_foeq").setMaxStackSize(1).setCreativeTab(null);
+    public static final Item sat_resonator = new ItemSatellite("sat_resonator").setMaxStackSize(1).setCreativeTab(null);
+    public static final Item sat_miner = new ItemSatellite("sat_miner").setMaxStackSize(1).setCreativeTab(null);
+    public static final Item sat_lunar_miner = new ItemSatellite("sat_lunar_miner").setMaxStackSize(1).setCreativeTab(null);
     public static final Item sat_gerald = new ItemSatellite("sat_gerald").setMaxStackSize(1).setCreativeTab(MainRegistry.missileTab);
     public static final Item sat_chip = new ItemSatellite("sat_chip").setMaxStackSize(1).setCreativeTab(MainRegistry.missileTab);
     public static final Item sat_interface = new ItemSatInterface("sat_interface").setMaxStackSize(1).setCreativeTab(MainRegistry.missileTab);
@@ -2929,6 +2978,7 @@ public class ModItems {
     public static final Item ducc = new ItemBase("ducc").setCreativeTab(MainRegistry.controlTab);
     public static final Item discharge = new EffectItem("discharge").setCreativeTab(null);
     public static final Item undefined = new ItemCustomLore("undefined").setCreativeTab(MainRegistry.partsTab);
+    public static final Item reality_glitch = new ItemRealityGlitch("reality_glitch");
     public static final Item mysteryshovel = new ItemMS("mysteryshovel").setFull3D().setMaxStackSize(1).setCreativeTab(CreativeTabs.TOOLS);
     public static final Item memory = new ItemBattery(Long.MAX_VALUE / 100L, 100000000000000L, 100000000000000L, "memory").setMaxStackSize(1).setCreativeTab(null);
     public static final Item conveyor_wand = new ItemConveyorWand("conveyor_wand").setFull3D().setCreativeTab(MainRegistry.machineTab);
@@ -3597,9 +3647,32 @@ public class ModItems {
             .setCreativeTab(null);
     @Deprecated
     public static final Item wire = wire_fine;
-public static void registerItems() {
+    public static void registerItems() {
         GunFactory.init();
         excludeNEI.add(item_secret);
+        excludeNEI.add(backpack_stalker);
+        excludeNEI.add(backpack_black_box);
+        excludeNEI.add(backpack_ash);
+        excludeNEI.add(backpack_nuclear_tourist);
+        excludeNEI.add(backpack_pocket_hole);
+        excludeNEI.add(backpack_sapper);
+        excludeNEI.add(backpack_smuggler);
+        excludeNEI.add(backpack_reality_error);
+        excludeNEI.add(pile_rod_uranium);
+        excludeNEI.add(pile_rod_pu239);
+        excludeNEI.add(pile_rod_plutonium);
+        excludeNEI.add(pile_rod_source);
+        excludeNEI.add(pile_rod_boron);
+        excludeNEI.add(pile_rod_lithium);
+        excludeNEI.add(pile_rod_detector);
+        excludeNEI.add(sat_mapper);
+        excludeNEI.add(sat_scanner);
+        excludeNEI.add(sat_radar);
+        excludeNEI.add(sat_laser);
+        excludeNEI.add(sat_foeq);
+        excludeNEI.add(sat_resonator);
+        excludeNEI.add(sat_miner);
+        excludeNEI.add(sat_lunar_miner);
 
         for (Block block : ModBlocks.ALL_BLOCKS) {
             if (block instanceof ICustomBlockItem) {

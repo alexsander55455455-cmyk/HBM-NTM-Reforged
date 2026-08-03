@@ -107,12 +107,22 @@ public class PacketDispatcher {
 		//Syncs muzzle flashes of SEDNA guns for clients from other entities/players
         wrapper.registerMessage(MuzzleFlashPacket.Handler.class, MuzzleFlashPacket.class, i++, Side.CLIENT);
 		wrapper.registerMessage(ItemFolderPacket.Handler.class, ItemFolderPacket.class, i++, Side.SERVER);
+		wrapper.registerMessage(BackpackSlotSyncPacket.Handler.class, BackpackSlotSyncPacket.class, i++, Side.CLIENT);
+		wrapper.registerMessage(BlackHoleBackpackPagePacket.Handler.class, BlackHoleBackpackPagePacket.class, i++, Side.CLIENT);
+		wrapper.registerMessage(BackpackCreativeTrashPacket.Handler.class, BackpackCreativeTrashPacket.class, i++, Side.SERVER);
+		wrapper.registerMessage(BackpackCreativeMovePacket.Handler.class, BackpackCreativeMovePacket.class, i++, Side.SERVER);
+		wrapper.registerMessage(BlackBoxAccessPacket.Handler.class, BlackBoxAccessPacket.class, i++, Side.SERVER);
 		wrapper.registerMessage(TETurretPacket.Handler.class, TETurretPacket.class, i++, Side.CLIENT);
 		wrapper.registerMessage(TETurretCIWSPacket.Handler.class, TETurretCIWSPacket.class, i++, Side.CLIENT);
+		wrapper.registerMessage(SatelliteSettingsPacket.Handler.class, SatelliteSettingsPacket.class, i++, Side.SERVER);
+		wrapper.registerMessage(SatelliteSnapshotPacket.Handler.class, SatelliteSnapshotPacket.class, i++, Side.CLIENT);
 
 		for (IPacketRegisterListener listener : LISTENERS) {
 			i = listener.registerPackets(i);
 		}
+		// Registered after extension listeners to preserve every existing discriminator.
+		wrapper.registerMessage(PneumoAccessSyncPacket.Handler.class, PneumoAccessSyncPacket.class, i++, Side.CLIENT);
+		wrapper.registerMessage(PneumoAccessActionPacket.Handler.class, PneumoAccessActionPacket.class, i++, Side.SERVER);
 	}
 	
 	public static void sendTo(IMessage message, EntityPlayerMP player){

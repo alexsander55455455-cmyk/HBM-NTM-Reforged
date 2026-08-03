@@ -11,6 +11,7 @@ import com.hbm.blocks.generic.BlockCrate;
 import com.hbm.compat.NtmdopolnenieCompat;
 import com.hbm.capability.HbmCapability;
 import com.hbm.capability.HbmLivingCapability;
+import com.hbm.capability.BackpackCapability;
 import com.hbm.capability.NTMBatteryCapabilityHandler;
 import com.hbm.command.*;
 import com.hbm.config.*;
@@ -50,6 +51,8 @@ import com.hbm.packet.PacketDispatcher;
 import com.hbm.potion.HbmDetox;
 import com.hbm.potion.HbmPotion;
 import com.hbm.saveddata.satellites.Satellite;
+import com.hbm.saveddata.satellites.SatelliteDetector;
+import com.hbm.saveddata.satellites.SatelliteRayScan;
 import com.hbm.tileentity.bomb.TileEntityLaunchPadBase;
 import com.hbm.tileentity.bomb.TileEntityNukeCustom;
 import com.hbm.tileentity.machine.TileEntityMachineRadarNT;
@@ -153,6 +156,7 @@ public class MainRegistry {
         MobConfig.loadFromConfig(config);
         SpaceConfig.loadFromConfig(config);
         StructureConfig.loadFromConfig(config);
+        BackpackConfig.loadFromConfig(config);
         reloadCompatConfig();
         BedrockOreJsonConfig.init();
         CassetteJsonConfig.init();
@@ -236,6 +240,7 @@ public class MainRegistry {
 
         CapabilityManager.INSTANCE.register(HbmLivingCapability.IEntityHbmProps.class, new HbmLivingCapability.EntityHbmPropsStorage(), HbmLivingCapability.EntityHbmProps.FACTORY);
         CapabilityManager.INSTANCE.register(HbmCapability.IHBMData.class, new HbmCapability.HBMDataStorage(), HbmCapability.HBMData.FACTORY);
+        CapabilityManager.INSTANCE.register(BackpackCapability.IBackpackData.class, new BackpackCapability.BackpackDataStorage(), BackpackCapability.BackpackData.FACTORY);
         Fluids.init();
         ModFluids.init();
         BulletConfigSyncingUtil.loadConfigsForSync();
@@ -374,6 +379,7 @@ public class MainRegistry {
         evt.registerServerCommand(new CommandLocate());
         evt.registerServerCommand(new CommandPacketInfo());
         evt.registerServerCommand(new CommandReloadServer());
+        evt.registerServerCommand(new CommandSatellites());
         AdvancementManager.init(evt.getServer());
         //MUST be initialized AFTER achievements!!
         BobmazonOfferFactory.init();
@@ -387,6 +393,8 @@ public class MainRegistry {
         RadiationSystemNT.onServerStopping();
         RecipesCommon.onServerStopping();
         ModEventHandler.RBMK_COL_HEIGHT_MAP.clear();
+        SatelliteDetector.clearAll();
+        SatelliteRayScan.clearAll();
     }
 
     /**

@@ -678,7 +678,7 @@ public class ModBlocks {
     public static final Block block_red_phosphorus = new BlockFallingBase(Material.SAND, "block_red_phosphorus", SoundType.SAND).setCreativeTab(MainRegistry.blockTab).setHardness(5.0F).setResistance(10.0F);
     public static final Block block_foam = new BlockBase(Material.CRAFTED_SNOW, "block_foam").setSoundType(SoundType.SNOW).setCreativeTab(MainRegistry.blockTab).setHardness(0.5F).setResistance(0.0F);
     public static final Block block_coke = new BlockCoke().setCreativeTab(MainRegistry.blockTab).setHardness(5.0F).setResistance(10.0F);
-    public static final Block block_graphite = new BlockGraphite(Material.IRON, "block_graphite", 30, 5).setSoundType(SoundType.METAL).setCreativeTab(MainRegistry.blockTab).setHardness(5.0F).setResistance(10.0F);
+    public static final Block block_graphite = new BlockGraphite(Material.IRON, "block_graphite", 30, 5).setSoundType(SoundType.METAL).setCreativeTab(null).setHardness(5.0F).setResistance(10.0F);
     public static final Block block_graphite_drilled = new BlockGraphiteDrilled("block_graphite_drilled");
     public static final Block block_graphite_fuel = new BlockGraphiteFuel("block_graphite_fuel");
     public static final Block block_graphite_plutonium = new BlockGraphiteSource("block_graphite_plutonium");
@@ -687,6 +687,9 @@ public class ModBlocks {
     public static final Block block_graphite_lithium = new BlockGraphiteBreedingFuel("block_graphite_lithium");
     public static final Block block_graphite_tritium = new BlockGraphiteBreedingProduct("block_graphite_tritium");
     public static final Block block_graphite_detector = new BlockGraphiteNeutronDetector("block_graphite_detector");
+    public static final Block pile_brick = new BlockPileBrick("pile_brick").setSoundType(SoundType.STONE).setCreativeTab(MainRegistry.blockTab).setHardness(5.0F).setResistance(10.0F);
+    public static final Block pile_block = new BlockPile("pile_block").setSoundType(SoundType.METAL).setCreativeTab(null).setHardness(5.0F).setResistance(10.0F);
+    public static final Block pile_device = new BlockPileDevice("pile_device").setSoundType(SoundType.METAL).setCreativeTab(MainRegistry.machineTab).setHardness(5.0F).setResistance(10.0F);
 
     public static final Block block_australium = new BlockRadResistant(Material.IRON, "block_australium").setCreativeTab(MainRegistry.blockTab).setHardness(5.0F).setResistance(10.0F);
 
@@ -938,6 +941,7 @@ public class ModBlocks {
     public static final Block crate_red = new BlockCrate(Material.IRON, "crate_red").setSoundType(SoundType.METAL).setHardness(5.0F).setResistance(10.0F).setCreativeTab(null);
     public static final Block crate_iron = new BlockStorageCrate(Material.IRON, "crate_iron").setHardness(5.0F).setResistance(10.0F).setCreativeTab(MainRegistry.machineTab);
     public static final Block crate_steel = new BlockStorageCrate(Material.IRON, "crate_steel").setHardness(5.0F).setResistance(20.0F).setCreativeTab(MainRegistry.machineTab);
+    public static final Block black_box_recovery = new BlockBlackBoxRecovery("black_box_recovery");
     public static final Block crate_desh = new BlockStorageCrate(Material.IRON, "crate_desh").setSoundType(SoundType.METAL).setHardness(7.5F).setResistance(300.0F).setCreativeTab(MainRegistry.machineTab);
     public static final Block crate_template = new BlockStorageCrate(Material.IRON, "crate_template").setSoundType(SoundType.METAL).setHardness(7.5F).setResistance(300.0F).setCreativeTab(MainRegistry.machineTab);
     public static final Block crate_tungsten = new BlockStorageCrateRadResistant(Material.IRON, "crate_tungsten").setSoundType(SoundType.METAL).setHardness(15F).setResistance(10000.0F).setCreativeTab(MainRegistry.machineTab);
@@ -959,6 +963,7 @@ public class ModBlocks {
     public static final Block machine_telelinker = new MachineTeleLinker(Material.IRON, "machine_telelinker").setHardness(5.0F).setResistance(10.0F).setCreativeTab(MainRegistry.nukeTab);
 
     public static final Block machine_satlinker = new MachineSatLinker(Material.IRON, "machine_satlinker").setHardness(5.0F).setResistance(10.0F).setCreativeTab(MainRegistry.missileTab);
+    public static final Block machine_satlink = new MachineSatLink("machine_satlink").setHardness(5.0F).setResistance(10.0F).setCreativeTab(MainRegistry.missileTab);
 
     public static final Block sat_dock = new MachineSatDock(Material.IRON, "sat_dock").setHardness(5.0F).setResistance(10.0F).setCreativeTab(MainRegistry.missileTab);
     public static final Block soyuz_capsule = new SoyuzCapsule(Material.IRON, "soyuz_capsule").setHardness(5.0F).setResistance(10.0F).setCreativeTab(MainRegistry.missileTab);
@@ -1105,6 +1110,7 @@ public class ModBlocks {
     public static final Block anvil_lead = new NTMAnvil(Material.IRON, NTMAnvil.TIER_IRON, "anvil_lead").setCreativeTab(MainRegistry.machineTab);
     public static final Block anvil_steel = new NTMAnvil(Material.IRON, NTMAnvil.TIER_STEEL, "anvil_steel").setCreativeTab(MainRegistry.machineTab);
     public static final Block anvil_desh = new NTMAnvil(Material.IRON, NTMAnvil.TIER_OIL, "anvil_desh").setCreativeTab(MainRegistry.machineTab);
+    public static final Block anvil_meteorite = new NTMAnvil(Material.IRON, NTMAnvil.TIER_OIL, "anvil_meteorite").setCreativeTab(MainRegistry.machineTab);
     public static final Block anvil_ferrouranium = new NTMAnvil(Material.IRON, NTMAnvil.TIER_NUCLEAR, "anvil_ferrouranium").setCreativeTab(MainRegistry.machineTab);
     public static final Block anvil_saturnite = new NTMAnvil(Material.IRON, NTMAnvil.TIER_RBMK, "anvil_saturnite").setCreativeTab(MainRegistry.machineTab);
     public static final Block anvil_bismuth_bronze = new NTMAnvil(Material.IRON, NTMAnvil.TIER_RBMK, "anvil_bismuth_bronze").setCreativeTab(MainRegistry.machineTab);
@@ -1489,6 +1495,9 @@ public class ModBlocks {
     public static final Block pneumatic_tube_paintable = new PneumoTubePaintableBlock("pneumatic_tube_paintable").setHardness(5.0F).setResistance(10.0F).setCreativeTab(MainRegistry.machineTab);
     public static final Block pneumatic_storage_access = new PneumoStorageAccess("pneumatic_storage_access").setSoundType(ModSoundTypes.pipe).setHardness(0.1F).setResistance(10.0F).setCreativeTab(MainRegistry.machineTab);
     public static final Block pneumatic_storage_clutter = new PneumoStorageClutter("pneumatic_storage_clutter").setSoundType(ModSoundTypes.pipe).setHardness(0.1F).setResistance(10.0F).setCreativeTab(MainRegistry.machineTab);
+    public static final Block pneumatic_storage_mono = new PneumoStorageMono("pneumatic_storage_mono").setSoundType(ModSoundTypes.pipe).setHardness(0.1F).setResistance(10.0F).setCreativeTab(MainRegistry.machineTab);
+    public static final Block pneumatic_storage_importer = new PneumoStorageImporter("pneumatic_storage_importer").setSoundType(ModSoundTypes.pipe).setHardness(0.1F).setResistance(10.0F).setCreativeTab(MainRegistry.machineTab);
+    public static final Block pneumatic_storage_exporter = new PneumoStorageExporter("pneumatic_storage_exporter").setSoundType(ModSoundTypes.pipe).setHardness(0.1F).setResistance(10.0F).setCreativeTab(MainRegistry.machineTab);
 
     public static final Block chain = new BlockChain(Material.IRON, "dungeon_chain").setHardness(0.25F).setResistance(2.0F).setCreativeTab(MainRegistry.blockTab);
 

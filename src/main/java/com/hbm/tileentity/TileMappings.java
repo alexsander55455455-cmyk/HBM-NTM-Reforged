@@ -42,9 +42,14 @@ import com.hbm.tileentity.machine.albion.*;
 import com.hbm.tileentity.machine.fusion.*;
 import com.hbm.tileentity.machine.oil.*;
 import com.hbm.tileentity.machine.pile.TileEntityPileBreedingFuel;
+import com.hbm.tileentity.machine.pile.TileEntityPileBaseMK2;
+import com.hbm.tileentity.machine.pile.TileEntityPileControl;
+import com.hbm.tileentity.machine.pile.TileEntityPileCore;
 import com.hbm.tileentity.machine.pile.TileEntityPileFuel;
+import com.hbm.tileentity.machine.pile.TileEntityPileLoader;
 import com.hbm.tileentity.machine.pile.TileEntityPileNeutronDetector;
 import com.hbm.tileentity.machine.pile.TileEntityPileSource;
+import com.hbm.tileentity.machine.pile.TileEntityPileVent;
 import com.hbm.tileentity.machine.rbmk.*;
 import com.hbm.tileentity.machine.storage.TileEntityFileCabinet;
 import com.hbm.tileentity.machine.storage.TileEntityMassStorage;
@@ -150,6 +155,7 @@ public class TileMappings {
         put(TileEntityMachineRadarScreen.class, "tileentity_radar_screen");
         put(TileEntityBroadcaster.class, "tileentity_pink_cloud_broadcaster");
         put(TileEntityMachineSatLinker.class, "tileentity_satlinker");
+        put(TileEntityMachineSatLink.class, "tileentity_machine_satlink");
         put(TileEntityReactorResearch.class, "tileentity_small_reactor");
         put(TileEntityVaultDoor.class, "tileentity_vault_door");
         put(TileEntityRadiobox.class, "tileentity_radio_broadcaster");
@@ -420,6 +426,11 @@ public class TileMappings {
         put(TileEntityPileSource.class, "tileentity_pile_source");
         put(TileEntityPileBreedingFuel.class, "tileentity_pile_breedingfuel");
         put(TileEntityPileNeutronDetector.class, "tileentity_pile_neutrondetector");
+        put(TileEntityPileCore.class, "tileentity_pile_core");
+        put(TileEntityPileBaseMK2.class, "tileentity_pile_block");
+        put(TileEntityPileLoader.class, "tileentity_pile_loader");
+        put(TileEntityPileVent.class, "tileentity_pile_vent");
+        put(TileEntityPileControl.class, "tileentity_pile_control");
     }
 
     private static void putRBMK() {
@@ -497,6 +508,9 @@ public class TileMappings {
         put(TileEntityPneumoTubePaintable.class, "tileentity_pneumatic_tube_paintable");
         put(TileEntityPneumoStorageAccess.class, "tileentity_pneumatic_storage_access");
         put(TileEntityPneumoStorageClutter.class, "tileentity_pneumatic_storage_clutter");
+        put(TileEntityPneumoStorageMono.class, "tileentity_pneumatic_storage_mono");
+        put(TileEntityPneumoStorageImporter.class, "tileentity_pneumatic_storage_importer");
+        put(TileEntityPneumoStorageExporter.class, "tileentity_pneumatic_storage_exporter");
 
         put(TileEntityRadioTorchSender.class, "tileentity_rtty_sender");
         put(TileEntityRadioTorchReceiver.class, "tileentity_rtty_rec");

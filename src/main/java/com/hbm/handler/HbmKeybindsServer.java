@@ -2,6 +2,7 @@ package com.hbm.handler;
 
 import com.hbm.capability.HbmCapability;
 import com.hbm.items.IKeybindReceiver;
+import com.hbm.items.tool.ItemStalkerBackpack;
 import com.hbm.packet.PacketDispatcher;
 import com.hbm.packet.toclient.PlayerInformPacket;
 import net.minecraft.entity.player.EntityPlayer;
@@ -13,6 +14,13 @@ public class HbmKeybindsServer {
 
     /** Can't put this in HbmKeybinds because it's littered with clientonly stuff */
     public static void onPressedServer(EntityPlayer player, HbmKeybinds.EnumKeybind key, boolean state) {
+		if (key == HbmKeybinds.EnumKeybind.BACKPACK) {
+			if (!state) return;
+			if (!com.hbm.capability.BackpackCapability.getData(player).getEquippedBackpack().isEmpty()) {
+				BackpackHandler.openEquippedBackpack(player);
+			}
+			return;
+		}
 
         // EXTPROP HANDLING
         HbmCapability.IHBMData props = HbmCapability.getData(player);
@@ -21,7 +29,14 @@ public class HbmKeybindsServer {
         boolean wasHudOn = props.getEnableHUD();
         boolean wasMagnetOn = props.getEnableMagnet();
 
-        props.setKeyPressed(key, state);
+		props.setKeyPressed(key, state);
+
+        if(key == HbmKeybinds.EnumKeybind.RELOAD && state) {
+            ItemStack backpack = com.hbm.capability.BackpackCapability.getData(player).getEquippedBackpack();
+            if(!backpack.isEmpty() && backpack.getItem() instanceof ItemStalkerBackpack stalker) {
+                stalker.activateStealth(player);
+            }
+        }
 
         if(player instanceof EntityPlayerMP) {
             EntityPlayerMP mp = (EntityPlayerMP) player;

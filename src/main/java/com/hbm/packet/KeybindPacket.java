@@ -56,7 +56,15 @@ public class KeybindPacket implements IMessage {
 				return null;
 			}
 			if(m.key < 0 || m.key >= EnumKeybind.VALUES.length) return null;
-			HbmKeybindsServer.onPressedServer(p, EnumKeybind.VALUES[m.key], m.pressed);
+
+			EnumKeybind key = EnumKeybind.VALUES[m.key];
+			if(key == EnumKeybind.BACKPACK || key == EnumKeybind.RELOAD) {
+				boolean pressed = m.pressed;
+				p.getServer().addScheduledTask(() -> HbmKeybindsServer.onPressedServer(p, key, pressed));
+				return null;
+			}
+
+			HbmKeybindsServer.onPressedServer(p, key, m.pressed);
 			return null;
 		}
 

@@ -11,6 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.IRegistry;
 import net.minecraft.world.World;
@@ -81,6 +82,8 @@ public class ServerProxy
 	public void playSound(String sound, Object data) { }
 	
 	public void displayTooltip(String msg) { }
+
+	public void openSatelliteOrbitSettings(EnumHand hand) { }
 
 	public void displayTooltipLegacy(String msg, int id) {
 		displayTooltipLegacy(msg, 1000, id);

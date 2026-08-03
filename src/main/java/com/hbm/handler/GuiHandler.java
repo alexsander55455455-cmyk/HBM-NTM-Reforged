@@ -1,5 +1,7 @@
 package com.hbm.handler;
 
+import com.hbm.inventory.container.ContainerBackpack;
+import com.hbm.inventory.gui.GUIBackpack;
 import com.hbm.tileentity.IGUIProvider;
 import com.hbm.util.EnumUtil;
 import net.minecraft.block.Block;
@@ -14,6 +16,12 @@ public class GuiHandler implements IGuiHandler {
 
 	@Override
 	public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
+		if (ID == BackpackHandler.EQUIPPED_GUI_ID) {
+			return new ContainerBackpack(player, x, z);
+		}
+		if (ID == BackpackHandler.HELD_GUI_ID && x >= 0 && x < EnumUtil.HANDS.length) {
+			return new ContainerBackpack(player, EnumUtil.HANDS[x], y, z);
+		}
 
 		if(y >= 0) {
 			BlockPos pos = new BlockPos(x, y, z);
@@ -40,6 +48,12 @@ public class GuiHandler implements IGuiHandler {
 
 	@Override
 	public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
+		if (ID == BackpackHandler.EQUIPPED_GUI_ID) {
+			return new GUIBackpack(new ContainerBackpack(player, x, z));
+		}
+		if (ID == BackpackHandler.HELD_GUI_ID && x >= 0 && x < EnumUtil.HANDS.length) {
+			return new GUIBackpack(new ContainerBackpack(player, EnumUtil.HANDS[x], y, z));
+		}
 
 		if(y >= 0) {
 			BlockPos pos = new BlockPos(x, y, z);

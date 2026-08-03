@@ -27,6 +27,7 @@ public class CommonConfig {
 	public static final String CATEGORY_POLLUTION = "16_pollution";
 	public static final String CATEGORY_BIOMES = "17_biomes";
 	public static final String CATEGORY_WEAPONS = "18_weapons";
+	public static final String CATEGORY_BACKPACKS = "19_backpacks";
 
 	public static final String CATEGORY_528 = "528";
 	public static final String CATEGORY_LBSM = "LESS BULLSHIT MODE";

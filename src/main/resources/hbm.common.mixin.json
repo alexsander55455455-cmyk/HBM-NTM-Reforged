@@ -6,7 +6,10 @@
   "target": "@env(DEFAULT)",
   "client": [
     "MixinCompiledChunk",
+    "MixinGuiContainerAccessor",
     "MixinCreativeTabsSearchSort",
+    "MixinGuiInventoryBackpackSlot",
+    "MixinGuiContainerCreativeBackpackSlot",
     "MixinGuiContainerCreativeSearchSort",
     "MixinSetVisibility",
     "MixinRenderChunk",
@@ -15,8 +18,12 @@
     "MixinRenderPlayerManly"
   ],
   "mixins": [
+    "MixinContainerSlotAdder",
     "MixinFMLProxyPacket",
     "MixinNetworkDispatcher",
+    "MixinContainerPlayerBackpackSlot",
+    "MixinNetHandlerPlayServerCreativeBackpackSlot",
+    "MixinEntityItemBackpackProtection",
     "MixinTemplateNtmdopolnenie",
     "MixinTemplateManagerNtmdopolnenie"
   ],

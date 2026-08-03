@@ -26,9 +26,11 @@ import com.hbm.handler.*;
 import com.hbm.handler.HbmKeybinds.EnumKeybind;
 import com.hbm.items.IAnimatedItem;
 import com.hbm.items.ModItems;
+import com.hbm.inventory.gui.GUISatelliteOrbitSettings;
 import com.hbm.items.weapon.sedna.factory.GunFactoryClient;
 import com.hbm.lib.HBMSoundHandler;
 import com.hbm.lib.RecoilHandler;
+import com.hbm.saveddata.satellites.SatelliteTypeRegistry;
 import com.hbm.main.client.DynamicPlaceholderModelLoader;
 import com.hbm.main.client.NTMClientRegistry;
 import com.hbm.particle.*;
@@ -2025,6 +2027,7 @@ public class ClientProxy extends ServerProxy {
             case TOGGLE_JETPACK -> HbmKeybinds.jetpackKey.isKeyDown();
             case TOGGLE_HEAD -> HbmKeybinds.hudKey.isKeyDown();
             case TOGGLE_MAGNET -> HbmKeybinds.magnetKey.isKeyDown();
+			case BACKPACK -> HbmKeybinds.backpackKey.isKeyDown();
             case RELOAD -> HbmKeybinds.reloadKey.isKeyDown();
             case DASH -> HbmKeybinds.dashKey.isKeyDown();
             case CRANE_UP -> HbmKeybinds.craneUpKey.isKeyDown();
@@ -2046,6 +2049,12 @@ public class ClientProxy extends ServerProxy {
     @Override
     public EntityPlayer me() {
         return Minecraft.getMinecraft().player;
+    }
+
+    @Override
+    public void openSatelliteOrbitSettings(EnumHand hand) {
+        if(SatelliteTypeRegistry.byItem(Minecraft.getMinecraft().player.getHeldItem(hand)) == null) return;
+        Minecraft.getMinecraft().displayGuiScreen(new GUISatelliteOrbitSettings(hand));
     }
 
     @Override

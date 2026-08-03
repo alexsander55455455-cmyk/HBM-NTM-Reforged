@@ -8,6 +8,7 @@ import com.hbm.capability.HbmCapability;
 import com.hbm.capability.HbmCapability.IHBMData;
 import com.hbm.capability.HbmLivingCapability;
 import com.hbm.capability.HbmLivingProps;
+import com.hbm.capability.BackpackCapability;
 import com.hbm.config.*;
 import com.hbm.core.BlockMetaAir;
 import com.hbm.entity.logic.IChunkLoader;
@@ -38,7 +39,15 @@ import com.hbm.items.food.ItemConserve;
 import com.hbm.items.gear.ArmorFSB;
 import com.hbm.items.machine.IItemFluidIdentifier;
 import com.hbm.items.special.ItemHot;
+import com.hbm.items.tool.ItemAshBackpack;
+import com.hbm.items.tool.ItemBackpack;
+import com.hbm.items.tool.ItemBlackBoxBackpack;
 import com.hbm.items.tool.ItemDigammaDiagnostic;
+import com.hbm.saveddata.satellites.SatelliteDetector;
+import com.hbm.saveddata.satellites.SatelliteRayScan;
+import com.hbm.items.tool.ItemSapperBackpack;
+import com.hbm.items.tool.ItemSmugglerBackpack;
+import com.hbm.handler.BackpackHandler;
 import com.hbm.items.weapon.ItemGunBase;
 import com.hbm.items.weapon.sedna.BulletConfig;
 import com.hbm.items.weapon.sedna.ItemGunBaseNT;
@@ -91,6 +100,7 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntitySign;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
@@ -118,12 +128,14 @@ import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.living.PotionEvent.PotionApplicableEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.event.entity.player.PlayerFlyableFallEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.furnace.FurnaceFuelBurnTimeEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.ChunkEvent;
+import net.minecraftforge.event.world.ExplosionEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
@@ -151,6 +163,7 @@ public class ModEventHandler {
 
     public static final ResourceLocation ENT_HBM_PROP_ID = new ResourceLocation(Tags.MODID, "HBMLIVINGPROPS");
     public static final ResourceLocation DATA_LOC = new ResourceLocation(Tags.MODID, "HBMDATA");
+    public static final ResourceLocation BACKPACK_LOC = new ResourceLocation(Tags.MODID, "backpack_slot");
     public static final Int2IntOpenHashMap RBMK_COL_HEIGHT_MAP = new Int2IntOpenHashMap(); // server only, stores raw dialColumnHeight values to avoid redundant packets
     public static Random rand = new Random();
     private static final ForkJoinPool THREAD_POOL = ForkJoinPool.commonPool();
@@ -230,6 +243,7 @@ public class ModEventHandler {
             e.addCapability(ENT_HBM_PROP_ID, new HbmLivingCapability.EntityHbmPropsProvider());
         if (e.getObject() instanceof EntityPlayer) {
             e.addCapability(DATA_LOC, new HbmCapability.HBMDataProvider());
+            e.addCapability(BACKPACK_LOC, new BackpackCapability.BackpackDataProvider());
         }
     }
 
@@ -237,6 +251,8 @@ public class ModEventHandler {
     public void worldUnload(WorldEvent.Unload e) {
         BombForkJoinPool.onWorldUnload(e.getWorld());
         ClimbableRegistry.clearDimension(e.getWorld());
+        SatelliteDetector.clearWorld(e.getWorld());
+        SatelliteRayScan.clearWorld(e.getWorld());
     }
 
     @SubscribeEvent
@@ -337,6 +353,18 @@ public class ModEventHandler {
             AdvancementManager.grantAchievement(event.player, AdvancementManager.achC20_5);
         if(event.getStack().getItem() == Items.SLIME_BALL)
             AdvancementManager.grantAchievement(event.player, AdvancementManager.achSlimeball);
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onOwnedBackpackPickup(EntityItemPickupEvent event) {
+        EntityPlayer player = event.getEntityPlayer();
+        if (player.world.isRemote || event.isCanceled()) return;
+        ItemStack stack = event.getItem().getItem();
+        if (stack.getItem() instanceof ItemBlackBoxBackpack blackBox) {
+            blackBox.bindOwnerFromPickup(stack, player);
+        } else if (stack.getItem() instanceof ItemSmugglerBackpack smuggler) {
+            smuggler.bindOwnerFromPickup(stack, player);
+        }
     }
 
     public boolean canWear(Entity entity) {
@@ -660,6 +688,10 @@ public class ModEventHandler {
             PacketThreading.createSendToDimensionThreadedPacket(new SurveyPacket(cur), dim);
         }
         BossSpawnHandler.rollTheDice(event.world);
+        SatelliteDetector.updateSystem(event.world);
+        if (event.world.getTotalWorldTime() % 20 == 10) {
+            SatelliteRayScan.updateSystem(event.world);
+        }
     }
 
     //mlbv: concurrent workers are safe as long as they don't interfere
@@ -690,6 +722,7 @@ public class ModEventHandler {
     @SubscribeEvent
     public void onEntityHurt(LivingHurtEvent event) {
         EntityLivingBase e = event.getEntityLiving();
+        ItemSapperBackpack.handleExplosionDamage(event);
         ArmorT45.handleT45Hurt(event);
         ArmorPAA.handlePAAHurt(event);
         ArmorAsbestosFSB.handleAsbestosHurt(event);
@@ -755,9 +788,17 @@ public class ModEventHandler {
         }
     }
 
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onExplosionDetonate(ExplosionEvent.Detonate event) {
+        ItemSapperBackpack.handleExplosionDetonation(event);
+    }
+
     @SubscribeEvent
     public void onEntityAttacked(LivingAttackEvent event) {
         EntityLivingBase e = event.getEntityLiving();
+        ItemBackpack.handleTungstenThornsAttack(event);
+        ItemAshBackpack.handleFireAttack(event);
+        if (event.isCanceled()) return;
         ArmorT45.handleT45Attack(event);
         ArmorPAA.handlePAAAttack(event);
         ArmorAsbestosFSB.handleAsbestosAttack(event);
@@ -886,6 +927,7 @@ public class ModEventHandler {
             /// BETA HEALTH END ///
 
             HazardSystem.updatePlayerInventory(player);
+            BackpackHandler.updateEquippedBackpack(player);
 
             /// PU RADIATION START ///
 
@@ -1295,6 +1337,8 @@ public class ModEventHandler {
     @SubscribeEvent
     public void onPlayerLogin(PlayerLoggedInEvent event) {
         if (event.player instanceof EntityPlayerMP player) {
+			BackpackHandler.syncToClient(player);
+			SatelliteSnapshotPacket.send(player);
 
             if (GeneralConfig.enableMOTD) {
                 player.sendMessage(new TextComponentString("Loaded world with Hbm's Nuclear Tech Mod " + Tags.VERSION + " for Minecraft 1.12.2!"));
@@ -1500,6 +1544,18 @@ public class ModEventHandler {
             if (!Library.hasInventoryItem(player.inventory, ModItems.beta))
                 player.inventory.addItemStackToInventory(new ItemStack(ModItems.beta));
         }
+
+        if (player instanceof EntityPlayerMP) {
+            BackpackHandler.syncEquipmentState(player);
+        }
+    }
+
+    @SubscribeEvent
+    public void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
+        if (event.player instanceof EntityPlayerMP player) {
+            BackpackHandler.syncEquipmentState(event.player);
+            SatelliteSnapshotPacket.send(player);
+        }
     }
 
     @SubscribeEvent//mlbv: had to use fqn here because clash with net.minecraftforge.fml.common.gameevent.PlayerEvent
@@ -1507,6 +1563,71 @@ public class ModEventHandler {
         IHBMData oldData = HbmCapability.getData(event.getOriginal());
         IHBMData newData = HbmCapability.getData(event.getEntityPlayer());
         newData.setReceivedBook(oldData.hasReceivedBook());
+        ItemStack originalBackpack = BackpackCapability.getData(event.getOriginal()).getEquippedBackpack();
+        if (!event.isWasDeath()
+                || event.getEntityPlayer().world.getGameRules().getBoolean("keepInventory")
+                || !originalBackpack.isEmpty()) {
+            BackpackCapability.getData(event.getEntityPlayer()).setEquippedBackpack(originalBackpack.copy());
+        }
+    }
+
+    @SubscribeEvent
+    public void onPlayerDrops(net.minecraftforge.event.entity.player.PlayerDropsEvent event) {
+        EntityPlayer player = event.getEntityPlayer();
+        if (player.world.isRemote || player.world.getGameRules().getBoolean("keepInventory")) return;
+
+        BackpackCapability.IBackpackData data = BackpackCapability.getData(player);
+        ItemStack backpack = data.getEquippedBackpack();
+        if (backpack.isEmpty()) return;
+
+        if (backpack.getItem() instanceof ItemBlackBoxBackpack blackBox) {
+            blackBox.lockForDeath(backpack, player);
+            if (placeBlackBoxRecovery(player.world, new BlockPos(player), backpack)) {
+                data.setEquippedBackpack(ItemStack.EMPTY);
+                return;
+            }
+        }
+
+        ItemStack dropStack = backpack.copy();
+        data.setEquippedBackpack(ItemStack.EMPTY);
+        event.getDrops().add(new EntityItem(player.world, player.posX, player.posY, player.posZ, dropStack));
+    }
+
+    /**
+     * Transfers the authoritative Black Box stack only after both the recovery
+     * block and its tile exist. Failed placements are rolled back before the
+     * caller creates exactly one protected item drop.
+     */
+    private static boolean placeBlackBoxRecovery(World world, BlockPos origin, ItemStack backpack) {
+        if (world.isRemote || backpack.isEmpty()) return false;
+
+        BlockPos[] offsets = {
+                BlockPos.ORIGIN, new BlockPos(0, 1, 0), new BlockPos(0, 2, 0),
+                new BlockPos(0, 0, -1), new BlockPos(0, 0, 1),
+                new BlockPos(-1, 0, 0), new BlockPos(1, 0, 0),
+                new BlockPos(0, 1, -1), new BlockPos(0, 1, 1),
+                new BlockPos(-1, 1, 0), new BlockPos(1, 1, 0)
+        };
+        for (BlockPos offset : offsets) {
+            BlockPos target = origin.add(offset);
+            if (target.getY() < 0 || target.getY() >= world.getHeight()) continue;
+            if (!world.getWorldBorder().contains(target)) continue;
+
+            IBlockState previous = world.getBlockState(target);
+            if (!previous.getBlock().isReplaceable(world, target)) continue;
+            if (!world.setBlockState(target, ModBlocks.black_box_recovery.getDefaultState(), 3)) continue;
+
+            TileEntity tile = world.getTileEntity(target);
+            if (tile instanceof com.hbm.tileentity.machine.TileEntityBlackBoxRecovery recovery
+                    && recovery.acceptBackpack(backpack)) {
+                return true;
+            }
+
+            if (world.getBlockState(target).getBlock() == ModBlocks.black_box_recovery) {
+                world.setBlockToAir(target);
+            }
+        }
+        return false;
     }
 
     // TODO should probably use these.

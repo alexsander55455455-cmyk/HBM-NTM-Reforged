@@ -3,6 +3,7 @@ package com.hbm.handler;
 import com.hbm.capability.HbmCapability;
 import com.hbm.config.GeneralConfig;
 import com.hbm.inventory.gui.GUICalculator;
+import com.hbm.inventory.gui.GUIBackpack;
 import com.hbm.items.IKeybindReceiver;
 import com.hbm.items.weapon.ItemGunBase;
 import com.hbm.items.weapon.sedna.ItemGunBaseNT;
@@ -36,6 +37,7 @@ public class HbmKeybinds {
 	public static KeyBinding jetpackKey = new KeyBinding(category + ".toggleBack", Keyboard.KEY_C, category);
 	public static KeyBinding hudKey = new KeyBinding(category + ".toggleHUD", Keyboard.KEY_V, category);
 	public static KeyBinding magnetKey = new KeyBinding(category + ".toggleMagnet", Keyboard.KEY_Z, category);
+	public static KeyBinding backpackKey = new KeyBinding(category + ".backpackToggle", Keyboard.KEY_X, category);
 	public static KeyBinding reloadKey = new KeyBinding(category + ".reload", Keyboard.KEY_R, category);
 	public static KeyBinding dashKey = new KeyBinding(category + ".dash", Keyboard.KEY_LSHIFT, category);
 
@@ -59,6 +61,7 @@ public class HbmKeybinds {
 		ClientRegistry.registerKeyBinding(jetpackKey);
 		ClientRegistry.registerKeyBinding(hudKey);
 		ClientRegistry.registerKeyBinding(magnetKey);
+		ClientRegistry.registerKeyBinding(backpackKey);
 		ClientRegistry.registerKeyBinding(reloadKey);
 		ClientRegistry.registerKeyBinding(dashKey);
 
@@ -82,6 +85,10 @@ public class HbmKeybinds {
 
 		/// OVERLAP HANDLING ///
 		handleOverlap(Keyboard.getEventKeyState(), Keyboard.getEventKey());
+
+		if (backpackKey.isPressed() && !(Minecraft.getMinecraft().currentScreen instanceof GUIBackpack)) {
+			PacketDispatcher.wrapper.sendToServer(new KeybindPacket(EnumKeybind.BACKPACK, true));
+		}
 
 		/// KEYBIND PROPS ///
 		handleProps(Keyboard.getEventKeyState(), Keyboard.getEventKey());
@@ -146,6 +153,7 @@ public class HbmKeybinds {
 		TOGGLE_JETPACK,
 		TOGGLE_HEAD,
 		TOGGLE_MAGNET,
+		BACKPACK,
 		RELOAD,
 		DASH,
 		CRANE_UP,
@@ -233,6 +241,7 @@ public class HbmKeybinds {
 		HbmCapability.IHBMData props = HbmCapability.getData(player);
 
 		for(EnumKeybind key : EnumKeybind.VALUES) {
+			if (key == EnumKeybind.BACKPACK) continue;
 			boolean last = props.getKeyPressed(key);
 			boolean current = MainRegistry.proxy.getIsKeyPressed(key);
 
