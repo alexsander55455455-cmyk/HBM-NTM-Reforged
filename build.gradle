@@ -1061,7 +1061,9 @@ if (enableJava17RunTasks.toBoolean()) {
             "--add-opens", "jdk.dynalink/jdk.dynalink.beans=ALL-UNNAMED",
             "--add-opens", "java.sql.rowset/javax.sql.rowset.serial=ALL-UNNAMED"
     ]
-    ext.java25JvmArgs = java17JvmArgs.findAll { it != "-Djava.security.manager=allow" }
+    ext.java25JvmArgs = java17JvmArgs.findAll { it != "-Djava.security.manager=allow" } + [
+            "-Dmixin.env.compatLevel=JAVA_22"
+    ]
 
     ext.hotswapJvmArgs = [
             // DCEVM advanced hot reload
@@ -1113,7 +1115,7 @@ if (enableJava17RunTasks.toBoolean()) {
     runClient25Task.configure {
         dependsOn(setupHotswapAgent25)
         jvmArgsProperty = "java25JvmArgs"
-        excludedRuntimeArtifactPrefixes = ["groovyscript-", "top-245211-"]
+        excludedRuntimeArtifactPrefixes = ["groovyscript-", "top-245211-", "asm-debug-all-"]
         setup(project)
         javaLauncher = project.javaToolchains.launcherFor(project.java25Toolchain)
     }
@@ -1122,7 +1124,7 @@ if (enableJava17RunTasks.toBoolean()) {
     runServer25Task.configure {
         dependsOn(setupHotswapAgent25)
         jvmArgsProperty = "java25JvmArgs"
-        excludedRuntimeArtifactPrefixes = ["groovyscript-", "top-245211-"]
+        excludedRuntimeArtifactPrefixes = ["groovyscript-", "top-245211-", "asm-debug-all-"]
         setup(project)
         javaLauncher = project.javaToolchains.launcherFor(project.java25Toolchain)
     }
@@ -1196,7 +1198,11 @@ abstract class RunHotswappableMinecraftTask extends RunMinecraftTask {
         })
         this.classpath(mcpTasks.getTaskPackageMcLauncher())
         this.classpath(mcpTasks.getTaskPackagePatchedMc())
-        this.classpath(mcpTasks.getPatchedConfiguration())
+        this.classpath(project.provider {
+            mcpTasks.getPatchedConfiguration().files.findAll {
+                !excludedRuntimeArtifactPrefixes.any { prefix -> it.name.startsWith(prefix) }
+            }
+        })
         this.classpath(project.getTasks().named("jar"))
         this.classpath(project.provider {
             java17DependenciesCfg.files.findAll {
@@ -1815,9 +1821,19 @@ if (getFile('addon.gradle').exists()) {
 }
 
 // Obfuscated Java 25 jar for cleanroom users
+def java25MixinConfigs = [
+        'hbm.common.mixin.json',
+        'hbm.mod.mixin.json',
+        'hbm.vanilla.mixin.json',
+        'hbmspace.default.mixin.json',
+        'hbmspace.jei.late.mixin.json',
+        'hbmspace.mod.mixin.json'
+]
+
 tasks.register('jarJava25', Jar) {
     group = 'build'
     description = 'Packages the Java 25 classes into a temporary jar.'
+    inputs.property('java25MixinCompatibilityLevel', 'JAVA_22')
     destinationDirectory.set(layout.buildDirectory.dir("libs"))
     archiveClassifier.set('dev-java25')
     from sourceSets.main.output
@@ -1838,6 +1854,11 @@ tasks.register('jarJava25', Jar) {
     from provider {
         configurations.embed.collect { it.isDirectory() ? it : zipTree(it) }
     }
+    java25MixinConfigs.each { mixinConfig ->
+        filesMatching(mixinConfig) {
+            filter { line -> line.replace('"compatibilityLevel": "JAVA_8"', '"compatibilityLevel": "JAVA_22"') }
+        }
+    }
     manifest {
         attributes(getManifestAttributes())
     }
@@ -1848,6 +1869,7 @@ def cleanroomInputTask = tasks.named('jarJava25')
 if (usesShadowedDependencies.toBoolean()) {
     tasks.register('shadowJarJava25', ShadowJar) {
         group = 'build'
+        inputs.property('java25MixinCompatibilityLevel', 'JAVA_22')
         destinationDirectory.set(layout.buildDirectory.dir("libs"))
         archiveClassifier.set('dev-java25')
 
@@ -1861,6 +1883,11 @@ if (usesShadowedDependencies.toBoolean()) {
                 project.configurations.shadowImplementation,
                 project.configurations.shadowCompile
         ]
+        java25MixinConfigs.each { mixinConfig ->
+            filesMatching(mixinConfig) {
+                filter { line -> line.replace('"compatibilityLevel": "JAVA_8"', '"compatibilityLevel": "JAVA_22"') }
+            }
+        }
 
         manifest {
             attributes(getManifestAttributes())
@@ -2134,15 +2161,17 @@ jvmdg {
 }
 // End JVMDG configuration
 
+def runUnitTests = providers.gradleProperty('runUnitTests').map { it.toBoolean() }.orElse(false)
+
 tasks.withType(Test).configureEach {
-    enabled = false
+    enabled = runUnitTests.get()
     javaLauncher = javaToolchains.launcherFor {
         languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
 tasks.matching { it.name in ['compileTestJava', 'processTestResources', 'testClasses'] }.configureEach {
-    enabled = false
+    enabled = runUnitTests.get()
 }
 
 // RFG 2.0.0 wires JST to a Java 21 toolchain, but this workspace has JDK 25

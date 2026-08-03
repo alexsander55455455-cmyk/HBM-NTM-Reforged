@@ -45,6 +45,7 @@ dependencies {
     //compileOnly rfg.deobf("dev.galacticraft:galacticraft-legacy:${version_gc}")
 //    compileOnly rfg.deobf("curse.maven:galacticraft-legacy-564236:6364107")
     compileOnlyApi "com.azanor.baubles:Baubles:${version_baubles}:api"
+    testRuntimeOnly "com.azanor.baubles:Baubles:${version_baubles}:api"
 //    compileOnly rfg.deobf("cofh:RedstoneFlux:1.12-${version_redstoneflux}:universal")
 //    compileOnly rfg.deobf("cofh:CoFHCore:1.12.2-${version_cofhcore}:universal")
     compileOnlyApi('appeng:ae2-uel:v0.56.7:api')
@@ -54,7 +55,7 @@ dependencies {
     api rfg.deobf("curse.maven:opencomputers-223008:6608365")
     api 'mezz:jei:4.31.2'
     compileOnlyApi 'com.google.guava:guava:31.0.1-jre'
-    compileOnly files("libs/launchwrapper-1.12.jar")
+    devOnlyNonPublishable files("libs/launchwrapper-1.12.jar")
     compileOnly files("libs/bogosorter-api-stub.jar")
 
     // Don't forget to restore these if you tweaked the runtime mods for testing!
