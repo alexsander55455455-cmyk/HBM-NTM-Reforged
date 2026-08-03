@@ -2,7 +2,8 @@
   "parent": "hbm:achcentrifuge",
   "display": {
     "icon": {
-      "item": "hbm:pile_rod_plutonium"
+      "item": "hbm:pile_rod",
+      "data": 1
     },
     "title": {
       "translate": "achievement.chicagoPile"
