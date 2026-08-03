@@ -4,6 +4,7 @@ import com.hbm.items.machine.ItemSatellite;
 import com.hbm.lib.Library;
 import com.hbm.saveddata.satellites.Satellite;
 import com.hbm.saveddata.satellites.SatelliteSavedData;
+import com.hbm.saveddata.satellites.SatelliteResolver;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -27,10 +28,17 @@ public class ItemSatDesignator extends ItemSatellite {
         ItemStack stack = player.getHeldItem(hand);
 
         if (!world.isRemote) {
-            Satellite sat = SatelliteSavedData.getData(world).getSatFromFreq(this.getFreq(stack));
+            SatelliteResolver.Result resolution = SatelliteResolver.resolve(world,
+                    (int)Math.floor(player.posX), (int)Math.floor(player.posZ), stack, true);
+            SatelliteSavedData satelliteData = resolution.getData();
+            Satellite sat = resolution.getSatellite();
 
-            if (sat != null) {
+            if (sat != null && satelliteData != null && resolution.getContext() != null
+                    && resolution.getContext().getSurfaceWorld() != null) {
                 RayTraceResult pos = Library.rayTrace(player, 300, 1);
+                if(pos == null || pos.getBlockPos() == null || pos.sideHit == null) {
+                    return new ActionResult<>(EnumActionResult.PASS, stack);
+                }
                 BlockPos rayBlockPos = pos.getBlockPos();
 
                 EnumFacing facing = pos.sideHit;
@@ -39,10 +47,11 @@ public class ItemSatDesignator extends ItemSatellite {
                 int z = rayBlockPos.getZ() + facing.getZOffset();
 
                 if (sat.satIface == Satellite.Interfaces.SAT_COORD) {
-                    sat.onCoordAction(world, (EntityPlayerMP) player, x, y, z);
+                    sat.onCoordAction(resolution.getContext().getSurfaceWorld(), (EntityPlayerMP) player, x, y, z);
                 } else if (sat.satIface == Satellite.Interfaces.SAT_PANEL) {
-                    sat.onClick(world, (EntityPlayerMP) player, x, z);
+                    sat.onClick(resolution.getContext().getSurfaceWorld(), (EntityPlayerMP) player, x, z);
                 }
+                satelliteData.markSatelliteDirty();
             }
         }
 

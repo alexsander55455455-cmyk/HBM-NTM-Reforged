@@ -3,6 +3,7 @@ package com.hbm.packet.toserver;
 import com.hbm.items.ISatChip;
 import com.hbm.saveddata.satellites.Satellite;
 import com.hbm.saveddata.satellites.SatelliteSavedData;
+import com.hbm.saveddata.satellites.SatelliteResolver;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -58,10 +59,16 @@ public class SatCoordPacket implements IMessage {
 					int freq = ISatChip.getFreqS(p.getHeldItemMainhand());
 					
 					if(freq == m.freq) {
-					    Satellite sat = SatelliteSavedData.getData(p.world).getSatFromFreq(m.freq);
+						SatelliteResolver.Result resolution = SatelliteResolver.resolve(p.world,
+								(int)Math.floor(p.posX), (int)Math.floor(p.posZ), p.getHeldItemMainhand(), true);
+						SatelliteSavedData data = resolution.getData();
+					    Satellite sat = resolution.getSatellite();
 					    
-					    if(sat != null)
-					    	sat.onCoordAction(p.world, p, m.x, m.y, m.z);
+					    if(sat != null && data != null && resolution.getContext() != null
+								&& resolution.getContext().getSurfaceWorld() != null) {
+					    	sat.onCoordAction(resolution.getContext().getSurfaceWorld(), p, m.x, m.y, m.z);
+							data.markSatelliteDirty();
+						}
 					}
 				}
 			});

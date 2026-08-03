@@ -13,8 +13,10 @@ import com.hbm.saveddata.satellites.Satellite;
 import com.hbm.saveddata.satellites.SatelliteHorizons;
 import com.hbm.saveddata.satellites.SatelliteMiner;
 import com.hbm.saveddata.satellites.SatelliteSavedData;
+import com.hbm.saveddata.satellites.SatelliteResolver;
 import com.hbm.tileentity.IGUIProvider;
 import com.hbm.tileentity.TileEntityMachineBase;
+import com.hbmspace.tileentity.TESpaceUtil;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -59,19 +61,15 @@ public class TileEntityMachineSatDock extends TileEntityMachineBase implements I
 	public void update(){
 		if(!world.isRemote) {
 
-			if(data == null)
-				data = (SatelliteSavedData)world.getPerWorldStorage().getOrLoadData(SatelliteSavedData.class, "satellites");
-
-			if(data == null) {
-				world.getPerWorldStorage().setData("satellites", new SatelliteSavedData());
-				data = (SatelliteSavedData)world.getPerWorldStorage().getOrLoadData(SatelliteSavedData.class, "satellites");
-			}
-			data.markDirty();
+			// A station can travel to another body, so this binding must not be cached forever.
+			data = TESpaceUtil.getData(world, pos.getX(), pos.getZ());
 
 			if(data != null && !inventory.getStackInSlot(15).isEmpty()) {
-				int freq = ISatChip.getFreqS(inventory.getStackInSlot(15));
-
-				Satellite sat = data.getSatFromFreq(freq);
+				ItemStack chip = inventory.getStackInSlot(15);
+				int freq = ISatChip.getFreqS(chip);
+				SatelliteResolver.Result resolution = SatelliteResolver.resolve(world, pos.getX(), pos.getZ(), chip, true);
+				data = resolution.getData();
+				Satellite sat = resolution.getSatellite();
 
 				int delay = 10 * 60 * 1000; //10min
 
@@ -120,9 +118,10 @@ public class TileEntityMachineSatDock extends TileEntityMachineBase implements I
                         break;
                     }
 
-                    if(rocket.getDataManager().get(EntityMinerRocket.MODE) == 1 && rocket.timer == 50) {
-						Satellite sat = data.getSatFromFreq(ISatChip.getFreqS(slot15));
-						if (sat != null) unloadCargo((SatelliteMiner) sat);
+					if(rocket.getDataManager().get(EntityMinerRocket.MODE) == 1 && rocket.timer == 50) {
+						SatelliteResolver.Result resolution = SatelliteResolver.resolve(world, pos.getX(), pos.getZ(), slot15, true);
+						Satellite sat = resolution.getSatellite();
+						if (sat instanceof SatelliteMiner) unloadCargo((SatelliteMiner) sat);
 					}
 				}
 			}

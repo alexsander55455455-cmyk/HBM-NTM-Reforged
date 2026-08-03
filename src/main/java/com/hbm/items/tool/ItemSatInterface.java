@@ -8,7 +8,7 @@ import com.hbm.items.machine.ItemSatellite;
 import com.hbm.main.MainRegistry;
 import com.hbm.packet.toclient.SatPanelPacket;
 import com.hbm.saveddata.satellites.Satellite;
-import com.hbm.saveddata.satellites.SatelliteSavedData;
+import com.hbm.saveddata.satellites.SatelliteResolver;
 import com.hbm.tileentity.IGUIProvider;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
@@ -62,7 +62,9 @@ public class ItemSatInterface extends ItemSatellite implements IGUIProvider {
     	if(((EntityPlayerMP)entity).getHeldItemMainhand() != stack)
     		return;
     	
-    	Satellite sat = SatelliteSavedData.getData(world).getSatFromFreq(getFreq(stack));
+	SatelliteResolver.Result resolution = SatelliteResolver.resolve(world,
+			(int)Math.floor(entity.posX), (int)Math.floor(entity.posZ), stack, false);
+	Satellite sat = resolution.getSatellite();
     	
     	if(sat != null && entity.ticksExisted % 2 == 0) {
     		PacketThreading.createSendToThreadedPacket(new SatPanelPacket(sat), (EntityPlayerMP) entity);

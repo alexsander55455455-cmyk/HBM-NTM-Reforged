@@ -1,8 +1,10 @@
 package com.hbm.saveddata.satellites;
 
 import com.hbm.items.ModItems;
+import com.hbm.tileentity.network.RTTYSystem;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 
@@ -36,65 +38,74 @@ public abstract class Satellite {
 	public List<InterfaceActions> ifaceAcs = new ArrayList<InterfaceActions>();
 	public List<CoordActions> coordAcs = new ArrayList<CoordActions>();
 	public Interfaces satIface = Interfaces.NONE;
+
+	public static final String CHAN_SATLINK = "SAT_LINK";
+	public static final String CMD_SETTARGET = "settarget";
+	public static final String CMD_GETTARGET = "gettarget";
+	public static final String CMD_GETTARGETX = "gettargetx";
+	public static final String CMD_GETTARGETZ = "gettargetz";
+
+	protected int targetX;
+	protected int targetZ;
+	protected String tx = "";
+	private OrbitSettings orbitSettings;
 	
 	public static void register() {
-
-		registerSatellite(SatelliteMapper.class, ModItems.sat_mapper);
-		registerSatellite(SatelliteScanner.class, ModItems.sat_scanner);
-		registerSatellite(SatelliteRadar.class, ModItems.sat_radar);
-		registerSatellite(SatelliteLaser.class, ModItems.sat_laser);
-		registerSatellite(SatelliteResonator.class, ModItems.sat_resonator);
-		registerSatellite(SatelliteRelay.class, ModItems.sat_foeq);
-		registerSatellite(SatelliteMiner.class, ModItems.sat_miner);
-		registerSatellite(SatelliteLunarMiner.class, ModItems.sat_lunar_miner);
-		registerSatellite(SatelliteHorizons.class, ModItems.sat_gerald);
+		SatelliteTypeRegistry.registerDefaults();
+		satellites.clear();
+		itemToClass.clear();
+		for(SatelliteTypeRegistry.Descriptor descriptor : SatelliteTypeRegistry.descriptors()) {
+			satellites.add(descriptor.getSatelliteClass());
+			ItemStack canonical = descriptor.getCanonicalStack();
+			if(!canonical.isEmpty()) itemToClass.put(canonical.getItem(), descriptor.getSatelliteClass());
+		}
+		registerSatelliteAlias(SatelliteMapper.class, ModItems.sat_mapper);
+		registerSatelliteAlias(SatelliteScanner.class, ModItems.sat_scanner);
+		registerSatelliteAlias(SatelliteRadar.class, ModItems.sat_radar);
+		registerSatelliteAlias(SatelliteLaser.class, ModItems.sat_laser);
+		registerSatelliteAlias(SatelliteResonator.class, ModItems.sat_resonator);
+		registerSatelliteAlias(SatelliteRelay.class, ModItems.sat_foeq);
+		registerSatelliteAlias(SatelliteMiner.class, ModItems.sat_miner);
+		registerSatelliteAlias(SatelliteLunarMiner.class, ModItems.sat_lunar_miner);
+		registerSatelliteAlias(SatelliteHorizons.class, ModItems.sat_gerald);
 	}
 	
-	private static void registerSatellite(Class<? extends Satellite> sat, Item item) {
-
-		satellites.add(sat);
+	private static void registerSatelliteAlias(Class<? extends Satellite> sat, Item item) {
 		itemToClass.put(item, sat);
 	}
 	
 	public static void orbit(World world, int id, int freq, double x, double y, double z) {
-		
-		Satellite sat = create(id);
-		if(sat != null && !world.isRemote) {
-			SatelliteSavedData data = SatelliteSavedData.getData(world);
-			data.sats.put(freq, sat);
-			sat.onOrbit(world, x, y, z);
-			data.markDirty();
+		SatelliteTypeRegistry.Descriptor descriptor = SatelliteTypeRegistry.byLegacyId(id);
+		if(descriptor != null) {
+			SatelliteTypeRegistry.orbit(world, descriptor.getCanonicalStack(), freq, x, y, z, null);
 		}
 	}
 	
 	public static Satellite create(int id) {
-		
-		Satellite sat = null;
-		
-		try {
-			Class<? extends Satellite> c = satellites.get(id);
-			sat = c.newInstance();
-		} catch(Exception ex) {
-		}
-		
-		return sat;
+		return SatelliteTypeRegistry.createByLegacyId(id);
 	}
 	
 	public static int getIDFromItem(Item item) {
-		
-		Class<? extends Satellite> sat = itemToClass.get(item);
-		int i = satellites.indexOf(sat);
-		
-		return i;
+		SatelliteTypeRegistry.Descriptor descriptor = SatelliteTypeRegistry.byItem(item);
+		return descriptor == null ? -1 : descriptor.getLegacyId();
 	}
 	
 	public int getID() {
-		return satellites.indexOf(this.getClass());
+		SatelliteTypeRegistry.Descriptor descriptor = SatelliteTypeRegistry.bySatellite(this);
+		return descriptor == null ? -1 : descriptor.getLegacyId();
 	}
 	
-	public void writeToNBT(NBTTagCompound nbt) { }
+	public void writeToNBT(NBTTagCompound nbt) {
+		nbt.setInteger("targetX", targetX);
+		nbt.setInteger("targetZ", targetZ);
+		nbt.setString("tx", tx);
+	}
 	
-	public void readFromNBT(NBTTagCompound nbt) { }
+	public void readFromNBT(NBTTagCompound nbt) {
+		targetX = nbt.getInteger("targetX");
+		targetZ = nbt.getInteger("targetZ");
+		tx = nbt.getString("tx");
+	}
 	
 	/**
 	 * Called when the satellite reaches space, used to trigger achievements and other funny stuff.
@@ -102,7 +113,82 @@ public abstract class Satellite {
 	 * @param y ditto
 	 * @param z ditto
 	 */
-	public void onOrbit(World world, double x, double y, double z) { }
+	public void onOrbit(World world, double x, double y, double z) {
+		setTarget((int) Math.floor(x), (int) Math.floor(z));
+		SatelliteTypeRegistry.Descriptor descriptor = SatelliteTypeRegistry.bySatellite(this);
+		String type = descriptor == null ? getClass().getSimpleName() : descriptor.getKey();
+		RTTYSystem.broadcast(world, CHAN_SATLINK,
+				"Established connection to " + type + " at " + targetX + " / " + targetZ);
+	}
+
+	/**
+	 * Called when another payload is delivered to an occupied frequency.
+	 *
+	 * @return true only when the existing satellite actually accepted the part
+	 */
+	public boolean onPartDelivered(World world, ItemStack part) { return false; }
+
+	public void onCommand(World world, String... command) {
+		onCommandTarget(command);
+		onCommandImpl(world, command);
+	}
+
+	private void onCommandTarget(String... command) {
+		if(command == null || command.length == 0) return;
+		switch(command[0]) {
+			case CMD_SETTARGET:
+				if(command.length >= 3) {
+					targetX = parseInt(command[1], targetX);
+					targetZ = parseInt(command[command.length - 1], targetZ);
+				}
+				break;
+			case CMD_GETTARGET:
+				tx = targetX + ";" + targetZ;
+				break;
+			case CMD_GETTARGETX:
+				tx = Integer.toString(targetX);
+				break;
+			case CMD_GETTARGETZ:
+				tx = Integer.toString(targetZ);
+				break;
+			default:
+				break;
+		}
+	}
+
+	protected void onCommandImpl(World world, String... command) { }
+
+	public void setTarget(int x, int z) {
+		targetX = x;
+		targetZ = z;
+	}
+
+	public int getTargetX() { return targetX; }
+	public int getTargetZ() { return targetZ; }
+	public String getTransmission() { return tx; }
+
+	public OrbitSettings getOrbitSettings() {
+		if(orbitSettings == null) orbitSettings = OrbitSettings.defaultsFor(this);
+		return orbitSettings;
+	}
+
+	public void setOrbitSettings(OrbitSettings settings) {
+		orbitSettings = settings == null ? OrbitSettings.defaultsFor(this) : settings.copy();
+		orbitSettings.validate();
+	}
+
+	public float[] getRenderColor() {
+		OrbitSettings settings = getOrbitSettings();
+		return new float[] { settings.getRed(), settings.getGreen(), settings.getBlue() };
+	}
+
+	private static int parseInt(String value, int fallback) {
+		try {
+			return Integer.parseInt(value);
+		} catch(NumberFormatException ignored) {
+			return fallback;
+		}
+	}
 	
 	/**
 	 * Called by the sat interface when clicking on the screen

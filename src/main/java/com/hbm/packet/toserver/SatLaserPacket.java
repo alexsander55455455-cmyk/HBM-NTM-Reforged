@@ -4,6 +4,7 @@ import com.hbm.items.ISatChip;
 import com.hbm.items.tool.ItemSatInterface;
 import com.hbm.saveddata.satellites.Satellite;
 import com.hbm.saveddata.satellites.SatelliteSavedData;
+import com.hbm.saveddata.satellites.SatelliteResolver;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
@@ -52,17 +53,22 @@ public class SatLaserPacket implements IMessage {
 		public IMessage onMessage(SatLaserPacket m, MessageContext ctx) {
 			ctx.getServerHandler().player.getServer().addScheduledTask(() -> {
 				EntityPlayer p = ctx.getServerHandler().player;
-				if(!ctx.getServerHandler().player.world.isBlockLoaded(new BlockPos(m.x, 0, m.z)))
-					return;
 				if(p.getHeldItemMainhand().getItem() instanceof ItemSatInterface) {
 					
 					int freq = ISatChip.getFreqS(p.getHeldItemMainhand());
 					
 					if(freq == m.freq) {
-					    Satellite sat = SatelliteSavedData.getData(p.world).getSatFromFreq(m.freq);
+						SatelliteResolver.Result resolution = SatelliteResolver.resolve(p.world,
+								(int)Math.floor(p.posX), (int)Math.floor(p.posZ), p.getHeldItemMainhand(), true);
+						SatelliteSavedData data = resolution.getData();
+					    Satellite sat = resolution.getSatellite();
 					    
-					    if(sat != null)
-					    	sat.onClick(p.world, ctx.getServerHandler().player, m.x, m.z);
+					    if(sat != null && data != null && resolution.getContext() != null
+								&& resolution.getContext().getSurfaceWorld() != null
+								&& resolution.getContext().getSurfaceWorld().isBlockLoaded(new BlockPos(m.x, 0, m.z))) {
+					    	sat.onClick(resolution.getContext().getSurfaceWorld(), ctx.getServerHandler().player, m.x, m.z);
+							data.markSatelliteDirty();
+						}
 					}
 				}
 			});

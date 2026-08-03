@@ -11,13 +11,14 @@ public class SatelliteRelay extends Satellite {
 	}
 
 	public void onOrbit(World world, double x, double y, double z) {
+		super.onOrbit(world, x, y, z);
 
 		for(EntityPlayer p : world.playerEntities)
 			AdvancementManager.grantAchievement(p, AdvancementManager.achFOEQ);
 	}
 	@Override
 	public float[] getColor() {
-		return new float[] { 0.0F, 0.0F, 0.0F };
+		return new float[] { 1.0F, 0.15F, 0.15F };
 	}
 
 }

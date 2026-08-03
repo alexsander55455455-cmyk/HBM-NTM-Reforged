@@ -4,7 +4,9 @@ import com.hbm.interfaces.AutoRegister;
 import com.hbm.inventory.container.ContainerMachineSatLinker;
 import com.hbm.inventory.gui.GUIMachineSatLinker;
 import com.hbm.items.ISatChip;
+import com.hbm.saveddata.satellites.OrbitKey;
 import com.hbm.saveddata.satellites.SatelliteSavedData;
+import com.hbmspace.tileentity.TESpaceUtil;
 import com.hbm.tileentity.IGUIProvider;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
@@ -82,13 +84,15 @@ public class TileEntityMachineSatLinker extends TileEntity implements ITickable,
 		if(!world.isRemote)
 		{
 			if(inventory.getStackInSlot(0).getItem() instanceof ISatChip && inventory.getStackInSlot(1).getItem() instanceof ISatChip) {
-				ISatChip.setFreqS(inventory.getStackInSlot(1), ISatChip.getFreqS(inventory.getStackInSlot(0)));
+				ISatChip.copyLink(inventory.getStackInSlot(0), inventory.getStackInSlot(1),
+						OrbitKey.fromWorld(world, pos.getX(), pos.getZ()));
 			}
 			if(inventory.getStackInSlot(2).getItem() instanceof ISatChip){
-				SatelliteSavedData satelliteData = SatelliteSavedData.getData(world);
+				SatelliteSavedData satelliteData = TESpaceUtil.getData(world, pos.getX(), pos.getZ());
 				int newId = world.rand.nextInt(100000);
 				if(!satelliteData.isFreqTaken(newId)) {
 					ISatChip.setFreqS(inventory.getStackInSlot(2), newId);
+					ISatChip.setOrbitKeyS(inventory.getStackInSlot(2), OrbitKey.fromWorld(world, pos.getX(), pos.getZ()));
 				}
 			}
 		}
@@ -114,4 +118,5 @@ public class TileEntityMachineSatLinker extends TileEntity implements ITickable,
 	public GuiScreen provideGUI(int ID, EntityPlayer player, World world, int x, int y, int z) {
 		return new GUIMachineSatLinker(player.inventory, this);
 	}
+
 }

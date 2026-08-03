@@ -1,0 +1,13 @@
+{
+  "name": "Satellite Ground Station",
+  "icon": ["hbm:machine_satlink"],
+  "trigger": [["hbm:machine_satlink"]],
+  "title": {
+    "en_us": "Satellite Ground Station",
+    "ru_ru": "Наземная станция спутника"
+  },
+  "content": {
+    "en_us": "The satellite ground station links Redstone over Radio components to one satellite. Set its frequency with a configured satellite chip, or use the setfreq RoR command. Read connected, freq and rx through a RoR Reader. Send satellite commands through tx, for example tx!settarget 200 300. The dish needs a clear view of the sky.",
+    "ru_ru": "Наземная станция связывает компоненты Redstone over Radio с одним спутником. Задайте частоту настроенным спутниковым чипом или командой RoR setfreq. Значения connected, freq и rx читаются через RoR Reader. Команды спутнику отправляются через tx, например tx!settarget 200 300. Антенне нужен открытый обзор неба."
+  }
+}

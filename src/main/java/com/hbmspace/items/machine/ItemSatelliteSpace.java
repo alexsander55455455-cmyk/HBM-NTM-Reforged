@@ -1,8 +1,10 @@
 package com.hbmspace.items.machine;
 
 import com.hbm.items.ISatChip;
-import com.hbm.saveddata.satellites.Satellite;
+import com.hbm.saveddata.satellites.SatelliteLaunchResult;
+import com.hbm.saveddata.satellites.SatelliteTypeRegistry;
 import com.hbm.util.I18nUtil;
+import com.hbm.main.MainRegistry;
 import com.hbmspace.dim.CelestialBody;
 import com.hbmspace.items.ModItemsSpace;
 import com.hbmspace.items.weapon.ItemCustomMissilePart;
@@ -15,15 +17,11 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.DimensionManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public class ItemSatelliteSpace extends ItemCustomMissilePart implements ISatChip {
-
-    private boolean canLaunchByHand;
 
     public ItemSatelliteSpace(String s) {
         this(16_000, s);
@@ -32,7 +30,6 @@ public class ItemSatelliteSpace extends ItemCustomMissilePart implements ISatChi
     public ItemSatelliteSpace(int mass, String s) {
         super(s);
         makeWarhead(WarheadType.SATELLITE, 15F, mass, PartSize.SIZE_20);
-        if(mass <= 16_000) canLaunchByHand = true;
     }
 
     public ItemSatelliteSpace(int mass, WarheadType type, String s) {
@@ -45,6 +42,10 @@ public class ItemSatelliteSpace extends ItemCustomMissilePart implements ISatChi
         super.addInformation(stack, world, list, flagIn);
 
         list.add(I18nUtil.resolveKey("item.sat.desc.frequency") + ": " + getFreq(stack));
+        SatelliteTypeRegistry.Descriptor descriptor = SatelliteTypeRegistry.byItem(stack);
+        if(descriptor != null) {
+            list.add(TextFormatting.GRAY + I18nUtil.resolveKey("desc.satellite.configure"));
+        }
 
         /*if(this == ModItems.sat_foeq)
             list.add(I18nUtil.resolveKey("item.sat.desc.foeq"));
@@ -82,7 +83,7 @@ public class ItemSatelliteSpace extends ItemCustomMissilePart implements ISatChi
         if(this == ModItemsSpace.sat_dyson_relay)
             list.add(I18nUtil.resolveKey("item.sat.desc.dyson_relay"));
 
-        if(canLaunchByHand) {
+        if(descriptor != null && descriptor.canHandLaunch()) {
             list.add(TextFormatting.GOLD + I18nUtil.resolveKey("item.sat.desc.launch_by_hand"));
 
             if(CelestialBody.inOrbit(world))
@@ -93,26 +94,31 @@ public class ItemSatelliteSpace extends ItemCustomMissilePart implements ISatChi
     @Override
     public @NotNull ActionResult<ItemStack> onItemRightClick(@NotNull World world, EntityPlayer player, @NotNull EnumHand hand) {
         ItemStack stack = player.getHeldItem(hand);
+        SatelliteTypeRegistry.Descriptor descriptor = SatelliteTypeRegistry.byItem(stack);
+        if(descriptor == null) return new ActionResult<>(EnumActionResult.PASS, stack);
 
-        if(!canLaunchByHand) return new ActionResult<>(EnumActionResult.PASS, stack);
-        if(!CelestialBody.inOrbit(world)) return new ActionResult<>(EnumActionResult.PASS, stack);
-
-        if(!world.isRemote) {
-            int targetDimensionId = CelestialBody.getTarget(world, (int)player.posX, (int)player.posZ).body.dimensionId;
-            WorldServer targetWorld = DimensionManager.getWorld(targetDimensionId);
-            if(targetWorld == null) {
-                DimensionManager.initDimension(targetDimensionId);
-                targetWorld = DimensionManager.getWorld(targetDimensionId);
-
-                if(targetWorld == null) return new ActionResult<>(EnumActionResult.PASS, stack);
-            }
-
-            Satellite.orbit(targetWorld, Satellite.getIDFromItem(stack.getItem()), getFreq(stack), player.posX, player.posY, player.posZ);
-
-            player.sendMessage(new TextComponentString("Satellite launched successfully!"));
+        if(player.isSneaking()) {
+            if(world.isRemote) MainRegistry.proxy.openSatelliteOrbitSettings(hand);
+            return new ActionResult<>(EnumActionResult.SUCCESS, stack);
         }
 
-        stack.shrink(1);
+        if(!descriptor.canHandLaunch()) return new ActionResult<>(EnumActionResult.PASS, stack);
+        if(!CelestialBody.inOrbit(world)) return new ActionResult<>(EnumActionResult.PASS, stack);
+
+        if(world.isRemote) {
+            return new ActionResult<>(EnumActionResult.SUCCESS, stack);
+        }
+
+        if(!world.isRemote) {
+            SatelliteLaunchResult result = SatelliteTypeRegistry.orbit(
+                    world, stack.copy(), getFreq(stack), player.posX, player.posY, player.posZ, null);
+            if(!result.isSuccess()) {
+                player.sendMessage(new TextComponentString(TextFormatting.RED + "Satellite launch failed: " + result.name()));
+                return new ActionResult<>(EnumActionResult.FAIL, stack);
+            }
+            if(!player.capabilities.isCreativeMode) stack.shrink(1);
+            player.sendMessage(new TextComponentString("Satellite launched successfully!"));
+        }
 
         return new ActionResult<>(EnumActionResult.SUCCESS, stack);
     }

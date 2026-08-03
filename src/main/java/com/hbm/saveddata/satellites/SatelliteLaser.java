@@ -5,9 +5,15 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 
+import java.util.Locale;
+
 public class SatelliteLaser extends Satellite {
-	
-	public long lastOp;
+
+	public static final String CMD_FIRE = "fire";
+	public static final String CMD_CANFIRE = "canfire";
+	public static final int CHARGE_TIME = 5 * 60 * 20;
+
+	public long lastShot;
 	
 	public SatelliteLaser() {
 		this.ifaceAcs.add(InterfaceActions.HAS_MAP);
@@ -17,27 +23,42 @@ public class SatelliteLaser extends Satellite {
 	}
 	
 	public void writeToNBT(NBTTagCompound nbt) {
-		nbt.setLong("lastOp", lastOp);
+		super.writeToNBT(nbt);
+		nbt.setLong("lastShot", lastShot);
 	}
 	
 	public void readFromNBT(NBTTagCompound nbt) {
-		lastOp = nbt.getLong("lastOp");
+		super.readFromNBT(nbt);
+		lastShot = nbt.getLong("lastShot");
 	}
-	
+
+	@Override
+	protected void onCommandImpl(World world, String... command) {
+		if(command == null || command.length == 0) return;
+		if(CMD_FIRE.equals(command[0])) {
+			deathBlast(world, targetX, targetZ, null);
+		} else if(CMD_CANFIRE.equals(command[0])) {
+			tx = Boolean.toString(canFire(world)).toUpperCase(Locale.US);
+		}
+	}
+
 	public void onClick(World world, EntityPlayerMP player, int x, int z) {
-		
-		if(lastOp + 10000 < System.currentTimeMillis()) {
-    		lastOp = System.currentTimeMillis();
-    		
-    		int y = world.getHeight(x, z);
-    		
-    		EntityDeathBlast blast = new EntityDeathBlast(world);
-    		blast.posX = x;
-    		blast.posY = y;
-    		blast.posZ = z;
-    		blast.detonator = player;
-    		world.spawnEntity(blast);
-    	}
+		setTarget(x, z);
+		deathBlast(world, x, z, player);
+	}
+
+	public boolean canFire(World world) {
+		return lastShot + CHARGE_TIME < world.getTotalWorldTime();
+	}
+
+	private void deathBlast(World world, int x, int z, EntityPlayerMP player) {
+		if(world.isRemote || !canFire(world)) return;
+		lastShot = world.getTotalWorldTime();
+
+		EntityDeathBlast blast = new EntityDeathBlast(world);
+		blast.setPosition(x, world.getHeight(x, z), z);
+		blast.detonator = player;
+		world.spawnEntity(blast);
 	}
 
 	@Override
