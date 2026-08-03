@@ -4,6 +4,7 @@ import com.hbm.blocks.BlockDummyable;
 import com.hbm.explosion.vanillant.ExplosionVNT;
 import com.hbm.explosion.vanillant.standard.*;
 import com.hbm.items.ISatChip;
+import com.hbm.saveddata.satellites.SatelliteResolver;
 import com.hbm.lib.ForgeDirection;
 import com.hbm.main.MainRegistry;
 import com.hbm.saveddata.satellites.Satellite;
@@ -20,7 +21,6 @@ import com.hbmspace.interfaces.AutoRegister;
 import com.hbmspace.lib.HBMSpaceSoundHandler;
 import com.hbmspace.saveddata.satellites.SatelliteDysonRelay;
 import com.hbmspace.tileentity.IDysonConverter;
-import com.hbmspace.tileentity.TESpaceUtil;
 import com.hbmspace.util.ParticleUtilSpace;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
@@ -88,8 +88,9 @@ public class TileEntityDysonReceiver extends TileEntityMachineBase implements IT
         if(!world.isRemote) {
             swarmId = ISatChip.getFreqS(inventory.getStackInSlot(0));
 
-            SatelliteSavedData data = TESpaceUtil.getData(world, pos.getX(), pos.getZ());
-            Satellite sat = data.getSatFromFreq(swarmId);
+            SatelliteResolver.Result resolution = SatelliteResolver.resolve(world, pos.getX(), pos.getZ(),
+                    inventory.getStackInSlot(0), false);
+            Satellite sat = resolution.getSatellite();
             int sun = world.getLightFor(EnumSkyBlock.SKY, pos) - world.getSkylightSubtracted() - 11;
 
             boolean occluded = false;

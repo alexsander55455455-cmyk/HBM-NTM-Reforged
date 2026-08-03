@@ -45,7 +45,6 @@ public class AssemblyRecipesTweaker {
         recs.removeRecipeByName("ass.mpf15hydro");
         recs.removeRecipeByName("ass.mpf1520kero");
         recs.removeRecipeByName("ass.mpf1520solid");
-        recs.removeRecipeByName("ass.satellitelunarminer");
         recs.removeRecipeByName("ass.mpt10kero");
         recs.removeRecipeByName("ass.mpt10solid");
         recs.removeRecipeByName("ass.mpt10xenon");

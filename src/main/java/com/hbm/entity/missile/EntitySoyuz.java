@@ -8,7 +8,8 @@ import com.hbm.lib.HBMSoundHandler;
 import com.hbm.lib.ModDamageSource;
 import com.hbm.main.AdvancementManager;
 import com.hbm.main.MainRegistry;
-import com.hbm.saveddata.satellites.Satellite;
+import com.hbm.saveddata.satellites.SatelliteLaunchResult;
+import com.hbm.saveddata.satellites.SatelliteTypeRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -119,7 +120,13 @@ public class EntitySoyuz extends Entity {
 				
 				if(load.getItem() instanceof ISatChip) {
 				    int freq = ISatChip.getFreqS(load);
-			    	Satellite.orbit(world, Satellite.getIDFromItem(load.getItem()), freq, posX, posY, posZ);
+					SatelliteLaunchResult result = SatelliteTypeRegistry.orbit(
+							world, load.copy(), freq, posX, posY, posZ, null);
+					if(result.isSuccess()) {
+						payload[0] = null;
+					} else {
+						entityDropItem(load.copy(), 0F);
+					}
 				}
 			}
 		}
@@ -146,13 +153,13 @@ public class EntitySoyuz extends Entity {
 	}
 	
 	public void setSat(ItemStack stack) {
-		this.payload[0] = stack;
+		this.payload[0] = stack == null ? null : stack.copy();
 	}
 	
 	public void setPayload(List<ItemStack> payload) {
 		
 		for(int i = 0; i < payload.size(); i++) {
-			this.payload[i] = payload.get(i);
+			this.payload[i] = payload.get(i).copy();
 		}
 	}
 	

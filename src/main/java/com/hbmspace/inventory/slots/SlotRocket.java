@@ -1,6 +1,7 @@
 package com.hbmspace.inventory.slots;
 
 import com.hbm.items.weapon.ItemMissile;
+import com.hbm.saveddata.satellites.SatelliteTypeRegistry;
 import com.hbmspace.items.ItemVOTVdrive;
 import com.hbmspace.items.ModItemsSpace;
 import com.hbmspace.items.weapon.ItemCustomRocket;
@@ -50,6 +51,8 @@ public class SlotRocket extends SlotItemHandler {
         @Override
         public boolean isItemValid(ItemStack stack) {
             if (stack.isEmpty()) return false;
+            if (SatelliteTypeRegistry.byItem(stack) != null) return true;
+            if (stack.getItem() == ModItemsSpace.sat_war) return false;
             if (!(stack.getItem() instanceof ItemMissile item)) return false;
 
             if (item.type != ItemMissile.PartType.WARHEAD) return false;

@@ -239,12 +239,12 @@ public class SkyProviderCelestial extends IRenderHandler {
 				// JEFF BOZOS WOULD LIKE TO KNOW YOUR LOCATION
 				// ... to send you a pakedge :)))
 				if(world.provider.getDimension() == 0) {
-					renderSatellite(mc, solarAngle, 1916169, new float[] { 1.0F, 0.534F, 0.385F });
+					renderSatellite(mc, partialTicks, solarAngle, 1916169, new float[] { 1.0F, 0.534F, 0.385F });
 				}
 
 				// Light up the sky
 				for(Map.Entry<Integer, Satellite> entry : SatelliteSavedData.getClientSats().entrySet()) {
-					renderSatellite(mc, solarAngle, entry.getKey(), entry.getValue().getColor());
+					renderSatellite(mc, partialTicks, solarAngle, entry.getKey(), entry.getValue());
 				}
 
 				// Stations, too
@@ -1392,25 +1392,43 @@ public class SkyProviderCelestial extends IRenderHandler {
 		return new float[] { r, g, b };
 	}
 
-	protected void renderSatellite(Minecraft mc, float celestialAngle, long seed, float[] color) {
+	protected void renderSatellite(Minecraft mc, float partialTicks, float celestialAngle, long seed, float[] color) {
+		renderSatellite(mc, partialTicks, celestialAngle, seed, color, null);
+	}
+
+	protected void renderSatellite(Minecraft mc, float partialTicks, float celestialAngle, long seed, Satellite satellite) {
+		renderSatellite(mc, partialTicks, celestialAngle, seed, satellite.getRenderColor(), satellite.getOrbitSettings());
+	}
+
+	protected void renderSatellite(Minecraft mc, float partialTicks, float celestialAngle, long seed, float[] color, com.hbm.saveddata.satellites.OrbitSettings settings) {
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder bufferBuilder = tessellator.getBuffer();
 
-		double ticks = (double)(System.currentTimeMillis() % (600 * 50)) / 50;
+		double ticks = mc.world == null ? 0D : mc.world.getTotalWorldTime() + partialTicks;
+		float inclination = settings == null ? 0F : settings.getInclination();
+		float phase = settings == null ? 0F : settings.getPhase();
+		float altitudeScale = settings == null ? 1F : 100F / settings.getAltitudeKm();
+		float alpha = 1F;
+		if(settings != null && settings.isBlinking()) {
+			double periodTicks = Math.max(1D, settings.getBlinkSeconds() * 20D);
+			double wave = (Math.sin(ticks / periodTicks * Math.PI * 2D) + 1D) * 0.5D;
+			alpha = 0.35F + (float) wave * 0.65F;
+		}
+		double orbitSpeed = settings == null ? 1D : Math.pow(100D / settings.getAltitudeKm(), 1.5D);
 
 		GlStateManager.pushMatrix();
 		{
 			GlStateManager.rotate(celestialAngle * -360.0F, 1.0F, 0.0F, 0.0F);
-			GlStateManager.rotate(-40.0F + (float)(seed % 800) * 0.1F - 5.0F, 1.0F, 0.0F, 0.0F);
+			GlStateManager.rotate(-40.0F + (float)(seed % 800) * 0.1F - 5.0F + inclination, 1.0F, 0.0F, 0.0F);
 			GlStateManager.rotate((float)(seed % 50) * 0.1F - 20.0F, 0.0F, 1.0F, 0.0F);
 			GlStateManager.rotate((float)(seed % 80) * 0.1F - 2.5F, 0.0F, 0.0F, 1.0F);
-			GlStateManager.rotate((float)((ticks / 600.0D) * 360.0D), 1.0F, 0.0F, 0.0F);
+			GlStateManager.rotate((float)((ticks / 600.0D) * 360.0D * orbitSpeed) + phase, 1.0F, 0.0F, 0.0F);
 
-			GlStateManager.color(color[0], color[1], color[2], 1F);
+			GlStateManager.color(color[0], color[1], color[2], alpha);
 
 			mc.getTextureManager().bindTexture(planetTexture);
 
-			float size = 0.5F;
+			float size = 0.5F * altitudeScale;
 
 			bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
 			bufferBuilder.pos(-size, 100.0, -size).tex(0.0D, 0.0D).endVertex();

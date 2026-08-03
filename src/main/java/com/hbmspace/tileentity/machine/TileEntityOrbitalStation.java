@@ -187,7 +187,7 @@ public class TileEntityOrbitalStation extends TileEntityOrbStation implements IF
             if(!rocket.stages.isEmpty()) {
                 itemsToStuff.push(ItemCustomRocket.build(docked.getRocket(), true));
             } else {
-                itemsToStuff.push(new ItemStack(rocket.capsule));
+                itemsToStuff.push(rocket.getCapsuleStack());
             }
 
             if(docked.navDrive != null) itemsToStuff.push(docked.navDrive.copy());
@@ -276,7 +276,14 @@ public class TileEntityOrbitalStation extends TileEntityOrbStation implements IF
     public void serialize(ByteBuf buf) {
         super.serialize(buf);
 
-        if(isCore()) station.serialize(buf);
+        if(isCore()) {
+            if(station == null && world != null && !world.isRemote && CelestialBody.inOrbit(world)) {
+                station = OrbitalStation.getStationFromPosition(pos.getX(), pos.getZ());
+            }
+
+            buf.writeBoolean(station != null);
+            if(station != null) station.serialize(buf);
+        }
 
         buf.writeBoolean(hasDocked);
         buf.writeBoolean(hasRider);
@@ -298,7 +305,13 @@ public class TileEntityOrbitalStation extends TileEntityOrbStation implements IF
     public void deserialize(ByteBuf buf) {
         super.deserialize(buf);
 
-        if(isCore()) OrbitalStation.clientStation = station = OrbitalStation.deserialize(buf);
+        if(isCore()) {
+            if(buf.readBoolean()) {
+                OrbitalStation.clientStation = station = OrbitalStation.deserialize(buf);
+            } else {
+                station = null;
+            }
+        }
 
         hasDocked = buf.readBoolean();
         hasRider = buf.readBoolean();

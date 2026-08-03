@@ -8,7 +8,8 @@ import com.hbm.explosion.ExplosionLarge;
 import com.hbm.items.ISatChip;
 import com.hbm.items.weapon.ItemMissile;
 import com.hbm.lib.HBMSoundHandler;
-import com.hbm.saveddata.satellites.Satellite;
+import com.hbm.saveddata.satellites.SatelliteLaunchResult;
+import com.hbm.saveddata.satellites.SatelliteTypeRegistry;
 import com.hbm.sound.AudioWrapper;
 import com.hbm.interfaces.IConstantRenderer;
 import com.hbm.tileentity.IBufPacketReceiver;
@@ -28,6 +29,7 @@ import com.hbmspace.main.SpaceMain;
 import com.hbmspace.packet.toclient.EntityBufPacket;
 import com.hbmspace.render.misc.RocketPart;
 import com.hbmspace.tileentity.machine.TileEntityOrbitalStation;
+import com.hbmspace.tileentity.machine.TileEntityOrbitalStationLauncher;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
@@ -76,6 +78,8 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
             EntityDataManager.createKey(EntityRideableRocket.class, DataSerializers.VARINT);
     private static final DataParameter<Integer> DP_ROCKET_CAPSULE =
             EntityDataManager.createKey(EntityRideableRocket.class, DataSerializers.VARINT);
+    private static final DataParameter<ItemStack> DP_ROCKET_CAPSULE_STACK =
+            EntityDataManager.createKey(EntityRideableRocket.class, DataSerializers.ITEM_STACK);
     private static final DataParameter<Integer> DP_ROCKET_STAGECOUNT =
             EntityDataManager.createKey(EntityRideableRocket.class, DataSerializers.VARINT);
 
@@ -83,8 +87,6 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
     private static final DataParameter<Integer>[] DP_ROCKET_STAGE_A = new DataParameter[RocketStruct.MAX_STAGES];
     @SuppressWarnings("unchecked")
     private static final DataParameter<Integer>[] DP_ROCKET_STAGE_B = new DataParameter[RocketStruct.MAX_STAGES];
-
-    private static final int ORBIT_STAGE_SEPARATION_DELAY = 40;
 
     public ItemStack navDrive;
     public EntityRideableRocketDummy capDummy;
@@ -115,14 +117,11 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
     private RocketState lastState = RocketState.AWAITING;
 
     private boolean willExplode = false;
-    private int satFreq = 0;
+    private int legacySatFreq;
 
     private TileEntityOrbitalStation targetPort;
 
     private ItemVOTVdrive.Destination destinationOverride; // for pod recalls, will ignore the current drive if set
-
-    private boolean pendingStageSeparation = false;
-    private int stageSeparationDelay = 0;
 
     private boolean clientStationSyncInitialized = false;
     private int clientStationOriginDimension;
@@ -161,7 +160,10 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
         super(world, x, y, z, (int) x + 10000, (int) z);
         this.ignoreFrustumCheck = true;
         RocketStruct rocket = ItemCustomRocket.get(stack);
-        satFreq = ISatChip.getFreqS(stack);
+        legacySatFreq = rocket == null ? ISatChip.getFreqS(stack) : rocket.getSatelliteFrequency();
+        if(rocket != null && rocket.getCapsuleStack().getItem() instanceof ISatChip) {
+            legacySatFreq = ISatChip.getFreqS(rocket.getCapsuleStack());
+        }
         setRocket(rocket);
         setSize(2.0F, (float) rocket.getHeight() + 1.0F);
     }
@@ -193,11 +195,7 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
         }
 
         if(expendStage) {
-            if(destination != null && destination.body == SolarSystem.Body.ORBIT) {
-                scheduleStageSeparation(ORBIT_STAGE_SEPARATION_DELAY);
-            } else {
-                performStageSeparation();
-            }
+            performStageSeparation();
         }
 
         setState(RocketState.LANDING);
@@ -238,14 +236,24 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
                     }
                 }
             } else if(!canRide()) {
-                if(rocket.capsule instanceof ISatChip && destination.body != SolarSystem.Body.ORBIT) {
-                    WorldServer targetWorld = DimensionManager.getWorld(targetDimensionId);
-                    if(targetWorld == null) {
-                        DimensionManager.initDimension(targetDimensionId);
-                        targetWorld = DimensionManager.getWorld(targetDimensionId);
-                    }
-                    if(targetWorld != null) {
-                        Satellite.orbit(targetWorld, Satellite.getIDFromItem(rocket.capsule), satFreq, posX, posY, posZ);
+                ItemStack payload = rocket.getCapsuleStack();
+                if(!payload.isEmpty() && payload.getItem() instanceof ISatChip) {
+                    if(destination.body != SolarSystem.Body.ORBIT) {
+                        WorldServer targetWorld = DimensionManager.getWorld(targetDimensionId);
+                        if(targetWorld == null) {
+                            DimensionManager.initDimension(targetDimensionId);
+                            targetWorld = DimensionManager.getWorld(targetDimensionId);
+                        }
+                        if(targetWorld != null) {
+                            if(ISatChip.getFreqS(payload) == 0 && legacySatFreq != 0) ISatChip.setFreqS(payload, legacySatFreq);
+                            SatelliteLaunchResult result = SatelliteTypeRegistry.orbit(
+                                    targetWorld, payload, ISatChip.getFreqS(payload), posX, posY, posZ, null);
+                            if(!result.isSuccess()) entityDropItem(payload.copy(), 0F);
+                        } else {
+                            entityDropItem(payload.copy(), 0F);
+                        }
+                    } else {
+                        entityDropItem(payload.copy(), 0F);
                     }
                 } else if(rocket.capsule == ModItemsSpace.rp_station_core_20) {
                     OrbitalStation.addStation(x, z, CelestialBody.getBody(world));
@@ -340,11 +348,26 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
         float expectedHeight = (float) getRocket().getHeight() + 1.0F;
         if(expectedHeight < 3.0F) expectedHeight = 8.0F;
         if(!sizeSet || Math.abs(this.height - expectedHeight) > 0.5F) {
+            float previousHeight = this.height;
             setSize(2.0F, expectedHeight);
             if(!world.isRemote && (state == RocketState.LANDED || state == RocketState.AWAITING || state == RocketState.NEEDSFUEL)) {
-                TileEntity te = CompatExternal.getCoreFromPos(world, new BlockPos(MathHelper.floor(posX), MathHelper.floor(posY + height - 1.0D), MathHelper.floor(posZ)));
-                if(te instanceof TileEntityOrbitalStation) {
-                    ((TileEntityOrbitalStation) te).dockRocket(this);
+                int dockX = MathHelper.floor(posX);
+                int dockZ = MathHelper.floor(posZ);
+                int minY = Math.max(0, MathHelper.floor(posY) - 2);
+                int maxY = Math.min(world.getHeight() - 1,
+                        MathHelper.floor(posY + Math.max(previousHeight, expectedHeight) + 8.0D));
+                for(int dockY = minY; dockY <= maxY; dockY++) {
+                    TileEntity te = world.getTileEntity(new BlockPos(dockX, dockY, dockZ));
+                    if(te instanceof TileEntityOrbitalStation station) {
+                        setPosition(dockX + 0.5D, dockY + 1.5D - height, dockZ + 0.5D);
+                        station.dockRocket(this);
+                        break;
+                    }
+                    if(te instanceof TileEntityOrbitalStationLauncher launcher) {
+                        setPosition(dockX + 0.5D, dockY + 1.5D - height, dockZ + 0.5D);
+                        launcher.dockRocket(this);
+                        break;
+                    }
                 }
             }
         }
@@ -352,8 +375,6 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
         EntityPlayer rider = getPrimaryRider();
 
         if(!world.isRemote) {
-            tickStageSeparation();
-
             rotationYaw = -90.0F;
 
             if(navDrive != null && navDrive.getItem() instanceof ItemVOTVdrive) {
@@ -658,7 +679,9 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
     }
 
     public boolean canRide() {
-        return getRocket().capsule.attributes[0] == ItemMissile.WarheadType.APOLLO;
+        RocketStruct rocket = getRocket();
+        return rocket.capsule != null && rocket.capsule.attributes != null
+                && rocket.capsule.attributes[0] == ItemMissile.WarheadType.APOLLO;
     }
 
     public boolean isReusable() {
@@ -801,9 +824,7 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
         RocketStruct rocket = getRocket();
         ItemStack stack = ItemStack.EMPTY;
         if(rocket.stages.isEmpty()) {
-            if(rocket.capsule != null && rocket.capsule != null) {
-                stack = new ItemStack(rocket.capsule);
-            }
+            stack = rocket.getCapsuleStack();
         } else {
             stack = ItemCustomRocket.build(rocket, true);
         }
@@ -824,8 +845,6 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
         if(capDummy != null) {
             capDummy.setDead();
         }
-        pendingStageSeparation = false;
-        stageSeparationDelay = 0;
     }
 
     private void ejectAllPassengers() {
@@ -915,8 +934,14 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
 
     public RocketStruct getRocket() {
         RocketStruct rocket = new RocketStruct();
-        rocket.capsule = (ItemMissile) ItemMissile.getItemById(this.dataManager.get(DP_ROCKET_CAPSULE));
-
+        ItemStack capsuleStack = this.dataManager.get(DP_ROCKET_CAPSULE_STACK);
+        if(!capsuleStack.isEmpty() && (capsuleStack.getItem() instanceof ItemMissile
+                || SatelliteTypeRegistry.byItem(capsuleStack) != null)) {
+            rocket.setCapsuleStack(capsuleStack);
+        } else {
+            rocket.capsule = (ItemMissile) ItemMissile.getItemById(this.dataManager.get(DP_ROCKET_CAPSULE));
+            if(rocket.capsule != null) rocket.setCapsuleStack(new ItemStack(rocket.capsule));
+        }
         int count = this.dataManager.get(DP_ROCKET_STAGECOUNT);
         for(int i = 0; i < count && i < RocketStruct.MAX_STAGES; i++) {
             Tuple.Pair<Integer, Integer> watchable = new Tuple.Pair<>(
@@ -930,7 +955,9 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
     }
 
     public void setRocket(RocketStruct rocket) {
+        if(rocket == null) rocket = new RocketStruct();
         this.dataManager.set(DP_ROCKET_CAPSULE, ItemMissile.getIdFromItem(rocket.capsule));
+        this.dataManager.set(DP_ROCKET_CAPSULE_STACK, rocket.getCapsuleStack());
         int count = Math.min(rocket.stages.size(), RocketStruct.MAX_STAGES);
         this.dataManager.set(DP_ROCKET_STAGECOUNT, count);
         for(int i = 0; i < count; i++) {
@@ -975,6 +1002,10 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
         ItemVOTVdrive.Target from = CelestialBody.getTarget(world, (int) posX, (int) posZ);
         ItemVOTVdrive.Target to = getTarget();
 
+        if(from == null || to == null || from.body == null || to.body == null || !to.isValid) {
+            return;
+        }
+
         RocketState transitionTo = from.inOrbit ? RocketState.UNDOCKING : RocketState.LAUNCHING;
 
         targetX = (int) posX - 10000;
@@ -1004,6 +1035,7 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
         this.dataManager.register(DP_DRIVE, ItemStack.EMPTY);
         this.dataManager.register(DP_TIMER, 0);
         this.dataManager.register(DP_ROCKET_CAPSULE, 0);
+        this.dataManager.register(DP_ROCKET_CAPSULE_STACK, ItemStack.EMPTY);
         this.dataManager.register(DP_ROCKET_STAGECOUNT, 0);
         for(int i = 0; i < RocketStruct.MAX_STAGES; i++) {
             this.dataManager.register(DP_ROCKET_STAGE_A[i], 0);
@@ -1027,7 +1059,18 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
             navDrive = null;
         }
 
-        satFreq = nbt.getInteger("freq");
+        legacySatFreq = nbt.getInteger("freq");
+        ItemStack restoredPayload = loaded.getCapsuleStack();
+        if(!restoredPayload.isEmpty() && restoredPayload.getItem() instanceof ISatChip) {
+            int payloadFrequency = ISatChip.getFreqS(restoredPayload);
+            if(payloadFrequency == 0 && legacySatFreq != 0) {
+                ISatChip.setFreqS(restoredPayload, legacySatFreq);
+                loaded.setCapsuleStack(restoredPayload);
+                setRocket(loaded);
+            } else {
+                legacySatFreq = payloadFrequency;
+            }
+        }
 
         if(nbt.getBoolean("hasOverride")) {
             SolarSystem.Body body = CelestialBody.getBody(nbt.getInteger("overrideDim")).getEnum();
@@ -1053,8 +1096,6 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
             navDrive.writeToNBT(driveData);
             nbt.setTag("drive", driveData);
         }
-
-        nbt.setInteger("freq", satFreq);
 
         if(destinationOverride != null) {
             nbt.setBoolean("hasOverride", true);
@@ -1289,8 +1330,7 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
     }
 
     /**
-     * Dismount inside the capsule seat: same coords as the riding pose, with a short grace window
-     * so vanilla does not shove the pilot out of the rocket hitbox.
+     * Dismount at the capsule seat during flight, or on top of a capsule docked in orbit.
      */
     public void dismountPassengerSafely(EntityPlayer player) {
         if(player == null || world.isRemote) return;
@@ -1298,12 +1338,15 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
 
         boolean sealedFlight = !canExitCapsule();
         boolean inOrbit = world.provider instanceof com.hbmspace.dim.orbit.WorldProviderOrbit;
+        RocketState state = getState();
+        boolean dockedInOrbit = inOrbit && (state == RocketState.LANDED
+                || state == RocketState.AWAITING || state == RocketState.NEEDSFUEL);
 
         updatePassenger(player);
         Vec3d seat = getPassengerSeatPosition(player);
-        double exitX = seat.x;
-        double exitY = seat.y;
-        double exitZ = seat.z;
+        double exitX = dockedInOrbit ? posX : seat.x;
+        double exitY = dockedInOrbit ? getEntityBoundingBox().maxY : seat.y;
+        double exitZ = dockedInOrbit ? posZ : seat.z;
         float exitYaw = player.rotationYaw;
         float exitPitch = player.rotationPitch;
 
@@ -1313,7 +1356,7 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
         safeDismountInProgress = true;
         forceExitTimer = FORCE_EXIT_THRESHOLD;
         try {
-            // 1.7.10 parity: shrink hitbox during dismount so tall rockets do not splat the pilot.
+            // Keep vanilla collision from pushing the pilot during the explicit reposition below.
             if(inOrbit) {
                 setSize(prevW, prevH + 1.0F);
             } else {
@@ -1507,35 +1550,14 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
         clientStationMaxTimer = incoming.maxStateTimer;
     }
 
-    private void scheduleStageSeparation(int delay) {
-        if(world.isRemote || getRocket().stages.isEmpty()) {
-            return;
-        }
-        pendingStageSeparation = true;
-        stageSeparationDelay = Math.max(1, delay);
-    }
-
-    private void tickStageSeparation() {
-        if(!pendingStageSeparation || world.isRemote) {
-            return;
-        }
-        if(--stageSeparationDelay <= 0) {
-            performStageSeparation();
-        }
-    }
-
     private void performStageSeparation() {
         if(world.isRemote) {
             return;
         }
         RocketStruct rocket = getRocket();
         if(rocket.stages.isEmpty()) {
-            pendingStageSeparation = false;
-            stageSeparationDelay = 0;
             return;
         }
-        pendingStageSeparation = false;
-        stageSeparationDelay = 0;
         rocket.stages.removeFirst();
         setRocket(rocket);
         setSize(2.0F, (float) rocket.getHeight() + 1.0F);

@@ -66,7 +66,7 @@ public class JEIConfigSpace implements IModPlugin {
         blacklist.addIngredientToBlacklist(new ItemStack(ModBlocksSpace.furnace));
         blacklist.addIngredientToBlacklist(new ItemStack(ModBlocksSpace.lit_furnace));
         //blacklist.addIngredientToBlacklist(new ItemStack(ModBlocksSpace.war_controller));
-        //blacklist.addIngredientToBlacklist(new ItemStack(ModItemsSpace.sat_war));
+        blacklist.addIngredientToBlacklist(new ItemStack(ModItemsSpace.sat_war));
     }
 
     @Override

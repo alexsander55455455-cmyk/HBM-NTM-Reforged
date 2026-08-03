@@ -16,6 +16,7 @@ import com.hbmspace.inventory.container.ContainerStardar;
 import com.hbmspace.items.ItemVOTVdrive;
 import com.hbmspace.items.ModItemsSpace;
 import com.hbmspace.render.shader.ShaderSpace;
+import com.hbmspace.saveddata.satellites.SatelliteDysonRelay;
 import com.hbmspace.tileentity.machine.TileEntityMachineStardar;
 import com.hbmspace.util.AstronomyUtil;
 import net.minecraft.client.Minecraft;
@@ -57,6 +58,12 @@ public class GUIMachineStardar extends GuiInfoContainer {
     private static final ResourceLocation satelliteTextureRadar = new ResourceLocation("hbm", "textures/items/sat_radar.png");
     private static final ResourceLocation satelliteTextureResonator = new ResourceLocation("hbm", "textures/items/sat_resonator.png");
     private static final ResourceLocation satelliteTextureScanner = new ResourceLocation("hbm", "textures/items/sat_scanner.png");
+    private static final ResourceLocation satelliteTextureLunarMiner = new ResourceLocation("hbm", "textures/items/satellite.miner_lunar.png");
+    private static final ResourceLocation satelliteTexturePrecision = new ResourceLocation("hbm", "textures/items/satellite.precision_laser.png");
+    private static final ResourceLocation satelliteTextureDetector = new ResourceLocation("hbm", "textures/items/satellite.detector.png");
+    private static final ResourceLocation satelliteTextureRayScan = new ResourceLocation("hbm", "textures/items/satellite.ray_scan.png");
+    private static final ResourceLocation satelliteTextureHorizons = new ResourceLocation("hbm", "textures/items/sat_gerald.png");
+    private static final ResourceLocation satelliteTextureDysonRelay = new ResourceLocation("hbm", "textures/items/sat_dyson_relay.png");
     private static final Map<Class<?>, ResourceLocation> satelliteTextureByClass = new HashMap<>();
     private static final ResourceLocation[] citylights = new ResourceLocation[]{
             new ResourceLocation("hbm", "textures/misc/space/citylights_0.png"),
@@ -94,6 +101,12 @@ public class GUIMachineStardar extends GuiInfoContainer {
         satelliteTextureByClass.put(SatelliteResonator.class, satelliteTextureResonator);
         satelliteTextureByClass.put(SatelliteRelay.class, satelliteTextureFoeq);
         satelliteTextureByClass.put(SatelliteMiner.class, satelliteTextureMiner);
+        satelliteTextureByClass.put(SatelliteLunarMiner.class, satelliteTextureLunarMiner);
+        satelliteTextureByClass.put(SatellitePrecisionLaser.class, satelliteTexturePrecision);
+        satelliteTextureByClass.put(SatelliteDetector.class, satelliteTextureDetector);
+        satelliteTextureByClass.put(SatelliteRayScan.class, satelliteTextureRayScan);
+        satelliteTextureByClass.put(SatelliteHorizons.class, satelliteTextureHorizons);
+        satelliteTextureByClass.put(SatelliteDysonRelay.class, satelliteTextureDysonRelay);
     }
 
     private final TileEntityMachineStardar star;
@@ -684,8 +697,8 @@ public class GUIMachineStardar extends GuiInfoContainer {
             return;
         }
 
-        float orbitRadiusMapPx = getBodySizePxAt1x(body) * SATELLITE_ORBIT_RADIUS_SCALE;
-        if (orbitRadiusMapPx <= 0F) {
+        float baseOrbitRadiusMapPx = getBodySizePxAt1x(body) * SATELLITE_ORBIT_RADIUS_SCALE;
+        if (baseOrbitRadiusMapPx <= 0F) {
             return;
         }
 
@@ -697,7 +710,11 @@ public class GUIMachineStardar extends GuiInfoContainer {
                 if (frequency == null) {
                     continue;
                 }
-                drawArtificialSatelliteOrbitHalf(body, bodyMapU, bodyMapV, orbitRadiusMapPx, frequency, frontHalf);
+                Satellite satellite = entry.getValue();
+                if (satellite != null) {
+                    drawArtificialSatelliteOrbitHalf(body, bodyMapU, bodyMapV,
+                            getArtificialSatelliteRadius(baseOrbitRadiusMapPx, satellite), frequency, satellite, frontHalf);
+                }
             }
         }
 
@@ -707,8 +724,6 @@ public class GUIMachineStardar extends GuiInfoContainer {
         float mapTop = guiTop + MAP_Y;
         float mapRight = mapLeft + MAP_W;
         float mapBottom = mapTop + MAP_H;
-        float angle = getArtificialSatelliteAngle();
-
         GlStateManager.color(1F, 1F, 1F, 1F);
         for (Map.Entry<Integer, Satellite> entry : satellites.entrySet()) {
             Integer frequency = entry.getKey();
@@ -717,7 +732,9 @@ public class GUIMachineStardar extends GuiInfoContainer {
                 continue;
             }
 
-            SatelliteOrbitPoint orbitPoint = getArtificialSatelliteOrbitPoint(frequency, angle, orbitRadiusMapPx);
+            float radius = getArtificialSatelliteRadius(baseOrbitRadiusMapPx, satellite);
+            float angle = getArtificialSatelliteAngle(satellite);
+            SatelliteOrbitPoint orbitPoint = getArtificialSatelliteOrbitPoint(frequency, satellite, angle, radius);
             float screenX = mapToScreenX(bodyMapU + orbitPoint.offsetU, bodyMapV + orbitPoint.offsetV);
             float screenY = mapToScreenY(bodyMapU + orbitPoint.offsetU, bodyMapV + orbitPoint.offsetV);
             if ((orbitPoint.depth <= 0F) != frontHalf) {
@@ -728,7 +745,10 @@ public class GUIMachineStardar extends GuiInfoContainer {
             }
 
             mc.getTextureManager().bindTexture(getArtificialSatelliteTexture(satellite));
+            OrbitSettings settings = satellite.getOrbitSettings();
+            GlStateManager.color(settings.getRed(), settings.getGreen(), settings.getBlue(), getArtificialSatelliteBlink(settings));
             drawPartialTex(screenX - iconHalf, screenY - iconHalf, iconSize, iconSize, 0F, 0F, 1F, 1F);
+            GlStateManager.color(1F, 1F, 1F, 1F);
         }
     }
 
@@ -736,12 +756,14 @@ public class GUIMachineStardar extends GuiInfoContainer {
         return body != null && currentBody != null && body == currentBody;
     }
 
-    private void drawArtificialSatelliteOrbitHalf(CelestialBody body, float bodyMapU, float bodyMapV, float radiusMapPx, int frequency, boolean frontHalf) {
-        float[] color = body.color != null && body.color.length >= 3 ? body.color : null;
-        float r = color != null ? color[0] : 0.8F;
-        float g = color != null ? color[1] : 0.8F;
-        float b = color != null ? color[2] : 0.8F;
-        float a = 0.25F;
+    private void drawArtificialSatelliteOrbitHalf(CelestialBody body, float bodyMapU, float bodyMapV,
+                                                   float radiusMapPx, int frequency, Satellite satellite,
+                                                   boolean frontHalf) {
+        OrbitSettings settings = satellite.getOrbitSettings();
+        float r = settings.getRed();
+        float g = settings.getGreen();
+        float b = settings.getBlue();
+        float a = 0.25F * getArtificialSatelliteBlink(settings);
 
         GlStateManager.disableTexture2D();
         GlStateManager.glLineWidth(1.0F);
@@ -757,7 +779,7 @@ public class GUIMachineStardar extends GuiInfoContainer {
 
         for (int i = 0; i <= 64; i++) {
             float angle = (float) (2.0D * Math.PI * ((double) i / 64.0D));
-            SatelliteOrbitPoint orbitPoint = getArtificialSatelliteOrbitPoint(frequency, angle, radiusMapPx);
+            SatelliteOrbitPoint orbitPoint = getArtificialSatelliteOrbitPoint(frequency, satellite, angle, radiusMapPx);
             float currX = mapToScreenX(bodyMapU + orbitPoint.offsetU, bodyMapV + orbitPoint.offsetV);
             float currY = mapToScreenY(bodyMapU + orbitPoint.offsetU, bodyMapV + orbitPoint.offsetV);
             float currDepth = orbitPoint.depth;
@@ -820,40 +842,45 @@ public class GUIMachineStardar extends GuiInfoContainer {
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
-    private SatelliteOrbitPoint getArtificialSatelliteOrbitPoint(int frequency, float angle, float radiusMapPx) {
-        float rotX = (float) Math.toRadians(-45F + positiveMod(frequency, 800) * 0.1F);
-        float rotY = (float) Math.toRadians(positiveMod(frequency, 50) * 0.1F - 20F);
-        float rotZ = (float) Math.toRadians(positiveMod(frequency, 80) * 0.1F - 2.5F);
+    private SatelliteOrbitPoint getArtificialSatelliteOrbitPoint(int frequency, Satellite satellite,
+                                                                  float angle, float radiusMapPx) {
+        OrbitSettings settings = satellite.getOrbitSettings();
+        float inclination = (float) Math.toRadians(settings.getInclination());
+        float node = (float) Math.toRadians(positiveMod(frequency, 360));
 
-        float x = 0F;
-        float y = radiusMapPx * MathHelper.cos(angle);
-        float z = radiusMapPx * MathHelper.sin(angle);
+        float planeX = radiusMapPx * MathHelper.cos(angle);
+        float planeZ = radiusMapPx * MathHelper.sin(angle);
+        float y = planeZ * MathHelper.sin(inclination);
+        float depth = planeZ * MathHelper.cos(inclination);
 
-        float cosZ = MathHelper.cos(rotZ);
-        float sinZ = MathHelper.sin(rotZ);
-        float xz = x * cosZ - y * sinZ;
-        float yz = x * sinZ + y * cosZ;
-
-        float cosY = MathHelper.cos(rotY);
-        float sinY = MathHelper.sin(rotY);
-        float xy = xz * cosY + z * sinY;
-        float zy = -xz * sinY + z * cosY;
-
-        float cosX = MathHelper.cos(rotX);
-        float sinX = MathHelper.sin(rotX);
-        float yx = yz * cosX - zy * sinX;
-        float zx = yz * sinX + zy * cosX;
-
-        yx -= zx * 0.35F;
-        yx *= 0.8F;
-
-        return new SatelliteOrbitPoint(xy, yx, zx);
+        float cosNode = MathHelper.cos(node);
+        float sinNode = MathHelper.sin(node);
+        float x = planeX * cosNode + depth * sinNode;
+        depth = -planeX * sinNode + depth * cosNode;
+        y = (y - depth * 0.35F) * 0.8F;
+        return new SatelliteOrbitPoint(x, y, depth);
     }
 
-    private float getArtificialSatelliteAngle() {
-        long cycle = SATELLITE_CYCLE_MS;
-        double progress = (double) (System.currentTimeMillis() % cycle) / (double) cycle;
-        return (float) (-progress * 2D * Math.PI);
+    private float getArtificialSatelliteAngle(Satellite satellite) {
+        long cycleTicks = Math.max(1L, SATELLITE_CYCLE_MS / 50L);
+        long time = mc.world == null ? 0L : mc.world.getTotalWorldTime();
+        double speed = Math.pow(100D / satellite.getOrbitSettings().getAltitudeKm(), 1.5D);
+        double progress = (double) time / (double) cycleTicks * speed;
+        return (float) (-progress * 2D * Math.PI + Math.toRadians(satellite.getOrbitSettings().getPhase()));
+    }
+
+    private float getArtificialSatelliteRadius(float baseRadius, Satellite satellite) {
+        OrbitSettings settings = satellite.getOrbitSettings();
+        float normalized = (settings.getAltitudeKm() - OrbitSettings.MIN_ALTITUDE_KM)
+                / (OrbitSettings.MAX_ALTITUDE_KM - OrbitSettings.MIN_ALTITUDE_KM);
+        return baseRadius * (0.8F + MathHelper.clamp(normalized, 0F, 1F) * 0.4F);
+    }
+
+    private float getArtificialSatelliteBlink(OrbitSettings settings) {
+        if(!settings.isBlinking()) return 1F;
+        double periodTicks = Math.max(1D, settings.getBlinkSeconds() * 20D);
+        double time = mc.world == null ? 0D : mc.world.getTotalWorldTime();
+        return (float) (0.35D + 0.65D * (0.5D + 0.5D * Math.sin(time / periodTicks * Math.PI * 2D)));
     }
 
     private int positiveMod(int value, int mod) {

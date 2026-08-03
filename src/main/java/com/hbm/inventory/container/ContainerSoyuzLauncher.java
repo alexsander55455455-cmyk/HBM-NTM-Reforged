@@ -5,9 +5,9 @@ import com.hbm.inventory.TransferStrategy;
 import com.hbm.inventory.slot.SlotBattery;
 import com.hbm.inventory.slot.SlotFiltered;
 import com.hbm.items.ModItems;
-import com.hbm.items.machine.ItemSatellite;
 import com.hbm.items.special.ItemSoyuz;
 import com.hbm.lib.Library;
+import com.hbm.saveddata.satellites.SatelliteTypeRegistry;
 import com.hbm.tileentity.machine.TileEntitySoyuzLauncher;
 import com.hbm.util.InventoryUtil;
 import net.minecraft.entity.player.EntityPlayer;
@@ -23,7 +23,7 @@ public class ContainerSoyuzLauncher extends Container {
     private final TransferStrategy transferStrategy = TransferStrategy.builder(27)
                                                                       .rule(0, 1, s -> s.getItem() instanceof ItemSoyuz)
                                                                       .rule(1, 2, s -> s.getItem() instanceof IDesignatorItem)
-                                                                      .rule(2, 3, s -> s.getItem() instanceof ItemSatellite)
+                                                                      .rule(2, 3, s -> SatelliteTypeRegistry.byItem(s) != null)
                                                                       .rule(3, 4, s -> s.getItem() == ModItems.missile_soyuz_lander)
                                                                       .rule(4, 6, s -> Library.isStackDrainableForTank(s, launcher.tanks[0]))
                                                                       .rule(6, 8, s -> Library.isStackDrainableForTank(s, launcher.tanks[1]))
@@ -40,7 +40,12 @@ public class ContainerSoyuzLauncher extends Container {
 		//Designator
 		this.addSlotToContainer(new SlotItemHandler(tedf.inventory, 1, 62, 36));
 		//Satellite
-		this.addSlotToContainer(new SlotItemHandler(tedf.inventory, 2, 116, 18));
+		this.addSlotToContainer(new SlotItemHandler(tedf.inventory, 2, 116, 18) {
+			@Override
+			public boolean isItemValid(ItemStack stack) {
+				return SatelliteTypeRegistry.byItem(stack) != null;
+			}
+		});
 		//Landing module
 		this.addSlotToContainer(new SlotItemHandler(tedf.inventory, 3, 116, 36));
 		//Kerosene IN

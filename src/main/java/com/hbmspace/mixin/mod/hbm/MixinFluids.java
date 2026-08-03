@@ -39,6 +39,12 @@ public abstract class MixinFluids {
             at = @At("TAIL")
     )
     private static void hbmextra$registerExtraFluids(CallbackInfo ci) {
+        Fluids.HYDROGEN.addTraits(new FT_Rocket(380, 700_000));
+        FT_Rocket liquidHydrogenRocket = Fluids.HYDROGEN.getTrait(FT_Rocket.class);
+        if (liquidHydrogenRocket == null || liquidHydrogenRocket.getISP() != 380 || liquidHydrogenRocket.getThrust() != 700_000L) {
+            throw new IllegalStateException("Liquid hydrogen rocket fuel trait was not initialized correctly");
+        }
+
         if (Fluids.fromName("EARTHAIR") != Fluids.NONE) return;
 
         int idCounter = 4000;

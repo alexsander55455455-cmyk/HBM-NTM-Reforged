@@ -4,6 +4,7 @@ import com.hbm.entity.logic.IChunkLoader;
 import com.hbm.handler.GuiHandler;
 import com.hbm.world.feature.NTMFlowers;
 import com.hbm.world.phased.PhasedStructureRegistry;
+import com.hbm.saveddata.satellites.SatelliteTypeRegistry;
 import com.hbmspace.Tags;
 import com.hbmspace.blocks.BlockEnumsSpace;
 import com.hbmspace.blocks.ModBlocksSpace;
@@ -51,7 +52,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.versioning.ArtifactVersion;
 import net.minecraftforge.fml.common.versioning.VersionRange;
-import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
@@ -108,6 +108,7 @@ public class SpaceMain {
         EnumAddonTypes.init();
         ModFluidsSpace.init();
         ModItemsSpace.preInit();
+        SatelliteTypeRegistry.registerSpaceExtensions();
         ModBlocksSpace.preInit();
         TileEntityMachinePumpBaseTweaks.addSpaceBlocks();
 
@@ -177,7 +178,7 @@ public class SpaceMain {
         PhasedStructureRegistry.register("hbm:flowers_strawberry", INSTANCE_STRAWBERRY);
         PhasedStructureRegistry.register("hbm:flowers_mint", INSTANCE_MINT);
         proxy.postInit(event);
-        if(event.getSide() == Side.SERVER) RocketStruct.registerServerParts(); // fuck me, parts were registered on client but NOT on server
+        RocketStruct.registerServerParts();
 
         WorldTypeTeleport.init();
     }

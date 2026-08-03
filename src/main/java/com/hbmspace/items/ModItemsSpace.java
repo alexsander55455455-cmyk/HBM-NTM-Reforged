@@ -116,7 +116,7 @@ public class ModItemsSpace {
     public static final Item stick_pvc = new ItemCustomLoreSpace("stick_pvc").setCreativeTab(MainRegistry.partsTab);
     public static final Item stick_vinyl = new ItemCustomLoreSpace("stick_vinyl").setCreativeTab(MainRegistry.partsTab);
     public static final Item sat_dyson_relay = new ItemSatelliteSpace(32_000, "sat_dyson_relay").setMaxStackSize(1).setCreativeTab(MainRegistry.missileTab);
-    public static final Item sat_war = new ItemSatelliteSpace(128_000, "sat_war").setMaxStackSize(1).setCreativeTab(MainRegistry.missileTab);
+    public static final Item sat_war = new ItemSatelliteSpace(128_000, "sat_war").setMaxStackSize(1).setCreativeTab(null);
     public static final Item scuttertail = new ItemBakedSpace("scuttertail").setCreativeTab(MainRegistry.partsTab);
     public static final Item leaf_rubber = new ItemBakedSpace("rubber_leaf", "rubber_leaves").setCreativeTab(MainRegistry.partsTab);
     public static final Item leaf_pet = new ItemBakedSpace("pet_leaf", "pet_leaves").setCreativeTab(MainRegistry.partsTab);

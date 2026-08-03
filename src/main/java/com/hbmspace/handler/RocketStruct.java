@@ -2,7 +2,9 @@ package com.hbmspace.handler;
 
 import com.hbm.inventory.fluid.FluidType;
 import com.hbm.items.ModItems;
+import com.hbm.items.ISatChip;
 import com.hbm.items.weapon.ItemMissile;
+import com.hbm.saveddata.satellites.SatelliteTypeRegistry;
 import com.hbm.util.BufferUtil;
 import com.hbm.util.Tuple;
 import com.hbmspace.dim.CelestialBody;
@@ -31,23 +33,66 @@ import java.util.Map;
 public class RocketStruct {
 
     public ItemMissile capsule;
+    private ItemStack capsuleStack = ItemStack.EMPTY;
     public ArrayList<RocketStage> stages = new ArrayList<>();
-    public int satFreq = 0;
+    private int legacySatFreq;
     public static final HashMap<Integer, Double> serverParts = new HashMap<>();
     public List<String> extraIssues = new ArrayList<>();
 
     public static final int MAX_STAGES = 5;
+    public static final int MAX_SYNC_ISSUES = 64;
+    public static final int MAX_SYNC_ISSUE_BYTES = 256;
 
     public RocketStruct() {}
 
     public RocketStruct(ItemStack capsule) {
-        if (!capsule.isEmpty() && capsule.getItem() instanceof ItemMissile) {
-            this.capsule = (ItemMissile) capsule.getItem();
-        }
+        setCapsuleStack(capsule);
     }
 
     public RocketStruct(ItemMissile capsule) {
         this.capsule = capsule;
+        this.capsuleStack = capsule == null ? ItemStack.EMPTY : new ItemStack(capsule);
+    }
+
+    public ItemStack getCapsuleStack() {
+        if(!capsuleStack.isEmpty()) {
+            ItemStack copy = capsuleStack.copy();
+            copy.setCount(1);
+            return copy;
+        }
+        if(capsule == null) return ItemStack.EMPTY;
+        ItemStack fallback = new ItemStack(capsule);
+        if(capsule instanceof ISatChip && legacySatFreq != 0) ISatChip.setFreqS(fallback, legacySatFreq);
+        return fallback;
+    }
+
+    public void setCapsuleStack(ItemStack stack) {
+        if(stack == null || stack.isEmpty()) {
+            capsule = null;
+            capsuleStack = ItemStack.EMPTY;
+            return;
+        }
+        if(stack.getItem() instanceof ItemMissile) {
+            capsule = (ItemMissile) stack.getItem();
+        } else if(SatelliteTypeRegistry.byItem(stack) != null) {
+            // Rendering still uses the add-on's standard satellite fairing. The
+            // complete HBM payload stack remains in capsuleStack and reaches orbit.
+            capsule = (ItemMissile) ModItemsSpace.sat_dyson_relay;
+        } else {
+            capsule = null;
+            capsuleStack = ItemStack.EMPTY;
+            return;
+        }
+        capsuleStack = stack.copy();
+        capsuleStack.setCount(1);
+        legacySatFreq = 0;
+    }
+
+    /** Returns the canonical payload frequency; the integer field is legacy-read fallback only. */
+    public int getSatelliteFrequency() {
+        ItemStack payload = getCapsuleStack();
+        return !payload.isEmpty() && payload.getItem() instanceof ISatChip
+                ? ISatChip.getFreqS(payload) : legacySatFreq;
     }
 
     public void addStage(ItemStack fuselage, ItemStack fins, ItemStack thruster) {
@@ -255,7 +300,9 @@ public class RocketStruct {
     private int getMass(int stageNum, boolean wet) {
         int mass = 0;
 
-        if(capsule != null) mass += capsule.mass;
+        SatelliteTypeRegistry.Descriptor payload = SatelliteTypeRegistry.byItem(capsuleStack);
+        if(payload != null) mass += payload.getMass();
+        else if(capsule != null) mass += capsule.mass;
 
         for(int i = stageNum; i < stages.size(); i++) {
             RocketStage stage = stages.get(i);
@@ -413,6 +460,7 @@ public class RocketStruct {
 
     public void writeToByteBuffer(ByteBuf buf) {
         buf.writeInt(capsule != null ? Item.getIdFromItem(capsule) : 0);
+        RocketPayloadCodec.writeToByteBuffer(buf, getCapsuleStack());
 
         buf.writeInt(stages.size());
         for(RocketStage stage : stages) {
@@ -433,17 +481,27 @@ public class RocketStruct {
     public static RocketStruct readFromByteBuffer(ByteBuf buf) {
         RocketStruct rocket = new RocketStruct();
         int capId = buf.readInt();
-        rocket.capsule = capId == 0 ? null : (ItemMissile) Item.getItemById(capId);
+        rocket.capsule = missileById(capId);
+        ItemStack capsuleStack = RocketPayloadCodec.readFromByteBuffer(buf);
+        if(!capsuleStack.isEmpty() && (capsuleStack.getItem() instanceof ItemMissile
+                || SatelliteTypeRegistry.byItem(capsuleStack) != null)) {
+            rocket.setCapsuleStack(capsuleStack);
+        } else if(rocket.capsule != null) {
+            rocket.capsuleStack = new ItemStack(rocket.capsule);
+        }
 
         int count = buf.readInt();
+        if(count < 0 || count > MAX_STAGES) {
+            throw new IllegalArgumentException("Rocket stage count out of bounds: " + count);
+        }
         for(int i = 0; i < count; i++) {
             RocketStage stage = new RocketStage();
             int fId = buf.readInt();
-            stage.fuselage = fId == 0 ? null : (ItemMissile) Item.getItemById(fId);
+            stage.fuselage = missileById(fId);
             int fnId = buf.readInt();
-            stage.fins = fnId == 0 ? null : (ItemMissile) Item.getItemById(fnId);
+            stage.fins = missileById(fnId);
             int tId = buf.readInt();
-            stage.thruster = tId == 0 ? null : (ItemMissile) Item.getItemById(tId);
+            stage.thruster = missileById(tId);
 
             stage.fuselageCount = buf.readByte();
             stage.thrusterCount = buf.readByte();
@@ -451,8 +509,11 @@ public class RocketStruct {
         }
 
         count = buf.readInt();
+        if(count < 0 || count > MAX_SYNC_ISSUES) {
+            throw new IllegalArgumentException("Rocket issue count out of bounds: " + count);
+        }
         for(int i = 0; i < count; i++) {
-            rocket.extraIssues.add(BufferUtil.readString(buf));
+            rocket.extraIssues.add(BufferUtil.readString(buf, MAX_SYNC_ISSUE_BYTES));
         }
 
         return rocket;
@@ -460,6 +521,8 @@ public class RocketStruct {
 
     public void writeToNBT(NBTTagCompound nbt) {
         nbt.setInteger("capsule", capsule != null ? Item.getIdFromItem(capsule) : 0);
+        ItemStack fullCapsule = getCapsuleStack();
+        RocketPayloadCodec.writeToNBT(nbt, fullCapsule);
 
         NBTTagList stagesTag = new NBTTagList();
         for(RocketStage stage : stages) {
@@ -473,24 +536,35 @@ public class RocketStruct {
         }
         nbt.setTag("stages", stagesTag);
 
-        nbt.setInteger("freq", satFreq);
     }
 
     public static RocketStruct readFromNBT(NBTTagCompound nbt) {
         RocketStruct rocket = new RocketStruct();
         int capId = nbt.getInteger("capsule");
-        rocket.capsule = capId == 0 ? null : (ItemMissile) Item.getItemById(capId);
+        rocket.capsule = missileById(capId);
+        rocket.legacySatFreq = nbt.getInteger("freq");
+        ItemStack capsuleStack = RocketPayloadCodec.readFromNBT(nbt);
+        if(!capsuleStack.isEmpty() && (capsuleStack.getItem() instanceof ItemMissile
+                || SatelliteTypeRegistry.byItem(capsuleStack) != null)) {
+            rocket.setCapsuleStack(capsuleStack);
+        }
+        if(rocket.capsuleStack.isEmpty() && rocket.capsule != null) {
+            rocket.capsuleStack = new ItemStack(rocket.capsule);
+            if(rocket.capsule instanceof ISatChip && rocket.legacySatFreq != 0) {
+                ISatChip.setFreqS(rocket.capsuleStack, rocket.legacySatFreq);
+            }
+        }
 
         NBTTagList stagesTag = nbt.getTagList("stages", Constants.NBT.TAG_COMPOUND);
-        for(int i = 0; i < stagesTag.tagCount(); i++) {
+        for(int i = 0; i < Math.min(stagesTag.tagCount(), MAX_STAGES); i++) {
             NBTTagCompound stageTag = stagesTag.getCompoundTagAt(i);
             RocketStage stage = new RocketStage();
             int fuselage = stageTag.getInteger("fuselage");
             int fins = stageTag.getInteger("fins");
             int thruster = stageTag.getInteger("thruster");
-            stage.fuselage = fuselage == 0 ? null : (ItemMissile) Item.getItemById(fuselage);
-            stage.fins = fins == 0 ? null : (ItemMissile) Item.getItemById(fins);
-            stage.thruster = thruster == 0 ? null : (ItemMissile) Item.getItemById(thruster);
+            stage.fuselage = missileById(fuselage);
+            stage.fins = missileById(fins);
+            stage.thruster = missileById(thruster);
             stage.fuselageCount = Math.max(stageTag.getInteger("fc"), 1);
             stage.thrusterCount = Math.max(stageTag.getInteger("tc"), 1);
             rocket.stages.add(stage);
@@ -498,9 +572,16 @@ public class RocketStruct {
 
         if(rocket.capsule == null) {
             rocket.capsule = (ItemMissile) ModItemsSpace.rp_capsule_20;
+            rocket.capsuleStack = new ItemStack(rocket.capsule);
         }
 
         return rocket;
+    }
+
+    private static ItemMissile missileById(int itemId) {
+        if(itemId == 0) return null;
+        Item item = Item.getItemById(itemId);
+        return item instanceof ItemMissile ? (ItemMissile) item : null;
     }
 
     public static class RocketStage {

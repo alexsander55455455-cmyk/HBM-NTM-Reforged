@@ -65,7 +65,6 @@ import net.minecraftforge.event.terraingen.DecorateBiomeEvent;
 import net.minecraftforge.event.terraingen.OreGenEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -468,8 +467,6 @@ public class ModEventHandler {
             return;
         }
 
-        long tick = FMLCommonHandler.instance().getMinecraftServerInstance().getTickCounter();
-
         CBT_Weather.updateGlobalWeather();
 
         for(CelestialBody body : CelestialBody.getAllBodies()) {
@@ -488,9 +485,10 @@ public class ModEventHandler {
             }
         }
 
-        if (tick % 20 == 0) {
-            CelestialBody.updateSwarms();
-        }
+        // Receivers register themselves as consumers every tick. Finalize that
+        // count on the same cadence so power is divided by the actual number
+        // of receivers instead of roughly twenty times that number.
+        CelestialBody.updateSwarms();
     }
 
     // This is really fucky, but ensures we can respawn safely on celestial bodies

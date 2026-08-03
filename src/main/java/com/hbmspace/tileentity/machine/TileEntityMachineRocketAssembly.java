@@ -2,7 +2,6 @@ package com.hbmspace.tileentity.machine;
 
 import com.hbm.blocks.BlockDummyable;
 import com.hbm.interfaces.IControlReceiver;
-import com.hbm.items.ISatChip;
 import com.hbm.lib.ForgeDirection;
 import com.hbmspace.tileentity.ISpaceGuiProvider;
 import com.hbm.tileentity.TileEntityMachineBase;
@@ -73,9 +72,6 @@ public class TileEntityMachineRocketAssembly extends TileEntityMachineBase imple
             ItemVOTVdrive.getTarget(toStack, world);
 
             rocket = new RocketStruct(inventory.getStackInSlot(0));
-            if(!inventory.getStackInSlot(0).isEmpty() && inventory.getStackInSlot(0).getItem() instanceof ISatChip) {
-                rocket.satFreq = ISatChip.getFreqS(inventory.getStackInSlot(0));
-            }
             for(int i = 1; i < RocketStruct.MAX_STAGES * 3; i += 3) {
                 if(inventory.getStackInSlot(i).isEmpty() && inventory.getStackInSlot(i+1).isEmpty() && inventory.getStackInSlot(i+2).isEmpty()) {
                     // Check for later stages and shift them up into empty stages
@@ -261,13 +257,10 @@ public class TileEntityMachineRocketAssembly extends TileEntityMachineBase imple
 
     public void deconstruct() {
         if(!canDeconstruct()) return;
-        int satFreq = ISatChip.getFreqS(inventory.getStackInSlot(inventory.getSlots() - RocketStruct.MAX_STAGES * 2 - 1));
         RocketStruct rocket = ItemCustomRocket.get(inventory.getStackInSlot(inventory.getSlots() - RocketStruct.MAX_STAGES * 2 - 1));
 
-        inventory.setStackInSlot(0, new ItemStack(rocket.capsule));
-        if(inventory.getStackInSlot(0).getItem() instanceof ISatChip) {
-            ISatChip.setFreqS(inventory.getStackInSlot(0), satFreq);
-        }
+        ItemStack capsuleStack = rocket.getCapsuleStack();
+        inventory.setStackInSlot(0, capsuleStack);
         for(int i = 0; i < rocket.stages.size(); i++) {
             int o = i * 3;
             RocketStruct.RocketStage stage = rocket.stages.get(rocket.stages.size() - 1 - i);

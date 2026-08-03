@@ -11,7 +11,6 @@ import com.hbmspace.handler.atmosphere.ChunkAtmosphereManager;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.oredict.OreDictionary;
 
 import java.util.List;
@@ -51,17 +50,8 @@ public class TESpaceUtil {
 
     public static SatelliteSavedData getData(World worldObj, int x, int z) {
         if(!worldObj.isRemote && CelestialBody.inOrbit(worldObj)) {
-            int targetDimensionId = OrbitalStation.getStationFromPosition(x, z).orbiting.dimensionId;
-
-            World orbitingWorld = DimensionManager.getWorld(targetDimensionId);
-            if(orbitingWorld == null) {
-                DimensionManager.initDimension(targetDimensionId);
-                orbitingWorld = DimensionManager.getWorld(targetDimensionId);
-            }
-
-            if(orbitingWorld != null) {
-                worldObj = orbitingWorld;
-            }
+            CelestialBody orbiting = OrbitalStation.getStationFromPosition(x, z).orbiting;
+            return SatelliteSavedData.getDataForBody(worldObj, orbiting);
         }
 
         return SatelliteSavedData.getData(worldObj);

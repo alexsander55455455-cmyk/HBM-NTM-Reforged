@@ -4,7 +4,6 @@ import com.hbm.api.fluidmk2.IFluidStandardReceiverMK2;
 import com.hbm.interfaces.IControlReceiver;
 import com.hbm.inventory.fluid.Fluids;
 import com.hbm.inventory.fluid.tank.FluidTankNTM;
-import com.hbm.items.ISatChip;
 import com.hbm.items.ModItems;
 import com.hbm.lib.DirPos;
 import com.hbm.lib.ForgeDirection;
@@ -50,7 +49,7 @@ import java.util.Objects;
 @AutoRegister
 public class TileEntityOrbitalStationLauncher extends TileEntityOrbStation implements ITickable, ISpaceGuiProvider, IControlReceiver, IFluidStandardReceiverMK2 {
 
-    public RocketStruct rocket;
+    public RocketStruct rocket = new RocketStruct(ItemStack.EMPTY);
 
     private OrbitalStation station;
     private EntityRideableRocket docked;
@@ -108,9 +107,6 @@ public class TileEntityOrbitalStationLauncher extends TileEntityOrbStation imple
             ItemVOTVdrive.getTarget(toStack, world);
 
             rocket = new RocketStruct(inventory.getStackInSlot(3));
-            if(!inventory.getStackInSlot(3).isEmpty() && inventory.getStackInSlot(3).getItem() instanceof ISatChip) {
-                rocket.satFreq = ISatChip.getFreqS(inventory.getStackInSlot(3));
-            }
             for(int i = 4; i < RocketStruct.MAX_STAGES * 3 + 3; i += 3) {
                 if(!inventory.getStackInSlot(i).isEmpty() && inventory.getStackInSlot(i+1).isEmpty() && inventory.getStackInSlot(i+2).isEmpty()) {
                     // Check for later stages and shift them up into empty stages

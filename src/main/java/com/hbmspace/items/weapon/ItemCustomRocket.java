@@ -27,6 +27,11 @@ public class ItemCustomRocket extends ItemBakedSpace implements ISatChip {
 
         stack.setTagCompound(new NBTTagCompound());
         rocket.writeToNBT(stack.getTagCompound());
+        ItemStack payload = rocket.getCapsuleStack();
+        if(!payload.isEmpty() && payload.getItem() instanceof ISatChip) {
+            ISatChip.setFreqS(stack, ISatChip.getFreqS(payload));
+            ISatChip.setOrbitKeyS(stack, ISatChip.getOrbitKeyS(payload));
+        }
 
         return stack;
     }
@@ -63,7 +68,11 @@ public class ItemCustomRocket extends ItemBakedSpace implements ISatChip {
 
         if(rocket == null) return;
 
-        list.add(ChatFormatting.BOLD + "Payload: " + ChatFormatting.GRAY + I18nUtil.resolveKey(rocket.capsule.getTranslationKey() + ".name"));
+        ItemStack payload = rocket.getCapsuleStack();
+        String payloadName = payload.isEmpty()
+                ? I18nUtil.resolveKey("item.empty.name")
+                : payload.getDisplayName();
+        list.add(ChatFormatting.BOLD + "Payload: " + ChatFormatting.GRAY + payloadName);
         list.add(ChatFormatting.BOLD + "Stages: " + ChatFormatting.GRAY + rocket.stages.size());
 
         if(hasFuel(stack)) {

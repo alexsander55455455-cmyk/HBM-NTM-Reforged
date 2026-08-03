@@ -17,6 +17,7 @@ import com.hbm.lib.HBMSoundHandler;
 import com.hbm.lib.Library;
 import com.hbm.main.MainRegistry;
 import com.hbm.render.amlfrom1710.Vec3;
+import com.hbm.saveddata.satellites.SatelliteTypeRegistry;
 import com.hbm.sound.AudioWrapper;
 import com.hbm.tileentity.IGUIProvider;
 import com.hbm.tileentity.TileEntityMachineBase;
@@ -260,7 +261,7 @@ public class TileEntitySoyuzLauncher extends TileEntityMachineBase implements IT
 
     public boolean canLaunch() {
 
-        return hasRocket() && hasFuel() && hasRocket() && hasPower() && designator() != 1 && orbital() != 1 && satellite() != 1;
+        return hasRocket() && hasFuel() && hasOxy() && hasPower() && designator() != 1 && orbital() != 1 && satellite() != 1;
     }
 
     public boolean hasFuel() {
@@ -338,7 +339,7 @@ public class TileEntitySoyuzLauncher extends TileEntityMachineBase implements IT
         if (mode == 1)
             return 0;
 
-        if (!inventory.getStackInSlot(2).isEmpty()) {
+        if (SatelliteTypeRegistry.byItem(inventory.getStackInSlot(2)) != null) {
             return 2;
         }
         return 1;
