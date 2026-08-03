@@ -7,6 +7,7 @@ import com.hbm.handler.threading.PacketThreading;
 import com.hbm.interfaces.IHoldableWeapon;
 import com.hbm.interfaces.IItemHUD;
 import com.hbm.inventory.RecipesCommon;
+import com.hbm.inventory.BackpackAmmoProvider;
 import com.hbm.items.IEquipReceiver;
 import com.hbm.items.ItemBakedBase;
 import com.hbm.items.ModItems;
@@ -356,10 +357,12 @@ public class ItemGunBaseSedna extends ItemBakedBase implements IHoldableWeapon, 
             RecipesCommon.ComparableStack ammo = (RecipesCommon.ComparableStack) cfg.ammo.copy();
 
             final int countNeeded = (mainConfig.reloadType == GunConfigurationSedna.RELOAD_FULL) ? mainConfig.ammoCap - getMag(stack) : 1;
-            final int availableStacks = InventoryUtil.countAStackMatches(player, ammo, true);
+            final int playerStacks = InventoryUtil.countAStackMatches(player, ammo, true);
+            final int availableStacks = playerStacks + BackpackAmmoProvider.countMatching(
+                    player, candidate -> ammo.matchesRecipe(candidate, true), Integer.MAX_VALUE);
             final int availableFills = availableStacks * cfg.ammoCount;
             final boolean hasLoaded = availableFills > 0;
-            final int toAdd = Math.min(availableFills * cfg.ammoCount, countNeeded);
+            final int toAdd = Math.min(availableFills, countNeeded);
             final int toConsume = (int) Math.ceil((double) toAdd / cfg.ammoCount);
 
             // Skip logic if cannot reload
@@ -370,7 +373,7 @@ public class ItemGunBaseSedna extends ItemBakedBase implements IHoldableWeapon, 
 
             SoundEvent reloadSound = mainConfig.reloadSoundEmpty != null && getMag(stack) == 0 ? mainConfig.reloadSoundEmpty : mainConfig.reloadSound;
 
-            ammo.stacksize = toConsume;
+            int playerConsume = Math.min(playerStacks, toConsume);
             setMag(stack, getMag(stack) + toAdd);
             if (getMag(stack) >= mainConfig.ammoCap) {
                 setIsReloading(stack, false);
@@ -389,7 +392,16 @@ public class ItemGunBaseSedna extends ItemBakedBase implements IHoldableWeapon, 
             if(mainConfig.ejector != null && mainConfig.ejector.getAfterReload())
                 queueCasing(player, mainConfig.ejector, prevCfg, stack);
 
-            InventoryUtil.tryConsumeAStack(new PlayerInvWrapper(player.inventory), 0, player.inventory.getSizeInventory() - 1, ammo);
+            if (playerConsume > 0) {
+                ammo.stacksize = playerConsume;
+                InventoryUtil.tryConsumeAStack(new PlayerInvWrapper(player.inventory),
+                        0, player.inventory.getSizeInventory() - 1, ammo);
+            }
+            int backpackConsume = toConsume - playerConsume;
+            if (backpackConsume > 0) {
+                BackpackAmmoProvider.extractMatching(player,
+                        candidate -> ammo.matchesRecipe(candidate, true), backpackConsume);
+            }
         } else {
             setReloadCycle(stack, getReloadCycle(stack) - 1);
         }
@@ -445,14 +457,15 @@ public class ItemGunBaseSedna extends ItemBakedBase implements IHoldableWeapon, 
         if(getMag(stack) == 0) {
 
             for(int config : mainConfig.config) {
-                if(InventoryUtil.doesPlayerHaveAStack(player, BulletConfigSyncingUtil.pullConfig(config).ammo, false, false)) {
+                RecipesCommon.ComparableStack ammo = BulletConfigSyncingUtil.pullConfig(config).ammo;
+                if(hasAmmoStack(player, ammo)) {
                     return true;
                 }
             }
 
         } else {
             RecipesCommon.ComparableStack ammo = BulletConfigSyncingUtil.pullConfig(mainConfig.config.get(getMagType(stack))).ammo;
-            return InventoryUtil.doesPlayerHaveAStack(player, ammo, false, false);
+            return hasAmmoStack(player, ammo);
         }
 
         return false;
@@ -464,7 +477,7 @@ public class ItemGunBaseSedna extends ItemBakedBase implements IHoldableWeapon, 
         for(int config : mainConfig.config) {
             BulletConfiguration cfg = BulletConfigSyncingUtil.pullConfig(config);
 
-            if(InventoryUtil.doesPlayerHaveAStack(player, cfg.ammo, false, false)) {
+            if(hasAmmoStack(player, cfg.ammo)) {
                 setMagType(stack, mainConfig.config.indexOf(config));
                 break;
             }
@@ -536,7 +549,7 @@ public class ItemGunBaseSedna extends ItemBakedBase implements IHoldableWeapon, 
 
             BulletConfiguration cfg = BulletConfigSyncingUtil.pullConfig(config);
 
-            if(InventoryUtil.doesPlayerHaveAStack(player, cfg.ammo, false, true)) {
+            if(hasAmmoStack(player, cfg.ammo)) {
                 return cfg.ammo;
             }
         }
@@ -554,7 +567,7 @@ public class ItemGunBaseSedna extends ItemBakedBase implements IHoldableWeapon, 
 
             BulletConfiguration cfg = BulletConfigSyncingUtil.pullConfig(config);
 
-            if(InventoryUtil.doesPlayerHaveAStack(player, cfg.ammo, false, false)) {
+            if(hasAmmoStack(player, cfg.ammo)) {
                 return cfg;
             }
         }
@@ -573,7 +586,8 @@ public class ItemGunBaseSedna extends ItemBakedBase implements IHoldableWeapon, 
             }
         }
 
-        return amount;
+        return (int) Math.min(Integer.MAX_VALUE, (long) amount + BackpackAmmoProvider.countMatching(
+                player, candidate -> ammo.matchesRecipe(candidate, true), Integer.MAX_VALUE));
     }
 
     //reduces ammo count for mag and belt-based weapons, should be called AFTER firing
@@ -594,8 +608,18 @@ public class ItemGunBaseSedna extends ItemBakedBase implements IHoldableWeapon, 
         if(config.reloadType != GunConfigurationSedna.RELOAD_NONE) {
             setMag(stack, getMag(stack) - 1);
         } else {
-            InventoryUtil.doesPlayerHaveAStack(player, getBeltType(player, stack, main), true, false);
+            RecipesCommon.ComparableStack ammo = getBeltType(player, stack, main);
+            if (!InventoryUtil.doesPlayerHaveAStack(player, ammo, true, false)) {
+                BackpackAmmoProvider.extractMatching(player,
+                        candidate -> ammo.matchesRecipe(candidate, true), 1);
+            }
         }
+    }
+
+    private static boolean hasAmmoStack(EntityPlayer player, RecipesCommon.ComparableStack ammo) {
+        return InventoryUtil.doesPlayerHaveAStack(player, ammo, false, true)
+                || !BackpackAmmoProvider.findFirst(
+                player, candidate -> ammo.matchesRecipe(candidate, true)).isEmpty();
     }
 
     public boolean hasInfinity(ItemStack stack, GunConfigurationSedna config) {

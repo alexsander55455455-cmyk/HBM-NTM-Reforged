@@ -579,15 +579,7 @@ public class ItemGunBase extends Item implements IHoldableWeapon, IItemHUD {
 
 	// returns ammo capacity of belt-weapons for current ammo
 	public static int getBeltSize(EntityPlayer player, Item ammo) {
-
-		int amount = 0;
-
-		for(ItemStack stack : player.inventory.mainInventory) {
-			if(stack != null && stack.getItem() == ammo)
-				amount += stack.getCount();
-		}
-
-		return amount;
+		return ammo == null ? 0 : Library.countInventoryItem(player.inventory, ammo);
 	}
 
 	// reduces ammo count for mag and belt-based weapons, should be called AFTER

@@ -19,6 +19,7 @@ import com.hbm.entity.projectile.EntityChopperMine;
 import com.hbm.handler.WeightedRandomChestContentFrom1710;
 import com.hbm.interfaces.Spaghetti;
 import com.hbm.inventory.FluidContainerRegistry;
+import com.hbm.inventory.BackpackAmmoProvider;
 import com.hbm.inventory.RecipesCommon.AStack;
 import com.hbm.inventory.fluid.FluidType;
 import com.hbm.inventory.fluid.Fluids;
@@ -1020,7 +1021,7 @@ public class Library {
                 return true;
             }
         }
-        return false;
+        return BackpackAmmoProvider.hasItem(inventory, ammo);
     }
 
     public static boolean hasInventoryOreDict(InventoryPlayer inventory, String name) {
@@ -1044,7 +1045,8 @@ public class Library {
                 count += stack.getCount();
             }
         }
-        return count;
+        return (int) Math.min(Integer.MAX_VALUE,
+                (long) count + BackpackAmmoProvider.countItem(inventory, ammo));
     }
 
     public static void consumeInventoryItem(InventoryPlayer inventory, Item ammo) {
@@ -1056,6 +1058,7 @@ public class Library {
                 return;
             }
         }
+        BackpackAmmoProvider.consumeItem(inventory, ammo);
     }
 
     //////  //////  //////  //////  //////  ////        //////  //////  //////

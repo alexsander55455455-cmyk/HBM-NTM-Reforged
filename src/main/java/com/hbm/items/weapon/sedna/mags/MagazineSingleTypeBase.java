@@ -1,12 +1,14 @@
 package com.hbm.items.weapon.sedna.mags;
 
 import com.hbm.items.ModItems;
+import com.hbm.inventory.BackpackAmmoProvider;
 import com.hbm.items.tool.ItemAmmoBag;
 import com.hbm.items.weapon.sedna.BulletConfig;
 import com.hbm.items.weapon.sedna.ItemGunBaseNT;
 import com.hbm.particle.SpentCasing;
 import com.hbm.util.BobMathUtil;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 
@@ -235,6 +237,24 @@ public abstract class MagazineSingleTypeBase implements IMagazine<BulletConfig> 
                 }
             }
         }
+
+        if (loadLimit > 0 && inventory instanceof InventoryPlayer playerInventory) {
+            BulletConfig config = this.getAmount(stack, null) == 0
+                    ? findBackpackConfig(playerInventory.player, null)
+                    : resolveConfig(stack);
+            if (isValidConfig(config)) {
+                int alreadyLoaded = this.getAmount(stack, null);
+                int wantsToLoad = (int) Math.ceil((double) (this.getCapacity(stack) - alreadyLoaded)
+                        / (double) config.ammoReloadCount);
+                int requested = BobMathUtil.min(wantsToLoad, loadLimit);
+                int loaded = BackpackAmmoProvider.extractMatching(playerInventory.player,
+                        ammo -> matchesConfigAmmo(config, ammo), requested);
+                if (loaded > 0) {
+                    this.setType(stack, config);
+                    this.setAmount(stack, Math.min(alreadyLoaded + loaded * config.ammoReloadCount, this.capacity));
+                }
+            }
+        }
     }
 
     /** Returns the config of the first potential loadable round, either what's already chambered or the first valid one if empty */
@@ -285,6 +305,23 @@ public abstract class MagazineSingleTypeBase implements IMagazine<BulletConfig> 
             }
         }
 
+        if (inventory instanceof InventoryPlayer playerInventory) {
+            return findBackpackConfig(playerInventory.player,
+                    this.getAmount(stack, null) == 0 ? null : resolveConfig(stack));
+        }
+        return null;
+    }
+
+    private BulletConfig findBackpackConfig(EntityPlayer player, BulletConfig required) {
+        if (isValidConfig(required)) {
+            ItemStack ammo = BackpackAmmoProvider.findFirst(player, stack -> matchesConfigAmmo(required, stack));
+            return ammo.isEmpty() ? null : required;
+        }
+        for (BulletConfig config : acceptedBullets) {
+            if (!isValidConfig(config)) continue;
+            ItemStack ammo = BackpackAmmoProvider.findFirst(player, stack -> matchesConfigAmmo(config, stack));
+            if (!ammo.isEmpty()) return config;
+        }
         return null;
     }
 

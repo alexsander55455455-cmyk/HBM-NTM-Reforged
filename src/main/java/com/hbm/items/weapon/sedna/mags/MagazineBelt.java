@@ -1,11 +1,13 @@
 package com.hbm.items.weapon.sedna.mags;
 
 import com.hbm.items.ModItems;
+import com.hbm.inventory.BackpackAmmoProvider;
 import com.hbm.items.tool.ItemAmmoBag;
 import com.hbm.items.weapon.sedna.BulletConfig;
 import com.hbm.items.weapon.sedna.ItemGunBaseNT;
 import com.hbm.particle.SpentCasing;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 
@@ -75,6 +77,10 @@ public class MagazineBelt implements IMagazine<BulletConfig> {
                 }
             }
         }
+        if (amount > 0 && inventory instanceof InventoryPlayer playerInventory) {
+            BackpackAmmoProvider.extractMatching(playerInventory.player,
+                    ammo -> first.ammo.matchesRecipe(ammo, true), amount);
+        }
     }
 
     @Override public void setType(ItemStack stack, BulletConfig type) { }
@@ -114,6 +120,10 @@ public class MagazineBelt implements IMagazine<BulletConfig> {
                     }
                 }
             }
+        }
+        if (inventory instanceof InventoryPlayer playerInventory) {
+            count += BackpackAmmoProvider.countMatching(playerInventory.player,
+                    ammo -> first.ammo.matchesRecipe(ammo, true), Integer.MAX_VALUE - count);
         }
         return count;
     }
@@ -161,6 +171,12 @@ public class MagazineBelt implements IMagazine<BulletConfig> {
             }
         }
 
+        if (inventory instanceof InventoryPlayer playerInventory) {
+            for (BulletConfig config : acceptedBullets) {
+                if (!BackpackAmmoProvider.findFirst(playerInventory.player,
+                        ammo -> config.ammo.matchesRecipe(ammo, true)).isEmpty()) return config;
+            }
+        }
         BulletConfig cached = BulletConfig.configs.get(this.getMagType(stack));
         return acceptedBullets.contains(cached) ? cached : acceptedBullets.get(0);
     }
