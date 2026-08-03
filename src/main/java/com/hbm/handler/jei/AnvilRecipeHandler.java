@@ -278,8 +278,9 @@ public class AnvilRecipeHandler implements IRecipeCategory<AnvilRecipeHandler.An
 		reg.addRecipeCatalyst(new ItemStack(ModBlocks.anvil_lead), cat);
 		reg.addRecipeCatalyst(new ItemStack(ModBlocks.anvil_steel), cat);
 		reg.addRecipeCatalyst(new ItemStack(ModBlocks.anvil_desh), cat);
-		reg.addRecipeCatalyst(new ItemStack(ModBlocks.anvil_saturnite), cat);
+		reg.addRecipeCatalyst(new ItemStack(ModBlocks.anvil_meteorite), cat);
 		reg.addRecipeCatalyst(new ItemStack(ModBlocks.anvil_ferrouranium), cat);
+		reg.addRecipeCatalyst(new ItemStack(ModBlocks.anvil_saturnite), cat);
 		reg.addRecipeCatalyst(new ItemStack(ModBlocks.anvil_bismuth_bronze), cat);
 		reg.addRecipeCatalyst(new ItemStack(ModBlocks.anvil_arsenic_bronze), cat);
 		reg.addRecipeCatalyst(new ItemStack(ModBlocks.anvil_schrabidate), cat);

@@ -14,6 +14,7 @@ import com.hbm.inventory.material.Mats;
 import com.hbm.inventory.recipes.loader.SerializableRecipe;
 import com.hbm.items.ItemEnums.EnumPartType;
 import com.hbm.items.ModItems;
+import com.hbm.items.machine.ItemSatellitePayload.EnumSatelliteType;
 import com.hbm.items.machine.ItemFluidIcon;
 import net.minecraft.item.ItemStack;
 
@@ -412,35 +413,35 @@ public class ArcWelderRecipes extends SerializableRecipe {
 
     recipes.add(
         new ArcWelderRecipe(
-            new ItemStack(ModItems.sat_mapper),
+            new ItemStack(ModItems.satellite, 1, EnumSatelliteType.SPY.ordinal()),
             600,
             10_000L,
             new ComparableStack(ModItems.sat_base),
             new ComparableStack(ModItems.sat_head_mapper)));
     recipes.add(
         new ArcWelderRecipe(
-            new ItemStack(ModItems.sat_scanner),
+            new ItemStack(ModItems.satellite, 1, EnumSatelliteType.SCANNER.ordinal()),
             600,
             10_000L,
             new ComparableStack(ModItems.sat_base),
             new ComparableStack(ModItems.sat_head_scanner)));
     recipes.add(
         new ArcWelderRecipe(
-            new ItemStack(ModItems.sat_radar),
+            new ItemStack(ModItems.satellite, 1, EnumSatelliteType.RADAR.ordinal()),
             600,
             10_000L,
             new ComparableStack(ModItems.sat_base),
             new ComparableStack(ModItems.sat_head_radar)));
     recipes.add(
         new ArcWelderRecipe(
-            new ItemStack(ModItems.sat_laser),
+            new ItemStack(ModItems.satellite, 1, EnumSatelliteType.DEATH_RAY.ordinal()),
             600,
             50_000L,
             new ComparableStack(ModItems.sat_base),
             new ComparableStack(ModItems.sat_head_laser)));
     recipes.add(
         new ArcWelderRecipe(
-            new ItemStack(ModItems.sat_resonator),
+            new ItemStack(ModItems.satellite, 1, EnumSatelliteType.XENIUM_RESONATOR.ordinal()),
             600,
             50_000L,
             new ComparableStack(ModItems.sat_base),

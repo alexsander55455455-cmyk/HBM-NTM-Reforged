@@ -130,6 +130,7 @@ public class OreDictManager {
     public static final DictFrame AU198 = new DictFrame("Gold198", "Au198");
     public static final DictFrame PB209 = new DictFrame("Lead209", "Pb209");
     public static final DictFrame SA326 = new DictFrame("Schrabidium");
+    public static final DictFrame REIIUM = new DictFrame("Reiium");
     public static final DictFrame SA327 = new DictFrame("Solinium");
     public static final DictFrame SBD = new DictFrame("Schrabidate");
     public static final DictFrame SRN = new DictFrame("Schraranium");
@@ -453,6 +454,7 @@ public class OreDictManager {
         AU198.rad(HazardRegistry.au198).hot(5).nugget(nugget_au198).billet(billet_au198).ingot(ingot_au198).dust(powder_au198).dustSmall(powder_au198_tiny);
         PB209.rad(HazardRegistry.pb209).blinding(50F).hot(7).nugget(nugget_pb209).billet(billet_pb209).ingot(ingot_pb209).dust(powder_pb209).dustSmall(powder_pb209_tiny);
         SA326.rad(HazardRegistry.sa326).blinding(50F).nugget(nugget_schrabidium).billet(billet_schrabidium).crystal(crystal_schrabidium).ingot(ingot_schrabidium).dust(powder_schrabidium).plate(plate_schrabidium).plateCast(Mats.MAT_SCHRABIDIUM.make(plate_cast)).block(block_schrabidium).ore(ore_schrabidium, ore_gneiss_schrabidium, ore_nether_schrabidium, ore_sellafield_schrabidium).oreNether(ore_nether_schrabidium);
+        REIIUM.ingot(ingot_reiium).nugget(nugget_reiium).dust(powder_reiium);
         SA327.rad(HazardRegistry.sa327).blinding(50F).nugget(nugget_solinium).billet(billet_solinium).ingot(ingot_solinium).block(block_solinium);
         SBD.rad(HazardRegistry.sb).blinding(50F).ingot(ingot_schrabidate).dust(powder_schrabidate).block(block_schrabidate);
         SRN.rad(HazardRegistry.sr).blinding(50F).ingot(ingot_schraranium).block(block_schraranium).crystal(crystal_schraranium);

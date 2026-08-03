@@ -64,6 +64,7 @@ public abstract class JEIGenericRecipeHandler implements IRecipeCategory<JEIGene
 
         for (Object o : this.recipeSet.recipeOrderedList) {
             GenericRecipe recipe = (GenericRecipe) o;
+            boolean visibleSecretBackpackRecipe = false;
 
             if (recipe.isPooled()) {
                 String[] pools = recipe.getPools();
@@ -71,10 +72,12 @@ public abstract class JEIGenericRecipeHandler implements IRecipeCategory<JEIGene
                 for (String pool : pools) {
                     if (pool.startsWith(GenericRecipes.POOL_PREFIX_SECRET)) {
                         secret = true;
-                        break;
+                        if (pool.startsWith(GenericRecipes.POOL_PREFIX_SECRET + "backpack_")) {
+                            visibleSecretBackpackRecipe = true;
+                        }
                     }
                 }
-                if (secret) continue;
+                if (secret && !visibleSecretBackpackRecipe) continue;
             }
 
             if (recipe.inputItem != null) {
@@ -88,7 +91,7 @@ public abstract class JEIGenericRecipeHandler implements IRecipeCategory<JEIGene
                     }
                     if (skip) break;
                 }
-                if (skip) continue;
+                if (skip && !visibleSecretBackpackRecipe) continue;
             }
 
             if (recipe.outputItem != null) {
@@ -102,7 +105,7 @@ public abstract class JEIGenericRecipeHandler implements IRecipeCategory<JEIGene
                     }
                     if (skip) break;
                 }
-                if (skip) continue;
+                if (skip && !visibleSecretBackpackRecipe) continue;
             }
 
             List<List<ItemStack>> inputs = new ArrayList<>();

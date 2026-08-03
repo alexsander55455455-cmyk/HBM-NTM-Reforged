@@ -84,14 +84,6 @@ public class RodRecipes {
         addBreedingRod(U, ModItems.billet_uranium, ItemBreedingRod.BreedingRodType.URANIUM);
 
 
-        //Pile fuel
-        CraftingManager.addRecipeAuto(new ItemStack(ModItems.pile_rod_uranium, 1), " U ", "PUP", " U ", 'P', IRON.plate(), 'U', U.billet() );
-        CraftingManager.addRecipeAuto(new ItemStack(ModItems.pile_rod_plutonium, 1), " U ", "PUP", " U ", 'P', IRON.plate(), 'U', PU.billet() );
-        CraftingManager.addRecipeAuto(new ItemStack(ModItems.pile_rod_source, 1), " U ", "PUP", " U ", 'P', IRON.plate(), 'U', ModItems.billet_ra226be );
-        CraftingManager.addRecipeAuto(new ItemStack(ModItems.pile_rod_boron, 1), " B ", " W ", " B ", 'B', B.ingot(), 'W', KEY_PLANKS );
-        CraftingManager.addShapelessAuto(new ItemStack(ModItems.pile_rod_lithium, 1), new ItemStack(ModItems.cell), LI.ingot() );
-        CraftingManager.addRecipeAuto(new ItemStack(ModItems.pile_rod_detector, 1), " B ", "CM ", " B ", 'B', B.ingot(), 'C', DictFrame.fromOne(ModItems.circuit, ItemEnums.EnumCircuitType.VACUUM_TUBE), 'M', ModItems.motor );
-
         CraftingManager.addRecipeAuto(new ItemStack(ModItems.rbmk_fuel_empty, 1), "ZRZ", "Z Z", "ZRZ", 'Z', ZR.ingot(), 'R', ModItems.rod_quad_empty );
         addRBMKRod(U, ModItems.rbmk_fuel_ueu);
         addRBMKRod(ModItems.billet_uranium_fuel, ModItems.rbmk_fuel_meu);

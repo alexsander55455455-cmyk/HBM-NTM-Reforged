@@ -85,6 +85,7 @@ public class DFCRecipes {
         DFCRecipes.setRecipe(690_000_000_000L, ModItems.gun_uboinik, new ItemStack(ModItems.gun_supershotgun));
 
         DFCRecipes.setRecipe(8_000_000_000_000L, ModItems.undefined, new ItemStack(ModItems.glitch));
+        DFCRecipes.setRecipe(16_000_000_000_000L, ModItems.glitch, new ItemStack(ModItems.backpack_reality_error));
         DFCRecipes.setRecipe(69_000_000_000_000L, Items.WRITABLE_BOOK, new ItemStack(ModItems.book_of_));
     }
 
@@ -150,7 +151,10 @@ public class DFCRecipes {
         if (jeiDFCRecipes == null) {
             jeiDFCRecipes = new ArrayList<>();
             for (Entry<ComparableStack, Object[]> e : dfcRecipes.entrySet()) {
-                jeiDFCRecipes.add(new DFCRecipe(e.getKey().toStack(), (long) e.getValue()[0], (ItemStack) e.getValue()[1]));
+                ItemStack input = e.getKey().toStack();
+                ItemStack output = (ItemStack) e.getValue()[1];
+                if (input.getItem() == ModItems.glitch && output.getItem() == ModItems.backpack_reality_error) continue;
+                jeiDFCRecipes.add(new DFCRecipe(input, (long) e.getValue()[0], output));
             }
         }
         return jeiDFCRecipes;

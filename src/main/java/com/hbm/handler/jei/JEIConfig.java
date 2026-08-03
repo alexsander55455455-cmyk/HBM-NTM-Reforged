@@ -15,6 +15,7 @@ import com.hbm.items.ItemEnums;
 import com.hbm.items.ItemEnums;
 import com.hbm.items.ModItems;
 import com.hbm.items.machine.ItemBatterySC;
+import com.hbm.items.machine.ItemBlueprints;
 import com.hbm.items.machine.ItemFELCrystal.EnumWavelengths;
 import com.hbm.items.machine.ItemFluidIcon;
 import com.hbm.items.special.ItemBedrockOreNew;
@@ -27,6 +28,7 @@ import com.hbm.items.weapon.grenade.ItemGrenadeUniversal;
 import com.hbm.items.weapon.sedna.ItemGunBaseNT;
 import com.hbm.items.weapon.sedna.factory.GunFactory;
 import com.hbm.main.MainRegistry;
+import com.hbm.world.SecretBackpackLoot;
 import mezz.jei.api.*;
 import mezz.jei.api.ingredients.IIngredientBlacklist;
 import mezz.jei.api.ingredients.VanillaTypes;
@@ -536,11 +538,42 @@ public class JEIConfig implements IModPlugin {
         }
 
         hideLegacyBreedingRodDuplicates(blacklist);
+        hideLegacyChicagoPile(blacklist);
 
         for (Item item : ModItems.ALL_ITEMS) {
             if (item instanceof EffectItem) {
                 blacklist.addIngredientToBlacklist(new ItemStack(item));
             }
+        }
+    }
+
+    private static void hideLegacyChicagoPile(IIngredientBlacklist blacklist) {
+        Item[] legacyRods = {
+                ModItems.pile_rod_uranium,
+                ModItems.pile_rod_pu239,
+                ModItems.pile_rod_plutonium,
+                ModItems.pile_rod_source,
+                ModItems.pile_rod_boron,
+                ModItems.pile_rod_lithium,
+                ModItems.pile_rod_detector
+        };
+        for (Item rod : legacyRods) {
+            blacklist.addIngredientToBlacklist(new ItemStack(rod));
+        }
+
+        Block[] legacyBlocks = {
+                ModBlocks.block_graphite,
+                ModBlocks.block_graphite_drilled,
+                ModBlocks.block_graphite_fuel,
+                ModBlocks.block_graphite_plutonium,
+                ModBlocks.block_graphite_rod,
+                ModBlocks.block_graphite_source,
+                ModBlocks.block_graphite_lithium,
+                ModBlocks.block_graphite_tritium,
+                ModBlocks.block_graphite_detector
+        };
+        for (Block block : legacyBlocks) {
+            blacklist.addIngredientToBlacklist(new ItemStack(block, 1, OreDictionary.WILDCARD_VALUE));
         }
     }
 
@@ -843,6 +876,13 @@ public class JEIConfig implements IModPlugin {
 
     private static List<ItemStack> collectSecretIngredientStacks() {
         List<ItemStack> stacks = new ArrayList<>();
+        stacks.add(ItemBlueprints.make(SecretBackpackLoot.STALKER));
+        stacks.add(ItemBlueprints.make(SecretBackpackLoot.BLACK_BOX));
+        stacks.add(ItemBlueprints.make(SecretBackpackLoot.ASH));
+        stacks.add(ItemBlueprints.make(SecretBackpackLoot.NUCLEAR_TOURIST));
+        stacks.add(ItemBlueprints.make(SecretBackpackLoot.POCKET_HOLE));
+        stacks.add(ItemBlueprints.make(SecretBackpackLoot.SAPPER));
+        stacks.add(ItemBlueprints.make(SecretBackpackLoot.SMUGGLER));
         if (ModItems.ammo_secret != null) {
             for (int i = 0; i < GunFactory.EnumAmmoSecret.values().length; i++) {
                 stacks.add(new ItemStack(ModItems.ammo_secret, 1, i));

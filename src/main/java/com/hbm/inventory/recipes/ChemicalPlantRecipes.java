@@ -26,6 +26,77 @@ public class ChemicalPlantRecipes extends GenericRecipes<GenericRecipe> {
 
     public static final ChemicalPlantRecipes INSTANCE = new ChemicalPlantRecipes();
 
+    private static final String[] RECIPE_DISPLAY_ORDER = {
+            // Fluids and gases, from basic chemistry to advanced processing
+            "chem.hydrogen",
+            "chem.hydrogencoke",
+            "chem.oxygen",
+            "chem.co2",
+            "chem.ethanol",
+            "chem.biogas",
+            "chem.biofuel",
+            "chem.reoil",
+            "chem.gasoline",
+            "chem.peroxide",
+            "chem.sulfuricacid",
+            "chem.nitricacid",
+            "chem.birkeland",
+            "chem.perfluoromethyl",
+            "chem.cccentrifuge",
+            "chem.xenon",
+            "chem.xenonoxy",
+            "chem.helium3",
+            "chem.liquidconk",
+            "chem.epearl",
+            "chem.coltanpain",
+            "chem.uf6",
+            "chem.puf6",
+            "chem.sas3",
+            "chem.schrabidic",
+            "chem.dhc",
+            "chem.balefire",
+            "chem.osmiridiumdeath",
+
+            // Solid products, grouped by production chain and progression
+            "chem.tarsand",
+            "chem.tel",
+            "chem.deicer",
+            "chem.cobble",
+            "chem.stone",
+            "chem.concrete",
+            "chem.concreteasbestos",
+            "chem.ducrete",
+            "chem.asphalt",
+            "chem.desh",
+            "chem.deshcracked",
+            "chem.polymer",
+            "chem.bakelite",
+            "chem.rubber",
+            "chem.pvc",
+            "chem.hardplastic",
+            "chem.kevlar",
+            "chem.laminate",
+            "chem.polarized",
+            "chem.rustysteel",
+            "chem.batterylead",
+            "chem.batterylithium",
+            "chem.batterysodium",
+            "chem.batteryschrabidium",
+            "chem.batteryquantum",
+            "chem.coltancleaning",
+            "chem.coltancrystal",
+            "chem.yellowcake",
+            "chem.schrabidate",
+            "chem.dynamite",
+            "chem.cordite",
+            "chem.rocketfuel",
+            "chem.tnt",
+            "chem.c4",
+            "chem.tatb",
+            "chem.meatprocessing",
+            "chem.meth"
+    };
+
     @Override public int inputItemLimit() { return 3; }
     @Override public int inputFluidLimit() { return 3; }
     @Override public int outputItemLimit() { return 3; }
@@ -33,6 +104,18 @@ public class ChemicalPlantRecipes extends GenericRecipes<GenericRecipe> {
 
     @Override public String getFileName() { return "hbmChemicalPlant.json"; }
     @Override public GenericRecipe instantiateRecipe(String name) { return new GenericRecipe(name); }
+
+    @Override
+    public void registerPost() {
+        HashMap<String, Integer> displayOrder = new HashMap<>();
+        for(int i = 0; i < RECIPE_DISPLAY_ORDER.length; i++) {
+            displayOrder.put(RECIPE_DISPLAY_ORDER[i], i);
+        }
+
+        recipeOrderedList.sort((left, right) -> Integer.compare(
+                displayOrder.getOrDefault(left.getInternalName(), Integer.MAX_VALUE),
+                displayOrder.getOrDefault(right.getInternalName(), Integer.MAX_VALUE)));
+    }
 
     @Override
     public void registerDefaults() {
@@ -78,7 +161,7 @@ public class ChemicalPlantRecipes extends GenericRecipes<GenericRecipe> {
                 .outputFluids(new FluidStack(Fluids.POTASSIUM_CHLORIDE, 250), new FluidStack(Fluids.CALCIUM_CHLORIDE, 250)));
 
         /// OILS ///
-        this.register(new GenericRecipe("chem.ethanol").setupNamed(50, 100).setIcon(ModItems.canister_full, Fluids.ETHANOL.getID())
+        this.register(new GenericRecipe("chem.ethanol").setupNamed(50, 100).setIcon(ModItems.fluid_icon, Fluids.ETHANOL.getID())
                 .inputItems(new RecipesCommon.ComparableStack(Items.SUGAR, 10))
                 .outputFluids(new FluidStack(Fluids.ETHANOL, 1000)));
 
@@ -87,15 +170,15 @@ public class ChemicalPlantRecipes extends GenericRecipes<GenericRecipe> {
                 .inputFluids(new FluidStack(Fluids.AIR, 4_000))
                 .outputFluids(new FluidStack(Fluids.BIOGAS, 2_000)));
 
-        this.register(new GenericRecipe("chem.biofuel").setupNamed(60, 100).setIcon(ModItems.canister_full, Fluids.BIOFUEL.getID())
+        this.register(new GenericRecipe("chem.biofuel").setupNamed(60, 100).setIcon(ModItems.fluid_icon, Fluids.BIOFUEL.getID())
                 .inputFluids(new FluidStack(Fluids.BIOGAS, 1_500), new FluidStack(Fluids.ETHANOL, 250))
                 .outputFluids(new FluidStack(Fluids.BIOFUEL, 1_000)));
 
-        this.register(new GenericRecipe("chem.reoil").setupNamed(40, 100).setIcon(ModItems.canister_full, Fluids.RECLAIMED.getID())
+        this.register(new GenericRecipe("chem.reoil").setupNamed(40, 100).setIcon(ModItems.fluid_icon, Fluids.RECLAIMED.getID())
                 .inputFluids(new FluidStack(Fluids.SMEAR, 1_000))
                 .outputFluids(new FluidStack(Fluids.RECLAIMED, 800)));
 
-        this.register(new GenericRecipe("chem.gasoline").setupNamed(40, 100).setIcon(ModItems.canister_full, Fluids.GASOLINE.getID())
+        this.register(new GenericRecipe("chem.gasoline").setupNamed(40, 100).setIcon(ModItems.fluid_icon, Fluids.GASOLINE.getID())
                 .inputFluids(new FluidStack(Fluids.NAPHTHA, 1000))
                 .outputFluids(new FluidStack(Fluids.GASOLINE, 800)));
 

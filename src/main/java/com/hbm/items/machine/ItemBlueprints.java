@@ -6,6 +6,7 @@ import com.hbm.inventory.recipes.loader.GenericRecipe;
 import com.hbm.inventory.recipes.loader.GenericRecipes;
 import com.hbm.items.ItemBakedBase;
 import com.hbm.items.ModItems;
+import com.hbm.util.I18nUtil;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -219,9 +220,12 @@ public class ItemBlueprints extends ItemBakedBase {
             return;
         }
         if(poolName.startsWith(GenericRecipes.POOL_PREFIX_SECRET)) {
-            list.add(TextFormatting.RED + "Cannot be copied!");
+            list.add(TextFormatting.RED + I18nUtil.resolveKey("desc.blueprint.cannot_copy"));
+            if(poolName.startsWith(GenericRecipes.POOL_PREFIX_SECRET + "backpack_")) {
+                list.add(TextFormatting.GOLD + I18nUtil.resolveKey("desc.blueprint.backpack_dungeon"));
+            }
         } else {
-            list.add(TextFormatting.YELLOW + "Right-click to copy (requires paper)");
+            list.add(TextFormatting.YELLOW + I18nUtil.resolveKey("desc.blueprint.copy_hint"));
         }
 
         for(String name : pool) {
