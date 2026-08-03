@@ -17,7 +17,11 @@ public class TileEntityConnectorSuper extends TileEntityPylonBase {
 
     @Override
     public Vec3d[] getMountPos() {
-        return new Vec3d[]{new Vec3d(0.5, 0.875, 0.5)};
+        ForgeDirection dir = ForgeDirection.getOrientation(this.getBlockMetadata());
+        return new Vec3d[]{new Vec3d(
+                0.5 + dir.offsetX * 0.375,
+                0.5 + dir.offsetY * 0.375,
+                0.5 + dir.offsetZ * 0.375)};
     }
 
     @Override

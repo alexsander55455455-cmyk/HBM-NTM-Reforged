@@ -50,76 +50,62 @@ public class ItemWiring extends Item {
 		TileEntity te = world.getTileEntity(core);
 		ItemStack stack = player.getHeldItem(hand);
 		if (te instanceof TileEntityPylonBase thisPylon) {
-			if(player.isSneaking()) { //if sneak then set a other wise connect to b
-				if (!stack.hasTagCompound())
-					stack.setTagCompound(new NBTTagCompound());
-
-				stack.getTagCompound().setInteger("x", pos.getX());
-				stack.getTagCompound().setInteger("y", pos.getY());
-				stack.getTagCompound().setInteger("z", pos.getZ());
-
-				if (world.isRemote)
-					player.sendMessage(new TextComponentTranslation("chat.wiring.start", pos.getX(), pos.getY(), pos.getZ()));
-			} else {
-				if (stack.hasTagCompound()) {
-					int x1 = stack.getTagCompound().getInteger("x");
-					int y1 = stack.getTagCompound().getInteger("y");
-					int z1 = stack.getTagCompound().getInteger("z");
-
-                    BlockPos newPos = new BlockPos(x1, y1, z1);
-					if(!this.isLengthValid(pos.getX(), pos.getY(), pos.getZ(), x1, y1, z1, thisPylon.getMaxWireLength())){
-						if (world.isRemote){
-							BlockPos vector = newPos.subtract(pos);
-							int distance = (int)MathHelper.sqrt(vector.getX() * vector.getX() + vector.getY() * vector.getY() + vector.getZ() * vector.getZ());
-							player.sendMessage(new TextComponentTranslation("chat.wiring.tofar", distance, thisPylon.getMaxWireLength()));
-						}
-					} else if(pos.equals(newPos)){
-						if (world.isRemote)
-							player.sendMessage(new TextComponentTranslation("chat.wiring.noself"));
-					} else{
-						Block a = world.getBlockState(newPos).getBlock();
-						BlockPos coreB = newPos;
-						if(a instanceof BlockDummyable) {
-							int[] corePosB = ((BlockDummyable)a).findCore(world, newPos.getX(), newPos.getY(), newPos.getZ());
-						
-							if(corePosB != null) {
-								coreB = new BlockPos(corePosB[0], corePosB[1], corePosB[2]);
-							}
-						}
-						TileEntity target = world.getTileEntity(coreB);
-						if(target instanceof TileEntityPylonBase targetPylon) {
-
-                            switch (TileEntityPylonBase.canConnect(thisPylon, targetPylon)) {
-								case 0:
-									thisPylon.addConnection(targetPylon.getPos().getX(), target.getPos().getY(), target.getPos().getZ());
-									targetPylon.addConnection(thisPylon.getPos().getX(), thisPylon.getPos().getY(), thisPylon.getPos().getZ());
-									if (world.isRemote)
-										player.sendMessage(new TextComponentTranslation("chat.wiring.connected"));
-									break;
-								case 1:
-									if (world.isRemote)
-										player.sendMessage(new TextComponentTranslation("chat.wiring.notcompatible"));
-									break;
-								case 2:
-									player.sendMessage(new TextComponentTranslation("chat.wiring.noself"));
-									break;
-								case 3:
-									player.sendMessage(new TextComponentTranslation("chat.wiring.tofar"));
-									break;
-							}
-						}
-					}
+			if(player.isSneaking()) {
+				if(!world.isRemote && stack.hasTagCompound()) {
+					stack.setTagCompound(null);
+					player.sendMessage(new TextComponentTranslation("chat.wiring.cleared"));
 				}
+			} else if(!stack.hasTagCompound()) {
+				if(!world.isRemote) {
+					stack.setTagCompound(new NBTTagCompound());
+					stack.getTagCompound().setInteger("x", core.getX());
+					stack.getTagCompound().setInteger("y", core.getY());
+					stack.getTagCompound().setInteger("z", core.getZ());
+					player.sendMessage(new TextComponentTranslation("chat.wiring.start", core.getX(), core.getY(), core.getZ()));
+				}
+			} else if(!world.isRemote) {
+				BlockPos startPos = new BlockPos(
+						stack.getTagCompound().getInteger("x"),
+						stack.getTagCompound().getInteger("y"),
+						stack.getTagCompound().getInteger("z"));
+				TileEntity target = world.getTileEntity(startPos);
+
+				if(target instanceof TileEntityPylonBase startPylon) {
+					switch (TileEntityPylonBase.canConnect(startPylon, thisPylon)) {
+						case 0:
+							startPylon.addConnection(core.getX(), core.getY(), core.getZ());
+							thisPylon.addConnection(startPos.getX(), startPos.getY(), startPos.getZ());
+							player.sendMessage(new TextComponentTranslation("chat.wiring.connected"));
+							break;
+						case 1:
+							player.sendMessage(new TextComponentTranslation("chat.wiring.notcompatible"));
+							break;
+						case 2:
+							player.sendMessage(new TextComponentTranslation("chat.wiring.noself"));
+							break;
+						case 3:
+							BlockPos vector = startPos.subtract(core);
+							int distance = (int)MathHelper.sqrt(vector.getX() * vector.getX() + vector.getY() * vector.getY() + vector.getZ() * vector.getZ());
+							double maxLength = Math.min(startPylon.getMaxWireLength(), thisPylon.getMaxWireLength());
+							player.sendMessage(new TextComponentTranslation("chat.wiring.tofar", distance, maxLength));
+							break;
+					}
+				} else {
+					player.sendMessage(new TextComponentTranslation("chat.wiring.cleared"));
+				}
+
+				stack.setTagCompound(null);
 			}
 		} else { // Say distance if not on pylon
 			if(player.isSneaking()){
 				if(stack.hasTagCompound()) {
-					stack.setTagCompound(null);
-					if (world.isRemote)
+					if(!world.isRemote) {
+						stack.setTagCompound(null);
 						player.sendMessage(new TextComponentTranslation("chat.wiring.cleared"));
+					}
 				}
 			} else {
-				if(stack.hasTagCompound() && world.isRemote) {
+				if(stack.hasTagCompound() && !world.isRemote) {
 					int x1 = stack.getTagCompound().getInteger("x");
 					int y1 = stack.getTagCompound().getInteger("y");
 					int z1 = stack.getTagCompound().getInteger("z");
