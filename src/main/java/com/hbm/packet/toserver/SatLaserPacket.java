@@ -66,7 +66,7 @@ public class SatLaserPacket implements IMessage {
 					    if(sat != null && data != null && resolution.getContext() != null
 								&& resolution.getContext().getSurfaceWorld() != null
 								&& resolution.getContext().getSurfaceWorld().isBlockLoaded(new BlockPos(m.x, 0, m.z))) {
-					    	sat.onClick(resolution.getContext().getSurfaceWorld(), ctx.getServerHandler().player, m.x, m.z);
+							sat.onClick(resolution.getContext().getSurfaceWorld(), ctx.getServerHandler().player, m.x, m.z);
 							data.markSatelliteDirty();
 						}
 					}

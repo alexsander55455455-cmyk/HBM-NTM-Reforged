@@ -66,7 +66,7 @@ public class SatCoordPacket implements IMessage {
 					    
 					    if(sat != null && data != null && resolution.getContext() != null
 								&& resolution.getContext().getSurfaceWorld() != null) {
-					    	sat.onCoordAction(resolution.getContext().getSurfaceWorld(), p, m.x, m.y, m.z);
+							sat.onCoordAction(resolution.getContext().getSurfaceWorld(), p, m.x, m.y, m.z);
 							data.markSatelliteDirty();
 						}
 					}
