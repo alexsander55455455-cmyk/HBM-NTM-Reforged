@@ -1002,7 +1002,7 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
         ItemVOTVdrive.Target from = CelestialBody.getTarget(world, (int) posX, (int) posZ);
         ItemVOTVdrive.Target to = getTarget();
 
-        if(from == null || to == null || from.body == null || to.body == null || !to.isValid) {
+        if(from == null || to == null || from.body == null || to.body == null || (!to.isValid && getRocket().capsule != ModItemsSpace.rp_station_core_20)) {
             return;
         }
 
