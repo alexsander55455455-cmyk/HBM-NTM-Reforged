@@ -65,7 +65,7 @@ public class HandHeldTileEntityCrate extends TileEntityCrate implements IHandHel
 
     @Override
     public boolean isUseableByPlayer(EntityPlayer player) {
-        return !boundItem.isEmpty() && player.getHeldItemMainhand() == boundItem;
+        return !boundItem.isEmpty() && boundItem.getCount() == 1 && player.getHeldItemMainhand() == boundItem;
     }
 
     @Override
@@ -73,6 +73,11 @@ public class HandHeldTileEntityCrate extends TileEntityCrate implements IHandHel
         syncBoundItem();
 
         if (player == null || world == null || world.isRemote) {
+            return;
+        }
+
+        if (boundItem.getCount() != 1) {
+            ejectAndClearInventory();
             return;
         }
 
@@ -87,7 +92,7 @@ public class HandHeldTileEntityCrate extends TileEntityCrate implements IHandHel
     }
 
     private void syncBoundItem() {
-        if (boundItem.isEmpty()) {
+        if (boundItem.isEmpty() || boundItem.getCount() != 1) {
             return;
         }
 
