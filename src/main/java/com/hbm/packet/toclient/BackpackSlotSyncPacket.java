@@ -15,9 +15,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class BackpackSlotSyncPacket implements IMessage {
     private ItemStack backpack = ItemStack.EMPTY;
 
-    @SideOnly(Side.CLIENT)
     private static ItemStack pendingBackpack = ItemStack.EMPTY;
-    @SideOnly(Side.CLIENT)
     private static boolean hasPendingBackpack;
 
     public BackpackSlotSyncPacket() {
