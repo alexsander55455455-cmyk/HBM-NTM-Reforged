@@ -340,7 +340,9 @@ public class AssemblyRecipesTweaker {
         recs.register(new GenericRecipe("ass.mp_thruster_10_solid").setup(400, 100).outputItems(new ItemStack(ModItems.mp_thruster_10_solid, 1))
                 .inputItems(new RecipesCommon.ComparableStack(ModItems.seg_10, 1), new RecipesCommon.ComparableStack(ModItems.coil_tungsten, 1), new RecipesCommon.OreDictStack(DURA.ingot(), 4), new RecipesCommon.OreDictStack(STEEL.plate(), 4)));
         recs.register(new GenericRecipe("ass.mp_thruster_10_xenon").setup(400, 100).outputItems(new ItemStack(ModItems.mp_thruster_10_xenon, 1))
-                .inputItems(new RecipesCommon.ComparableStack(ModItems.seg_10, 1), new RecipesCommon.OreDictStack(STEEL.plate(), 4), new RecipesCommon.OreDictStack(STEEL.pipe(), 12), new RecipesCommon.ComparableStack(ModItems.arc_electrode, 4, ItemArcElectrode.EnumElectrodeType.LANTHANIUM)));
+                .inputItems(new RecipesCommon.ComparableStack(ModItems.seg_10, 1), new RecipesCommon.OreDictStack(STEEL.plate(), 4), new RecipesCommon.OreDictStack(STEEL.pipe(), 12),
+                        new RecipesCommon.ComparableStack(ModItems.arc_electrode, 1, ItemArcElectrode.EnumElectrodeType.LANTHANIUM), new RecipesCommon.ComparableStack(ModItems.arc_electrode, 1, ItemArcElectrode.EnumElectrodeType.LANTHANIUM),
+                        new RecipesCommon.ComparableStack(ModItems.arc_electrode, 1, ItemArcElectrode.EnumElectrodeType.LANTHANIUM), new RecipesCommon.ComparableStack(ModItems.arc_electrode, 1, ItemArcElectrode.EnumElectrodeType.LANTHANIUM)));
         recs.register(new GenericRecipe("ass.mp_thruster_15_kerosene").setup(400, 100).outputItems(new ItemStack(ModItems.mp_thruster_15_kerosene, 1))
                 .inputItems(new RecipesCommon.ComparableStack(ModItems.seg_15, 1), new RecipesCommon.OreDictStack(STEEL.pipe(), 1), new RecipesCommon.OreDictStack(W.ingot(), 8), new RecipesCommon.OreDictStack(STEEL.plate(), 6), new RecipesCommon.OreDictStack(DESH.ingot(), 4)));
         recs.register(new GenericRecipe("ass.mp_thruster_15_kerosene_dual").setup(400, 100).outputItems(new ItemStack(ModItems.mp_thruster_15_kerosene_dual, 1))
