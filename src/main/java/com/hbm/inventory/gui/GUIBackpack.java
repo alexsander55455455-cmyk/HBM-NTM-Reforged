@@ -264,7 +264,9 @@ public class GUIBackpack extends GuiContainer {
 
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException {
-        if (keyCode == HbmKeybinds.backpackKey.getKeyCode()) {
+        if (keyCode == HbmKeybinds.backpackKey.getKeyCode()
+                && (searchField == null || !searchField.isFocused())
+                && (blackBoxPlayerField == null || !blackBoxPlayerField.isFocused())) {
             mc.player.closeScreen();
             return;
         }
