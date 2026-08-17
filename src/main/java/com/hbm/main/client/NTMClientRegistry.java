@@ -8,6 +8,9 @@ import com.hbm.blocks.generic.TrappedBrick;
 import com.hbm.blocks.machine.BlockSeal;
 import com.hbm.blocks.network.FluidDuctBox;
 import com.hbm.blocks.network.FluidDuctStandard;
+import com.hbm.blocks.generic.BlockDoorGeneric;
+import com.hbm.compat.CursedAddonDoorItemRenderer;
+import com.hbm.compat.CursedAddonModularTurbineCoreItemRenderer;
 import com.hbm.entity.siege.SiegeTier;
 import com.hbm.forgefluid.SpecialContainerFillLists;
 import com.hbm.interfaces.IHasCustomModel;
@@ -63,6 +66,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -76,6 +80,7 @@ import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fluids.BlockFluidBase;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
 import java.util.Objects;
 
@@ -118,8 +123,23 @@ public class NTMClientRegistry {
         bindTeisr(ModItems.fluid_tank_lead_full, FluidTankLeadRender.INSTANCE);
         bindTeisr(ModItems.fluid_tank_lead_v2, FluidTankLeadRender.INSTANCE);
         bindTeisr(ModItems.fluid_duct, new com.hbm.render.item.ItemRenderFFFluidDuct());
+        bindCursedAddonDoorRenderer("crimson_door_small");
+        bindCursedAddonDoorRenderer("crimson_door_large");
+        bindCursedAddonModularTurbineCoreRenderer();
 
         MainRegistry.proxy.registerMissileItems(null);
+    }
+
+    private static void bindCursedAddonDoorRenderer(String path) {
+        Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation("leafia", path));
+        if (!(item instanceof ItemBlock itemBlock) || !(itemBlock.getBlock() instanceof BlockDoorGeneric door)) return;
+        bindTeisr(item, new CursedAddonDoorItemRenderer(door));
+    }
+
+    private static void bindCursedAddonModularTurbineCoreRenderer() {
+        Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation("leafia", "modular_turbine_core"));
+        if (item == null || item == Items.AIR) return;
+        bindTeisr(item, new CursedAddonModularTurbineCoreItemRenderer());
     }
 
     private static StateMapperBase fixedModelStateMapper(ModelResourceLocation location) {
@@ -189,6 +209,23 @@ public class NTMClientRegistry {
         registerNormalStateMapper(ModBlocks.volcano_core);
         registerNormalStateMapper(ModBlocks.volcano_rad_core);
         registerNormalStateMapper(ModBlocks.water_door);
+
+        registerCursedAddonInvisibleStateMapper("crimson_door_small");
+        registerCursedAddonInvisibleStateMapper("crimson_door_large");
+        registerCursedAddonInvisibleStateMapper("ff_pump");
+        registerCursedAddonInvisibleStateMapper("ff_converter");
+        registerCursedAddonInvisibleStateMapper("ff_filter");
+        for (int i = 0; i < 36; i++) {
+            char letter = i < 10 ? (char) ('0' + i) : (char) ('a' + i - 10);
+            registerCursedAddonInvisibleStateMapper("letter_sign_" + letter);
+        }
+    }
+
+    private static void registerCursedAddonInvisibleStateMapper(String path) {
+        Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation("leafia", path));
+        if (block == null || block == Blocks.AIR) return;
+        ModelResourceLocation invisible = new ModelResourceLocation(Tags.MODID + ":compat_invisible", "normal");
+        ModelLoader.setCustomStateMapper(block, fixedModelStateMapper(invisible));
     }
 
     public static void unbindTeisr(Item item) {
@@ -405,11 +442,16 @@ public class NTMClientRegistry {
             }
         }
 
-        ModelResourceLocation inventoryLocation = new ModelResourceLocation(owned.item.getRegistryName(), "inventory");
-        IBakedModel inventoryModel = unwrapWrappedModel(reg.getObject(inventoryLocation));
-        if (inventoryModel == null) {
-            MainRegistry.logger.warn("TEISR {} has no baked inventory model at {}; using synthetic fallback", owned.item.getRegistryName(), inventoryLocation);
+        IBakedModel inventoryModel = null;
+        if (!isLeafiaItem(owned.item)) {
+            ModelResourceLocation inventoryLocation = new ModelResourceLocation(owned.item.getRegistryName(), "inventory");
+            inventoryModel = unwrapWrappedModel(reg.getObject(inventoryLocation));
+            if (inventoryModel == null) {
+                MainRegistry.logger.warn("TEISR {} has no baked inventory model at {}; using synthetic fallback", owned.item.getRegistryName(), inventoryLocation);
+            }
         }
+        // CE assigns the renderer-owned model directly. Preserve that contract for
+        // the external Cursed Addon while retaining Reforged's registry model path.
         teisr.itemModel = inventoryModel != null ? inventoryModel : model;
         if (teisr.useFMMPerspective(owned.item)) {
             reg.putObject(targetLocation, new FancyMissingModelPerspective(teisr, model));
@@ -441,6 +483,12 @@ public class NTMClientRegistry {
         }
         return model;
     }
+
+    private static boolean isLeafiaItem(Item item) {
+        ResourceLocation name = item.getRegistryName();
+        return name != null && "leafia".equals(name.getNamespace());
+    }
+
     @SubscribeEvent
     public void registerModels(ModelRegistryEvent event) {
         initializeItemRendererBindings();

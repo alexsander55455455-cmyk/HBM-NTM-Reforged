@@ -59,6 +59,7 @@ import net.minecraft.world.WorldServer;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.oredict.OreDictionary;
 import org.jctools.queues.MpscUnboundedXaddArrayQueue;
@@ -429,6 +430,7 @@ public class EntityFalloutRain extends EntityExplosionChunkloading implements Bo
         Long2ObjectOpenHashMap<IBlockState> spawnFalling = s.spawnFalling;
 
         ThreadLocalRandom rand = ThreadLocalRandom.current();
+        boolean cursedAddonLoaded = Loader.isModLoaded("leafia");
         double cx = posX, cz = posZ;
 
         for (int lx = 0; lx < 16; lx++) {
@@ -449,7 +451,15 @@ public class EntityFalloutRain extends EntityExplosionChunkloading implements Bo
 
                 int[] gapData;
                 if (doFallout) {
-                    gapData = stompColumnToUpdates(s, ebs, x, z, percent, distance, updates, spawnFalling, rand);
+                    if (cursedAddonLoaded) {
+                        s.cursedAddonDistance = distance;
+                        s.cursedAddonGapData = null;
+                        stompColumnToUpdates(s, ebs, x, z, percent, updates, spawnFalling, rand);
+                        gapData = s.cursedAddonGapData;
+                        if (gapData == null) continue;
+                    } else {
+                        gapData = stompColumnToUpdatesReforged(s, ebs, x, z, percent, distance, updates, spawnFalling, rand);
+                    }
                 } else {
                     gapData = scanColumnGaps(ebs, x, z, 6);
                 }
@@ -816,9 +826,16 @@ public class EntityFalloutRain extends EntityExplosionChunkloading implements Bo
         }
     }
 
-    int[] stompColumnToUpdates(WorkerScratch scratch, ExtendedBlockStorage[] ebs, int x, int z, double distPercent,
-                               double dist, Long2ObjectOpenHashMap<IBlockState> updates,
-                               Long2ObjectOpenHashMap<IBlockState> spawnFalling, ThreadLocalRandom rand) {
+    void stompColumnToUpdates(WorkerScratch scratch, ExtendedBlockStorage[] ebs, int x, int z, double distPercent,
+                              Long2ObjectOpenHashMap<IBlockState> updates,
+                              Long2ObjectOpenHashMap<IBlockState> spawnFalling, ThreadLocalRandom rand) {
+        scratch.cursedAddonGapData = stompColumnToUpdatesReforged(scratch, ebs, x, z, distPercent,
+                scratch.cursedAddonDistance, updates, spawnFalling, rand);
+    }
+
+    int[] stompColumnToUpdatesReforged(WorkerScratch scratch, ExtendedBlockStorage[] ebs, int x, int z, double distPercent,
+                                       double dist, Long2ObjectOpenHashMap<IBlockState> updates,
+                                       Long2ObjectOpenHashMap<IBlockState> spawnFalling, ThreadLocalRandom rand) {
 
         int solidDepth = 0;
         int stoneDepth = 0;
@@ -1297,6 +1314,8 @@ public class EntityFalloutRain extends EntityExplosionChunkloading implements Bo
         final Long2IntOpenHashMap biomeChanges = new Long2IntOpenHashMap(256);
         final Long2ObjectOpenHashMap<IBlockState> spawnFalling = new Long2ObjectOpenHashMap<>(512);
         final Reference2ObjectOpenHashMap<IBlockState, LookupResult> lookupByState = new Reference2ObjectOpenHashMap<>(512);
+        double cursedAddonDistance;
+        int[] cursedAddonGapData;
         @SuppressWarnings("unchecked")
         final Int2ObjectOpenHashMap<IBlockState>[] bucketBySub = new Int2ObjectOpenHashMap[16];
 

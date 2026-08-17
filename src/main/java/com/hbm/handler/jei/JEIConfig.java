@@ -3,6 +3,7 @@ package com.hbm.handler.jei;
 import com.hbm.blocks.ModBlocks;
 import com.hbm.config.ClientConfig;
 import com.hbm.config.GeneralConfig;
+import com.hbm.compat.CursedAddonItemVisibility;
 import com.hbm.handler.jei.transfer.HbmTransferInfo;
 import com.hbm.inventory.FluidContainerRegistry;
 import com.hbm.inventory.container.*;
@@ -40,6 +41,8 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.oredict.OreDictionary;
 import org.jetbrains.annotations.NotNull;
 
@@ -539,10 +542,22 @@ public class JEIConfig implements IModPlugin {
 
         hideLegacyBreedingRodDuplicates(blacklist);
         hideLegacyChicagoPile(blacklist);
+        hideCursedAddonInternalItems(blacklist);
 
         for (Item item : ModItems.ALL_ITEMS) {
             if (item instanceof EffectItem) {
                 blacklist.addIngredientToBlacklist(new ItemStack(item));
+            }
+        }
+    }
+
+    private static void hideCursedAddonInternalItems(IIngredientBlacklist blacklist) {
+        if (!Loader.isModLoaded("leafia")) {
+            return;
+        }
+        for (Item item : ForgeRegistries.ITEMS.getValuesCollection()) {
+            if (CursedAddonItemVisibility.shouldHide(item)) {
+                blacklist.addIngredientToBlacklist(new ItemStack(item, 1, OreDictionary.WILDCARD_VALUE));
             }
         }
     }

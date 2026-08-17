@@ -5,6 +5,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.common.Loader;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,8 +17,13 @@ public final class CreativeTabSortHelper {
 	}
 
 	public static int compareStacks(ItemStack a, ItemStack b, String tabKey) {
-		if (HbmJeiIngredientSort.isHbmSortedNamespace(a) && HbmJeiIngredientSort.isHbmSortedNamespace(b)) {
+		boolean sortedA = HbmJeiIngredientSort.isHbmSortedNamespace(a);
+		boolean sortedB = HbmJeiIngredientSort.isHbmSortedNamespace(b);
+		if (sortedA && sortedB) {
 			return HbmJeiIngredientSort.compareForTab(a, b, tabKey);
+		}
+		if (Loader.isModLoaded("leafia") && sortedA != sortedB) {
+			return sortedA ? -1 : 1;
 		}
 		return compareSortKeys(
 				CreativeTabSortOrder.getSortIndex(a, tabKey),

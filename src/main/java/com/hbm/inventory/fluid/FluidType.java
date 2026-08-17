@@ -161,6 +161,11 @@ public class FluidType {
         return this;
     }
 
+    public FluidType setTexture(ResourceLocation texture) {
+        this.texture = texture;
+        return this;
+    }
+
     public FluidType setGuiTint(int tint) {
         this.guiTint = tint;
         this.renderWithTint = true;

@@ -85,6 +85,7 @@ public class GeneralConfig {
 	public static int crucibleMaxCharges = 16;
 	public static boolean enableReEval = true;
 	public static boolean enableServerRecipeSync = true;
+	public static boolean enableMachineGravity = false;
 	public static boolean enableExpensiveMode = false;
 
 	public static boolean trueExp() {
@@ -99,10 +100,12 @@ public class GeneralConfig {
 	public static boolean enable528NetherBurn = true;
 	public static boolean enable528PressurizedRecipes = true;
 	public static boolean enable528ExplosiveEnergistics = true;
+	public static boolean enable528MachineGravity = true;
 	public static int coltanRate = 2;
 	public static boolean true528() {
 		return enable528 && enable528ReasimBoilers && !enable528ColtanSpawn && enable528BosniaSimulator &&
-				enable528NetherBurn && enable528PressurizedRecipes && enable528ExplosiveEnergistics && coltanRate <= 2;
+				enable528NetherBurn && enable528PressurizedRecipes && enable528ExplosiveEnergistics &&
+				enable528MachineGravity && coltanRate <= 2;
 	}
 	public static int bedrockRate = 50;
 	public static boolean enableThreadedAtmospheres = true;
@@ -253,6 +256,7 @@ public class GeneralConfig {
         decoToIngotRate = CommonConfig.createConfigInt(config, CommonConfig.CATEGORY_GENERAL, "1.39_decoToIngotConversionRate", "Chance of successful turning a deco block into an ingot. Default is 25%", 25);
 		enableThreadedAtmospheres = CommonConfig.createConfigBool(config, CommonConfig.CATEGORY_GENERAL, "1.40_threadedAtmospheres", "If enabled, will run atmosphere blobbing in a separate thread for performance", true);
 		enableKeybindOverlap = config.get(CommonConfig.CATEGORY_GENERAL, "1.42_enableKeybindOverlap", true, "If enabled, will handle keybinds that would otherwise be ignored due to overlapping.").getBoolean(true);
+		enableMachineGravity = config.get(CommonConfig.CATEGORY_GENERAL, "1.44_enableMachineGravity", false, "Requires supported large machines to have a proper foundation, or else they tilt and stop working.").getBoolean(false);
 		enableFluidContainersV2 = CommonConfig.createConfigBool(config, CommonConfig.CATEGORY_GENERAL, "1.99_CE_enableFluidContainersV2", "If enabled, 3 new enhanced version of base fluid barrels that supports partial fill and drain are added.", false);
 		leadSafeForgeContainerWhitelist = loadLeadSafeForgeContainerWhitelist(config);
 		enableExpensiveMode = config.get(CommonConfig.CATEGORY_GENERAL, "1.99_enableExpensiveMode", false, "It does what the name implies.").getBoolean(false);
@@ -272,6 +276,7 @@ public class GeneralConfig {
 		enable528NetherBurn = CommonConfig.createConfigBool(config, CommonConfig.CATEGORY_528, "X528_enable528NetherBurn", "Whether players burn in the nether", true);
 		enable528PressurizedRecipes = CommonConfig.createConfigBool(config, CommonConfig.CATEGORY_528, "X528_enable528PressurizedRecipes", "Sets some recipes to require pressurized input fluid", true);
 		enable528ExplosiveEnergistics = CommonConfig.createConfigBool(config, CommonConfig.CATEGORY_528, "X528_enable528ExplosiveEnergistics", "Renders AE2 unusable.", true);
+		enable528MachineGravity = CommonConfig.createConfigBool(config, CommonConfig.CATEGORY_528, "X528_enable528MachineGravity", "Requires supported large machines to have a proper foundation, or else they tilt and stop working.", true);
 		coltanRate = CommonConfig.createConfigInt(config, CommonConfig.CATEGORY_528, "X528_oreColtanFrequency", "Determines how many coltan ore veins are to be expected in a chunk. These values do not affect the frequency in deposits, and only apply if random coltan spanwing is enabled.", 2);
 
 		config.addCustomCategoryComment(CommonConfig.CATEGORY_LBSM,
@@ -303,6 +308,7 @@ public class GeneralConfig {
 			enable528NetherBurn = false;
 			enable528PressurizedRecipes = false;
 			enable528ExplosiveEnergistics = false;
+			enable528MachineGravity = false;
 		}
 		// Th3_Sl1ze: I'll temporarily move it here, if no one minds
 		// TODO: remove/rework Alc's parser to smth managable and bring these parameters back to WorldConfig

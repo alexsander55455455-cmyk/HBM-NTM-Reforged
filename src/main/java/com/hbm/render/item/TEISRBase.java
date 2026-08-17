@@ -33,6 +33,11 @@ public class TEISRBase extends TileEntityItemStackRenderer {
 		if (item instanceof ItemBlock) {
 			return ModelBinding.inventory(item, ItemCameraTransforms.DEFAULT);
 		}
+		// Cursed Addon was compiled against CE's full-TEISR default and does not
+		// provide the 2D GUI textures used by Reforged's own item renderers.
+		if (getClass().getName().startsWith("com.leafia.")) {
+			return bindingFullTeisr(item);
+		}
 		return binding2dGui(item);
 	}
 

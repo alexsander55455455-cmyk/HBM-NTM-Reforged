@@ -3,6 +3,7 @@ package com.hbm.tileentity;
 import com.hbm.blocks.BlockDummyable;
 import com.hbm.blocks.generic.BlockDoorGeneric;
 import com.hbm.blocks.machine.BlockSlidingBlastDoor;
+import com.hbm.config.MachineConfig;
 import com.hbm.handler.radiation.RadiationSystemNT;
 import com.hbm.interfaces.AutoRegister;
 import com.hbm.interfaces.IAnimatedDoor;
@@ -162,7 +163,10 @@ public class TileEntityDoorGeneric extends TileEntityLockableBase implements ITi
 
                 // T-Flip-Flop
                 boolean isPowered = redstonePower > 0;
-                if (isPowered && !wasPowered) {
+                if (MachineConfig.holdDoorRedstone) {
+                    if (isPowered && !wasPowered) tryOpen(-1);
+                    if (!isPowered && wasPowered) tryClose(-1);
+                } else if (isPowered && !wasPowered) {
                     tryToggle(-1); // -1 for no passcode check with redstone
                 }
                 wasPowered = isPowered;

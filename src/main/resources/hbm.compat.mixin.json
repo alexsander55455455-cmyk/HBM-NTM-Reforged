@@ -1,0 +1,23 @@
+{
+  "required": true,
+  "package": "com.hbm.compat.mixin",
+  "refmap": "mixins.hbm.refmap.json",
+  "compatibilityLevel": "JAVA_8",
+  "target": "@env(DEFAULT)",
+  "client": [
+    "MixinBlockModelShapesCursedAddonParticles",
+    "MixinCursedAddonBottleTexture",
+    "MixinCursedAddonGripOffset",
+    "MixinCursedAddonLegacyHazardTextures",
+    "MixinCursedAddonModelRegistration",
+    "MixinCursedAddonModularTurbineBladeChain",
+    "MixinTextureAtlasSpriteCursedAddonMetadata"
+  ],
+  "mixins": [
+    "MixinFMLModContainerCursedAddonCompatibility",
+    "MixinJsonUtilsCursedAddonItemAlias"
+  ],
+  "server": [],
+  "setSourceFile": true,
+  "minVersion": "0.8.7"
+}

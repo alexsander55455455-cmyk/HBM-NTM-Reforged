@@ -1,16 +1,26 @@
 package com.hbm.tileentity;
 
 import com.hbm.api.tile.ILoadedTile;
+import com.hbm.blocks.ModBlocks;
+import com.hbm.config.GeneralConfig;
 import com.hbm.handler.threading.PacketThreading;
 import com.hbm.lib.Library;
 import com.hbm.packet.toclient.BufPacket;
 import com.hbm.sound.AudioWrapper;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,6 +31,9 @@ public class TileEntityLoadedBase extends TileEntity implements ILoadedTile, IBu
 
     public boolean isLoaded = true;
     public boolean muffled = false;
+    public boolean tilted = false;
+    public int tiltBlocksChecked = 0;
+    public int tiltBlocksValid = 0;
 
     protected boolean hasDataChanged = true;
     private long lastPackedBufHash = 0L;
@@ -67,12 +80,14 @@ public class TileEntityLoadedBase extends TileEntity implements ILoadedTile, IBu
     public void readFromNBT(NBTTagCompound nbt) {
         super.readFromNBT(nbt);
         muffled = nbt.getBoolean("muffled");
+        tilted = nbt.getBoolean("tilted");
         hasDataChanged = true;
     }
 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
         nbt.setBoolean("muffled", muffled);
+        nbt.setBoolean("tilted", tilted);
         return super.writeToNBT(nbt);
     }
 
@@ -130,6 +145,7 @@ public class TileEntityLoadedBase extends TileEntity implements ILoadedTile, IBu
     @Override
     public void serialize(ByteBuf buf) {
         buf.writeBoolean(muffled);
+        buf.writeBoolean(tilted);
     }
 
     /**
@@ -141,6 +157,7 @@ public class TileEntityLoadedBase extends TileEntity implements ILoadedTile, IBu
     @Override
     public void deserialize(ByteBuf buf) {
         muffled = buf.readBoolean();
+        tilted = buf.readBoolean();
     }
 
     /**
@@ -199,6 +216,75 @@ public class TileEntityLoadedBase extends TileEntity implements ILoadedTile, IBu
                 new NetworkRegistry.TargetPoint(world.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(),
                         range));
         hasDataChanged = false;
+    }
+
+    public enum TiltType {
+        UNAVOIDABLE,
+        CONFIG
+    }
+
+    public void checkTilt(TiltType type, boolean extraHeavy) {
+        boolean doesTilt = type == TiltType.UNAVOIDABLE ||
+                type == TiltType.CONFIG && (GeneralConfig.enableMachineGravity || GeneralConfig.enable528MachineGravity);
+
+        if (!doesTilt || getFloorCount() <= 0) {
+            tilted = false;
+            return;
+        }
+
+        long identity = (pos.getY() + pos.getZ() * 27_644_437L) * 27_644_437L + pos.getX();
+        if ((world.getTotalWorldTime() + identity) % 20 != 0) return;
+
+        if (tiltBlocksChecked >= getFloorCount()) {
+            boolean wasTilted = tilted;
+            tilted = tiltBlocksValid < tiltBlocksChecked * 0.95D;
+            if (tilted && !wasTilted) {
+                world.playSound(null, pos, SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.BLOCKS, 3F, 1F);
+            }
+            markChanged();
+            tiltBlocksChecked = 0;
+            tiltBlocksValid = 0;
+        }
+
+        BlockPos floorPos = getFloorPosFromIndex(tiltBlocksChecked);
+        if (floorPos == null) return;
+
+        IBlockState state = world.getBlockState(floorPos);
+        tiltBlocksChecked++;
+
+        if (extraHeavy) {
+            Material material = state.getMaterial();
+            if (!material.isSolid() || !state.isFullCube()) return;
+            if (material == Material.SAND || material == Material.CLOTH || material == Material.GROUND) return;
+            if (state.getBlock().getExplosionResistance(null) < Blocks.STONE.getExplosionResistance(null)) return;
+            tiltBlocksValid++;
+            return;
+        }
+
+        if (!state.isSideSolid(world, floorPos, EnumFacing.UP) || state.getMaterial() == Material.SAND) return;
+        Block block = state.getBlock();
+        if (block == ModBlocks.dirt_dead || block == ModBlocks.dirt_oily || block == ModBlocks.stone_cracked) return;
+        tiltBlocksValid++;
+    }
+
+    public int getFloorCount() {
+        return 0;
+    }
+
+    public BlockPos getFloorPosFromIndex(int index) {
+        return null;
+    }
+
+    public BlockPos standardFloor3x3(int index) {
+        return new BlockPos(pos.getX() - 1 + index / 2 * 2, pos.getY() - 1, pos.getZ() - 1 + index % 2 * 2);
+    }
+
+    public BlockPos standardFloor5x5(int index) {
+        return new BlockPos(pos.getX() - 2 + index / 3 * 2, pos.getY() - 1, pos.getZ() - 2 + index % 3 * 2);
+    }
+
+    public BlockPos standardFloor7x7(int index) {
+        return new BlockPos(pos.getX() - 3 + index / 4 * 2, pos.getY() - 1, pos.getZ() - 3 + index % 4 * 2);
     }
 
 }

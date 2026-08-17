@@ -13,6 +13,7 @@ public class MachineConfig {
     protected static boolean scaleRTGPower = false;
     protected static boolean doRTGsDecay = true;
     protected static boolean disableMachines = false;
+    public static boolean holdDoorRedstone = false;
     //TODO: handle like on 1.7
     //mlbv: 1.7 hardcodes it to 6kB
     public static int crateByteSize = 8192;
@@ -37,6 +38,7 @@ public class MachineConfig {
         scaleRTGPower = CommonConfig.createConfigBool(config, CATEGORY_MACHINE, "9.01_scaleRTGPower", "Should RTG/Betavoltaic fuel power scale down as it decays?", false);
         doRTGsDecay = CommonConfig.createConfigBool(config, CATEGORY_MACHINE, "9.02_doRTGsDecay", "Should RTG/Betavoltaic fuel decay at all?", true);
         disableMachines = CommonConfig.createConfigBool(config, CATEGORY_MACHINE, "9.00_disableMachines", "Prevent mod from registering any Machines? (WARNING: THIS WILL BREAK PREEXISTING WORLDS)", false);
+        holdDoorRedstone = CommonConfig.createConfigBool(config, CATEGORY_MACHINE, "9.99_CE_03_holdDoorRedstone", "Whether generic doors require a continuous redstone signal to stay open instead of toggling on activation.", false);
 
         doorConf.clear();
         String[] doorConfStr = config.get(CATEGORY_MACHINE, "9.99_CE_02_doorConf", new String[]{},
