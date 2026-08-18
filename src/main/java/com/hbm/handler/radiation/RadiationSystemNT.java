@@ -335,7 +335,7 @@ public final class RadiationSystemNT {
 		if (thunder > 0) AuxSavedData.setThunder(world, thunder - 1);
 		if (world.loadedEntityList.isEmpty()) return;
 
-		for (Object e : world.loadedEntityList) {
+		for (Object e : new ArrayList<>(world.loadedEntityList)) {
 			if (e instanceof EntityItem item) {
 				HazardSystem.updateDroppedItem(item);
 			}
