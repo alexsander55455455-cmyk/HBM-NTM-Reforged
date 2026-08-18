@@ -21,6 +21,56 @@ public class SILEXRecipesTweaker {
                 .addOut(new WeightedRandomObject(new ItemStack(ModItemsSpace.nugget_cm245), 6))
         );
 
+        for (int i = 0; i < 5; i++) {
+            recipes.put(new RecipesCommon.ComparableStack(ModItemsSpace.rbmk_pellet_bk247, 1, i), new SILEXRecipes.SILEXRecipe(600, 100, EnumWavelengths.UV)
+                    .addOut(new ItemStack(ModItemsSpace.nugget_bk247), 100 - i * 20)
+                    .addOut(new ItemStack(ModItemsSpace.nugget_cf251), 1 + 10 * i / 40)
+                    .addOut(new ItemStack(ModItems.nuclear_waste_short_tiny, 1, EnumAddonWasteTypes.BERKELIUM247.ordinal()), 4 + 6 * i));
+            recipes.put(new RecipesCommon.ComparableStack(ModItemsSpace.rbmk_pellet_bk247, 1, i + 5), new SILEXRecipes.SILEXRecipe(600, 100, EnumWavelengths.UV)
+                    .addOut(new ItemStack(ModItemsSpace.nugget_bk247), 100 - i * 20)
+                    .addOut(new ItemStack(ModItemsSpace.nugget_cf251), 1 + 10 * i / 40)
+                    .addOut(new ItemStack(ModItems.powder_xe135_tiny), 3)
+                    .addOut(new ItemStack(ModItems.nuclear_waste_short_tiny, 1, EnumAddonWasteTypes.BERKELIUM247.ordinal()), 4 + 6 * i));
+
+            recipes.put(new RecipesCommon.ComparableStack(ModItemsSpace.rbmk_pellet_lecm, 1, i), new SILEXRecipes.SILEXRecipe(600, 100, EnumWavelengths.UV)
+                    .addOut(new ItemStack(ModItemsSpace.nugget_cm_fuel), 100 - i * 20)
+                    .addOut(new ItemStack(ModItems.nugget_pu_mix), 50 - i * 10)
+                    .addOut(new ItemStack(ModItemsSpace.nugget_cm247), 1 + 2 * i / 50)
+                    .addOut(new ItemStack(ModItems.nuclear_waste_short_tiny, 1, EnumAddonWasteTypes.CURIUM244.ordinal()), 2 + i)
+                    .addOut(new ItemStack(ModItems.nuclear_waste_short_tiny, 1, EnumAddonWasteTypes.CURIUM245.ordinal()), 2 + i));
+            recipes.put(new RecipesCommon.ComparableStack(ModItemsSpace.rbmk_pellet_lecm, 1, i + 5), new SILEXRecipes.SILEXRecipe(600, 100, EnumWavelengths.UV)
+                    .addOut(new ItemStack(ModItemsSpace.nugget_cm_fuel), 100 - i * 20)
+                    .addOut(new ItemStack(ModItems.nugget_pu_mix), 50 - i * 10)
+                    .addOut(new ItemStack(ModItemsSpace.nugget_cm247), 1 + 2 * i / 50)
+                    .addOut(new ItemStack(ModItems.powder_xe135_tiny), 3)
+                    .addOut(new ItemStack(ModItems.nuclear_waste_short_tiny, 1, EnumAddonWasteTypes.CURIUM244.ordinal()), 2 + i)
+                    .addOut(new ItemStack(ModItems.nuclear_waste_short_tiny, 1, EnumAddonWasteTypes.CURIUM245.ordinal()), 2 + i));
+
+            recipes.put(new RecipesCommon.ComparableStack(ModItemsSpace.rbmk_pellet_mecm, 1, i), new SILEXRecipes.SILEXRecipe(600, 100, EnumWavelengths.UV)
+                    .addOut(new ItemStack(ModItemsSpace.nugget_cm_mix), 100 - i * 20)
+                    .addOut(new ItemStack(ModItemsSpace.nugget_cm247), 2 + 4 * i / 30)
+                    .addOut(new ItemStack(ModItems.nuclear_waste_short_tiny, 1, EnumAddonWasteTypes.CURIUM244.ordinal()), 4 + 4 * i)
+                    .addOut(new ItemStack(ModItems.nuclear_waste_short_tiny, 1, EnumAddonWasteTypes.CURIUM245.ordinal()), 5 + 4 * i));
+            recipes.put(new RecipesCommon.ComparableStack(ModItemsSpace.rbmk_pellet_mecm, 1, i + 5), new SILEXRecipes.SILEXRecipe(600, 100, EnumWavelengths.UV)
+                    .addOut(new ItemStack(ModItemsSpace.nugget_cm_mix), 100 - i * 20)
+                    .addOut(new ItemStack(ModItemsSpace.nugget_cm247), 2 + 4 * i / 30)
+                    .addOut(new ItemStack(ModItems.powder_xe135_tiny), 3)
+                    .addOut(new ItemStack(ModItems.nuclear_waste_short_tiny, 1, EnumAddonWasteTypes.CURIUM244.ordinal()), 4 + 4 * i)
+                    .addOut(new ItemStack(ModItems.nuclear_waste_short_tiny, 1, EnumAddonWasteTypes.CURIUM245.ordinal()), 5 + 4 * i));
+
+            recipes.put(new RecipesCommon.ComparableStack(ModItemsSpace.rbmk_pellet_hecm, 1, i), new SILEXRecipes.SILEXRecipe(600, 100, EnumWavelengths.UV)
+                    .addOut(new ItemStack(ModItemsSpace.nugget_cm245), 100 - i * 20)
+                    .addOut(new ItemStack(ModItemsSpace.nugget_cm247), 3 + 5 * i / 30)
+                    .addOut(new ItemStack(ModItems.nuclear_waste_short_tiny, 1, EnumAddonWasteTypes.CURIUM244.ordinal()), 6 + 7 * i)
+                    .addOut(new ItemStack(ModItems.nuclear_waste_short_tiny, 1, EnumAddonWasteTypes.CURIUM245.ordinal()), 7 + 8 * i));
+            recipes.put(new RecipesCommon.ComparableStack(ModItemsSpace.rbmk_pellet_hecm, 1, i + 5), new SILEXRecipes.SILEXRecipe(600, 100, EnumWavelengths.UV)
+                    .addOut(new ItemStack(ModItemsSpace.nugget_cm245), 100 - i * 20)
+                    .addOut(new ItemStack(ModItemsSpace.nugget_cm247), 3 + 5 * i / 30)
+                    .addOut(new ItemStack(ModItems.powder_xe135_tiny), 3)
+                    .addOut(new ItemStack(ModItems.nuclear_waste_short_tiny, 1, EnumAddonWasteTypes.CURIUM244.ordinal()), 6 + 7 * i)
+                    .addOut(new ItemStack(ModItems.nuclear_waste_short_tiny, 1, EnumAddonWasteTypes.CURIUM245.ordinal()), 7 + 8 * i));
+        }
+
         recipes.put(new RecipesCommon.ComparableStack(ModItems.nuclear_waste_short, 1, EnumAddonWasteTypes.AMERICIUM241.ordinal()), new SILEXRecipes.SILEXRecipe(900, 100, EnumWavelengths.XRAY)
                 .addOut(new ItemStack(ModItemsSpace.nugget_cm_mix), 40)
                 .addOut(new ItemStack(ModItems.nugget_pu239), 10)

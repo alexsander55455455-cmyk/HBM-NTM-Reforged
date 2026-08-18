@@ -57,6 +57,7 @@ public class SmeltingRecipes {
 
         GameRegistry.addSmelting(Item.getItemFromBlock(ModBlocks.ore_australium), new ItemStack(ModItems.nugget_australium), 2.5F);
         GameRegistry.addSmelting(ModItems.powder_australium, new ItemStack(ModItems.ingot_australium), 5.0F);
+        GameRegistry.addSmelting(ModItems.powder_weidanium, new ItemStack(ModItems.ingot_weidanium), 5.0F);
 
         GameRegistry.addSmelting(OreDictManager.DictFrame.fromOne(ModItems.briquette, ItemEnums.EnumBriquetteType.COAL), OreDictManager.DictFrame.fromOne(ModItems.coke, ItemEnums.EnumCokeType.COAL), 1.0F);
         GameRegistry.addSmelting(OreDictManager.DictFrame.fromOne(ModItems.briquette, ItemEnums.EnumBriquetteType.LIGNITE), OreDictManager.DictFrame.fromOne(ModItems.coke, ItemEnums.EnumCokeType.LIGNITE), 1.0F);

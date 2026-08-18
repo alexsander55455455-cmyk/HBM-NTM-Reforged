@@ -9,6 +9,7 @@ import com.hbm.inventory.OreDictManager;
 import com.hbm.inventory.OreDictManager.DictFrame;
 import com.hbm.inventory.fluid.Fluids;
 import com.hbm.inventory.material.MaterialShapes;
+import com.hbm.inventory.recipes.RBMKFuelRecipes;
 import com.hbm.items.ItemEnums;
 import com.hbm.items.ModItems;
 import com.hbm.items.tool.ItemConveyorWand;
@@ -146,6 +147,10 @@ public class CraftingManagerTweaker extends CraftingManager {
         RodRecipes.addRBMKRod(ModItemsSpace.billet_cm_fuel, ModItemsSpace.rbmk_fuel_lecm);
         RodRecipes.addRBMKRod(ModItemsSpace.billet_cm_mix, ModItemsSpace.rbmk_fuel_mecm);
         RodRecipes.addRBMKRod(ModItemsSpace.billet_cm245, ModItemsSpace.rbmk_fuel_hecm);
+        RBMKFuelRecipes.addRod(ModItemsSpace.rbmk_fuel_bk247);
+        RBMKFuelRecipes.addRod(ModItemsSpace.rbmk_fuel_lecm);
+        RBMKFuelRecipes.addRod(ModItemsSpace.rbmk_fuel_mecm);
+        RBMKFuelRecipes.addRod(ModItemsSpace.rbmk_fuel_hecm);
         addPellet(PU241, EnumAddonWatzTypes.PU241);
         addPellet(AMF, EnumAddonWatzTypes.AMF);
         addPellet(AMRG, EnumAddonWatzTypes.AMRG);

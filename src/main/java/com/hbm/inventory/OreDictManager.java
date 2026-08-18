@@ -300,6 +300,10 @@ public class OreDictManager {
      * RARE METALS
      */
     public static final DictFrame AUSTRALIUM = new DictFrame("Australium");
+    public static final DictFrame WEIDANIUM = new DictFrame("Weidanium");
+    public static final DictFrame UNOBTAINIUM = new DictFrame("Unobtainium");
+    public static final DictFrame VERTICIUM = new DictFrame("Verticium");
+    public static final DictFrame DAFFERGON = new DictFrame("Daffergon");
     /*
      * RARE EARTHS
      */
@@ -557,6 +561,10 @@ public class OreDictManager {
          * RARE METALS
          */
         AUSTRALIUM.nugget(nugget_australium).billet(billet_australium).ingot(ingot_australium).dust(powder_australium).block(block_australium).ore(ore_australium);
+        WEIDANIUM.nugget(nugget_weidanium).ingot(ingot_weidanium).dust(powder_weidanium);
+        UNOBTAINIUM.nugget(nugget_unobtainium).ingot(ingot_unobtainium).dust(powder_unobtainium);
+        VERTICIUM.nugget(nugget_verticium).ingot(ingot_verticium).dust(powder_verticium);
+        DAFFERGON.nugget(nugget_daffergon).ingot(ingot_daffergon).dust(powder_daffergon);
 
         /*
          * RARE EARTHS

@@ -56,6 +56,7 @@ public class CyclotronRecipes extends SerializableRecipe {
 		makeRecipe(new ComparableStack(ModItems.part_beryllium), new ComparableStack(ModItems.powder_strontium), new ItemStack(ModItems.powder_niobium), beA);
 		makeRecipe(new ComparableStack(ModItems.part_beryllium), new ComparableStack(ModItems.powder_cerium), new ItemStack(ModItems.powder_neodymium), beA);
 		makeRecipe(new ComparableStack(ModItems.part_beryllium), new RecipesCommon.OreDictStack("dustThorium"), new ItemStack(ModItems.powder_uranium), beA);
+		makeRecipe(new ComparableStack(ModItems.part_beryllium), new RecipesCommon.OreDictStack(WEIDANIUM.dust()), new ItemStack(ModItems.powder_australium), 100);
 		/// BERYLLIUM END ///
 
 		/// CARBON START ///
@@ -91,7 +92,6 @@ public class CyclotronRecipes extends SerializableRecipe {
 
 		makeRecipe(new ComparableStack(ModItems.part_plutonium), new RecipesCommon.OreDictStack("dustPhosphorus"), new ItemStack(ModItems.powder_tennessine), plA);
 		makeRecipe(new ComparableStack(ModItems.part_plutonium), new RecipesCommon.OreDictStack(PU.dust()), new ItemStack(ModItems.powder_tennessine), plA);
-		makeRecipe(new ComparableStack(ModItems.part_plutonium), new ComparableStack(ModItems.powder_tennessine), new ItemStack(ModItems.powder_australium), plA);
 		makeRecipe(new ComparableStack(ModItems.part_plutonium), new ComparableStack(ModItems.powder_tennessine), new ItemStack(ModItems.powder_reiium), plA);
 		makeRecipe(new ComparableStack(ModItems.part_plutonium), new ComparableStack(ModItems.pellet_charged), new ItemStack(ModItems.nugget_schrabidium), 1000);
 		/// PLUTONIUM END ///
