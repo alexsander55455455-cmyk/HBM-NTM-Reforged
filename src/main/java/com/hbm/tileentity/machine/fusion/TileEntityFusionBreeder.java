@@ -9,6 +9,7 @@ import com.hbm.inventory.fluid.tank.FluidTankNTM;
 import com.hbm.inventory.gui.GUIFusionBreeder;
 import com.hbm.inventory.recipes.FluidBreederRecipes;
 import com.hbm.inventory.recipes.OutgasserRecipes;
+import com.hbm.items.ModItems;
 import com.hbm.items.machine.IItemFluidIdentifier;
 import com.hbm.lib.DirPos;
 import com.hbm.lib.ForgeDirection;
@@ -102,6 +103,9 @@ public class TileEntityFusionBreeder extends TileEntityMachineBase implements IT
     public boolean canProcessSolid() {
         if(inventory.getStackInSlot(1).isEmpty()) return false;
 
+        if(inventory.getStackInSlot(1).getItem() == ModItems.meteorite_sword_irradiated)
+            return inventory.getStackInSlot(2).isEmpty();
+
         Tuple.Pair<ItemStack, FluidStack> output = OutgasserRecipes.getOutput(inventory.getStackInSlot(1));
         if(output == null) return false;
 
@@ -133,6 +137,13 @@ public class TileEntityFusionBreeder extends TileEntityMachineBase implements IT
     }
 
     private void processSolid() {
+
+        if(inventory.getStackInSlot(1).getItem() == ModItems.meteorite_sword_irradiated) {
+            inventory.extractItem(1, 1, false);
+            inventory.setStackInSlot(2, new ItemStack(ModItems.meteorite_sword_fused));
+            this.progress = 0;
+            return;
+        }
 
         Tuple.Pair<ItemStack, FluidStack> output = OutgasserRecipes.getOutput(inventory.getStackInSlot(1));
         ItemStack stack = this.inventory.getStackInSlot(1);
@@ -191,7 +202,7 @@ public class TileEntityFusionBreeder extends TileEntityMachineBase implements IT
     @Override
     public boolean isItemValidForSlot(int slot, ItemStack stack) {
         if(slot == 0) return stack.getItem() instanceof IItemFluidIdentifier; // fluid ID
-        if(slot == 1) return OutgasserRecipes.getOutput(stack) != null; // input
+        if(slot == 1) return stack.getItem() == ModItems.meteorite_sword_irradiated || OutgasserRecipes.getOutput(stack) != null; // input
         return false;
     }
 

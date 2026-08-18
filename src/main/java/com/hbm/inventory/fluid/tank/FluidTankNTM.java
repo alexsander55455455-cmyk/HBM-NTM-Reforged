@@ -31,7 +31,6 @@ import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -251,6 +250,11 @@ public class FluidTankNTM implements IFluidHandler, IFluidTank, Cloneable {
     public void renderTank(int x, int y, double z, int width, int height, int orientation) {
         if (type == Fluids.NONE || fluid <= 0) return;
 
+        if (!Fluids.foreignFluids.contains(type)) {
+            renderTankGuiTexture(x, y, z, width, height, orientation);
+            return;
+        }
+
         Fluid forgeFluid = type.getFF();
         if (forgeFluid != null) {
             renderTankForgeFluid(x, y, z, width, height, orientation, forgeFluid);
@@ -312,7 +316,7 @@ public class FluidTankNTM implements IFluidHandler, IFluidTank, Cloneable {
         double r = ((color & 0xff0000) >> 16) / 255D;
         double g = ((color & 0x00ff00) >> 8) / 255D;
         double b = ((color & 0x0000ff) >> 0) / 255D;
-        GL11.glColor3d(r, g, b);
+        GlStateManager.color((float) r, (float) g, (float) b, 1.0F);
 
         y -= height;
 

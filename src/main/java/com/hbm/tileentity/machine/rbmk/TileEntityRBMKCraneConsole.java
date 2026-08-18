@@ -64,6 +64,7 @@ public class TileEntityRBMKCraneConsole extends TileEntityMachineBase implements
     public double lastPosLeft = 0;
     public double posFront = 0;
     public double posLeft = 0;
+    private byte clientInterpolationTicks = 0;
 
     private boolean goesDown = false;
     public double lastProgress = 1D;
@@ -105,6 +106,15 @@ public class TileEntityRBMKCraneConsole extends TileEntityMachineBase implements
 
         lastTiltFront = tiltFront;
         lastTiltLeft = tiltLeft;
+        lastProgress = progress;
+        if(world.isRemote) {
+            if(clientInterpolationTicks > 0) {
+                clientInterpolationTicks--;
+            } else {
+                lastPosFront = posFront;
+                lastPosLeft = posLeft;
+            }
+        }
         if(goesDown) {
 
             if(progress > 0) {
@@ -364,6 +374,9 @@ public class TileEntityRBMKCraneConsole extends TileEntityMachineBase implements
             this.height = buf.readInt();
             this.posFront = buf.readDouble();
             this.posLeft = buf.readDouble();
+            if(lastPosFront != posFront || lastPosLeft != posLeft) {
+                clientInterpolationTicks = 1;
+            }
             this.hasLoaded = buf.readBoolean();
             this.loadedHeat = buf.readDouble();
             this.loadedEnrichment = buf.readDouble();
