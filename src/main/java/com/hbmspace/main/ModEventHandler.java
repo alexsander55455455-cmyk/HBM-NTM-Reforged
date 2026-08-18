@@ -38,6 +38,8 @@ import net.minecraft.entity.passive.EntityChicken;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.projectile.EntityArrow;
+import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
@@ -329,9 +331,22 @@ public class ModEventHandler {
                     item.motionX *= 0.9D;
                     item.motionY = 0.03999999910593033D; // when entity gravity is applied, this becomes exactly 0
                     item.motionZ *= 0.9D;
+                } else if(o instanceof EntityArrow || o instanceof EntityThrowable) {
+                    Entity projectile = (Entity)o;
+                    projectile.setNoGravity(!hasProjectileGravity(projectile));
                 }
             }
         }
+    }
+
+    private static boolean hasProjectileGravity(Entity projectile) {
+        if(ChunkAtmosphereManager.proxy.getAtmosphere(projectile) == null) return false;
+
+        OrbitalStation station = projectile.world.isRemote
+                ? OrbitalStation.clientStation
+                : OrbitalStation.getStationFromPosition((int)projectile.posX, (int)projectile.posZ);
+
+        return station != null && station.gravityMultiplier >= 0.2F;
     }
 
     private static void updateWaterOpacity(World world) {
