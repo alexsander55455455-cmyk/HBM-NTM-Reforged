@@ -28,6 +28,7 @@ import net.minecraft.world.biome.*;
 import org.apache.logging.log4j.Level;
 
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @AutoRegister(name = "entity_nuke_mk5", trackingRange = 1000)
 public class EntityNukeExplosionMK5 extends EntityExplosionChunkloading {
@@ -104,6 +105,7 @@ public class EntityNukeExplosionMK5 extends EntityExplosionChunkloading {
     @Override
     public void onUpdate() {
         if (world.isRemote) return;
+        long processingStartedAtNanos = System.nanoTime();
         requestChunkLoaderTicketIfNeeded();
 
         if (strength == 0 || !CompatibilityConfig.isWarDim(world)) {
@@ -127,7 +129,9 @@ public class EntityNukeExplosionMK5 extends EntityExplosionChunkloading {
         if (ticksExisted < 2400) {
             float fire = (float) (fallout ? 10F : 0.5F * Math.pow(radius + 10, 3) * Math.pow(0.5, 0.5 * this.ticksExisted / radius));
             float blast = (float) Math.pow(radius + 10, 3) * 0.1F;
-            ContaminationUtil.radiate(world, this.posX, this.posY, this.posZ, Math.min(1000, radius * 2), rads, 0F, fire, blast, this.ticksExisted * shockSpeed);
+            double blastRange = this.ticksExisted * shockSpeed;
+            ContaminationUtil.radiateNukeShockwave(world, this.posX, this.posY, this.posZ, Math.min(1000, radius * 2),
+                    rads, 0F, fire, blast, Math.max(0, blastRange - shockSpeed), blastRange);
         }
 
         if (!mute) {
@@ -152,7 +156,10 @@ public class EntityNukeExplosionMK5 extends EntityExplosionChunkloading {
         }
 
         if (!explosion.isComplete()) {
-            explosion.update(BombConfig.mk5);
+            int remainingBudgetMs = remainingExplosionBudgetMs(BombConfig.mk5, processingStartedAtNanos, System.nanoTime());
+            if (remainingBudgetMs > 0) {
+                explosion.update(remainingBudgetMs);
+            }
         } else {
             if (GeneralConfig.enableExtendedLogging && explosionStart != 0)
                 MainRegistry.logger.log(Level.INFO, "[NUKE] Explosion complete. Time elapsed: {}ms", (System.currentTimeMillis() - explosionStart));
@@ -184,6 +191,14 @@ public class EntityNukeExplosionMK5 extends EntityExplosionChunkloading {
                 this.setDead();
             }
         }
+    }
+
+    static int remainingExplosionBudgetMs(int configuredBudgetMs, long startedAtNanos, long nowNanos) {
+        if (configuredBudgetMs <= 0) return 0;
+        long elapsedNanos = Math.max(0, nowNanos - startedAtNanos);
+        long elapsedMillis = TimeUnit.NANOSECONDS.toMillis(elapsedNanos);
+        if (elapsedNanos % TimeUnit.MILLISECONDS.toNanos(1) != 0) elapsedMillis++;
+        return (int) Math.max(0, configuredBudgetMs - elapsedMillis);
     }
 
     public EntityNukeExplosionMK5 setDetonator(Entity detonator) {

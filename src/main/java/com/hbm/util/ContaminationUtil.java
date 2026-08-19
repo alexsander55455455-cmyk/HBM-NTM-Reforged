@@ -59,6 +59,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
+import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.List;
 
@@ -646,15 +647,32 @@ public class ContaminationUtil {
 	}
 
 	public static void radiate(World world, double x, double y, double z, double range, float rad3d, float dig3d, float fire3d, float blast3d, double blastRange) {
-		List<Entity> entities = world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(x-range, y-range, z-range, x+range, y+range, z+range));
+		radiateInternal(world, x, y, z, range, rad3d, dig3d, fire3d, blast3d, blastRange, 0, false);
+	}
+
+	public static void radiateNukeShockwave(World world, double x, double y, double z, double range, float rad3d, float dig3d,
+			float fire3d, float blast3d, double previousBlastRange, double blastRange) {
+		radiateInternal(world, x, y, z, range, rad3d, dig3d, fire3d, blast3d, blastRange,
+				Math.max(0, previousBlastRange), true);
+	}
+
+	private static void radiateInternal(World world, double x, double y, double z, double range, float rad3d, float dig3d,
+			float fire3d, float blast3d, double blastRange, double previousBlastRange, boolean expandingShockwave) {
+		List<Entity> entities = expandingShockwave
+				? new ArrayList<>(world.loadedEntityList)
+				: world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(x-range, y-range, z-range, x+range, y+range, z+range));
 		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 		for(Entity e : entities) {
-			if(isExplosionExempt(e)) continue;
+			if(isExplosionExempt(e) || e.isDead) continue;
+			if(e instanceof EntityLivingBase living && !living.isEntityAlive()) continue;
 
 			Vec3 vec = Vec3.createVectorHelper(e.posX - x, (e.posY + e.getEyeHeight()) - y, e.posZ - z);
 			double len = vec.length();
 
 			if(len > range) continue;
+			boolean isLiving = e instanceof EntityLivingBase;
+			boolean isInShockFront = isInsideExpandingShockFront(len, previousBlastRange, blastRange);
+			if(expandingShockwave && !isLiving && !isInShockFront) continue;
 			vec = vec.normalize();
 			double dmgLen = Math.max(len, range * 0.05D);
 			
@@ -667,8 +685,7 @@ public class ContaminationUtil {
 				int iz = (int)Math.floor(z + vec.zCoord * i);
 				res += world.getBlockState(pos.setPos(ix, iy, iz)).getBlock().getExplosionResistance(null);
 			}
-			boolean isLiving = e instanceof EntityLivingBase;
-			
+
 			if(res < 1)
 				res = 1;
 			if(isLiving && rad3d > 0){
@@ -703,7 +720,7 @@ public class ContaminationUtil {
 				}
 			}
 
-			if(len < blastRange && blast3d > 0.025) {
+			if(len <= blastRange && blast3d > 0.025 && (!expandingShockwave || isInShockFront)) {
 				float blastDmg = blast3d;
 				blastDmg /= (float)(dmgLen * dmgLen * res);
 				if(blastDmg > 0.025){
@@ -717,6 +734,10 @@ public class ContaminationUtil {
 				e.motionZ += vec.zCoord * 0.005D * blastDmg;
 			}
 		}
+	}
+
+	static boolean isInsideExpandingShockFront(double distance, double previousBlastRange, double blastRange) {
+		return distance > previousBlastRange && distance <= blastRange;
 	}
 
 	private static boolean isExplosionExempt(Entity e) {
