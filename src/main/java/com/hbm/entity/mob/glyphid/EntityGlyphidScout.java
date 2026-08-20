@@ -182,6 +182,14 @@ public class EntityGlyphidScout extends EntityGlyphid {
     public boolean canBuildHiveHere() {
         int length = useLargeHive ? 16 : 8;
 
+        BlockPos center = new BlockPos(Math.floor(posX), Math.floor(posY), Math.floor(posZ));
+        if (!GlyphidHive.canGenerateSmall(world, center, this, blastResToDig)) {
+            setCurrentTask(TASK_IDLE, null);
+            hasTarget = false;
+            timer = 0;
+            return false;
+        }
+
         for(int i = 0; i < 8; i++) {
 
             float angle = (float) Math.toRadians(360D / 16 * i);
@@ -244,6 +252,9 @@ public class EntityGlyphidScout extends EntityGlyphid {
         boolean distanceCheck = Vec3.createVectorHelper(nestX - homeX, nestY - homeY, nestZ - homeZ).length() > minDistanceToHive;
 
         if(distanceCheck && state.getMaterial() != Material.AIR && state.isNormalCube() && b != ModBlocks.glyphid_base) {
+
+            BlockPos center = new BlockPos(nestX, nestY, nestZ);
+            if (!GlyphidHive.canGenerateSmall(world, center, this, blastResToDig)) return false;
 
             if(b == ModBlocks.basalt) {
                 useLargeHive = true;

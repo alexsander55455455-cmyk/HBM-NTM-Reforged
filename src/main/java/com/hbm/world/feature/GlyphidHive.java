@@ -6,7 +6,11 @@ import com.hbm.blocks.generic.BlockGlyphid.Type;
 import com.hbm.blocks.generic.BlockGlyphidSpawner;
 import com.hbm.util.LootGenerator;
 import com.hbm.world.phased.AbstractPhasedStructure;
+import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntitySkull;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -109,6 +113,26 @@ public class GlyphidHive extends AbstractPhasedStructure {
      */
     public static void generateSmall(World world, int x, int y, int z, Random rand, boolean infected, boolean loot) {
         getInstance(infected, loot).generate(world, rand, new BlockPos(x, y, z), true);
+    }
+
+    public static boolean canGenerateSmall(World world, BlockPos center, Entity glyphid, float maximumResistance) {
+        for (int x = -5; x <= 5; x++) {
+            for (int y = -2; y <= 2; y++) {
+                for (int z = -5; z <= 5; z++) {
+                    BlockPos pos = center.add(x, y, z);
+                    if (!world.isBlockLoaded(pos)) return false;
+
+                    IBlockState state = world.getBlockState(pos);
+                    if (state.getMaterial() == Material.AIR) continue;
+
+                    Block block = state.getBlock();
+                    if (block == ModBlocks.glyphid_base || block == ModBlocks.glyphid_spawner) return false;
+                    if (!block.canEntityDestroy(state, world, pos, glyphid)) return false;
+                    if (block.getExplosionResistance(glyphid) > maximumResistance) return false;
+                }
+            }
+        }
+        return true;
     }
 
     @Override
