@@ -71,17 +71,12 @@ public class GenericRecipe {
     public GenericRecipe setPools528(String... pools) { if(GeneralConfig.enable528) { this.blueprintPools = pools; for(String pool : pools) GenericRecipes.addToPool(pool, this); } return this; }
     public GenericRecipe setGroup(String autoSwitch, GenericRecipes set) { this.autoSwitchGroup = autoSwitch; set.addToGroup(autoSwitch, this); return this; }
 
-    public GenericRecipe inputItems(RecipesCommon.AStack... input) { this.inputItem = input; for(RecipesCommon.AStack stack : this.inputItem) if(stack.stacksize > 64) throw new IllegalArgumentException("AStack in " + this.name + " exceeds stack limit!"); return this; }
-    public GenericRecipe inputItemsEx(RecipesCommon.AStack... input) { if(!GeneralConfig.enableExpensiveMode) return this; this.inputItem = input; for(RecipesCommon.AStack stack : this.inputItem) if(stack.stacksize > 64) throw new IllegalArgumentException("AStack in " + this.name + " exceeds stack limit!"); return this; }
+    public GenericRecipe inputItems(RecipesCommon.AStack... input) { this.inputItem = input; return this; }
+    public GenericRecipe inputItemsEx(RecipesCommon.AStack... input) { if(!GeneralConfig.enableExpensiveMode) return this; this.inputItem = input; return this; }
     public GenericRecipe inputFluids(FluidStack... input) { this.inputFluid = input; return this; }
     public GenericRecipe inputFluidsEx(FluidStack... input) { if(!GeneralConfig.enableExpensiveMode) return this; this.inputFluid = input; return this; }
     public GenericRecipe outputItems(IOutput... output) { this.outputItem = output; return this; }
     public GenericRecipe outputFluids(FluidStack... output) { this.outputFluid = output; return this; }
-
-    private boolean exceedsStackLimit(RecipesCommon.AStack stack) {
-        if(stack instanceof RecipesCommon.ComparableStack && stack.stacksize > ((RecipesCommon.ComparableStack) stack).item.getItemStackLimit(((RecipesCommon.ComparableStack) stack).toStack())) return true;
-        return stack.stacksize > 64;
-    }
 
     public GenericRecipe outputItems(ItemStack... output) {
         this.outputItem = new IOutput[output.length];

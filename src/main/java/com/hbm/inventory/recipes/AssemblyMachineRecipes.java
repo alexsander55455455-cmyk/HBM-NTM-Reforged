@@ -211,7 +211,7 @@ public class AssemblyMachineRecipes extends GenericRecipes<GenericRecipe> {
         this.register(new GenericRecipe("ass.smallhatch").setup(200, 100).outputItems(new ItemStack(ModBlocks.small_hatch, 1))
                 .inputItems(new OreDictStack(PB.plate(), 4), new OreDictStack(STEEL.plate(), 8), new OreDictStack(ALLOY.plateCast(), 2), new ComparableStack(ModItems.bolt, 1, Mats.MAT_DURA.id), new ComparableStack(ModBlocks.brick_concrete, 1), new ComparableStack(ModBlocks.ladder_red, 1)));
         this.register(new GenericRecipe("ass.slidinggate").setup(500, 100).outputItems(new ItemStack(ModBlocks.sliding_gate_door, 1))
-                .inputItems(new OreDictStack(PB.plateWelded(), 4), new OreDictStack(STEEL.plate(), 12), new OreDictStack(ALLOY.plateCast(), 4), new ComparableStack(ModItems.plate_polymer, 2), new OreDictStack(STEEL.block(), 1), new ComparableStack(ModItems.motor, 2), new ComparableStack(ModItems.bolt, 2, Mats.MAT_DURA.id), new OreDictStack(KEY_WHITE, 2)));
+                .inputItems(new OreDictStack(PB.plate(), 24), new OreDictStack(STEEL.plate(), 12), new OreDictStack(ALLOY.plateCast(), 4), new ComparableStack(ModItems.plate_polymer, 2), new OreDictStack(STEEL.block(), 1), new ComparableStack(ModItems.motor, 2), new ComparableStack(ModItems.bolt, 2, Mats.MAT_DURA.id), new OreDictStack(KEY_WHITE, 2)));
         this.register(new GenericRecipe("ass.silohatchdrill").setup(200, 100).outputItems(new ItemStack(ModBlocks.silo_hatch_drillgon, 1))
                 .inputItems(new OreDictStack(STEEL.plateWelded(), 4), new ComparableStack(ModItems.plate_polymer, 4), new ComparableStack(ModItems.motor, 2), new OreDictStack(STEEL.bolt(), 16), new OreDictStack(KEY_GREEN, 4)));
         this.register(new GenericRecipe("ass.silohatch").setup(200, 100).outputItems(new ItemStack(ModBlocks.silo_hatch, 1))
@@ -788,7 +788,7 @@ public class AssemblyMachineRecipes extends GenericRecipes<GenericRecipe> {
         this.register(new GenericRecipe("ass.grenadecluster").setup(200, 100).outputItems(new ItemStack(ModItems.grenade_cluster, 1))
                 .inputItems(new ComparableStack(ModItems.grenade_frag, 1), new ComparableStack(ModItems.pellet_cluster, 1), new OreDictStack(STEEL.plate(), 2)));
         this.register(new GenericRecipe("ass.grenadeflare").setup(100, 100).outputItems(new ItemStack(ModItems.grenade_flare, 1))
-                .inputItems(new ComparableStack(ModItems.grenade_generic, 1), new ComparableStack(Items.GLOWSTONE_DUST, 1), new OreDictStack(AL.plate(), 2), new OreDictStack(CS.plate(), 1)));
+                .inputItems(new ComparableStack(ModItems.grenade_generic, 1), new ComparableStack(Items.GLOWSTONE_DUST, 1), new OreDictStack(AL.plate(), 2), new OreDictStack(CS.ingot(), 1)));
         this.register(new GenericRecipe("ass.grenadeelectric").setup(200, 100).outputItems(new ItemStack(ModItems.grenade_electric, 1))
                 .inputItems(new ComparableStack(ModItems.grenade_generic, 1), new ComparableStack(ModItems.circuit, 3, EnumCircuitType.CAPACITOR.ordinal()), new OreDictStack(GOLD.plate(), 2)));
         this.register(new GenericRecipe("ass.grenadepulse").setup(300, 100).outputItems(new ItemStack(ModItems.grenade_pulse, 4))
@@ -1276,7 +1276,7 @@ public class AssemblyMachineRecipes extends GenericRecipes<GenericRecipe> {
                         new ComparableStack(ModItems.ammo_bag),
                         new ComparableStack(ModItems.motor, 2),
                         new OreDictStack(WEAPONSTEEL.mechanism(), 4),
-                        new OreDictStack(W.plate(), 2),
+                        new OreDictStack(W.plateCast(), 2),
                         new ComparableStack(ModItems.circuit, 2, EnumCircuitType.CONTROLLER)),
                 "secret.backpack_sapper");
     }
@@ -1366,7 +1366,7 @@ public class AssemblyMachineRecipes extends GenericRecipes<GenericRecipe> {
                 .outputItems(new ItemStack(ModItems.backpack_smuggler))
                 .inputItems(
                         new ComparableStack(ModItems.backpack_reinforced_steel),
-                        new ComparableStack(ModItems.plastic_bag, 9),
+                        new ComparableStack(ModItems.plastic_bag, 5),
                         new ComparableStack(ModItems.ducttape, 8),
                         new ComparableStack(ModItems.key_kit),
                         new ComparableStack(ModItems.key_fake),

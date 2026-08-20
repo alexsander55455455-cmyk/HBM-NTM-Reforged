@@ -506,7 +506,7 @@ public class OreDictManager {
         TUNGCAR.plate(neutron_reflector);
         METEOR.dust(powder_meteorite).dustSmall(powder_meteorite_tiny).block(block_meteor_broken).gem(fragment_meteorite);
         CMB.ingot(ingot_combine_steel).dust(powder_combine_steel).plate(plate_combine_steel).block(block_combine_steel);
-        DESH.nugget(nugget_desh).ingot(ingot_desh).dust(powder_desh).block(block_desh);
+        DESH.nugget(nugget_desh).ingot(ingot_desh).dust(powder_desh).plate(plate_desh).block(block_desh);
         STAR.ingot(ingot_starmetal).block(block_starmetal).crystal(crystal_starmetal);
         GUNMETAL.ingot(ingot_gunmetal).plate(plate_gunmetal);
         WEAPONSTEEL.ingot(ingot_weaponsteel).plate(plate_weaponsteel);
@@ -590,7 +590,8 @@ public class OreDictManager {
         /*
          * FISSION FRAGMENTS
          */
-        SR.hot(1F).hydro(1F).hazIngot().dust(powder_strontium);
+        SR.hot(1F).hydro(1F).hazIngot().nugget(nugget_strontium).ingot(ingot_strontium).dust(powder_strontium);
+        AC.nugget(nugget_actinium).ingot(ingot_actinium).dust(powder_actinium).dustSmall(powder_actinium_tiny);
         SR90.rad(HazardRegistry.sr90).hot(1F).hydro(1F).dustSmall(powder_sr90_tiny).dust(powder_sr90).ingot(ingot_sr90).billet(billet_sr90).nugget(nugget_sr90);
         I131.rad(HazardRegistry.i131).hot(1F).ingot(ingot_i131).dustSmall(powder_i131_tiny).dust(powder_i131);
         XE135.rad(HazardRegistry.xe135).hot(10F).dustSmall(powder_xe135_tiny).dust(powder_xe135);

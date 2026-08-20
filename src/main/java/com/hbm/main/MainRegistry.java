@@ -310,6 +310,8 @@ public class MainRegistry {
         Fluids.reloadFluids();
         VanillaBlockPatcher.apply();
         ModItems.postInit();
+        ModFluids.setFromRegistry();
+        FluidContainerRegistry.register();
         DamageResistanceHandler.init();
         BlockCrate.setDrops();
         BedrockOreRegistry.registerBedrockOres();
@@ -325,8 +327,6 @@ public class MainRegistry {
         ClientConfig.initConfig();
         ServerConfig.initConfig();
         RefineryRecipes.registerRefinery();
-        ModFluids.setFromRegistry();
-        FluidContainerRegistry.register();
         TileEntityNukeCustom.registerBombItems();
         ArmorUtil.register();
         RBMKFuelRecipes.registerRecipes();

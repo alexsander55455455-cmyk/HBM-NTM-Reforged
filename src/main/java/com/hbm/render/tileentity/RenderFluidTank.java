@@ -15,13 +15,24 @@ import com.hbm.tileentity.machine.TileEntityMachineFluidTank;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.IResource;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
+import java.io.IOException;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 @AutoRegister
 public class RenderFluidTank extends TileEntitySpecialRenderer<TileEntityMachineFluidTank> implements IItemRendererProvider {
+
+    private static final String TANK_TEXTURE_PREFIX = "textures/models/tank/tank_";
+    private static final String GENERIC_TANK_TEXTURE = TANK_TEXTURE_PREFIX + "none.png";
+    private static final Map<String, Boolean> TANK_TEXTURE_CACHE = new ConcurrentHashMap<>();
 
     @Override
     public void render(TileEntityMachineFluidTank tank, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
@@ -110,6 +121,7 @@ public class RenderFluidTank extends TileEntitySpecialRenderer<TileEntityMachine
                     bindTexture(new ResourceLocation(Tags.MODID, getTextureFromType(tank.getTankType())));
                     ResourceManager.fluidtank_exploded.renderPart("Tank");
                 }
+                GL11.glColor3d(1D, 1D, 1D);
                 GlStateManager.enableCull();
                 GlStateManager.shadeModel(GL11.GL_FLAT);
             }
@@ -118,19 +130,42 @@ public class RenderFluidTank extends TileEntitySpecialRenderer<TileEntityMachine
 
     private String getTextureFromType(FluidType type) {
 
+        GL11.glColor3d(1D, 1D, 1D);
+
         if (type.renderWithTint) {
-            int color = type.getTint();
-            double r = ((color & 0xff0000) >> 16) / 255D;
-            double g = ((color & 0x00ff00) >> 8) / 255D;
-            double b = ((color & 0x0000ff) >> 0) / 255D;
-            GL11.glColor3d(r, g, b);
-            return "textures/models/tank/tank_NONE.png";
+            tintTank(type);
+            return GENERIC_TANK_TEXTURE;
         }
 
-        String s = type.getName();
+        String name = type.getName();
 
-        if (type.isAntimatter() || (type.hasTrait(FT_Corrosive.class) && type.getTrait(FT_Corrosive.class).isHighlyCorrosive())) s = "DANGER";
+        if (type.isAntimatter() || (type.hasTrait(FT_Corrosive.class) && type.getTrait(FT_Corrosive.class).isHighlyCorrosive())) name = "danger";
 
-        return "textures/models/tank/tank_" + s + ".png";
+        String texture = TANK_TEXTURE_PREFIX + name.toLowerCase(Locale.ROOT) + ".png";
+        if (hasTankTexture(texture)) return texture;
+
+        tintTank(type.getColor());
+        return GENERIC_TANK_TEXTURE;
+    }
+
+    private static void tintTank(FluidType type) {
+        tintTank(type.getTint());
+    }
+
+    private static void tintTank(int color) {
+        double r = ((color & 0xff0000) >> 16) / 255D;
+        double g = ((color & 0x00ff00) >> 8) / 255D;
+        double b = (color & 0x0000ff) / 255D;
+        GL11.glColor3d(r, g, b);
+    }
+
+    private static boolean hasTankTexture(String texture) {
+        return TANK_TEXTURE_CACHE.computeIfAbsent(texture, path -> {
+            try (IResource ignored = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation(Tags.MODID, path))) {
+                return true;
+            } catch (IOException exception) {
+                return false;
+            }
+        });
     }
 }

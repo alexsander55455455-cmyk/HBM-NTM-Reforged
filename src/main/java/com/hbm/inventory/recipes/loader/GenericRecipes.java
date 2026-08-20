@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonWriter;
 import com.hbm.inventory.RecipesCommon;
 import com.hbm.inventory.fluid.FluidStack;
+import com.hbm.main.MainRegistry;
 import com.hbm.util.ItemStackUtil;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.WeightedRandom;
@@ -112,9 +113,97 @@ public abstract class GenericRecipes <T extends GenericRecipe> extends Serializa
     }
 
     public void register(T recipe) {
+        int originalInputCount = recipe.inputItem == null ? 0 : recipe.inputItem.length;
+        try {
+            recipe.inputItem = normalizeInputStacks(recipe.name, recipe.inputItem, this.inputItemLimit());
+            validateSlotCount(recipe.name, "input fluids", recipe.inputFluid, this.inputFluidLimit());
+            validateSlotCount(recipe.name, "output items", recipe.outputItem, this.outputItemLimit());
+            validateSlotCount(recipe.name, "output fluids", recipe.outputFluid, this.outputFluidLimit());
+        } catch(IllegalStateException ex) {
+            discardUnregisteredReferences(recipe);
+            MainRegistry.logger.error("Skipping invalid recipe {}: {}", recipe.name, ex.getMessage());
+            return;
+        }
+        if(recipe.inputItem != null && recipe.inputItem.length > originalInputCount) {
+            MainRegistry.logger.info("Split oversized item stacks in recipe {} across {} machine slots", recipe.name, recipe.inputItem.length);
+        }
+
         this.recipeOrderedList.add(recipe);
         if(recipeNameMap.containsKey(recipe.name)) throw new IllegalStateException("Recipe " + recipe.name + " has been registered with a duplicate ID!");
         this.recipeNameMap.put(recipe.name, recipe);
+    }
+
+    private void discardUnregisteredReferences(T recipe) {
+        for(List<GenericRecipe> list : this.autoSwitchGroups.values()) {
+            if(list != null) list.removeIf(candidate -> candidate == recipe);
+        }
+
+        if(recipe.blueprintPools != null) {
+            for(String pool : recipe.blueprintPools) {
+                List<String> names = blueprintPools.get(pool);
+                if(names != null) names.removeIf(recipe.name::equals);
+            }
+            pooledBlueprints.remove(recipe.name, recipe);
+        }
+    }
+
+    static RecipesCommon.AStack[] normalizeInputStacks(String recipeName, RecipesCommon.AStack[] input, int slotLimit) {
+        if(input == null) return null;
+
+        List<RecipesCommon.AStack> normalized = new ArrayList<>();
+        for(RecipesCommon.AStack ingredient : input) {
+            if(ingredient == null || ingredient.stacksize <= 0) {
+                throw new IllegalStateException("Recipe " + recipeName + " contains an empty item ingredient!");
+            }
+
+            int maxStackSize = maxSupportedStackSize(recipeName, ingredient);
+            int remaining = ingredient.stacksize;
+            while(remaining > 0) {
+                int amount = Math.min(remaining, maxStackSize);
+                normalized.add(copyWithCount(ingredient, amount));
+                remaining -= amount;
+            }
+
+        }
+
+        if(normalized.size() > slotLimit) {
+            throw new IllegalStateException("Recipe " + recipeName + " requires " + normalized.size() + " item slots, but its machine only has " + slotLimit + "!");
+        }
+
+        return normalized.toArray(new RecipesCommon.AStack[0]);
+    }
+
+    private static int maxSupportedStackSize(String recipeName, RecipesCommon.AStack ingredient) {
+        int maxStackSize = 0;
+        for(ItemStack candidate : ingredient.getStackList()) {
+            if(candidate == null || candidate.isEmpty()) continue;
+            candidate = candidate.copy();
+            candidate.setCount(1);
+            maxStackSize = Math.max(maxStackSize, candidate.getMaxStackSize());
+        }
+
+        if(maxStackSize <= 0) {
+            throw new IllegalStateException("Recipe " + recipeName + " contains an item ingredient with no registered candidates: " + ingredient);
+        }
+        return maxStackSize;
+    }
+
+    private static RecipesCommon.AStack copyWithCount(RecipesCommon.AStack ingredient, int count) {
+        if(ingredient instanceof RecipesCommon.NbtComparableStack) {
+            ItemStack stack = ingredient.getStack();
+            stack.setCount(count);
+            return new RecipesCommon.NbtComparableStack(stack);
+        }
+
+        RecipesCommon.AStack copy = ingredient.copy();
+        copy.setCount(count);
+        return copy;
+    }
+
+    private static void validateSlotCount(String recipeName, String kind, Object[] values, int slotLimit) {
+        if(values != null && values.length > slotLimit) {
+            throw new IllegalStateException("Recipe " + recipeName + " requires " + values.length + " " + kind + ", but its machine only has " + slotLimit + "!");
+        }
     }
 
     @Override

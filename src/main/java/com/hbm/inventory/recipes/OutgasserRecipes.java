@@ -59,7 +59,6 @@ public class OutgasserRecipes extends SerializableRecipe {
 		recipes.put(new ComparableStack(DictFrame.fromOne(ModItems.oil_tar, ItemEnums.EnumTarType.COAL)),	new OutgasserRecipe(null, new FluidStack(Fluids.COALOIL, 100)));
 		recipes.put(new ComparableStack(DictFrame.fromOne(ModItems.oil_tar, ItemEnums.EnumTarType.WAX)),	new OutgasserRecipe(null, new FluidStack(Fluids.RADIOSOLVENT, 100)));
 		/* EE outgasser parity */
-		recipes.put(new RecipesCommon.OreDictStack(GOLD.dustTiny()), new OutgasserRecipe(new ItemStack(ModItems.powder_au198_tiny, 1), null));
 		recipes.put(new RecipesCommon.OreDictStack(U233.billet()), new OutgasserRecipe(new ItemStack(ModItems.billet_u235, 1), null));
 		recipes.put(new RecipesCommon.OreDictStack(U235.ingot()), new OutgasserRecipe(new ItemStack(ModItems.ingot_neptunium_fuel, 1), null));
 		recipes.put(new RecipesCommon.OreDictStack(NP237.billet()), new OutgasserRecipe(new ItemStack(ModItems.billet_pu238, 1), null));
@@ -82,7 +81,6 @@ public class OutgasserRecipes extends SerializableRecipe {
 		recipes.put(new RecipesCommon.OreDictStack(CS.dust()), new OutgasserRecipe(new ItemStack(ModItems.powder_cs137, 1), null));
 		recipes.put(new RecipesCommon.OreDictStack(AT.dust()), new OutgasserRecipe(new ItemStack(ModItems.powder_at209, 1), null));
 		recipes.put(new ComparableStack(ModItems.billet_australium), new OutgasserRecipe(new ItemStack(ModItems.billet_australium_lesser, 1), null));
-		recipes.put(new RecipesCommon.OreDictStack(PB.dustTiny()), new OutgasserRecipe(new ItemStack(ModItems.powder_pb209_tiny, 1), null));
 		recipes.put(new RecipesCommon.OreDictStack(PB.ingot()), new OutgasserRecipe(new ItemStack(ModItems.ingot_pb209, 1), null));
 		recipes.put(new RecipesCommon.OreDictStack(PB.dust()), new OutgasserRecipe(new ItemStack(ModItems.powder_pb209, 1), null));
 		recipes.put(new RecipesCommon.OreDictStack(GOLD.block()), new OutgasserRecipe(new ItemStack(ModBlocks.block_au198, 1), null));

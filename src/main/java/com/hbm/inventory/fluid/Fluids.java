@@ -440,7 +440,7 @@ public class Fluids {
         PLASMA_PUT =			new FluidType(159, "PLASMA_PUT",			0x3F99FF, 2, 3, 1, EnumSymbol.RADIATION).setTexture(new ResourceLocation(Tags.MODID, "textures/gui/fluids/plasma_dt.png")).setTemp(50273).addTraits(NOCON, NOID, PLASMA);
         UU_MATTER =				new FluidType(160, "UU_MATTER",			0xE700FF, 6, 2, 6, EnumSymbol.ACID).setTexture(new ResourceLocation(Tags.MODID, "textures/gui/fluids/xenon.png")).setFFNameOverride("ic2uu_matter").setTemp(1_000_000).addTraits(new FT_Corrosive(20), LIQUID, VISCOUS);
         FLUE =					new FluidType(161, "FLUE",			0x131313, 1, 4, 1, EnumSymbol.NONE).addContainers(new CD_Gastank(0xFF4545, 0xFFE97F)).addTraits(new FT_Flammable(25_000), GASEOUS, new FT_Polluting().burn(PollutionType.SOOT, SOOT_GAS).release(PollutionType.SOOT, SOOT_GAS * 25));
-        AIRBLAST =				new FluidType(162, "AIRBLAST",			0xFFDADA, 0, 3, 0, EnumSymbol.NONE).setTemp(1_200).addTraits(GASEOUS);
+        AIRBLAST =				new FluidType(162, "AIRBLAST",			0xFFDADA, 0, 3, 0, EnumSymbol.NONE).setTexture(new ResourceLocation(Tags.MODID, "textures/gui/fluids/air.png")).setTemp(1_200).addTraits(GASEOUS);
 
         // ^ ^ ^ ^ ^ ^ ^ ^
         //ADD NEW FLUIDS HERE
