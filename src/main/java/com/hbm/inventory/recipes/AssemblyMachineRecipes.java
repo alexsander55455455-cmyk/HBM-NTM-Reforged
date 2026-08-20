@@ -4,6 +4,7 @@ import com.hbm.blocks.BlockEnums;
 import com.hbm.blocks.ModBlocks;
 import com.hbm.config.GeneralConfig;
 import com.hbm.inventory.OreDictManager;
+import com.hbm.inventory.AssemblyMachineInventory;
 import com.hbm.inventory.RecipesCommon;
 import com.hbm.inventory.RecipesCommon.ComparableStack;
 import com.hbm.inventory.RecipesCommon.OreDictStack;
@@ -39,6 +40,7 @@ public class AssemblyMachineRecipes extends GenericRecipes<GenericRecipe> {
     @Override public int inputFluidLimit() { return 1; }
     @Override public int outputItemLimit() { return 1; }
     @Override public int outputFluidLimit() { return 1; }
+    @Override protected int inputItemStackLimit() { return AssemblyMachineInventory.INPUT_STACK_LIMIT; }
 
     @Override public String getFileName() { return "hbmAssemblyMachine.json"; }
     @Override public GenericRecipe instantiateRecipe(String name) { return new GenericRecipe(name); }
@@ -1366,7 +1368,7 @@ public class AssemblyMachineRecipes extends GenericRecipes<GenericRecipe> {
                 .outputItems(new ItemStack(ModItems.backpack_smuggler))
                 .inputItems(
                         new ComparableStack(ModItems.backpack_reinforced_steel),
-                        new ComparableStack(ModItems.plastic_bag, 5),
+                        new ComparableStack(ModItems.plastic_bag, 9),
                         new ComparableStack(ModItems.ducttape, 8),
                         new ComparableStack(ModItems.key_kit),
                         new ComparableStack(ModItems.key_fake),

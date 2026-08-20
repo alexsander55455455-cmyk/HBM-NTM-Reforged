@@ -44,4 +44,18 @@ class GenericRecipeStackLimitTest {
                 new RecipesCommon.AStack[] {new RecipesCommon.ComparableStack(nonStackable, 4)},
                 3));
     }
+
+    @Test
+    void keepsNonStackableAssemblyIngredientsInOneMachineStack() {
+        Item nonStackable = new Item().setMaxStackSize(1);
+
+        RecipesCommon.AStack[] normalized = GenericRecipes.normalizeInputStacks(
+                "test.assembly_recipe",
+                new RecipesCommon.AStack[] {new RecipesCommon.ComparableStack(nonStackable, 20)},
+                12,
+                64);
+
+        assertEquals(1, normalized.length);
+        assertEquals(20, normalized[0].stacksize);
+    }
 }

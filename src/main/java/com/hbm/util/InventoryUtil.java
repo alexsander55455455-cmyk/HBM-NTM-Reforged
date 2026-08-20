@@ -499,14 +499,12 @@ public class InventoryUtil {
 		Slot slot;
 		ItemStack current;
 
-		if (stack.isStackable()) {
-
-			while (stack.getCount() > 0 && (!reverse && index < end || reverse && index >= start)) {
+		while (stack.getCount() > 0 && (!reverse && index < end || reverse && index >= start)) {
 				slot = slots.get(index);
 				current = slot.getStack();
 
 				if (!current.isEmpty()) {
-					int max = Math.min(stack.getMaxStackSize(), slot.getSlotStackLimit());
+					int max = Math.min(slot.getItemStackLimit(stack), slot.getSlotStackLimit());
 					int toRemove = Math.min(stack.getCount(), max);
 
 					if (slot.isItemValid(ItemStackUtil.carefulCopyWithSize(stack, toRemove)) && current.getItem() == stack.getItem() &&
@@ -533,7 +531,6 @@ public class InventoryUtil {
 					++index;
 				}
 			}
-		}
 
 		if (stack.getCount() > 0) {
 			if (reverse) {
@@ -548,7 +545,7 @@ public class InventoryUtil {
 
 				if (current.isEmpty()) {
 
-					int max = Math.min(stack.getMaxStackSize(), slot.getSlotStackLimit());
+					int max = Math.min(slot.getItemStackLimit(stack), slot.getSlotStackLimit());
 					int toRemove = Math.min(stack.getCount(), max);
 
 					if (slot.isItemValid(ItemStackUtil.carefulCopyWithSize(stack, toRemove))) {

@@ -7,6 +7,7 @@ import com.hbm.blocks.ModBlocks;
 import com.hbm.interfaces.AutoRegister;
 import com.hbm.interfaces.IControlReceiver;
 import com.hbm.inventory.UpgradeManagerNT;
+import com.hbm.inventory.AssemblyMachineInventory;
 import com.hbm.inventory.container.ContainerMachineAssemblyFactory;
 import com.hbm.inventory.fluid.Fluids;
 import com.hbm.inventory.fluid.tank.FluidTankNTM;
@@ -76,6 +77,14 @@ public class TileEntityMachineAssemblyFactory extends TileEntityMachineBase impl
     public TileEntityMachineAssemblyFactory() {
         super(60, true, true);
 
+        inventory = new AssemblyMachineInventory(60, TileEntityMachineAssemblyFactory::isAssemblyInputSlot) {
+            @Override
+            protected void onContentsChanged(int slot) {
+                super.onContentsChanged(slot);
+                markDirty();
+            }
+        };
+
         animations = new AssemfacArm[2];
         for(int i = 0; i < animations.length; i++) animations[i] = new AssemfacArm(i);
 
@@ -100,6 +109,11 @@ public class TileEntityMachineAssemblyFactory extends TileEntityMachineBase impl
         for(int i = 0; i < 4; i++) this.assemblerModule[i] = new ModuleMachineAssembler(i, this, inventory)
                 .itemInput(5 + i * 14).itemOutput(17 + i * 14)
                 .fluidInput(inputTanks[i]).fluidOutput(outputTanks[i]);
+    }
+
+    private static boolean isAssemblyInputSlot(int slot) {
+        for(int i = 0; i < 4; i++) if(slot >= 5 + i * 14 && slot < 17 + i * 14) return true;
+        return false;
     }
 
     @Override

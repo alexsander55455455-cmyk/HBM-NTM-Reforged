@@ -54,6 +54,7 @@ public abstract class GenericRecipes <T extends GenericRecipe> extends Serializa
     public abstract int inputFluidLimit();
     public abstract int outputItemLimit();
     public abstract int outputFluidLimit();
+    protected int inputItemStackLimit() { return 0; }
     public boolean hasDuration() { return true; }
     public boolean hasPower() { return true; }
 
@@ -115,7 +116,7 @@ public abstract class GenericRecipes <T extends GenericRecipe> extends Serializa
     public void register(T recipe) {
         int originalInputCount = recipe.inputItem == null ? 0 : recipe.inputItem.length;
         try {
-            recipe.inputItem = normalizeInputStacks(recipe.name, recipe.inputItem, this.inputItemLimit());
+            recipe.inputItem = normalizeInputStacks(recipe.name, recipe.inputItem, this.inputItemLimit(), this.inputItemStackLimit());
             validateSlotCount(recipe.name, "input fluids", recipe.inputFluid, this.inputFluidLimit());
             validateSlotCount(recipe.name, "output items", recipe.outputItem, this.outputItemLimit());
             validateSlotCount(recipe.name, "output fluids", recipe.outputFluid, this.outputFluidLimit());
@@ -148,6 +149,10 @@ public abstract class GenericRecipes <T extends GenericRecipe> extends Serializa
     }
 
     static RecipesCommon.AStack[] normalizeInputStacks(String recipeName, RecipesCommon.AStack[] input, int slotLimit) {
+        return normalizeInputStacks(recipeName, input, slotLimit, 0);
+    }
+
+    static RecipesCommon.AStack[] normalizeInputStacks(String recipeName, RecipesCommon.AStack[] input, int slotLimit, int machineStackLimit) {
         if(input == null) return null;
 
         List<RecipesCommon.AStack> normalized = new ArrayList<>();
@@ -156,7 +161,8 @@ public abstract class GenericRecipes <T extends GenericRecipe> extends Serializa
                 throw new IllegalStateException("Recipe " + recipeName + " contains an empty item ingredient!");
             }
 
-            int maxStackSize = maxSupportedStackSize(recipeName, ingredient);
+            int itemStackLimit = maxSupportedStackSize(recipeName, ingredient);
+            int maxStackSize = machineStackLimit > 0 ? machineStackLimit : itemStackLimit;
             int remaining = ingredient.stacksize;
             while(remaining > 0) {
                 int amount = Math.min(remaining, maxStackSize);

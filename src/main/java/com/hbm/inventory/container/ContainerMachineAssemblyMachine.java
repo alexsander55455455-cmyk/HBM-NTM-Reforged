@@ -1,6 +1,7 @@
 package com.hbm.inventory.container;
 
 import com.hbm.inventory.slot.SlotCraftingOutput;
+import com.hbm.inventory.slot.SlotAssemblyInput;
 import com.hbm.inventory.slot.SlotFiltered;
 import com.hbm.inventory.slot.SlotNonRetarded;
 import com.hbm.items.ModItems;
@@ -28,7 +29,11 @@ public class ContainerMachineAssemblyMachine extends ContainerBase {
         // Upgrades
         this.addSlots(assembler, 2, 152, 108, 2, 1);
         // Input
-        this.addSlots(assembler, 4, 8, 18, 4, 3);
+        for(int row = 0; row < 4; row++) {
+            for(int col = 0; col < 3; col++) {
+                this.addSlotToContainer(new SlotAssemblyInput(assembler, 4 + col + row * 3, 8 + col * 18, 18 + row * 18));
+            }
+        }
         // Output
         this.addSlotToContainer(new SlotCraftingOutput(invPlayer.player, assembler, 16, 98, 45));
 

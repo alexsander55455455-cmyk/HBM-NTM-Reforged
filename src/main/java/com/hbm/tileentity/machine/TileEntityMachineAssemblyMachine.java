@@ -8,6 +8,7 @@ import com.hbm.blocks.ModBlocks;
 import com.hbm.interfaces.AutoRegister;
 import com.hbm.interfaces.IControlReceiver;
 import com.hbm.inventory.UpgradeManagerNT;
+import com.hbm.inventory.AssemblyMachineInventory;
 import com.hbm.inventory.container.ContainerMachineAssemblyMachine;
 import com.hbm.inventory.fluid.Fluids;
 import com.hbm.inventory.fluid.tank.FluidTankNTM;
@@ -44,7 +45,6 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.ItemStackHandler;
 
 import java.util.HashMap;
 import java.util.List;
@@ -76,7 +76,7 @@ public class TileEntityMachineAssemblyMachine extends TileEntityMachineBase impl
     public TileEntityMachineAssemblyMachine() {
         super(0, true, true);
 
-        inventory = new ItemStackHandler(17) {
+        inventory = new AssemblyMachineInventory(17, slot -> slot >= 4 && slot < 16) {
             @Override
             protected void onContentsChanged(int slot) {
                 super.onContentsChanged(slot);
