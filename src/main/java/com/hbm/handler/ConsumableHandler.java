@@ -5,6 +5,7 @@ import com.hbm.config.VersatileConfig;
 import com.hbm.inventory.fluid.Fluids;
 import com.hbm.items.ModItems;
 import com.hbm.items.armor.JetpackFueledBase;
+import com.hbm.items.weapon.ItemGunBase;
 import com.hbm.items.weapon.sedna.GunConfig;
 import com.hbm.items.weapon.sedna.ItemGunBaseNT;
 import com.hbm.lib.HBMSoundHandler;
@@ -217,6 +218,14 @@ public class ConsumableHandler {
                         itemGunBaseNT.setWear(item, j, Math.max(0F, itemGunBaseNT.getWear(item, j) - maxDura * 0.25F));
                         didSomething = true;
                     }
+                }
+            } else if (item.getItem() instanceof ItemGunBase) {
+                ItemGunBase gun = (ItemGunBase) item.getItem();
+                int wear = ItemGunBase.getItemWear(item);
+                if (wear > 0) {
+                    int repair = Math.round(gun.mainConfig.durability * repairFactor);
+                    ItemGunBase.setItemWear(item, Math.max(0, wear - repair));
+                    didSomething = true;
                 }
             }
         }
