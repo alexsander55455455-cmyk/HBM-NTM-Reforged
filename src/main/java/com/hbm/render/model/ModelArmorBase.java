@@ -19,6 +19,7 @@ public abstract class ModelArmorBase extends ModelBiped {
 
     private static final float DEG_TO_RAD = (float) Math.PI / 180F;
     int type;
+    private ModelBiped poseModel;
 
     ModelRendererObj head;
     ModelRendererObj body;
@@ -71,6 +72,13 @@ public abstract class ModelArmorBase extends ModelBiped {
     }
 
     @Override
+    public void setModelAttributes(ModelBase model) {
+        super.setModelAttributes(model);
+        // Use the armor layer's renderer, which may differ from RenderManager's cached renderer.
+        this.poseModel = model instanceof ModelBiped ? (ModelBiped) model : null;
+    }
+
+    @Override
     public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch,
                        float scale) {
 
@@ -92,9 +100,12 @@ public abstract class ModelArmorBase extends ModelBiped {
     @Override
     public void setRotationAngles(float walkCycle, float walkAmplitude, float idleCycle, float headYaw, float headPitch, float scale, Entity entity) {
         boolean copied = false;
-        Render render = Minecraft.getMinecraft().getRenderManager().getEntityRenderObject(entity);
+        Render render = this.poseModel == null ? Minecraft.getMinecraft().getRenderManager().getEntityRenderObject(entity) : null;
 
-        if(render instanceof RenderPlayer) {
+        if(this.poseModel != null) {
+            this.copyPropertiesFromBiped(this.poseModel);
+            copied = true;
+        } else if(render instanceof RenderPlayer) {
             this.copyPropertiesFromBiped(((RenderPlayer) render).getMainModel());
             copied = true;
         } else if(render instanceof RenderLivingBase) {
@@ -126,15 +137,8 @@ public abstract class ModelArmorBase extends ModelBiped {
                     }
                 }
 
-                copyModelAngles(this.bipedHead, this.head);
-                copyModelAngles(this.bipedBody, this.body);
-                copyModelAngles(this.bipedLeftArm, this.leftArm);
-                copyModelAngles(this.bipedRightArm, this.rightArm);
-                copyModelAngles(this.bipedLeftLeg, this.leftLeg);
-                copyModelAngles(this.bipedRightLeg, this.rightLeg);
-                copyModelAngles(this.bipedLeftLeg, this.leftFoot);
-                copyModelAngles(this.bipedRightLeg, this.rightFoot);
             }
+            this.copyPropertiesFromBiped(this);
         }
 
         if(this.isSneak) {
