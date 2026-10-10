@@ -52,7 +52,7 @@ public class ItemAmmoContainer extends ItemEnumMulti<ItemAmmoContainer.EnumAmmoC
 
         for (ItemStack inv : player.inventory.mainInventory) {
             if (!inv.isEmpty() && inv.getItem() instanceof ItemGunBaseNT gun) {
-                if (!gun.defaultAmmo.isEmpty() && !(makeshift && gun.isDefaultExpensive)) stacks.add(inv);
+                if (gun.defaultAmmo != null && !gun.defaultAmmo.isEmpty() && !(makeshift && gun.isDefaultExpensive)) stacks.add(inv);
             }
         }
 
