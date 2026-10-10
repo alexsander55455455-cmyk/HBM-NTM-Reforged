@@ -5,10 +5,10 @@
       "item": "hbm:achievement_icon"
     },
     "title": {
-      "translate": "achievement.gofish"
+      "translate": "achievement.goFish"
     },
     "description": {
-      "translate": "achievement.gofish.desc"
+      "translate": "achievement.goFish.desc"
     },
     "frame": "challenge",
     "show_toast": true,

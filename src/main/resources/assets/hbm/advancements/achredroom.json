@@ -5,10 +5,10 @@
       "item": "hbm:key_red"
     },
     "title": {
-      "translate": "achievement.redroom"
+      "translate": "achievement.redRoom"
     },
     "description": {
-      "translate": "achievement.redroom.desc"
+      "translate": "achievement.redRoom.desc"
     },
     "frame": "challenge",
     "show_toast": true,

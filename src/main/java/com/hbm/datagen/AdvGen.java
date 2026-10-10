@@ -49,8 +49,8 @@ public class AdvGen {
         batch.add(Templates.impossible("achgofish",
                 "hbm:root",
                 new Display()
-                        .titleKey("achievement.gofish")
-                        .descKey("achievement.gofish.desc")
+                        .titleKey("achievement.goFish")
+                        .descKey("achievement.goFish.desc")
                         .icon(DictFrame.fromOne(ModItems.achievement_icon, EnumAchievementType.GOFISH))
                         .frame(FrameType.CHALLENGE)
                         .toast(true)
@@ -135,8 +135,8 @@ public class AdvGen {
         batch.add(Templates.impossible("achredroom",
                 "hbm:root",
                 new Display()
-                        .titleKey("achievement.redroom")
-                        .descKey("achievement.redroom.desc")
+                        .titleKey("achievement.redRoom")
+                        .descKey("achievement.redRoom.desc")
                         .icon(ModItems.key_red)
                         .frame(FrameType.CHALLENGE)
                         .toast(true)
