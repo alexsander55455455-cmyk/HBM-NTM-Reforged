@@ -19,22 +19,22 @@ public class EEAmmoPressRecipes {
 
     public static void register(List<AmmoPressRecipe> recipes) {
         // EE assembly -> final ammo (second path alongside stamp press)
-        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.gun_revolver_iron_ammo), null, null, null, new ComparableStack(ModItems.assembly_iron), null, null, null, null));
-        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.gun_revolver_ammo), null, null, null, new ComparableStack(ModItems.assembly_steel), null, null, null, null));
-        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.gun_revolver_lead_ammo), null, null, null, new ComparableStack(ModItems.assembly_lead), null, null, null, null));
-        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.gun_revolver_gold_ammo), null, null, null, new ComparableStack(ModItems.assembly_gold), null, null, null, null));
-        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.gun_revolver_schrabidium_ammo), null, null, null, new ComparableStack(ModItems.assembly_schrabidium), null, null, null, null));
-        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.gun_revolver_nightmare_ammo), null, null, null, new ComparableStack(ModItems.assembly_nightmare), null, null, null, null));
-        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.ammo_357_desh), null, null, null, new ComparableStack(ModItems.assembly_desh), null, null, null, null));
-        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.gun_revolver_cursed_ammo), null, null, null, new OreDictStack(STEEL.ingot()), null, null, null, null));
-        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.ammo_44), null, null, null, new ComparableStack(ModItems.assembly_nopip), null, null, null, null));
-        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.ammo_9mm), null, null, null, new ComparableStack(ModItems.assembly_smg), null, null, null, null));
-        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.ammo_22lr), null, null, null, new ComparableStack(ModItems.assembly_uzi), null, null, null, null));
-        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.ammo_5mm), null, null, null, new ComparableStack(ModItems.assembly_lacunae), null, null, null, null));
-        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.ammo_556), null, null, null, new ComparableStack(ModItems.assembly_556), null, null, null, null));
-        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.ammo_566_gold), null, null, null, new OreDictStack(GOLD.ingot()), null, null, null, null));
-        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.ammo_50bmg), null, null, null, new ComparableStack(ModItems.assembly_calamity), null, null, null, null));
-        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.ammo_50ae), null, null, null, new ComparableStack(ModItems.assembly_actionexpress), null, null, null, null));
+        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.gun_revolver_iron_ammo), null, null, null, new ComparableStack(ModItems.assembly_iron), null, null, null, null, null));
+        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.gun_revolver_ammo), null, null, null, new ComparableStack(ModItems.assembly_steel), null, null, null, null, null));
+        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.gun_revolver_lead_ammo), null, null, null, new ComparableStack(ModItems.assembly_lead), null, null, null, null, null));
+        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.gun_revolver_gold_ammo), null, null, null, new ComparableStack(ModItems.assembly_gold), null, null, null, null, null));
+        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.gun_revolver_schrabidium_ammo), null, null, null, new ComparableStack(ModItems.assembly_schrabidium), null, null, null, null, null));
+        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.gun_revolver_nightmare_ammo), null, null, null, new ComparableStack(ModItems.assembly_nightmare), null, null, null, null, null));
+        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.ammo_357_desh), null, null, null, new ComparableStack(ModItems.assembly_desh), null, null, null, null, null));
+        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.gun_revolver_cursed_ammo), null, null, null, new OreDictStack(STEEL.ingot()), null, null, null, null, null));
+        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.ammo_44), null, null, null, new ComparableStack(ModItems.assembly_nopip), null, null, null, null, null));
+        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.ammo_9mm), null, null, null, new ComparableStack(ModItems.assembly_smg), null, null, null, null, null));
+        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.ammo_22lr), null, null, null, new ComparableStack(ModItems.assembly_uzi), null, null, null, null, null));
+        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.ammo_5mm), null, null, null, new ComparableStack(ModItems.assembly_lacunae), null, null, null, null, null));
+        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.ammo_556), null, null, null, new ComparableStack(ModItems.assembly_556), null, null, null, null, null));
+        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.ammo_566_gold), null, null, null, new OreDictStack(GOLD.ingot()), null, null, null, null, null));
+        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.ammo_50bmg), null, null, null, new ComparableStack(ModItems.assembly_calamity), null, null, null, null, null));
+        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.ammo_50ae), null, null, null, new ComparableStack(ModItems.assembly_actionexpress), null, null, null, null, null));
 
         recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.gun_bf_ammo, 1), null, new ComparableStack(ModItems.hull_small_steel), null, new ComparableStack(ModItems.powder_power), new ComparableStack(ModItems.egg_balefire_shard), new ComparableStack(ModItems.powder_power), null, new ComparableStack(ModItems.hull_small_steel), null));
         recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.pellet_flechette, 1), null, new OreDictStack(PB.nugget()), null, null, new OreDictStack(PB.nugget()), null, new OreDictStack(PB.nugget()), new OreDictStack(PB.nugget()), new OreDictStack(PB.nugget())));
