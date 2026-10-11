@@ -542,12 +542,29 @@ public class JEIConfig implements IModPlugin {
 
         hideLegacyBreedingRodDuplicates(blacklist);
         hideLegacyChicagoPile(blacklist);
+        hideLegacySatelliteDuplicates(blacklist);
         hideCursedAddonInternalItems(blacklist);
 
         for (Item item : ModItems.ALL_ITEMS) {
             if (item instanceof EffectItem) {
                 blacklist.addIngredientToBlacklist(new ItemStack(item));
             }
+        }
+    }
+
+    static void hideLegacySatelliteDuplicates(IIngredientBlacklist blacklist) {
+        Item[] legacySatellites = {
+                ModItems.sat_mapper,
+                ModItems.sat_scanner,
+                ModItems.sat_radar,
+                ModItems.sat_laser,
+                ModItems.sat_foeq,
+                ModItems.sat_resonator,
+                ModItems.sat_miner,
+                ModItems.sat_lunar_miner
+        };
+        for (Item satellite : legacySatellites) {
+            blacklist.addIngredientToBlacklist(new ItemStack(satellite));
         }
     }
 

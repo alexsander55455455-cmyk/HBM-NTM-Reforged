@@ -97,13 +97,7 @@ public final class StaticDecoBakedModels {
         bakeSatellite(registry, atlas, ModBlocks.sat_resonator, "sat_resonator", StaticDecoBakedModels::resonatorYaw);
         bakeWavefrontFacing(registry, atlas, ModBlocks.sat_foeq,
                 "models/sat_foeq.obj", "models/sat/sat_foeq",
-                facing -> compose(
-                        translate(0.5D, 1.5D, 0.5D),
-                        rotateZ(180.0D),
-                        translate(0.0D, -1.5D, 0.0D),
-                        rotateY(90.0D),
-                        rotateY(satelliteYaw(facing))
-                ));
+                facing -> satelliteTransform(satelliteYaw(facing)));
 
         bakeStatueModels(registry, atlas);
     }
@@ -170,13 +164,7 @@ public final class StaticDecoBakedModels {
         TextureAtlasSprite variantSprite = sprite(atlas, variantTexture);
 
         for (EnumFacing facing : HORIZONTALS) {
-            Matrix4f transform = compose(
-                    translate(0.5D, 1.5D, 0.5D),
-                    rotateZ(180.0D),
-                    translate(0.0D, -1.5D, 0.0D),
-                    rotateY(90.0D),
-                    rotateY(yawFunction.applyDouble(facing))
-            );
+            Matrix4f transform = satelliteTransform(yawFunction.applyDouble(facing));
             registry.putObject(facingLocation(block, facing), new CompositeBakedModel(
                     new FixedTransformWavefrontBakedModel(baseModel, baseSprite, null, transform, true, baseTexture.uScale, baseTexture.vScale),
                     new FixedTransformWavefrontBakedModel(model, variantSprite, null, transform, true, variantTexture.uScale, variantTexture.vScale)
@@ -248,6 +236,14 @@ public final class StaticDecoBakedModels {
             case EAST -> 270.0D;
             default -> 0.0D;
         };
+    }
+
+    static Matrix4f satelliteTransform(double yaw) {
+        return compose(
+                translate(0.5D, 0.0D, 0.5D),
+                rotateY(90.0D),
+                rotateY(yaw)
+        );
     }
 
     private static double resonatorYaw(EnumFacing facing) {
