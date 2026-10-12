@@ -713,6 +713,14 @@ public class NBTStructure {
 		world.setBlockState(footPos.offset(facing), head, 2);
 	}
 
+    protected boolean isFoundationColumn(int x, int z, int groundLevel) {
+        for (int y = 0; y <= groundLevel && y < size.y; y++) {
+            BlockState state = blockArray[x][y][z];
+            if (state != null && state.definition.block != Blocks.AIR) return true;
+        }
+        return false;
+    }
+
 	public int rotateX(int x, int z, int coordBaseMode) {
 		return switch (coordBaseMode) {
 			case 1 -> size.z - 1 - z;
@@ -821,6 +829,7 @@ public class NBTStructure {
 		int maxHeight = 128;
 
 		boolean heightUpdated = false;
+        private boolean terrainBuilt = false;
 
 		int priority;
 
@@ -864,6 +873,7 @@ public class NBTStructure {
 			nbt.setInteger("min", minHeight);
 			nbt.setInteger("max", maxHeight);
 			nbt.setBoolean("hasHeight", heightUpdated);
+            nbt.setBoolean("terrainBuilt", terrainBuilt);
 			nbt.setInteger("rot", coordBaseMode);
 		}
 
@@ -874,18 +884,27 @@ public class NBTStructure {
 			minHeight = nbt.getInteger("min");
 			maxHeight = nbt.getInteger("max");
 			heightUpdated = nbt.getBoolean("hasHeight");
+            terrainBuilt = nbt.getBoolean("terrainBuilt");
 			coordBaseMode = nbt.hasKey("rot") ? nbt.getInteger("rot") : 0;
 		}
 
 		@Override
 		public boolean addComponentParts(World world, Random rand, StructureBoundingBox box) {
 			if (piece == null) return false;
+            if (terrainBuilt) return true;
+            boolean buildWhole = piece.maxTerrainVariation >= 0 && !heightUpdated;
+            // Wait for terrain that world generation has already loaded, without cascading into new chunks.
+            if (buildWhole && !world.isAreaLoaded(new StructureBoundingBox(
+                    boundingBox.minX, 0, boundingBox.minZ, boundingBox.maxX, 255, boundingBox.maxZ), false)) return true;
 
 			// now we're in the world, update minY/maxY
 			if (!piece.conformToTerrain && !heightUpdated) {
-                int averageHeight = getAverageHeight(world, box) + piece.heightOffset;
+                int groundHeight = getAverageHeight(world, box);
+                if (groundHeight < 0) return false;
+                int averageHeight = groundHeight + piece.heightOffset;
                 boolean isFlatWorld = world.getWorldInfo().getTerrainType() == net.minecraft.world.WorldType.FLAT;
 				int y = isFlatWorld ? averageHeight : MathHelper.clamp(averageHeight, minHeight, maxHeight);
+                if (piece.maxTerrainVariation >= 0 && y != averageHeight) return false;
 
 				if (!piece.alignToTerrain) {
 					parent.offsetYHeight(y);
@@ -894,6 +913,10 @@ public class NBTStructure {
 				}
 			}
 
+            if (buildWhole) {
+                terrainBuilt = piece.structure.build(world, piece, boundingBox, boundingBox, coordBaseMode, parent.name);
+                return terrainBuilt;
+            }
 			return piece.structure.build(world, piece, boundingBox, box, coordBaseMode, parent.name);
 		}
 
@@ -934,10 +957,29 @@ public class NBTStructure {
 		private int getAverageHeight(World world, StructureBoundingBox box) {
 			int total = 0;
 			int iterations = 0;
+            boolean checkTerrain = piece.maxTerrainVariation >= 0;
+            StructureBoundingBox area = checkTerrain ? boundingBox : box;
+            int min = Integer.MAX_VALUE;
+            int max = Integer.MIN_VALUE;
 
-			for (int z = box.minZ; z <= box.maxZ; z++) {
-				for (int x = box.minX; x <= box.maxX; x++) {
-					total += world.getHeight(new BlockPos(x, 0, z)).getY();
+			for (int z = area.minZ; z <= area.maxZ; z++) {
+				for (int x = area.minX; x <= area.maxX; x++) {
+                    if (checkTerrain) {
+                        int localX = piece.structure.unrotateX(x - boundingBox.minX, z - boundingBox.minZ, coordBaseMode);
+                        int localZ = piece.structure.unrotateZ(x - boundingBox.minX, z - boundingBox.minZ, coordBaseMode);
+                        // Only ground-level template blocks need support; the crane boom can overhang uneven terrain.
+                        if (!piece.structure.isFoundationColumn(localX, localZ, -piece.heightOffset - 1)) continue;
+                    }
+                    BlockPos pos = new BlockPos(x, 0, z);
+                    BlockPos top = checkTerrain ? world.getTopSolidOrLiquidBlock(pos) : world.getHeight(pos);
+                    int height = top.getY();
+                    if (checkTerrain) {
+                        if (height <= 0 || world.getBlockState(top).getMaterial().isLiquid()) return -1;
+                        min = Math.min(min, height);
+                        max = Math.max(max, height);
+                        if (max - min > piece.maxTerrainVariation) return -1;
+                    }
+					total += height;
 					iterations++;
 				}
 			}
