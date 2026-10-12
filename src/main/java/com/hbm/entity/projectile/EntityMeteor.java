@@ -91,7 +91,7 @@ public class EntityMeteor extends Entity {
             } else if (block == Blocks.STONE) {
                 world.setBlockState(pos, Blocks.COBBLESTONE.getDefaultState(), 3);
             } else if (block == Blocks.GRASS) {
-                world.setBlockState(pos, ModBlocks.waste_earth.getDefaultState(), 3);
+                world.setBlockState(pos, ModBlocks.dirt_dead.getDefaultState(), 3);
             }
         }
     }
