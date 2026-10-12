@@ -13,4 +13,9 @@ public interface IFusionPowerReceiver {
      * neutronPower is a fixed value provided by the recipe
      */
     void receiveFusionPower(long fusionPower, double neutronPower, float r, float g, float b);
+
+    /** Carries the balefire plasma condition without changing the existing receiver API. */
+    default void receiveFusionPower(long fusionPower, double neutronPower, float r, float g, float b, boolean balefire) {
+        receiveFusionPower(fusionPower, neutronPower, r, g, b);
+    }
 }

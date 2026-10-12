@@ -45,6 +45,7 @@ public class TileEntityFusionBreeder extends TileEntityMachineBase implements IT
     public double neutronEnergy;
     public double neutronEnergySync;
     public double progress;
+    private boolean balefire;
     public static final double capacity = 10_000D;
 
     public TileEntityFusionBreeder() {
@@ -105,6 +106,8 @@ public class TileEntityFusionBreeder extends TileEntityMachineBase implements IT
 
         if(inventory.getStackInSlot(1).getItem() == ModItems.meteorite_sword_irradiated)
             return inventory.getStackInSlot(2).isEmpty();
+        if(inventory.getStackInSlot(1).getItem() == ModItems.meteorite_sword_fused)
+            return balefire && inventory.getStackInSlot(2).isEmpty();
 
         Tuple.Pair<ItemStack, FluidStack> output = OutgasserRecipes.getOutput(inventory.getStackInSlot(1));
         if(output == null) return false;
@@ -138,9 +141,12 @@ public class TileEntityFusionBreeder extends TileEntityMachineBase implements IT
 
     private void processSolid() {
 
-        if(inventory.getStackInSlot(1).getItem() == ModItems.meteorite_sword_irradiated) {
+        if(inventory.getStackInSlot(1).getItem() == ModItems.meteorite_sword_irradiated ||
+                inventory.getStackInSlot(1).getItem() == ModItems.meteorite_sword_fused) {
+            ItemStack out = new ItemStack(inventory.getStackInSlot(1).getItem() == ModItems.meteorite_sword_irradiated ?
+                    ModItems.meteorite_sword_fused : ModItems.meteorite_sword_baleful);
             inventory.extractItem(1, 1, false);
-            inventory.setStackInSlot(2, new ItemStack(ModItems.meteorite_sword_fused));
+            inventory.setStackInSlot(2, out);
             this.progress = 0;
             return;
         }
@@ -202,7 +208,7 @@ public class TileEntityFusionBreeder extends TileEntityMachineBase implements IT
     @Override
     public boolean isItemValidForSlot(int slot, ItemStack stack) {
         if(slot == 0) return stack.getItem() instanceof IItemFluidIdentifier; // fluid ID
-        if(slot == 1) return stack.getItem() == ModItems.meteorite_sword_irradiated || OutgasserRecipes.getOutput(stack) != null; // input
+        if(slot == 1) return stack.getItem() == ModItems.meteorite_sword_irradiated || stack.getItem() == ModItems.meteorite_sword_fused || OutgasserRecipes.getOutput(stack) != null; // input
         return false;
     }
 
@@ -269,7 +275,16 @@ public class TileEntityFusionBreeder extends TileEntityMachineBase implements IT
     }
 
     @Override public boolean receivesFusionPower() { return false; }
-    @Override public void receiveFusionPower(long fusionPower, double neutronPower, float r, float g, float b) { this.neutronEnergy = neutronPower; doProgress(); }
+    @Override public void receiveFusionPower(long fusionPower, double neutronPower, float r, float g, float b) {
+        receiveFusionPower(fusionPower, neutronPower, r, g, b, false);
+    }
+
+    @Override
+    public void receiveFusionPower(long fusionPower, double neutronPower, float r, float g, float b, boolean balefire) {
+        this.balefire = balefire;
+        this.neutronEnergy = neutronPower;
+        doProgress();
+    }
 
     @Override public FluidTankNTM[] getReceivingTanks() { return new FluidTankNTM[] {tanks[0]}; }
     @Override public FluidTankNTM[] getSendingTanks() { return new FluidTankNTM[] {tanks[1]}; }

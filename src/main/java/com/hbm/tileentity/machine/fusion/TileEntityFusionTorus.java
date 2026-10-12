@@ -45,6 +45,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.Map;
 
 @AutoRegister
@@ -192,6 +193,8 @@ public class TileEntityFusionTorus extends TileEntityCooledBase implements ITick
             float r = recipe != null ? recipe.r : 0F;
             float g = recipe != null ? recipe.g : 0F;
             float b = recipe != null ? recipe.b : 0F;
+            boolean balefire = recipe != null && recipe.inputFluid != null &&
+                    Arrays.stream(recipe.inputFluid).anyMatch(fluid -> fluid.type == Fluids.BALEFIRE);
 
             if(this.plasmaEnergy > 0) for(int i = 0; i < 4; i++) {
 
@@ -200,7 +203,7 @@ public class TileEntityFusionTorus extends TileEntityCooledBase implements ITick
                     for(Map.Entry<TileEntity, Long> o : plasmaNodes[i].net.receiverEntries.entrySet()) {
                         if(o.getKey() instanceof IFusionPowerReceiver receiver) {
                             long powerReceived = (long) Math.ceil(this.plasmaEnergy * outputIntensity);
-                            receiver.receiveFusionPower(powerReceived, outputFlux, r, g, b);
+                            receiver.receiveFusionPower(powerReceived, outputFlux, r, g, b, balefire);
                         }
                     }
                 }

@@ -64,6 +64,7 @@ public class TileEntityFusionPlasmaForge extends TileEntityMachineBase implement
     public long plasmaEnergy;
     public long plasmaEnergySync;
     public double neutronEnergy;
+    private boolean balefire;
     protected PlasmaNetwork.PlasmaNode receiverNode;
     protected PlasmaNetwork.PlasmaNode providerNode;
     public boolean connected;
@@ -125,8 +126,14 @@ public class TileEntityFusionPlasmaForge extends TileEntityMachineBase implement
 
     @Override
     public void receiveFusionPower(long fusionPower, double neutronPower, float r, float g, float b) {
+        receiveFusionPower(fusionPower, neutronPower, r, g, b, false);
+    }
+
+    @Override
+    public void receiveFusionPower(long fusionPower, double neutronPower, float r, float g, float b, boolean balefire) {
         this.plasmaEnergy = fusionPower;
         this.neutronEnergy = neutronPower;
+        this.balefire = balefire;
         this.plasmaRed = r;
         this.plasmaGreen = g;
         this.plasmaBlue = b;
@@ -184,13 +191,14 @@ public class TileEntityFusionPlasmaForge extends TileEntityMachineBase implement
             if(providerNode != null && providerNode.hasValidNet()) {
                 for(Map.Entry<TileEntity, Long> entry : providerNode.net.receiverEntries.entrySet()) {
                     if(entry.getKey() instanceof IFusionPowerReceiver receiver && powerReceived > 0) {
-                        receiver.receiveFusionPower(powerReceived, this.neutronEnergy, plasmaRed, plasmaGreen, plasmaBlue);
+                        receiver.receiveFusionPower(powerReceived, this.neutronEnergy, plasmaRed, plasmaGreen, plasmaBlue, balefire);
                     }
                 }
             }
 
             if(this.didProcess && this.booster > 0) this.booster--;
             this.neutronEnergy = 0D;
+            this.balefire = false;
 
             this.networkPackNT(100);
         } else {
