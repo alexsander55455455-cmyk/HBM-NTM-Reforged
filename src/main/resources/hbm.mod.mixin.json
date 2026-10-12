@@ -23,7 +23,9 @@
     "nothirium.MixinVisibilitySet",
     "optifine.MixinRenderItem"
   ],
-  "mixins": [],
+  "mixins": [
+    "fallout.MixinCursedAddonFalloutRainGuard"
+  ],
   "server": [],
   "setSourceFile": true,
   "minVersion": "0.8.7"

@@ -1,6 +1,13 @@
 package com.hbm.core;
 
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldInsnNode;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.JumpInsnNode;
+import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.VarInsnNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
@@ -8,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.hbm.core.ModPresence.*;
+import static org.objectweb.asm.Opcodes.*;
 
 public class ModMixinConfigPlugin implements IMixinConfigPlugin {
 
@@ -60,5 +68,20 @@ public class ModMixinConfigPlugin implements IMixinConfigPlugin {
 
     @Override
     public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
+        if (!mixinClassName.equals(PACKAGE_PREFIX + "fallout.MixinCursedAddonFalloutRainGuard")) return;
+
+        // The addon's merged completion hook otherwise registers fallout even when doFallout is false.
+        for (MethodNode method : targetClass.methods) {
+            if (!method.name.endsWith("leafia$onSetDead") || (method.access & ACC_STATIC) != 0
+                    || !method.desc.equals("(Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;)V")) continue;
+            LabelNode radioactive = new LabelNode();
+            InsnList guard = new InsnList();
+            guard.add(new VarInsnNode(ALOAD, 0));
+            guard.add(new FieldInsnNode(GETFIELD, targetClass.name, "doFallout", "Z"));
+            guard.add(new JumpInsnNode(IFNE, radioactive));
+            guard.add(new InsnNode(RETURN));
+            guard.add(radioactive);
+            method.instructions.insert(guard);
+        }
     }
 }

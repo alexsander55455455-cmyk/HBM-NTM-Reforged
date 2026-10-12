@@ -446,7 +446,7 @@ public class EntityFalloutRain extends EntityExplosionChunkloading implements Bo
 
                 double percent = (double) scale <= 0 ? 100.0 : (distance * 100.0 / (double) scale);
 
-                Biome target = getBiomeChange(percent, scale, world.getBiome(TL_POS.get().setPos(x, 0, z)));
+                Biome target = doFallout ? getBiomeChange(percent, scale, world.getBiome(TL_POS.get().setPos(x, 0, z))) : null;
                 if (biomeChange && target != null) biomeChanges.put(ChunkPos.asLong(x, z), Biome.getIdForBiome(target));
 
                 int[] gapData;
