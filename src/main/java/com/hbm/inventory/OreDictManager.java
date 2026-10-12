@@ -543,6 +543,8 @@ public class OreDictManager {
         LIMESTONE.dust(powder_limestone).ore(fromOne(stone_resource, EnumStoneType.LIMESTONE));
         BAUXITE.gem(fromOne(stone_resource, EnumStoneType.BAUXITE));
         CRYOLITE.crystal(fromOne(chunk_ore, EnumChunkType.CRYOLITE));
+        OreDictionary.registerOre("oreTrixite", ore_tikite);
+        OreDictionary.registerOre("crystalTrixite", crystal_trixite);
         SLAG.block(block_slag);
 
         /*
@@ -555,7 +557,7 @@ public class OreDictManager {
          * PHOSPHORUS
          */
         P_WHITE.hot(5).ingot(ingot_phosphorus).block(block_white_phosphorus);
-        P_RED.dust(powder_fire).block(block_red_phosphorus).crystal(crystal_phosphorus);
+        P_RED.dust(powder_fire).block(block_red_phosphorus).crystal(crystal_phosphorus).ore(ore_nether_fire);
 
         /*
          * RARE METALS
@@ -797,6 +799,8 @@ public class OreDictManager {
 			}
 		}
 
+        // Preserve the existing rare-earth fragment conversion before adding its crystal alias.
+        RAREEARTH.crystal(crystal_rare);
         MaterialShapes.registerCompatShapes();
         compensateMojangSpaghettiBullshit();
     }
