@@ -830,6 +830,7 @@ public class NBTStructure {
 
 		boolean heightUpdated = false;
         private boolean terrainBuilt = false;
+        private boolean placed = false;
 
 		int priority;
 
@@ -874,6 +875,7 @@ public class NBTStructure {
 			nbt.setInteger("max", maxHeight);
 			nbt.setBoolean("hasHeight", heightUpdated);
             nbt.setBoolean("terrainBuilt", terrainBuilt);
+            nbt.setBoolean("placed", placed);
 			nbt.setInteger("rot", coordBaseMode);
 		}
 
@@ -885,6 +887,8 @@ public class NBTStructure {
 			maxHeight = nbt.getInteger("max");
 			heightUpdated = nbt.getBoolean("hasHeight");
             terrainBuilt = nbt.getBoolean("terrainBuilt");
+            placed = nbt.hasKey("placed") ? nbt.getBoolean("placed")
+                    : heightUpdated || (piece != null && piece.conformToTerrain);
 			coordBaseMode = nbt.hasKey("rot") ? nbt.getInteger("rot") : 0;
 		}
 
@@ -915,9 +919,12 @@ public class NBTStructure {
 
             if (buildWhole) {
                 terrainBuilt = piece.structure.build(world, piece, boundingBox, boundingBox, coordBaseMode, parent.name);
+                placed |= terrainBuilt;
                 return terrainBuilt;
             }
-			return piece.structure.build(world, piece, boundingBox, box, coordBaseMode, parent.name);
+			boolean built = piece.structure.build(world, piece, boundingBox, box, coordBaseMode, parent.name);
+            placed |= built;
+            return built;
 		}
 
 		public void offsetYHeight(int y) {
@@ -1286,6 +1293,47 @@ public class NBTStructure {
 	public static class GenStructure extends MapGenStructure {
 
 		private SpawnCondition nextSpawn;
+
+        public StructureStart getStructureStartAt(World world, int chunkX, int chunkZ) {
+            this.world = world;
+            initializeStructureData(world);
+            return structureMap.get(ChunkPos.asLong(chunkX, chunkZ));
+        }
+
+        public static boolean matchesStructure(StructureStart start, SpawnCondition spawn) {
+            if (start == null || !start.isSizeableStructure() || start.getComponents().isEmpty()) return false;
+            if (start instanceof Start) return spawn.name.equals(((Start) start).name);
+            if (start instanceof com.hbm.world.gen.MapGenNTMFeatures.Start) return "features".equals(spawn.name);
+            return start instanceof com.hbm.world.gen.component.BunkerComponents.BunkerStart && "bunker".equals(spawn.name);
+        }
+
+        public StructureStart getVerifiedStructureAt(World world, SpawnCondition spawn, int chunkX, int chunkZ) {
+            StructureStart start = getStructureStartAt(world, chunkX, chunkZ);
+            if (!matchesStructure(start, spawn)) return null;
+
+            // A guarded single-piece structure can still be waiting for its complete terrain footprint.
+            if (start instanceof Start && start.getComponents().size() == 1) {
+                Component component = (Component) start.getComponents().get(0);
+                if (component.piece != null && component.piece.maxTerrainVariation >= 0 && !component.heightUpdated) {
+                    start.generateStructure(world, new Random(world.getSeed()), start.getBoundingBox());
+                    MapGenStructureData data = (MapGenStructureData) world.getPerWorldStorage()
+                            .getOrLoadData(MapGenStructureData.class, getStructureName());
+                    data.writeInstance(start.writeStructureComponentsToNBT(chunkX, chunkZ), chunkX, chunkZ);
+                    data.markDirty();
+                }
+            }
+
+            if (!matchesStructure(start, spawn)) return null;
+            for (StructureComponent part : start.getComponents()) {
+                if (part instanceof Component) {
+                    if (((Component) part).placed) return start;
+                } else {
+                    StructureBoundingBox bounds = part.getBoundingBox();
+                    if (world.getChunk((bounds.minX - 8) >> 4, (bounds.minZ - 8) >> 4).isTerrainPopulated()) return start;
+                }
+            }
+            return null;
+        }
 
 		public void generateStructures(World world, Random rand, IChunkProvider chunkProvider, int chunkX, int chunkZ) {
 			ChunkPrimer primer = new ChunkPrimer();

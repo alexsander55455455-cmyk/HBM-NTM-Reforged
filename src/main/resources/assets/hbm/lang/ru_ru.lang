@@ -885,6 +885,7 @@ commands.hbmrad.rad_not_int=Введённое количество радиац
 commands.hbmrad.removeall=Убрана вся радиация из мерения %1$s.
 commands.locate.no_match=Структуры с таким именем не найдены!
 commands.locate.none_found=Поблизости нет таких структур!
+commands.locate.searching=Поиск %s. Подходящие участки будут загружены и проверены.
 commands.locate.success.coordinates=Структура '%s' найдена по координатам: %d, %d
 commands.satellite.no_active_satellites=Нет активных спутников!
 commands.satellite.no_satellite=Спутник не найден!

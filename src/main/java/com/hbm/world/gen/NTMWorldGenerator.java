@@ -17,6 +17,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.gen.IChunkGenerator;
 import net.minecraft.world.gen.structure.StructureComponent;
+import net.minecraft.world.gen.structure.StructureStart;
 import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.common.BiomeDictionary.Type;
 import net.minecraftforge.event.terraingen.InitMapGenEvent.EventType;
@@ -377,15 +378,26 @@ public class NTMWorldGenerator implements IWorldGenerator {
 		}});
 	}
 
-	private NBTStructure.GenStructure nbtGen = new NBTStructure.GenStructure();
+	private final Map<World, NBTStructure.GenStructure> nbtGens = new IdentityHashMap<>();
+	private final Set<World> populationWorlds = Collections.newSetFromMap(new IdentityHashMap<>());
 
 	private final Random rand = new Random();
 
 	@SubscribeEvent
 	public void onLoad(WorldEvent.Load event) {
-		nbtGen = (NBTStructure.GenStructure) TerrainGen.getModdedMapGen(new NBTStructure.GenStructure(), EventType.CUSTOM);
+		if (!event.getWorld().isRemote) getGenerator(event.getWorld());
+	}
 
-		hasPopulationEvent = false;
+	@SubscribeEvent
+	public void onUnload(WorldEvent.Unload event) {
+		if (event.getWorld().isRemote) return;
+		nbtGens.remove(event.getWorld());
+		populationWorlds.remove(event.getWorld());
+	}
+
+	private NBTStructure.GenStructure getGenerator(World world) {
+		return nbtGens.computeIfAbsent(world, key -> (NBTStructure.GenStructure)
+				TerrainGen.getModdedMapGen(new NBTStructure.GenStructure(), EventType.CUSTOM));
 	}
 
 	private void setRandomSeed(World world, int chunkX, int chunkZ) {
@@ -395,30 +407,28 @@ public class NTMWorldGenerator implements IWorldGenerator {
 		rand.setSeed((long) chunkX * i + (long) chunkZ * j ^ world.getSeed());
 	}
 
-	private boolean hasPopulationEvent = false;
-
 	@SubscribeEvent
 	public void generateStructures(PopulateChunkEvent.Pre event) {
-		hasPopulationEvent = true;
+		populationWorlds.add(event.getWorld());
 
 		if (StructureConfig.enableStructures == 0) return;
 		if (StructureConfig.enableStructures == 2 && !event.getWorld().getWorldInfo().isMapFeaturesEnabled()) return;
 
 		setRandomSeed(event.getWorld(), event.getChunkX(), event.getChunkZ());
 
-		nbtGen.generateStructures(event.getWorld(), rand, event.getWorld().getChunkProvider(), event.getChunkX(), event.getChunkZ());
+		getGenerator(event.getWorld()).generateStructures(event.getWorld(), rand, event.getWorld().getChunkProvider(), event.getChunkX(), event.getChunkZ());
 	}
 
 	@Override
 	public void generate(Random unusedRandom, int chunkX, int chunkZ, World world, IChunkGenerator chunkGenerator, IChunkProvider chunkProvider) {
-		if (hasPopulationEvent) return;
+		if (populationWorlds.contains(world)) return;
 
 		if (StructureConfig.enableStructures == 0) return;
 		if (StructureConfig.enableStructures == 2 && !world.getWorldInfo().isMapFeaturesEnabled()) return;
 
 		setRandomSeed(world, chunkX, chunkZ);
 
-		nbtGen.generateStructures(world, rand, chunkProvider, chunkX, chunkZ);
+		getGenerator(world).generateStructures(world, rand, chunkProvider, chunkX, chunkZ);
 	}
 
 	public SpawnCondition getStructureAt(World world, int chunkX, int chunkZ) {
@@ -427,7 +437,15 @@ public class NTMWorldGenerator implements IWorldGenerator {
 
 		setRandomSeed(world, chunkX, chunkZ);
 
-		return nbtGen.getStructureAt(world, chunkX, chunkZ);
+		return getGenerator(world).getStructureAt(world, chunkX, chunkZ);
+	}
+
+	public StructureStart getStructureStartAt(World world, int chunkX, int chunkZ) {
+		return getGenerator(world).getStructureStartAt(world, chunkX, chunkZ);
+	}
+
+	public StructureStart getVerifiedStructureAt(World world, SpawnCondition spawn, int chunkX, int chunkZ) {
+		return getGenerator(world).getVerifiedStructureAt(world, spawn, chunkX, chunkZ);
 	}
 
 }

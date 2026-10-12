@@ -885,6 +885,7 @@ commands.hbmrad.rad_not_int=New rad value is not a number!
 commands.hbmrad.removeall=Removed all loaded radiation for dimension %1$s.
 commands.locate.no_match=No structures with that name!
 commands.locate.none_found=No structures found nearby!
+commands.locate.searching=Searching for %s. Nearby candidate chunks will be generated and checked.
 commands.locate.success.coordinates=Structure %s found at %d, %d
 commands.satellite.no_active_satellites=No active satellites found!
 commands.satellite.no_satellite=No satellite using this frequency found!
