@@ -1,6 +1,7 @@
 package com.hbm.compat;
 
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.util.ResourceLocation;
 
 public final class CursedAddonItemVisibility {
@@ -13,6 +14,11 @@ public final class CursedAddonItemVisibility {
             return true;
         }
         ResourceLocation name = item.getRegistryName();
+        if (name != null && "hbm".equals(name.getNamespace()) && item instanceof ItemBlock
+                && item.getCreativeTab() == null
+                && ((ItemBlock) item).getBlock().getClass().getName().startsWith("com.leafia.contents.AddonBlocks$LegacyBlocks$")) {
+            return true;
+        }
         if (name == null || !"leafia".equals(name.getNamespace())) {
             return false;
         }

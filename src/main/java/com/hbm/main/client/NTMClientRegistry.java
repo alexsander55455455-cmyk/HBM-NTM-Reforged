@@ -73,6 +73,7 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemLeaves;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.registry.IRegistry;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.model.IModel;
@@ -218,6 +219,17 @@ public class NTMClientRegistry {
         for (int i = 0; i < 36; i++) {
             char letter = i < 10 ? (char) ('0' + i) : (char) ('a' + i - 10);
             registerCursedAddonInvisibleStateMapper("letter_sign_" + letter);
+        }
+        for (Block block : ForgeRegistries.BLOCKS) {
+            if (!block.getClass().getName().startsWith("com.leafia.")) continue;
+            boolean separateRenderer = block.getBlockState().getValidStates().stream().allMatch(state -> {
+                EnumBlockRenderType type = block.getRenderType(state);
+                return type == EnumBlockRenderType.INVISIBLE || type == EnumBlockRenderType.ENTITYBLOCK_ANIMATED;
+            });
+            if (separateRenderer) {
+                ModelLoader.setCustomStateMapper(block, fixedModelStateMapper(
+                        new ModelResourceLocation(Tags.MODID + ":compat_invisible", "normal")));
+            }
         }
     }
 
