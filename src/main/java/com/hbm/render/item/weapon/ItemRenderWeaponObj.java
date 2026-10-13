@@ -20,7 +20,7 @@ public class ItemRenderWeaponObj extends TEISRBase {
 
     @Override
     public ModelBinding createModelBinding(Item item) {
-        if (item == ModItems.gun_hk69 || item == ModItems.gun_ks23 || item == ModItems.gun_flechette) {
+        if (item == ModItems.gun_hk69 || item == ModItems.gun_ks23 || item == ModItems.gun_flechette || item == ModItems.gun_flamer) {
             return bindingFullTeisr(item);
         }
         return binding2dGui(item);

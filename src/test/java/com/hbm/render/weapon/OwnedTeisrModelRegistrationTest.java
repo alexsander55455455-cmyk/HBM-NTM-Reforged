@@ -6,6 +6,7 @@ import com.hbm.render.item.ItemRenderMissilePart;
 import com.hbm.render.item.TEISRBase;
 import com.hbm.render.item.weapon.ItemRenderGunEgon;
 import com.hbm.render.item.weapon.ItemRenderJShotgun;
+import com.hbm.render.item.weapon.ItemRenderWeaponBolter;
 import com.hbm.render.item.weapon.sedna.ItemRenderMinigunDual;
 import com.hbm.testutil.ForgeTestBootstrap;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
@@ -88,6 +89,21 @@ class OwnedTeisrModelRegistrationTest {
     @Test
     void jShotgunUsesItsExistingPerspectiveWithoutLegacyModel() throws Exception {
         assertOwnedPerspective(new ItemRenderJShotgun(), "jshotgun");
+    }
+
+    @Test
+    void bolterUsesItsGuiRendererWithoutLoadingUvSheet() throws Exception {
+        Item item = new Item().setRegistryName("hbm", "gun_bolter");
+        ItemRenderWeaponBolter renderer = new ItemRenderWeaponBolter();
+        try {
+            assertEquals(1, register(item, renderer).size());
+            assertFalse(renderer.createModelBinding(item).useBaseModelInGui());
+            assertFalse(renderer.loadModel(item, NTMClientRegistry.getSyntheticTeisrModelLocation(item))
+                    .getTextures().stream().anyMatch(texture -> texture.toString().equals("hbm:items/gun_bolter")));
+            assertSame(renderer, item.getTileEntityItemStackRenderer());
+        } finally {
+            clear(item);
+        }
     }
 
     private static void assertOwnedPerspective(TEISRBase renderer, String path) throws Exception {
