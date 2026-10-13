@@ -380,6 +380,7 @@ public class NTMClientRegistry {
     @SubscribeEvent
     public void textureStitch(TextureStitchEvent.Pre evt) {
         TextureMap map = evt.getMap();
+        // Keep the original rectangular icons intact; the loader pads only the runtime atlas.
         ItemBedrockOreNew.registerSprites(map);
         ItemMold.registerSprites(map);
         ItemAutogen.registerSprites(map);
@@ -455,7 +456,7 @@ public class NTMClientRegistry {
         }
 
         IBakedModel inventoryModel = null;
-        if (!isLeafiaItem(owned.item)) {
+        if (!isLeafiaItem(owned.item) && teisr.useRegistryPerspective(owned.item) && !teisr.useFMMPerspective(owned.item)) {
             ModelResourceLocation inventoryLocation = new ModelResourceLocation(owned.item.getRegistryName(), "inventory");
             inventoryModel = unwrapWrappedModel(reg.getObject(inventoryLocation));
             if (inventoryModel == null) {
@@ -484,7 +485,11 @@ public class NTMClientRegistry {
         for (ClaimedModelLocationRegistry.ITeisrBinding owned : ClaimedModelLocationRegistry.getTeisrBindings()) {
             ModelResourceLocation location = owned.getModelLocation();
             ModelResourceLocation inventoryLocation = new ModelResourceLocation(owned.getItem().getRegistryName(), "inventory");
-            ModelBakery.registerItemVariants(owned.getItem(), location, inventoryLocation);
+            ModelBakery.registerItemVariants(owned.getItem(), location);
+            if (owned instanceof OwnedTeisrBinding binding && binding.renderer.useRegistryPerspective(owned.getItem())
+                    && !binding.renderer.useFMMPerspective(owned.getItem())) {
+                ModelBakery.registerItemVariants(owned.getItem(), inventoryLocation);
+            }
             ModelLoader.setCustomMeshDefinition(owned.getItem(), _ -> location);
         }
     }
