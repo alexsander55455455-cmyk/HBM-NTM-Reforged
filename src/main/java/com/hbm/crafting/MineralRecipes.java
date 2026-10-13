@@ -38,6 +38,7 @@ public class MineralRecipes {
         add1To9Pair(ModBlocks.block_lanthanium, ModItems.ingot_lanthanium);
         add1To9Pair(ModBlocks.block_ra226, ModItems.ingot_ra226);
         add1To9Pair(ModBlocks.block_actinium, ModItems.ingot_actinium);
+        add1To9Pair(ModBlocks.block_au198, ModItems.ingot_au198);
         add1To9Pair(ModBlocks.block_schrabidate, ModItems.ingot_schrabidate);
         add1To9Pair(ModBlocks.block_coltan, ModItems.fragment_coltan);
         add1To9Pair(ModBlocks.block_smore, ModItems.ingot_smore);
