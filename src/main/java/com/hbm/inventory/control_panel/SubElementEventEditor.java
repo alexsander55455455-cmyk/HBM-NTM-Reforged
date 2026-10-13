@@ -173,7 +173,7 @@ public class SubElementEventEditor extends SubElement {
 			recalculateVisibleButtons();
 		} else if(button == done){
 			gui.linker.syncCurrentEditControlConnections();
-			gui.currentEditControl.receiveEvent(ControlEvent.newEvent("initialize"));
+			gui.currentEditControl.panel.receiveDirectEvent(gui.currentEditControl, ControlEvent.newEvent("initialize"));
 			if (!gui.isEditMode) {
 				float[] gridMouse = gui.placement.convertToGridSpace(gui.mouseX, gui.mouseY);
 				gui.currentEditControl.posX = gridMouse[0];

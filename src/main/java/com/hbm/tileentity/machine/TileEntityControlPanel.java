@@ -332,7 +332,7 @@ public class TileEntityControlPanel extends TileEntity implements ITickable, ICo
 		beginRedstoneOutputCollection(true);
 		try {
 			for(Control control : panel.controls) {
-				control.receiveEvent(ControlEvent.newEvent("initialize"));
+				panel.receiveDirectEvent(control, ControlEvent.newEvent("initialize"));
 			}
 			captureRedstoneInputChanges(true);
 			dispatchPendingRedstoneInputEvents(false);
