@@ -109,7 +109,7 @@ public class ModEventHandlerClient {
         registerSpaceFluidCanisterModels();
     }
 
-    @SubscribeEvent(priority = EventPriority.LOWEST)
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void registerMissilePartModels(ModelRegistryEvent event) {
         RocketPart.registerClientParts();
 
@@ -130,6 +130,11 @@ public class ModEventHandlerClient {
     }
 
     private static void registerModel(Item item, int meta) {
+        ModelResourceLocation synthetic = NTMClientRegistry.getSyntheticTeisrModelLocation(item);
+        if (synthetic != null) {
+            ModelLoader.setCustomModelResourceLocation(item, meta, synthetic);
+            return;
+        }
         if(!(item instanceof IDynamicModelsSpace dyn && dyn.INSTANCES.contains(item))) {
             ModelLoader.setCustomModelResourceLocation(item, meta, new ModelResourceLocation(item.getRegistryName(), "inventory"));
         }

@@ -2,6 +2,7 @@ package com.hbm.render.weapon;
 
 import com.hbm.items.ClaimedModelLocationRegistry;
 import com.hbm.main.client.NTMClientRegistry;
+import com.hbm.render.item.ItemRenderMissilePart;
 import com.hbm.render.item.TEISRBase;
 import com.hbm.render.item.weapon.ItemRenderGunEgon;
 import com.hbm.render.item.weapon.ItemRenderJShotgun;
@@ -55,6 +56,25 @@ class OwnedTeisrModelRegistrationTest {
             assertTrue(renderer.createModelBinding(item).useBaseModelInGui());
             assertTrue(renderer.loadModel(item, NTMClientRegistry.getSyntheticTeisrModelLocation(item))
                     .getTextures().stream().anyMatch(texture -> texture.toString().equals("hbm:items/registration_test_gui_icon")));
+        } finally {
+            clear(item);
+        }
+    }
+
+    @Test
+    void spaceRegistrationKeepsMissilePartRendererWithoutLegacyModel() throws Exception {
+        Item item = new Item().setRegistryName("hbmspace", "registration_test_thruster");
+        ItemRenderMissilePart renderer = new ItemRenderMissilePart(null);
+        try {
+            NTMClientRegistry.bindTeisr(item, renderer);
+            Method method = com.hbmspace.main.ModEventHandlerClient.class.getDeclaredMethod("registerModel", Item.class, int.class);
+            method.setAccessible(true);
+            method.invoke(null, item, 0);
+            Set<String> registered = variants().get(item.delegate);
+            assertEquals(1, registered.size());
+            assertTrue(registered.contains(NTMClientRegistry.getSyntheticTeisrModelLocation(item).toString()));
+            assertSame(renderer, item.getTileEntityItemStackRenderer());
+            assertFalse(renderer.createModelBinding(item).useBaseModelInGui());
         } finally {
             clear(item);
         }
