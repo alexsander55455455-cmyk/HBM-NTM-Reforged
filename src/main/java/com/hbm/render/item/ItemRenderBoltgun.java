@@ -44,7 +44,7 @@ public class ItemRenderBoltgun extends TEISRBase {
     }
 
     @Override
-    public boolean useRegistryPerspective(Item item) {
+    public boolean useFMMPerspective(Item item) {
         return true;
     }
 

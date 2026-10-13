@@ -2,6 +2,8 @@ package com.hbm.render.weapon;
 
 import com.hbm.items.ClaimedModelLocationRegistry;
 import com.hbm.main.client.NTMClientRegistry;
+import com.hbm.render.item.ItemRenderBoltgun;
+import com.hbm.render.item.FancyMissingModelPerspective;
 import com.hbm.render.item.ItemRenderMissilePart;
 import com.hbm.render.item.TEISRBase;
 import com.hbm.render.item.weapon.ItemRenderGunEgon;
@@ -10,9 +12,16 @@ import com.hbm.render.item.weapon.ItemRenderWeaponBolter;
 import com.hbm.render.item.weapon.sedna.ItemRenderMinigunDual;
 import com.hbm.testutil.ForgeTestBootstrap;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.block.model.BuiltInModel;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.block.model.ModelBakery;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.init.Bootstrap;
 import net.minecraft.item.Item;
+import net.minecraft.util.registry.IRegistry;
+import net.minecraft.util.registry.RegistrySimple;
+import net.minecraftforge.common.model.TRSRTransformation;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -20,6 +29,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Set;
+import javax.vecmath.Matrix4f;
+import javax.vecmath.Quat4f;
+import javax.vecmath.Vector3f;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -45,6 +57,42 @@ class OwnedTeisrModelRegistrationTest {
         } finally {
             clear(item);
         }
+    }
+
+    @Test
+    void boltgunUsesExtendedPerspectiveOnEveryModelBake() throws Exception {
+        Item item = new Item().setRegistryName("hbm", "registration_test_boltgun");
+        ItemRenderBoltgun renderer = new ItemRenderBoltgun();
+        try {
+            Set<String> variants = register(item, renderer);
+            assertEquals(1, variants.size());
+            assertFalse(variants.contains(item.getRegistryName() + "#inventory"));
+            assertSame(renderer, item.getTileEntityItemStackRenderer());
+            ClaimedModelLocationRegistry.ITeisrBinding binding = ClaimedModelLocationRegistry.getTeisrBinding(item);
+            IRegistry<ModelResourceLocation, IBakedModel> models = new RegistrySimple<>();
+            models.putObject(binding.getModelLocation(), new BuiltInModel(ItemCameraTransforms.DEFAULT, ItemOverrideList.NONE));
+            models.putObject(new ModelResourceLocation(item.getRegistryName(), "inventory"), new BuiltInModel(ItemCameraTransforms.DEFAULT, ItemOverrideList.NONE));
+            Method wrap = NTMClientRegistry.class.getDeclaredMethod("wrapTeisrBinding", binding.getClass(), IRegistry.class);
+            wrap.setAccessible(true);
+            for (int bake = 0; bake < 2; bake++) {
+                wrap.invoke(null, binding, models);
+                IBakedModel model = models.getObject(binding.getModelLocation());
+                assertTrue(model instanceof FancyMissingModelPerspective);
+                assertPerspective(model, ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND,
+                        new Vector3f(-0.5f, 0.5f, -0.5f), new Quat4f(1, 1, 1, 1));
+                assertPerspective(model, ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND,
+                        new Vector3f(-0.62f, 0.5f, -0.5f), new Quat4f(1, -1, -1, 1));
+                assertPerspective(model, ItemCameraTransforms.TransformType.GUI, null, new Quat4f(1, 1, 1, 1));
+            }
+        } finally {
+            clear(item);
+        }
+    }
+
+    private static void assertPerspective(IBakedModel model, ItemCameraTransforms.TransformType type,
+                                          Vector3f position, Quat4f rotation) {
+        Matrix4f expected = new TRSRTransformation(position, rotation, null, null).getMatrix();
+        assertTrue(expected.epsilonEquals(model.handlePerspective(type).getRight(), 0.00001f));
     }
 
     @Test
