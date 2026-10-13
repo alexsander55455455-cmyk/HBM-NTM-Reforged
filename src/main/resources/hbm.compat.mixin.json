@@ -10,6 +10,7 @@
     "MixinCursedAddonGripOffset",
     "MixinCursedAddonLegacyHazardTextures",
     "MixinCursedAddonModelRegistration",
+    "MixinCursedAddonResourceReload",
     "MixinCursedAddonModularTurbineBladeChain",
     "MixinTextureAtlasSpriteCursedAddonMetadata"
   ],
