@@ -116,28 +116,9 @@ public class ItemRenderMK108 extends ItemRenderWeaponBase {
 		GlStateManager.translate(drum[0], drum[1], drum[2]);
 		ResourceManager.mk108.renderPart("Drum");
 
-		double p = 0.0625D;
-		double x = p * 22;
-		double y = p * -46;
-		double angle = 0;
-		Vec3NT vec = new Vec3NT(0, 0.53125, 0);
-
-		double[] anglesLoaded = new double[] {0, 0, -5, 0, -5, 60, 45, -10, 0};
-		double[] anglesUnloaded = new double[] {0, -30, -60, -45, -45, 0, 0, 0, 0};
-		double[][] shells = new double[anglesLoaded.length][3];
 		double reloadProgress = !reloading ? 1D : belt[0];
 		double cycleProgress = !doesCycle ? 1 : cycle[0];
-
-		for(int i = 0; i < anglesLoaded.length; i++) {
-			shells[i][0] = x;
-			shells[i][1] = y;
-			shells[i][2] = angle - 90;
-			double delta = BobMathUtil.interp(anglesUnloaded[i], anglesLoaded[i], reloadProgress);
-			angle += delta;
-			vec.rotateAroundZDeg(-delta);
-			x += vec.x;
-			y += vec.y;
-		}
+		double[][] shells = getShellPositions(reloadProgress);
 
 		int shellAmount = useShellCount ? (int) shellCount[0] : gun.getConfig(stack, 0).getReceivers(stack)[0].getMagazine(stack).getAmount(stack, null);
 
@@ -196,24 +177,7 @@ public class ItemRenderMK108 extends ItemRenderWeaponBase {
 
 		GlStateManager.pushMatrix();
 
-		double p = 0.0625D;
-		double x = p * 22;
-		double y = p * -46;
-		double angle = 0;
-		Vec3NT vec = new Vec3NT(0, 0.53125, 0);
-		double[] anglesLoaded = new double[] {0, 0, -5, 0, -5, 60, 45, -10, 0};
-		double[][] shells = new double[anglesLoaded.length][3];
-
-		for(int i = 0; i < anglesLoaded.length; i++) {
-			shells[i][0] = x;
-			shells[i][1] = y;
-			shells[i][2] = angle - 90;
-			double delta = anglesLoaded[i];
-			angle += delta;
-			vec.rotateAroundZDeg(-delta);
-			x += vec.x;
-			y += vec.y;
-		}
+		double[][] shells = getShellPositions(1D);
 
 		for(int i = 0; i < shells.length - 1; i++) {
 			double[] prevShell = shells[i];
@@ -222,6 +186,27 @@ public class ItemRenderMK108 extends ItemRenderWeaponBase {
 		}
 		GlStateManager.popMatrix();
 		GlStateManager.shadeModel(GL11.GL_FLAT);
+	}
+
+	static double[][] getShellPositions(double reloadProgress) {
+		double x = 0.0625D * 22;
+		double y = 0.0625D * -46;
+		double angle = 0;
+		Vec3NT vec = new Vec3NT(0, 0.53125, 0);
+		double[] anglesLoaded = new double[] {0, 0, -5, 0, -5, 60, 45, -10, 0};
+		double[] anglesUnloaded = new double[] {0, -30, -60, -45, -45, 0, 0, 0, 0};
+		double[][] shells = new double[anglesLoaded.length][3];
+		for(int i = 0; i < anglesLoaded.length; i++) {
+			shells[i][0] = x;
+			shells[i][1] = y;
+			shells[i][2] = angle - 90;
+			double delta = BobMathUtil.interp(anglesUnloaded[i], anglesLoaded[i], reloadProgress);
+			angle += delta;
+			vec.rotateAroundZDeg(delta);
+			x += vec.x;
+			y += vec.y;
+		}
+		return shells;
 	}
 
 	public static void renderShell(double x0, double x1, double y0, double y1, double rot0, double rot1, boolean shell, double interp) {
