@@ -18,6 +18,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.*;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
@@ -118,12 +119,28 @@ public class ItemBombCaller extends ItemBakedBase implements IDynamicModels {
       World world, EntityPlayer playerIn, EnumHand handIn) {
     RayTraceResult trace = Library.rayTrace(playerIn, 500, 1);
     ItemStack stack = playerIn.getHeldItem(handIn);
-    boolean success = false;
-    if (trace.typeOfHit != Type.MISS && !world.isRemote) {
+    if (trace == null || trace.typeOfHit != Type.BLOCK) {
+      return new ActionResult<>(EnumActionResult.FAIL, stack);
+    }
+    return new ActionResult<>(callStrike(world, playerIn, handIn, trace.getBlockPos()), stack);
+  }
 
-      int x = trace.getBlockPos().getX();
-      int y = trace.getBlockPos().getY();
-      int z = trace.getBlockPos().getZ();
+  @Override
+  public EnumActionResult onItemUse(EntityPlayer playerIn, World world, BlockPos pos,
+      EnumHand handIn, EnumFacing facing, float hitX, float hitY, float hitZ) {
+    return callStrike(world, playerIn, handIn, pos);
+  }
+
+  private EnumActionResult callStrike(World world, EntityPlayer playerIn, EnumHand handIn, BlockPos pos) {
+    ItemStack stack = playerIn.getHeldItem(handIn);
+    if (getTypeByIndex(stack.getItemDamage()) == EnumCallerType.NONE) return EnumActionResult.FAIL;
+    if (world.isRemote) return EnumActionResult.SUCCESS;
+    boolean success = false;
+    {
+
+      int x = pos.getX();
+      int y = pos.getY();
+      int z = pos.getZ();
 
       switch (getTypeByIndex(stack.getItemDamage())) {
         case CARPET:
@@ -167,8 +184,7 @@ public class ItemBombCaller extends ItemBakedBase implements IDynamicModels {
           1.0F,
           true);
     }
-    return new ActionResult<>(
-        success ? EnumActionResult.SUCCESS : EnumActionResult.FAIL, stack.copy());
+    return success ? EnumActionResult.SUCCESS : EnumActionResult.FAIL;
   }
 
   private static EnumCallerType getTypeByIndex(int index) {
