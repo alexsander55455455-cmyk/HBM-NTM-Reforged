@@ -21,7 +21,8 @@
     "nothirium.MixinAbstractRenderChunk",
     "nothirium.MixinRenderChunkTaskCompile",
     "nothirium.MixinVisibilitySet",
-    "optifine.MixinRenderItem"
+    "optifine.MixinRenderItem",
+    "optifine.MixinBlockModelRenderer"
   ],
   "mixins": [
     "fallout.MixinCursedAddonFalloutRainGuard"

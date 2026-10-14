@@ -21,6 +21,7 @@ import org.lwjgl.util.vector.Vector3f;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @SideOnly(Side.CLIENT)
 public class BlockSpotlightBakedModel extends AbstractWavefrontBakedModel {
@@ -144,15 +145,31 @@ public class BlockSpotlightBakedModel extends AbstractWavefrontBakedModel {
 
         if (cache[mask][facing.getIndex()] != null) return cache[mask][facing.getIndex()];
         return cache[mask][facing.getIndex()] = Collections.unmodifiableList(
-                buildWorldQuads(spotlight.getPartName(connectionCount), roll, pitch, yaw, extraTx, extraTy, extraTz)
+                buildWorldQuads(spotlight.getPartName(connectionCount), roll, pitch, yaw, extraTx, extraTy, extraTz,
+                        spotlight.isOn)
         );
     }
 
     private List<BakedQuad> buildWorldQuads(String partName, float roll, float pitch, float yaw,
-                                            float extraTx, float extraTy, float extraTz) {
-        return new ArrayList<>(
-                bakeSimpleQuads(Collections.singleton(partName), roll, pitch, yaw, true, false, sprite, -1, extraTx,
+                                            float extraTx, float extraTy, float extraTz, boolean isOn) {
+        Set<String> parts = partName.equals("CageLamp") ? Set.of(partName, "CageLampFrame") : Collections.singleton(partName);
+        List<BakedQuad> quads = new ArrayList<>(
+                bakeSimpleQuads(parts, roll, pitch, yaw, true, false, sprite, -1, extraTx,
                         extraTy, extraTz));
+        if (partName.equals("CageLamp")) {
+            List<BakedQuad> bulb = bakeSimpleQuads(Collections.singleton("CageLampBulb"), roll, pitch, yaw, !isOn,
+                    false, sprite, -1, extraTx, extraTy, extraTz);
+            if (isOn) {
+                for (BakedQuad quad : bulb) {
+                    int[] data = quad.getVertexData();
+                    for (int vertex = 0; vertex < 4; vertex++) {
+                        data[vertex * format.getIntegerSize() + format.getUvOffsetById(1) / 4] = 0x00F000F0;
+                    }
+                }
+            }
+            quads.addAll(bulb);
+        }
+        return quads;
     }
 
     private List<BakedQuad> buildItemQuads() {
@@ -164,7 +181,8 @@ public class BlockSpotlightBakedModel extends AbstractWavefrontBakedModel {
             default -> partName;
         };
 
-        return new ArrayList<>(bakeSimpleQuads(Collections.singleton(partName), 0, 0, itemYaw, true, true, sprite));
+        Set<String> parts = partName.equals("CageLamp") ? Set.of(partName, "CageLampFrame", "CageLampBulb") : Collections.singleton(partName);
+        return new ArrayList<>(bakeSimpleQuads(parts, 0, 0, itemYaw, true, true, sprite));
     }
 
     @Override
