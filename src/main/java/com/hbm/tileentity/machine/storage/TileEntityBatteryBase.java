@@ -67,7 +67,8 @@ public abstract class TileEntityBatteryBase extends TileEntityMachineBase implem
                 }
             }
 
-            if (this.node != null && this.node.hasValidNet()) switch (this.getRelevantMode(false)) {
+            short mode = this.getRelevantMode(false);
+            if (this.node != null && this.node.hasValidNet()) switch (mode) {
                 case mode_input:
                     this.node.net.removeProvider(this);
                     this.node.net.addReceiver(this);

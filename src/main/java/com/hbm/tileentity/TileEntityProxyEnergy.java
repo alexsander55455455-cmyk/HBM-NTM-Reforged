@@ -1,5 +1,6 @@
 package com.hbm.tileentity;
 
+import com.hbm.api.energymk2.IEnergyHandlerMK2;
 import com.hbm.api.energymk2.IEnergyReceiverMK2;
 import com.hbm.capability.NTMEnergyCapabilityWrapper;
 import com.hbm.interfaces.AutoRegister;
@@ -50,7 +51,7 @@ public class TileEntityProxyEnergy extends TileEntityProxyBase implements IEnerg
 	@Override
 	public boolean hasCapability(@NotNull Capability<?> capability, EnumFacing facing) {
 		if (capability == CapabilityEnergy.ENERGY) {
-			return true;
+			return getTE() instanceof IEnergyHandlerMK2;
 		}
 		return super.hasCapability(capability, facing);
 	}
@@ -58,9 +59,10 @@ public class TileEntityProxyEnergy extends TileEntityProxyBase implements IEnerg
 	@Override
 	public <T> T getCapability(@NotNull Capability<T> capability, EnumFacing facing) {
 		if (capability == CapabilityEnergy.ENERGY) {
-			return CapabilityEnergy.ENERGY.cast(
-					new NTMEnergyCapabilityWrapper(this)
-			);
+			TileEntity core = getTE();
+			return core instanceof IEnergyHandlerMK2
+					? CapabilityEnergy.ENERGY.cast(new NTMEnergyCapabilityWrapper(core, getPos()))
+					: null;
 		}
 		return super.getCapability(capability, facing);
 	}

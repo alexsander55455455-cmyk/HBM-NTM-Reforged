@@ -1,6 +1,7 @@
 package com.hbm.tileentity.machine.storage;
 
 import com.hbm.api.energymk2.IBatteryItem;
+import com.hbm.api.energymk2.IEnergyConnectorMK2;
 import com.hbm.api.redstoneoverradio.IRORInteractive;
 import com.hbm.api.redstoneoverradio.IRORValueProvider;
 import com.hbm.entity.projectile.EntityBulletBeamBase;
@@ -96,6 +97,14 @@ public class TileEntityBatterySocket extends TileEntityBatteryBase implements IR
 
         super.update();
         if (!world.isRemote) {
+            // Forge Energy consumers such as EnderIO and RS require the source to push energy.
+            if (getProviderSpeed() > 0) {
+                for (DirPos connection : getConPos()) {
+                    if (!(world.getTileEntity(connection.getPos()) instanceof IEnergyConnectorMK2)) {
+                        tryProvide(world, connection.getPos(), connection.getDir());
+                    }
+                }
+            }
 
             if(hasSCLoaded()) {
                 if(this.damageTarget == 0) pickNewSCTarget();
