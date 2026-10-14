@@ -12,6 +12,7 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -45,9 +46,10 @@ public class GUIBackpack extends GuiContainer {
     private static final int BLACK_BOX_PREVIOUS_PAGE = 102;
     private static final int BLACK_BOX_NEXT_PAGE = 103;
     private static final int OWNER_RESET_BUTTON = 104;
+    private static final int OWNER_BACK_BUTTON = 105;
     private static final int BLACK_BOX_REMOVE_BASE = 200;
     private static final int BLACK_BOX_VISIBLE_PLAYERS = 4;
-    private static final int OWNER_SETTINGS_HEIGHT = 210;
+    private static final int OWNER_SETTINGS_HEIGHT = 236;
 
     private final ContainerBackpack backpack;
     private final List<Slot> searchResults = new ArrayList<>();
@@ -74,6 +76,7 @@ public class GUIBackpack extends GuiContainer {
     private int searchX;
     private int searchY;
     private int searchWidth;
+    private int guiScaleBeforeFit = -1;
 
     public GUIBackpack(ContainerBackpack backpack) {
         super(backpack);
@@ -87,9 +90,16 @@ public class GUIBackpack extends GuiContainer {
         String previousSearch = searchField == null ? "" : searchField.getText();
         if (ownerSettingsPage && !backpack.isBackpackOwner()) ownerSettingsPage = false;
         backpack.refreshLayout();
+        fitGuiScale();
+        int viewportRows = backpack.getViewportRowsForHeight(height);
+        if (backpack.setViewportRows(viewportRows)) {
+            mc.playerController.sendEnchantPacket(inventorySlots.windowId,
+                    ContainerBackpack.SET_VIEWPORT_ROWS_BASE + viewportRows);
+        }
         this.xSize = backpack.getGuiWidth();
         this.ySize = ownerSettingsPage ? OWNER_SETTINGS_HEIGHT : backpack.getGuiHeight();
         super.initGui();
+        guiLeft = centeredPanelLeft(width, xSize, ownerSettingsPage ? 0 : backpack.getLeftExtension());
         buttonList.clear();
         Keyboard.enableRepeatEvents(true);
         resetControlReferences();
@@ -99,15 +109,7 @@ public class GUIBackpack extends GuiContainer {
             return;
         }
         int gridWidth = backpack.getColumns() * 18;
-        searchWidth = Math.min(120, gridWidth - 4);
-        if (backpack.getMaxScrollRows() > 0) {
-            String scrollCount = backpack.isInfiniteStorage() ? "\u221E"
-                    : String.valueOf(backpack.getMaxScrollRows() + 1);
-            String rowLabel = I18n.format("container.hbm_backpack.scroll",
-                    backpack.getScrollRow() + 1, scrollCount);
-            searchWidth = Math.min(searchWidth,
-                    Math.max(36, gridWidth - fontRenderer.getStringWidth(rowLabel) - 8));
-        }
+        searchWidth = gridWidth - 2;
         searchX = guiLeft + backpack.getContentX();
         searchY = guiTop + backpack.getSearchRelativeY();
         searchField = new GuiTextField(0, fontRenderer, searchX, searchY, searchWidth, 12);
@@ -118,26 +120,27 @@ public class GUIBackpack extends GuiContainer {
         searchField.setEnableBackgroundDrawing(false);
         searchField.setMaxStringLength(64);
         searchField.setText(previousSearch);
-        int automationX = guiLeft + xSize - 106;
-        autoPickup = addButton(new GuiButton(
-                ContainerBackpack.TOGGLE_AUTO_PICKUP, automationX,
-                guiTop + backpack.getAutoPickupButtonY(), 100, 20, ""));
-        autoSort = addButton(new GuiButton(
+        int controlWidth = (xSize - 18) / 2;
+        int automationX = guiLeft + xSize - 8 - controlWidth;
+        autoPickup = addButton(new BackpackButton(
+                ContainerBackpack.TOGGLE_AUTO_PICKUP, guiLeft + 8,
+                guiTop + backpack.getAutoPickupButtonY(), controlWidth, 12, ""));
+        autoSort = addButton(new BackpackButton(
                 ContainerBackpack.TOGGLE_AUTO_SORT, automationX,
-                guiTop + backpack.getAutoSortButtonY(), 100, 20, ""));
-        manualSort = addButton(new GuiButton(
+                guiTop + backpack.getAutoSortButtonY(), controlWidth, 12, ""));
+        manualSort = addButton(new BackpackButton(
                 ContainerBackpack.SORT_CONTENTS, automationX,
-                guiTop + backpack.getActionButtonY(), 100, 20, ""));
+                guiTop + backpack.getActionButtonY(), controlWidth, 12, ""));
         workbench = addButton(new ArrowButton(
                 ContainerBackpack.TOGGLE_WORKBENCH, guiLeft, guiTop, false));
         upgradeDrawer = addButton(new GuiButton(
                 ContainerBackpack.TOGGLE_UPGRADE_DRAWER, guiLeft - 20, guiTop + 6, 18, 20, "<"));
         updateAutomationButtons();
         updateUpgradeDrawerButton();
-        int latchX = guiLeft + 6;
-        smugglerCompartment = addButton(new GuiButton(
+        int latchX = guiLeft + 8;
+        smugglerCompartment = addButton(new BackpackButton(
                 ContainerBackpack.TOGGLE_SMUGGLER_COMPARTMENT, latchX,
-                guiTop + backpack.getActionButtonY(), Math.max(20, automationX - latchX - 2), 20, ""));
+                guiTop + backpack.getActionButtonY(), controlWidth, 12, ""));
         updateSmugglerCompartmentButton();
     }
 
@@ -160,6 +163,10 @@ public class GUIBackpack extends GuiContainer {
 
     @Override
     public void onGuiClosed() {
+        if (guiScaleBeforeFit >= 0) {
+            mc.gameSettings.guiScale = guiScaleBeforeFit;
+            guiScaleBeforeFit = -1;
+        }
         Keyboard.enableRepeatEvents(false);
         super.onGuiClosed();
     }
@@ -168,8 +175,14 @@ public class GUIBackpack extends GuiContainer {
     public void updateScreen() {
         super.updateScreen();
         backpack.refreshLayout();
+        if (fitGuiScale()) {
+            initGui();
+            return;
+        }
         int expectedHeight = ownerSettingsPage ? OWNER_SETTINGS_HEIGHT : backpack.getGuiHeight();
-        if (xSize != backpack.getGuiWidth() || ySize != expectedHeight) {
+        int expectedLeft = centeredPanelLeft(width, backpack.getGuiWidth(),
+                ownerSettingsPage ? 0 : backpack.getLeftExtension());
+        if (xSize != backpack.getGuiWidth() || ySize != expectedHeight || guiLeft != expectedLeft) {
             initGui();
             return;
         }
@@ -219,6 +232,9 @@ public class GUIBackpack extends GuiContainer {
                 PacketDispatcher.wrapper.sendToServer(new BlackBoxAccessPacket(
                         BlackBoxAccessPacket.REMOVE_PLAYER, allowed.uuid.toString()));
             }
+        } else if (button.id == OWNER_BACK_BUTTON) {
+            ownerSettingsPage = false;
+            initGui();
         } else if (button.id == OWNER_RESET_BUTTON) {
             PacketDispatcher.wrapper.sendToServer(new BlackBoxAccessPacket(BlackBoxAccessPacket.RESET_OWNER, ""));
         }
@@ -422,13 +438,10 @@ public class GUIBackpack extends GuiContainer {
             fontRenderer.drawString(glitchIfNeeded(workbenchTitle, realityError),
                     ContainerBackpack.WORKBENCH_PANEL_LEFT + 4, 8, mainTextColor);
         }
-        int titleX = backpack.isEquippedView() ? 30 : backpack.getContentX();
-        String title = fitHeaderText(backpack.getBackpackName(), titleX, 6, realityError);
-        fontRenderer.drawString(title, titleX, 6, mainTextColor);
+        int titleX = 30;
+        String title = TextFormatting.getTextWithoutFormattingCodes(backpack.getBackpackName());
+        drawHeaderTitle(glitchIfNeeded(title, realityError), titleX, mainTextColor);
         String capacity = infinite ? "\u221E" : String.valueOf(backpack.getCapacity());
-        String capacityText = fitHeaderText(
-                I18n.format("container.hbm_backpack.capacity", capacity), titleX, 20, realityError);
-        fontRenderer.drawString(capacityText, titleX, 20, detailTextColor);
 
         int filled = backpack.getFilledSlotCount();
         float percent = infinite || backpack.getCapacity() == 0
@@ -443,21 +456,12 @@ public class GUIBackpack extends GuiContainer {
         String filledText = I18n.format("container.hbm_backpack.filled", filledColor + String.valueOf(filled), capacityColor + capacity);
         if (!infinite) {
             String filledWithPercent = filledText + " " + filledColor + "(" + percent + "%)";
-            int availableWidth = getAvailableHeaderWidth(titleX, 31);
+            int availableWidth = getAvailableHeaderWidth(titleX, 18);
             filledText = fontRenderer.getStringWidth(glitchIfNeeded(filledWithPercent, realityError)) <= availableWidth
                     ? filledWithPercent : filledText;
         }
-        filledText = fitHeaderText(filledText, titleX, 31, realityError);
-        fontRenderer.drawString(filledText, titleX, 31, detailTextColor);
-
-        if (backpack.getMaxScrollRows() > 0) {
-            String scrollCount = infinite ? "\u221E" : String.valueOf(backpack.getMaxScrollRows() + 1);
-            String scroll = I18n.format("container.hbm_backpack.scroll", backpack.getScrollRow() + 1, scrollCount);
-            int scrollY = backpack.getSearchRelativeY() + 3;
-            String displayedScroll = glitchIfNeeded(scroll, realityError);
-            fontRenderer.drawString(displayedScroll,
-                    xSize - 8 - fontRenderer.getStringWidth(displayedScroll), scrollY, detailTextColor);
-        }
+        drawFittedText(glitchIfNeeded(filledText, realityError), titleX, 18,
+                getAvailableHeaderWidth(titleX, 18), detailTextColor);
         String inventoryLabel = glitchIfNeeded(I18n.format("container.inventory"), realityError);
         int playerHeaderX = backpack.getPlayerPanelX() + 8;
         int playerHeaderY = backpack.getPlayerPanelY() + 5;
@@ -479,9 +483,40 @@ public class GUIBackpack extends GuiContainer {
         return realityError ? ItemRealityErrorBackpack.glitchText(text) : text;
     }
 
-    private String fitHeaderText(String text, int textX, int textY, boolean realityError) {
-        String displayed = glitchIfNeeded(text, realityError);
-        return fontRenderer.trimStringToWidth(displayed, getAvailableHeaderWidth(textX, textY));
+    static int centeredPanelLeft(int screenWidth, int panelWidth, int leftExtension) {
+        return (screenWidth - panelWidth + leftExtension) / 2;
+    }
+
+    private boolean fitGuiScale() {
+        int neededWidth = backpack.getGuiWidth() + (ownerSettingsPage ? 0 : backpack.getLeftExtension()) + 8;
+        if (width >= neededWidth) return false;
+        int currentScale = new ScaledResolution(mc).getScaleFactor();
+        int fittedScale = guiScaleForWidth(mc.displayWidth, currentScale, neededWidth);
+        if (fittedScale == currentScale) return false;
+        if (guiScaleBeforeFit < 0) guiScaleBeforeFit = mc.gameSettings.guiScale;
+        mc.gameSettings.guiScale = fittedScale;
+        ScaledResolution resolution = new ScaledResolution(mc);
+        width = resolution.getScaledWidth();
+        height = resolution.getScaledHeight();
+        return true;
+    }
+
+    static int guiScaleForWidth(int displayWidth, int scale, int neededWidth) {
+        while (scale > 1 && displayWidth / scale < neededWidth) scale--;
+        return scale;
+    }
+
+    private void drawHeaderTitle(String text, int x, int color) {
+        drawFittedText(text, x, 6, xSize - 8 - x, color);
+    }
+
+    private void drawFittedText(String text, int x, int y, int availableWidth, int color) {
+        float scale = Math.min(1F, availableWidth / (float) Math.max(1, fontRenderer.getStringWidth(text)));
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(x, y, 0F);
+        GlStateManager.scale(scale, scale, 1F);
+        fontRenderer.drawString(text, 0, 0, color);
+        GlStateManager.popMatrix();
     }
 
     /**
@@ -554,10 +589,13 @@ public class GUIBackpack extends GuiContainer {
                 guiLeft + backpack.getPlayerPanelX() + 176, guiTop + ySize);
 
         if (backpack.isEquippedView()) {
-            drawSlot(guiLeft + 8, guiTop + 18);
+            drawSlot(guiLeft + 8, guiTop + 6);
             if (!inventorySlots.getSlot(0).getHasStack()) {
-                drawBackpackSlotIcon(guiLeft + 8, guiTop + 18);
+                drawBackpackSlotIcon(guiLeft + 8, guiTop + 6);
             }
+        } else {
+            drawSlot(guiLeft + 8, guiTop + 6);
+            itemRender.renderItemAndEffectIntoGUI(backpack.getBackpackStack(), guiLeft + 8, guiTop + 6);
         }
 
         if (hasSearchQuery()) {
@@ -611,8 +649,11 @@ public class GUIBackpack extends GuiContainer {
         boolean blackBox = backpack.isBlackBoxBackpack();
         int x = guiLeft + 8;
         int innerWidth = xSize - 16;
+        addButton(new GuiButton(
+                OWNER_BACK_BUTTON, guiLeft + xSize - 26, guiTop + 5, 20, 20, "x"));
         ownerReset = addButton(new GuiButton(
-                OWNER_RESET_BUTTON, guiLeft + xSize - 26, guiTop + 5, 20, 20, "x"));
+                OWNER_RESET_BUTTON, x, guiTop + OWNER_SETTINGS_HEIGHT - 38,
+                innerWidth, 20, I18n.format("container.hbm_backpack.reset_owner")));
         if (blackBox) {
             blackBoxMode = addButton(new GuiButton(
                     BLACK_BOX_MODE_BUTTON, x, guiTop + 28, innerWidth, 20, ""));
@@ -633,7 +674,7 @@ public class GUIBackpack extends GuiContainer {
                 BLACK_BOX_ADD_BUTTON,
                 x + innerWidth - 32, blackBoxPlayerField.y - 3, 32, 20, "+"));
         for (int row = 0; row < BLACK_BOX_VISIBLE_PLAYERS; row++) {
-            blackBoxRemoveButtons.add(addButton(new GuiButton(
+            blackBoxRemoveButtons.add(addButton(new BackpackButton(
                     BLACK_BOX_REMOVE_BASE + row,
                     x + innerWidth - 20, guiTop + ownerListY + row * 17, 20, 14, "x")));
         }
@@ -963,7 +1004,7 @@ public class GUIBackpack extends GuiContainer {
         return Math.max(0, right - textX);
     }
 
-    private static final class ArrowButton extends GuiButton {
+    private static final class ArrowButton extends BackpackButton {
         private boolean open;
 
         private ArrowButton(int id, int x, int y, boolean open) {

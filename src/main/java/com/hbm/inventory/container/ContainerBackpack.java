@@ -56,6 +56,7 @@ public class ContainerBackpack extends Container {
     public static final int SORT_CONTENTS = 5;
     public static final int TOGGLE_WORKBENCH = 6;
     public static final int TOGGLE_UPGRADE_DRAWER = 7;
+    public static final int SET_VIEWPORT_ROWS_BASE = 8;
     public static final int UPGRADE_DRAWER_WIDTH = 26;
     public static final int UPGRADE_DRAWER_SLOT_X = -21;
     public static final int UPGRADE_DRAWER_SLOT_Y = 8;
@@ -71,8 +72,8 @@ public class ContainerBackpack extends Container {
     public static final int WORKBENCH_ARROW_WIDTH = 18;
     public static final int WORKBENCH_ARROW_HEIGHT = 14;
 
-    private static final int CONTROL_TOP = 4;
-    private static final int CONTROL_HEIGHT = 20;
+    private static final int CONTROL_TOP = 30;
+    private static final int CONTROL_HEIGHT = 12;
     private static final int CONTROL_GAP = 2;
     private static final int CONTROL_SECTION_GAP = 3;
     private static final int MINIMUM_SEARCH_Y = 45;
@@ -114,6 +115,7 @@ public class ContainerBackpack extends Container {
     private int contentY;
     private final int columns;
     private int visibleRows;
+    private int viewportRows = MAX_VISIBLE_ROWS;
     private int backpackPaneHeight;
     private final int playerPanelX;
     private int playerPanelY;
@@ -200,7 +202,7 @@ public class ContainerBackpack extends Container {
         this.syncedAutoSort = contents.isAutoSortEnabled();
         this.contentStart = 1;
 
-        addSlotToContainer(new BackpackEquipmentSlot(player, 8, 18));
+        addSlotToContainer(new BackpackEquipmentSlot(player, 8, 6));
         boolean ownerManaged = isOwnerManagedBackpack(backpack);
         Layout layout = new Layout(getBaseStorageCapacity(backpack), getCapacity(), ownerManaged);
         this.columns = layout.columns;
@@ -360,7 +362,7 @@ public class ContainerBackpack extends Container {
     /** Rebuilds every position derived from the current server capacity. */
     public boolean refreshLayout() {
         int totalRows = Math.max(1, (getCapacity() + columns - 1) / columns);
-        int nextVisibleRows = Math.min(MAX_VISIBLE_ROWS, totalRows);
+        int nextVisibleRows = Math.min(viewportRows, totalRows);
         int nextContentY = calculateContentY();
         boolean dimensionsChanged = nextVisibleRows != visibleRows || nextContentY != contentY;
         visibleRows = nextVisibleRows;
@@ -387,10 +389,27 @@ public class ContainerBackpack extends Container {
         }
         if (equippedView) {
             inventorySlots.get(0).xPos = 8;
-            inventorySlots.get(0).yPos = 18;
+            inventorySlots.get(0).yPos = 6;
         }
         layoutModeSlots();
         layoutPlayerSlots();
+    }
+
+    public boolean setViewportRows(int rows) {
+        int next = Math.max(1, Math.min(MAX_VISIBLE_ROWS, rows));
+        if (next == viewportRows) return false;
+        viewportRows = next;
+        refreshLayout();
+        requestBlackHoleFullPageSync();
+        return true;
+    }
+
+    public int getViewportRowsForHeight(int height) {
+        return viewportRowsForHeight(height, getGuiHeight() - getVisibleRows() * 18);
+    }
+
+    static int viewportRowsForHeight(int height, int nonStorageHeight) {
+        return Math.max(1, Math.min(MAX_VISIBLE_ROWS, (height - nonStorageHeight - 8) / 18));
     }
 
     public int getCapacity() {
@@ -591,13 +610,11 @@ public class ContainerBackpack extends Container {
     }
 
     static int autoSortButtonY(boolean autoPickup) {
-        return CONTROL_TOP + (autoPickup ? CONTROL_HEIGHT + CONTROL_GAP : 0);
+        return CONTROL_TOP;
     }
 
     static int actionButtonY(boolean autoPickup, boolean autoSort, boolean smuggler) {
-        int rows = (autoPickup ? 1 : 0) + (autoSort ? 1 : 0);
-        int y = CONTROL_TOP + rows * (CONTROL_HEIGHT + CONTROL_GAP);
-        return smuggler ? Math.max(48, y) : y;
+        return CONTROL_TOP + (autoPickup || autoSort ? CONTROL_HEIGHT + CONTROL_GAP : 0);
     }
 
     static int contentYForControls(boolean autoPickup, boolean autoSort,
@@ -1023,8 +1040,6 @@ public class ContainerBackpack extends Container {
                 || indices.length != prototypes.length || indices.length != counts.length) {
             return;
         }
-        lastAppliedBlackHolePageSequence = sequence;
-
         ItemStack backpackStack = getBackpackStack();
         UUID currentStorageId = BackpackVirtualStorage.getStorageId(backpackStack);
         if (currentStorageId == null || !currentStorageId.equals(storageId)) return;
@@ -1713,7 +1728,9 @@ public class ContainerBackpack extends Container {
     @Override
     public boolean enchantItem(EntityPlayer player, int id) {
         if (player.world.isRemote) return false;
-        if (id == SCROLL_UP) {
+        if (id > SET_VIEWPORT_ROWS_BASE && id <= SET_VIEWPORT_ROWS_BASE + MAX_VISIBLE_ROWS) {
+            setViewportRows(id - SET_VIEWPORT_ROWS_BASE);
+        } else if (id == SCROLL_UP) {
             contents.scrollRows(-1);
             if (!player.world.isRemote && usesServerAuthoritativeBlackHolePages()) {
                 blackHoleScrollAcknowledgement = true;

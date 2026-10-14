@@ -46,13 +46,42 @@ class ContainerBackpackLayoutTest {
 
     @Test
     void controlRowsCompactWithoutTouchingSearchOrStorage() {
+        for (int features = 0; features < 16; features++) {
+            boolean pickup = (features & 1) != 0;
+            boolean sort = (features & 2) != 0;
+            boolean manual = (features & 4) != 0;
+            boolean smuggler = (features & 8) != 0;
+            int contentY = ContainerBackpack.contentYForControls(pickup, sort, manual, smuggler);
+            int searchY = contentY - 16;
+            assertTrue(searchY >= 30, "The header must be clear of search");
+            if (sort) assertTrue(ContainerBackpack.autoSortButtonY(pickup) >= 30);
+            if (manual || smuggler) {
+                int actionY = ContainerBackpack.actionButtonY(pickup, sort, smuggler);
+                assertTrue(actionY >= 30, "Controls must not cover the title or filled count");
+                assertTrue(actionY + 12 < searchY, "Controls must not cover search");
+            }
+            assertTrue(contentY + 4 * 18 + 8 + 4 + 94 <= 270,
+                    "A fully upgraded backpack must fit at 1080p GUI scale 4");
+        }
         assertEquals(61, ContainerBackpack.contentYForControls(false, false, true, false));
-        assertEquals(65, ContainerBackpack.contentYForControls(true, false, true, false));
-        assertEquals(87, ContainerBackpack.contentYForControls(true, true, true, false));
-        assertEquals(87, ContainerBackpack.contentYForControls(false, false, true, true));
-        assertEquals(4, ContainerBackpack.actionButtonY(false, false, false));
-        assertEquals(26, ContainerBackpack.autoSortButtonY(true));
-        assertEquals(48, ContainerBackpack.actionButtonY(true, true, true));
+        assertEquals(75, ContainerBackpack.contentYForControls(true, true, true, false));
+        assertEquals(30, ContainerBackpack.autoSortButtonY(true));
+        assertEquals(44, ContainerBackpack.actionButtonY(true, true, true));
+    }
+
+    @Test
+    void everyControlCombinationFitsTheActualScaledWindowWithAMargin() {
+        for (int features = 0; features < 16; features++) {
+            int contentY = ContainerBackpack.contentYForControls((features & 1) != 0,
+                    (features & 2) != 0, (features & 4) != 0, (features & 8) != 0);
+            int nonStorageHeight = contentY + 8 + 4 + 94;
+            for (int windowHeight : new int[]{240, 250, 252, 260, 270, 360, 540}) {
+                int rows = ContainerBackpack.viewportRowsForHeight(windowHeight, nonStorageHeight);
+                assertTrue(rows >= 1 && rows <= ContainerBackpack.MAX_VISIBLE_ROWS);
+                assertTrue(nonStorageHeight + rows * 18 <= windowHeight - 8,
+                        "The inventory and hotbar must fit, including upgrades, with an eight-pixel margin");
+            }
+        }
     }
 
     @Test

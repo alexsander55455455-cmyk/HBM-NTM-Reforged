@@ -123,7 +123,7 @@ class ContainerBackpackBlackHolePageSyncTest {
     }
 
     @Test
-    void smallerAuthoritativeCapacityDoesNotShrinkTheSessionViewOrClampItsCurrentRow() {
+    void authoritativeCapacityShrinkUpdatesTheViewAndKeepsAValidCurrentRow() {
         TestClientWorld world = new TestClientWorld();
         TestPlayer player = new TestPlayer(world);
         ItemBlackHoleBackpack backpackItem = newUninitializedBlackHoleBackpack();
@@ -140,12 +140,12 @@ class ContainerBackpackBlackHolePageSyncTest {
         applyFull(container, storageId, 2, 7, 143, 1,
                 new int[]{0}, new ItemStack[]{new ItemStack(Items.BONE)}, new long[]{900L});
 
-        assertEquals(260, container.getCapacity(), "authoritative shrink reduced the open session view");
+        assertEquals(143, container.getCapacity(), "The displayed capacity must follow the server");
         assertPageCell(container, 7, 0, Items.BONE, 900L);
     }
 
     @Test
-    void bottomPageAlwaysContainsFiveCompleteRowsOfThirteenWorkingCells() {
+    void bottomPageContainsFourCompleteRowsOfThirteenWorkingCells() {
         TestClientWorld world = new TestClientWorld();
         TestPlayer player = new TestPlayer(world);
         ItemBlackHoleBackpack backpackItem = newUninitializedBlackHoleBackpack();
@@ -155,19 +155,20 @@ class ContainerBackpackBlackHolePageSyncTest {
         player.inventory.setInventorySlotContents(0, backpack);
 
         ContainerBackpack container = new ContainerBackpack(player, EnumHand.MAIN_HAND, 143);
-        int[] indices = new int[ContainerBackpack.VISIBLE_SLOTS];
-        ItemStack[] prototypes = new ItemStack[ContainerBackpack.VISIBLE_SLOTS];
-        long[] counts = new long[ContainerBackpack.VISIBLE_SLOTS];
-        for (int slot = 0; slot < ContainerBackpack.VISIBLE_SLOTS; slot++) {
+        int visibleSlots = ContainerBackpack.MAX_VISIBLE_ROWS * 13;
+        int[] indices = new int[visibleSlots];
+        ItemStack[] prototypes = new ItemStack[visibleSlots];
+        long[] counts = new long[visibleSlots];
+        for (int slot = 0; slot < visibleSlots; slot++) {
             indices[slot] = slot;
             prototypes[slot] = numberedVariant(slot);
             counts[slot] = 1_000L + slot;
         }
 
-        applyFull(container, storageId, 1, 6, 143, 65, indices, prototypes, counts);
-        assertEquals(65, container.getVisibleSlotCount());
+        applyFull(container, storageId, 1, 7, 143, visibleSlots, indices, prototypes, counts);
+        assertEquals(visibleSlots, container.getVisibleSlotCount());
         assertEquals(13, container.getColumns());
-        for (int slot = 52; slot < 65; slot++) {
+        for (int slot = visibleSlots - 13; slot < visibleSlots; slot++) {
             assertEquals(1_000L + slot, container.getTrueSlotCount(slot));
             assertEquals(slot, contentStack(container, slot).getTagCompound().getInteger("variant"));
         }
@@ -189,19 +190,20 @@ class ContainerBackpackBlackHolePageSyncTest {
         assertTrue(container.isBlackHolePagePending());
         assertFalse(container.beginBlackHolePageRequest());
 
-        container.applyBlackHolePage(storageId, 1, 6, 143, 1,
-                true, true, new int[]{64}, new ItemStack[]{new ItemStack(Items.BONE)}, new long[]{20L});
+        int lastVisibleSlot = ContainerBackpack.MAX_VISIBLE_ROWS * 13 - 1;
+        container.applyBlackHolePage(storageId, 1, 7, 143, 1,
+                true, true, new int[]{lastVisibleSlot}, new ItemStack[]{new ItemStack(Items.BONE)}, new long[]{20L});
         assertFalse(container.isBlackHolePagePending());
-        assertEquals(6, container.getScrollRow());
+        assertEquals(7, container.getScrollRow());
         assertTrue(contentStack(container, 0).isEmpty());
-        assertSame(Items.BONE, contentStack(container, 64).getItem());
-        assertEquals(20L, container.getTrueSlotCount(64));
+        assertSame(Items.BONE, contentStack(container, lastVisibleSlot).getItem());
+        assertEquals(20L, container.getTrueSlotCount(lastVisibleSlot));
 
         // Delayed pre-wrap data cannot restore the old row.
         applyFull(container, storageId, Integer.MAX_VALUE, 0, 143, 1,
                 new int[]{0}, new ItemStack[]{new ItemStack(Items.PAPER)}, new long[]{99L});
-        assertEquals(6, container.getScrollRow());
-        assertSame(Items.BONE, contentStack(container, 64).getItem());
+        assertEquals(7, container.getScrollRow());
+        assertSame(Items.BONE, contentStack(container, lastVisibleSlot).getItem());
     }
 
     @Test
@@ -310,6 +312,30 @@ class ContainerBackpackBlackHolePageSyncTest {
         assertTrue(player.inventory.getItemStack().isEmpty());
     }
 
+    @Test
+    void smallerWindowsKeepTheLastStoredSlotAccessibleWhenResized() {
+        TestPlayer player = new TestPlayer(new TestClientWorld());
+        UUID storageId = UUID.randomUUID();
+        player.inventory.setInventorySlotContents(0, backpackWithStorage(newUninitializedBlackHoleBackpack(), storageId));
+        ContainerBackpack container = new ContainerBackpack(player, EnumHand.MAIN_HAND, 260);
+        applyFull(container, storageId, 1, 0, 260, 0, new int[0], new ItemStack[0], new long[0]);
+        assertTrue(container.setViewportRows(3));
+        assertEquals(3, container.getVisibleRows());
+        int row = container.getMaxScrollRows();
+        int lastSlot = 259 - row * container.getColumns();
+        applyFull(container, storageId, 2, row, 260, 1,
+                new int[]{lastSlot}, new ItemStack[]{new ItemStack(Items.PAPER)}, new long[]{2L});
+        assertPageCell(container, row, lastSlot, Items.PAPER, 2L);
+        assertTrue(container.setViewportRows(4));
+        assertEquals(4, container.getVisibleRows());
+        row = container.getMaxScrollRows();
+        lastSlot = 259 - row * container.getColumns();
+        applyFull(container, storageId, 3, row, 260, 1,
+                new int[]{lastSlot}, new ItemStack[]{new ItemStack(Items.PAPER)}, new long[]{2L});
+        assertPageCell(container, row, lastSlot, Items.PAPER, 2L);
+        assertFalse(container.setViewportRows(999));
+    }
+
     private static void applyFull(ContainerBackpack container, UUID storageId, int sequence,
                                   int row, int capacity, int filled, int[] indices,
                                   ItemStack[] prototypes, long[] counts) {
@@ -362,7 +388,7 @@ class ContainerBackpackBlackHolePageSyncTest {
 
                 @Override
                 public ResourceLocation name() {
-                    return new ResourceLocation("hbm", "test_black_hole_backpack");
+                    return new ResourceLocation("hbm", "backpack_black_hole");
                 }
 
                 @Override
