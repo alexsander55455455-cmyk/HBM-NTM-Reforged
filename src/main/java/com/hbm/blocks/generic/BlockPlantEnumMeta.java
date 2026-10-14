@@ -48,10 +48,14 @@ public abstract class BlockPlantEnumMeta<E extends Enum<E>> extends BlockEnumMet
     protected BlockBakeFrame[] generateBlockFrames(String registryName) {
         return Arrays.stream(blockEnum)
                 .sorted(Comparator.comparing(Enum::ordinal))
-                .map(Enum::name)
-                .map(name -> registryName + "_" + name.toLowerCase(Locale.US))
-                .map(BlockBakeFrame::cross)
+                .map(type -> BlockBakeFrame.cross(registryName + "_" + type.name().toLowerCase(Locale.US)))
                 .toArray(BlockBakeFrame[]::new);
+    }
+
+    public void setPlantTypes(E[] types) {
+        this.blockEnum = types;
+        this.META_COUNT = (short) types.length;
+        this.blockFrames = generateBlockFrames(getRegistryName().getPath());
     }
 
     /**

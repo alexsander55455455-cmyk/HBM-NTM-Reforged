@@ -3,14 +3,11 @@ package com.hbmspace.enums;
 
 import com.hbm.blocks.ModBlocks;
 import com.hbm.blocks.PlantEnums;
-import com.hbm.blocks.generic.BlockMeta;
 import com.hbm.blocks.generic.BlockNTMFlower;
-import com.hbm.render.block.BlockBakeFrame;
 
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
-import java.util.Locale;
 import java.util.Map;
 
 public class EnumAddonFlowerPlantTypes {
@@ -30,28 +27,7 @@ public class EnumAddonFlowerPlantTypes {
 
         PlantEnums.EnumFlowerPlantType[] flowerTypes = uniqueValues();
         EnumAddonTypes.setStaticField(PlantEnums.EnumFlowerPlantType.class, "VALUES", flowerTypes);
-        EnumAddonTypes.setInstanceField(BlockNTMFlower.class, "blockEnum", ModBlocks.plant_flower, flowerTypes);
-
-        EnumAddonTypes.setInstanceField(
-                BlockMeta.class,
-                "META_COUNT",
-                ModBlocks.plant_flower,
-                (short) flowerTypes.length
-        );
-
-        BlockBakeFrame[] newFrames = Arrays.stream(flowerTypes)
-                .sorted(Comparator.comparing(Enum::ordinal))
-                .map(Enum::name)
-                .map(name -> "hbm:" + name.toLowerCase(Locale.US))
-                .map(texture -> BlockBakeFrame.cross("plant_flower_" + texture.split(":")[1]))
-                .toArray(BlockBakeFrame[]::new);
-
-        EnumAddonTypes.setInstanceField(
-                BlockMeta.class,
-                "blockFrames",
-                ModBlocks.plant_flower,
-                newFrames
-        );
+        ((BlockNTMFlower) ModBlocks.plant_flower).setPlantTypes(flowerTypes);
     }
 
     private static PlantEnums.EnumFlowerPlantType addPlantType(String name, boolean needsOil) {
