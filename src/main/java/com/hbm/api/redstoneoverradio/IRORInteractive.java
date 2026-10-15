@@ -72,4 +72,17 @@ public interface IRORInteractive extends IRORInfo {
         if (result < min || result > max) throw new RORFunctionException(EX_FORMAT);
         return result;
     }
+
+    /** X5846 commands include limits larger than the signed integer range. */
+    static long parseLong(String val, long min, long max) {
+        long result;
+        try {
+            result = Long.parseLong(val);
+        } catch (NumberFormatException ex) {
+            try { result = Math.round(Double.parseDouble(val)); }
+            catch (NumberFormatException invalid) { throw new RORFunctionException(EX_FORMAT); }
+        }
+        if (result < min || result > max) throw new RORFunctionException(EX_FORMAT);
+        return result;
+    }
 }

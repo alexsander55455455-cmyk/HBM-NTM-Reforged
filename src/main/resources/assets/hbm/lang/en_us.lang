@@ -9025,3 +9025,14 @@ tile.test_blackhole_render.name=Black Hole Renderer (Debug)
 tile.light_emitter.name=Internal Light Emitter
 tile.lwrwreck_stone.name=PWR Concrete Wreckage
 tile.lwrwreck_metal.name=PWR Metal Wreckage
+
+tile.network_separator.name=Network Separator
+separator.limit=Limit (HE/t):
+separator.priority=Priority:
+separator.maximum=Maximum: 10,000,000,000 HE/t
+separator.priority.0=Lowest
+separator.priority.1=Low
+separator.priority.2=Normal
+separator.priority.3=High
+separator.priority.4=Highest
+separator.redstone=Disabled by redstone

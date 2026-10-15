@@ -9027,3 +9027,14 @@ tile.test_blackhole_render.name=Рендерер чёрной дыры (отла
 tile.light_emitter.name=Внутренний источник света
 tile.lwrwreck_stone.name=Бетонные обломки PWR
 tile.lwrwreck_metal.name=Металлические обломки PWR
+
+tile.network_separator.name=Разделитель энергосетей
+separator.limit=Лимит (HE/т):
+separator.priority=Приоритет:
+separator.maximum=Максимум: 10 000 000 000 HE/т
+separator.priority.0=Минимальный
+separator.priority.1=Низкий
+separator.priority.2=Обычный
+separator.priority.3=Высокий
+separator.priority.4=Максимальный
+separator.redstone=Отключён редстоуном
