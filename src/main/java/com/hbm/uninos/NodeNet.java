@@ -2,6 +2,7 @@ package com.hbm.uninos;
 
 import com.hbm.api.tile.ILoadedTile;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 import net.minecraft.tileentity.TileEntity;
 
@@ -16,6 +17,9 @@ public abstract class NodeNet<R, P, L extends GenNode<N>, N extends NodeNet<R, P
 
     public Object2LongOpenHashMap<R> receiverEntries = new Object2LongOpenHashMap<>();
     public Object2LongOpenHashMap<P> providerEntries = new Object2LongOpenHashMap<>();
+    private final Object2IntOpenHashMap<R> receiverPorts = new Object2IntOpenHashMap<>();
+    private final Object2IntOpenHashMap<P> providerPorts = new Object2IntOpenHashMap<>();
+    private long membershipVersion;
 
     public NodeNet() {
     }
@@ -29,6 +33,54 @@ public abstract class NodeNet<R, P, L extends GenNode<N>, N extends NodeNet<R, P
     public boolean isProvider(P provider) { return this.providerEntries.containsKey(provider); }
     public void addProvider(P provider) { this.providerEntries.put(provider, System.currentTimeMillis()); }
     public void removeProvider(P provider) { this.providerEntries.removeLong(provider); }
+
+    /** Port subscriptions live until explicitly detached; legacy subscriptions still time out. */
+    public void attachReceiverPort(R receiver) {
+        receiverPorts.addTo(receiver, 1);
+        addReceiver(receiver);
+    }
+
+    public void detachReceiverPort(R receiver) {
+        int count = receiverPorts.getInt(receiver);
+        if (count > 1) receiverPorts.put(receiver, count - 1);
+        else if (count == 1) {
+            receiverPorts.removeInt(receiver);
+            removeReceiver(receiver);
+        }
+    }
+
+    public void attachProviderPort(P provider) {
+        providerPorts.addTo(provider, 1);
+        addProvider(provider);
+    }
+
+    public void detachProviderPort(P provider) {
+        int count = providerPorts.getInt(provider);
+        if (count > 1) providerPorts.put(provider, count - 1);
+        else if (count == 1) {
+            providerPorts.removeInt(provider);
+            removeProvider(provider);
+        }
+    }
+
+    public boolean receiverExpired(R receiver, long lastSeen, long now, long timeout) {
+        return isBadLink(receiver) || (!receiverPorts.containsKey(receiver) && now - lastSeen > timeout);
+    }
+
+    public boolean providerExpired(P provider, long lastSeen, long now, long timeout) {
+        return isBadLink(provider) || (!providerPorts.containsKey(provider) && now - lastSeen > timeout);
+    }
+
+    public long getMembershipVersion() { return membershipVersion; }
+
+    /** A split can keep the same network object, so ports also observe this revision. */
+    public void clearMemberships() {
+        receiverEntries.clear();
+        providerEntries.clear();
+        receiverPorts.clear();
+        providerPorts.clear();
+        membershipVersion++;
+    }
 
     /** Combines two networks into one */
     public void joinNetworks(NodeNet<R, P, L, N> network) {
@@ -82,8 +134,7 @@ public abstract class NodeNet<R, P, L extends GenNode<N>, N extends NodeNet<R, P
             link.setNet(null);
         }
         this.links.clear();
-        this.receiverEntries.clear();
-        this.providerEntries.clear();
+        this.clearMemberships();
     }
 
     public static boolean isBadLink(Object o) {

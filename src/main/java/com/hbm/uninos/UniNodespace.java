@@ -440,8 +440,7 @@ public final class UniNodespace {
         }
 
         private void resetNetMembership(N net) {
-            net.receiverEntries.clear();
-            net.providerEntries.clear();
+            net.clearMemberships();
             net.resetTrackers();
         }
     }

@@ -16,7 +16,10 @@ import net.minecraft.world.World;
  */
 public class Nodespace {
 
-    public static final INetworkProvider<PowerNetMK2> THE_POWER_PROVIDER = PowerNetMK2::new;
+    public static final INetworkProvider<PowerNetMK2> THE_POWER_PROVIDER = new INetworkProvider<PowerNetMK2>() {
+        @Override public PowerNetMK2 get() { return new PowerNetMK2(); }
+        @Override public PowerNode provideNode(BlockPos... positions) { return new PowerNode(positions); }
+    };
 
     @Deprecated public static PowerNode getNode(World world, BlockPos pos) {
         return (PowerNode) UniNodespace.getNode(world, pos, THE_POWER_PROVIDER);

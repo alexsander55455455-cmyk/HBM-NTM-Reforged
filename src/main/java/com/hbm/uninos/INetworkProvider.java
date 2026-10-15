@@ -1,5 +1,7 @@
 package com.hbm.uninos;
 
+import net.minecraft.util.math.BlockPos;
+
 import java.util.function.Supplier;
 
 /**
@@ -8,4 +10,7 @@ import java.util.function.Supplier;
  */
 @FunctionalInterface
 public interface INetworkProvider<T extends NodeNet<?, ?, ?, T>> extends Supplier<T> {
+    default GenNode<T> provideNode(BlockPos... positions) {
+        return new GenNode<>(this, positions);
+    }
 }

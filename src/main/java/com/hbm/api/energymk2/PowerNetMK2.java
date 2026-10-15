@@ -94,7 +94,7 @@ public class PowerNetMK2 extends NodeNet<IEnergyReceiverMK2, IEnergyProviderMK2,
             while(provIt.hasNext()) {
                 var entry = provIt.next();
                 IEnergyProviderMK2 p = entry.getKey();
-                if(timestamp - entry.getLongValue() > timeout || isBadLink(p)) { provIt.remove(); continue; }
+                if(providerExpired(p, entry.getLongValue(), timestamp, timeout)) { provIt.remove(); continue; }
                 long src = Math.min(p.getPower(), p.getProviderSpeed());
                 if(src > 0) {
                     providers.add(new Tuple.ObjectLongPair<>(p, src));
@@ -107,7 +107,7 @@ public class PowerNetMK2 extends NodeNet<IEnergyReceiverMK2, IEnergyProviderMK2,
             while(recIt.hasNext()) {
                 var entry = recIt.next();
                 IEnergyReceiverMK2 r = entry.getKey();
-                if(timestamp - entry.getLongValue() > timeout || isBadLink(r)) { recIt.remove(); continue; }
+                if(receiverExpired(r, entry.getLongValue(), timestamp, timeout)) { recIt.remove(); continue; }
                 long rec = Math.min(r.getMaxPower() - r.getPower(), r.getReceiverSpeed());
                 if(rec > 0) {
                     int p = r.getPriority().ordinal();
@@ -212,7 +212,7 @@ public class PowerNetMK2 extends NodeNet<IEnergyReceiverMK2, IEnergyProviderMK2,
             var recIt = receiverEntries.object2LongEntrySet().fastIterator();
             while(recIt.hasNext()) {
                 var entry = recIt.next();
-                if(timestamp - entry.getLongValue() > timeout) { recIt.remove(); continue; }
+                if(receiverExpired(entry.getKey(), entry.getLongValue(), timestamp, timeout)) { recIt.remove(); continue; }
                 long rec = Math.min(entry.getKey().getMaxPower() - entry.getKey().getPower(), entry.getKey().getReceiverSpeed());
                 int p = entry.getKey().getPriority().ordinal();
                 receivers[p].add(new Tuple.ObjectLongPair<>(entry.getKey(), rec));
@@ -284,7 +284,7 @@ public class PowerNetMK2 extends NodeNet<IEnergyReceiverMK2, IEnergyProviderMK2,
             var provIt = providerEntries.object2LongEntrySet().fastIterator();
             while (provIt.hasNext()) {
                 var entry = provIt.next();
-                if (timestamp - entry.getLongValue() > timeout) {
+                if (providerExpired(entry.getKey(), entry.getLongValue(), timestamp, timeout)) {
                     if (!simulate) provIt.remove();
                     continue;
                 }
