@@ -5,6 +5,7 @@ import com.hbm.handler.threading.PacketThreading;
 import com.hbm.inventory.container.ContainerReactorZirnox;
 import com.hbm.lib.HBMSoundHandler;
 import com.hbm.packet.toserver.NBTControlPacket;
+import com.hbm.render.util.GaugeUtil;
 import com.hbm.tileentity.machine.TileEntityReactorZirnox;
 import com.hbm.util.I18nUtil;
 import net.minecraft.client.Minecraft;
@@ -20,6 +21,7 @@ import java.io.IOException;
 public class GUIReactorZirnox extends GuiInfoContainer {
 
     private static final ResourceLocation texture = new ResourceLocation(Tags.MODID, "textures/gui/reactors/gui_zirnox.png");
+    private static final ResourceLocation gauges = new ResourceLocation(Tags.MODID, "textures/gui/gauges/zirnox_smooth.png");
     private final TileEntityReactorZirnox zirnox;
 
     public GUIReactorZirnox(InventoryPlayer invPlayer, TileEntityReactorZirnox tile) {
@@ -95,20 +97,15 @@ public class GUIReactorZirnox extends GuiInfoContainer {
         Minecraft.getMinecraft().getTextureManager().bindTexture(texture);
         drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
 
-        int s = zirnox.getGaugeScaled(6, 0);
-        drawTexturedModalRect(guiLeft + 160, guiTop + 108, 238, 12 * s, 18, 12);
-
-        int c = zirnox.getGaugeScaled(6, 1);
-        drawTexturedModalRect(guiLeft + 142, guiTop + 108, 238, 12 * c, 18, 12);
-
-        int w = zirnox.getGaugeScaled(6, 2);
-        drawTexturedModalRect(guiLeft + 178, guiTop + 108, 238, 12 * w, 18, 12);
-
-        int h = zirnox.getGaugeScaled(12, 3);
-        drawTexturedModalRect(guiLeft + 160, guiTop + 33, 220, 18 * h, 18, 17);
-
-        int p = zirnox.getGaugeScaled(12, 4);
-        drawTexturedModalRect(guiLeft + 178, guiTop + 33, 220, 18 * p, 18, 17);
+        Minecraft.getMinecraft().getTextureManager().bindTexture(gauges);
+        drawTexturedModalRect(guiLeft + 142, guiTop + 108, 142, 108, 54, 12);
+        drawTexturedModalRect(guiLeft + 160, guiTop + 33, 160, 33, 36, 17);
+        GaugeUtil.drawSmoothLinearGauge(guiLeft + 162, guiTop + 114, this.zLevel, (double) zirnox.steam.getFill() / zirnox.steam.getMaxFill(), 2, 5, 0.75, 14, 0, 0x7F0000);
+        GaugeUtil.drawSmoothLinearGauge(guiLeft + 144, guiTop + 114, this.zLevel, (double) zirnox.carbonDioxide.getFill() / zirnox.carbonDioxide.getMaxFill(), 2, 5, 0.75, 14, 0, 0x7F0000);
+        GaugeUtil.drawSmoothLinearGauge(guiLeft + 180, guiTop + 114, this.zLevel, (double) zirnox.water.getFill() / zirnox.water.getMaxFill(), 2, 5, 0.75, 14, 0, 0x7F0000);
+        GaugeUtil.drawSmoothGauge(guiLeft + 169, guiTop + 42, this.zLevel, zirnox.heat / 100000D, 5, 2, 1, 0x7F0000);
+        GaugeUtil.drawSmoothGauge(guiLeft + 187, guiTop + 42, this.zLevel, zirnox.pressure / 100000D, 5, 2, 1, 0x7F0000);
+        Minecraft.getMinecraft().getTextureManager().bindTexture(texture);
 
         if(zirnox.isOn) {
             for(int x = 0; x < 4; x++)

@@ -63,6 +63,55 @@ public class GaugeUtil {
 		renderGauge(gauge, (float) x, (float) y, (float) z, (float) progress);
 	}
 
+	public static void drawSmoothLinearGauge(int x, int y, double z, double progress, double tipLength, double backLength, double backSide, double scale, float rotation, int color) {
+		GlStateManager.disableTexture2D();
+		double distance = MathHelper.clamp(progress, 0, 1) * Math.max(scale, 1);
+		double angle = Math.toRadians(-rotation);
+		double cos = Math.cos(angle), sin = Math.sin(angle);
+		double[] xs = {0, -backSide, -backSide, backSide, backSide};
+		double[] ys = {-tipLength, 0, backLength, backLength, 0};
+		NTMBufferBuilder buffer = NTMImmediate.INSTANCE.beginPositionColor(GL11.GL_TRIANGLES, 18);
+		for(int layer = 0; layer < 2; layer++) {
+			double mult = layer == 0 ? 1.5 : 1;
+			int packedColor = layer == 0 ? NTMBufferBuilder.packColor(0, 0, 0, 255)
+					: NTMBufferBuilder.packColor(color >> 16 & 255, color >> 8 & 255, color & 255, 255);
+			for(int triangle = 1; triangle < 4; triangle++) {
+				for(int vertex = 0; vertex < 3; vertex++) {
+					int index = vertex == 0 ? 0 : triangle + vertex - 1;
+					double vx = xs[index] * cos + ys[index] * sin;
+					double vy = ys[index] * cos - xs[index] * sin;
+					buffer.appendPositionColor((float) (x + distance * cos + vx * mult),
+							(float) (y + distance * sin + vy * (index == 2 || index == 3 ? 1 : mult)), (float) z, packedColor);
+				}
+			}
+		}
+		NTMImmediate.INSTANCE.draw();
+		GlStateManager.enableTexture2D();
+		GlStateManager.color(1, 1, 1, 1);
+	}
+
+	/** Reveals a 270 degree arc from bottom-left to bottom-right on a 256x256 atlas. */
+	public static void drawSmoothTextureModalCircle(int x, int y, float z, int u, int v, int width, int height, double progress) {
+		progress = MathHelper.clamp(progress, 0, 1);
+		if(progress <= 0) return;
+		double angle = Math.toRadians(135 + progress * 270);
+		double dx = Math.cos(angle), dy = Math.sin(angle);
+		double edge = Math.max(Math.abs(dx), Math.abs(dy));
+		float targetX = (float) ((dx / edge + 1) * width / 2);
+		float targetY = (float) ((dy / edge + 1) * height / 2);
+		int segment = Math.min((int) (progress * 3), 2);
+		NTMBufferBuilder buffer = NTMImmediate.INSTANCE.beginPositionTex(GL11.GL_TRIANGLES, (segment + 1) * 3);
+		for(int i = 0; i <= segment; i++) {
+			float startX = i == 2 ? width : 0, startY = i == 0 ? height : 0;
+			float endX = i == segment ? targetX : (i == 0 ? 0 : width);
+			float endY = i == segment ? targetY : 0;
+			buffer.appendPositionTex(x + startX, y + startY, z, (u + startX) / 256F, (v + startY) / 256F);
+			buffer.appendPositionTex(x + width / 2F, y + height / 2F, z, (u + width / 2F) / 256F, (v + height / 2F) / 256F);
+			buffer.appendPositionTex(x + endX, y + endY, z, (u + endX) / 256F, (v + endY) / 256F);
+		}
+		NTMImmediate.INSTANCE.draw();
+	}
+
 	public static void drawSmoothGauge(int x, int y, double z, double progress, double tipLength, double backLength, double backSide, int color) {
 		drawSmoothGauge(x, y, z, progress, tipLength, backLength, backSide, color, 0x000000);
 	}
@@ -114,5 +163,6 @@ public class GaugeUtil {
 		NTMImmediate.INSTANCE.draw();
 
 		GlStateManager.enableTexture2D();
+		GlStateManager.color(1, 1, 1, 1);
 	}
 }

@@ -5,7 +5,6 @@ import com.hbm.handler.threading.PacketThreading;
 import com.hbm.inventory.container.ContainerWatz;
 import com.hbm.packet.toserver.NBTControlPacket;
 import com.hbm.render.util.GaugeUtil;
-import com.hbm.render.util.GaugeUtil.Gauge;
 import com.hbm.tileentity.machine.TileEntityWatz;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -91,7 +90,7 @@ public class GUIWatz extends GuiInfoContainer {
 		if(watz.isOn) drawTexturedModalRect(guiLeft + 147, guiTop + 8, 176, 0, 8, 8);
 		if(watz.isLocked) drawTexturedModalRect(guiLeft + 142, guiTop + 70, 210, 0, 18, 18);
 		
-		GaugeUtil.renderGauge(Gauge.ROUND_SMALL, guiLeft + 13, guiTop + 100, this.zLevel, 1F - col);
+		GaugeUtil.drawSmoothGauge(guiLeft + 22, guiTop + 109, this.zLevel, 1D - col, 5, 2, 1, 0x7F0000);
 
 		watz.tanks[0].renderTank(guiLeft + 143, guiTop + 69, this.zLevel, 4, 43);
 		watz.tanks[1].renderTank(guiLeft + 149, guiTop + 69, this.zLevel, 4, 43);

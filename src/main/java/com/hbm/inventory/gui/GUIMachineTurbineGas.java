@@ -8,6 +8,7 @@ import com.hbm.inventory.fluid.Fluids;
 import com.hbm.inventory.fluid.trait.FT_Combustible;
 import com.hbm.inventory.fluid.trait.FT_Combustible.FuelGrade;
 import com.hbm.packet.toserver.NBTControlPacket;
+import com.hbm.render.util.GaugeUtil;
 import com.hbm.tileentity.machine.TileEntityMachineTurbineGas;
 import com.hbm.util.I18nUtil;
 import net.minecraft.client.Minecraft;
@@ -30,7 +31,7 @@ import static com.hbm.util.SoundUtil.playClickSound;
 public class GUIMachineTurbineGas extends GuiInfoContainer {
 
     private static final ResourceLocation texture = new ResourceLocation(Tags.MODID + ":textures/gui/generators/gui_turbinegas.png");
-    private static final ResourceLocation gauge_tex = new ResourceLocation(Tags.MODID + ":textures/gui/gauges/button_big.png");
+    private static final ResourceLocation gauges = new ResourceLocation(Tags.MODID, "textures/gui/gauges/turbinegas_smooth.png");
     private final TileEntityMachineTurbineGas turbinegas;
 
     private int yStart;
@@ -180,7 +181,10 @@ public class GUIMachineTurbineGas extends GuiInfoContainer {
         int power = (int) (turbinegas.power * 142 / TileEntityMachineTurbineGas.maxPower); //power storage
         drawTexturedModalRect(guiLeft + 26, guiTop + 109, 0, 223, power, 16);
 
-        drawRPMGauge(turbinegas.rpm);
+        GlStateManager.enableBlend();
+        Minecraft.getMinecraft().getTextureManager().bindTexture(gauges);
+        GaugeUtil.drawSmoothTextureModalCircle(guiLeft + 64, guiTop + 16, this.zLevel, 176, 64, 48, 48, turbinegas.rpm / 100D);
+        GlStateManager.disableBlend();
         drawThermometer(turbinegas.temp);
 
         this.drawInfoPanel(guiLeft - 16, guiTop + 34, 16, 16, 3); //info
@@ -269,35 +273,6 @@ public class GUIMachineTurbineGas extends GuiInfoContainer {
         bufferbuilder.pos(xPos + width, yPos + height, 0.0D).tex(uMax, vMax).endVertex();
         bufferbuilder.pos(xPos + width, yPos + 64 - (64D * temp / maxTemp), 0.0D).tex(uMax, vMin).endVertex();
         bufferbuilder.pos(xPos, yPos + 64 - (64D * temp / maxTemp), 0.0D).tex(uMin, vMin).endVertex();
-        tessellator.draw();
-
-        GlStateManager.disableBlend();
-    }
-
-    private void drawRPMGauge(int position) {
-
-        int xPos = guiLeft + 64;
-        int yPos = guiTop + 16;
-
-        int squareSideLenght = 48;
-
-        double uMin = (48D / 4848D) * position;
-        double uMax = (48D / 4848D) * (position + 1);
-        double vMin = 0D;
-        double vMax = 1D;
-
-        GlStateManager.enableBlend();
-
-        Minecraft.getMinecraft().getTextureManager().bindTexture(gauge_tex); //long boi
-
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
-
-        bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-        bufferbuilder.pos(xPos, yPos + squareSideLenght, 0.0D).tex(uMin, vMax).endVertex();
-        bufferbuilder.pos(xPos + squareSideLenght, yPos + squareSideLenght, 0.0D).tex(uMax, vMax).endVertex();
-        bufferbuilder.pos(xPos + squareSideLenght, yPos, 0.0D).tex(uMax, vMin).endVertex();
-        bufferbuilder.pos(xPos, yPos, 0.0D).tex(uMin, vMin).endVertex();
         tessellator.draw();
 
         GlStateManager.disableBlend();
