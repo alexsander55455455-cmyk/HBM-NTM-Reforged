@@ -23,7 +23,14 @@ public class ServerConfig extends RunningConfig {
     public static ConfigWrapper<Boolean> ENABLE_MKU =					new ConfigWrapper<>(true);
     public static ConfigWrapper<Boolean> LEGACY_CRUCIBLE_RULES =		new ConfigWrapper<>(false);
 
+    public static ConfigWrapper<Integer> AUTOCAL_MAX_CLOCK = new ConfigWrapper<>(20);
+    public static ConfigWrapper<Integer> MAX_BUFFER_LENGTH = new ConfigWrapper<>(256);
+    public static ConfigWrapper<Integer> MAX_STACK_SIZE = new ConfigWrapper<>(256);
+
     private static void initDefaults() {
+        configMap.put("AUTOCAL_MAX_CLOCK", AUTOCAL_MAX_CLOCK);
+        configMap.put("MAX_BUFFER_LENGTH", MAX_BUFFER_LENGTH);
+        configMap.put("MAX_STACK_SIZE", MAX_STACK_SIZE);
         configMap.put("DAMAGE_COMPATIBILITY_MODE", DAMAGE_COMPATIBILITY_MODE);
         configMap.put("MINE_AP_DAMAGE", MINE_AP_DAMAGE);
         configMap.put("MINE_HE_DAMAGE", MINE_HE_DAMAGE);

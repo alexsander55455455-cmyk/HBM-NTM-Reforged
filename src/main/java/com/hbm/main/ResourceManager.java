@@ -297,6 +297,8 @@ public class ResourceManager {
     public static final WaveFrontObjectVAO pylon_large = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/network/pylon_large.obj")).asVBO();
     public static final WaveFrontObjectVAO pylon_medium = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/network/pylon_medium.obj")).asVBO();
     public static final WaveFrontObjectVAO substation = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/network/substation.obj")).asVBO();
+    public static final WaveFrontObjectVAO autocal = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/machines/autocal.obj")).asVBO();
+    public static final ResourceLocation autocal_tex = new ResourceLocation(Tags.MODID, "textures/models/machines/autocal.png");
     public static final WaveFrontObjectVAO pipe_anchor = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/network/pipe_anchor.obj")).asVBO();
     public static final WaveFrontObjectVAO conservecrate = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/blocks/conservecrate.obj")).asVBO();
     //Pipe

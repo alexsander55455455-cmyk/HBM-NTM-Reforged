@@ -9048,3 +9048,5 @@ pump.maximum=Максимум: 10 000 мБ/т
 pump.buffered=В буфере: %s мБ
 pump.fluid_changed=Выбрана жидкость: %s.
 power_net_tool.flow=Текущий поток: %s HE/т
+
+tile.radio_autocal.name=Автоматический калькулятор AUTOCAL

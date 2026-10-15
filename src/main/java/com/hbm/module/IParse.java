@@ -1,0 +1,139 @@
+package com.hbm.module;
+
+import java.util.HashMap;
+
+import com.hbm.config.ServerConfig;
+
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
+
+public interface IParse {
+
+	public EnumStatementReturn eval(ParseContext ctx, String line);
+	public void generateJumpPoints(ParseContext ctx, String line, int index);
+
+	public static class ParseContext {
+		public World world;
+		public NBTTagCompound variables = new NBTTagCompound();
+		public HashMap<String, Integer> jmp = new HashMap();
+
+		private String buffer = "";
+		private String[] stack = new String[Math.max(0, ServerConfig.MAX_STACK_SIZE.get())];
+		private int stackSize = 0;
+		public String splitString = ";";
+		public int clockSpeed = 1;
+		public int current = 0;
+
+		public ParseContext(World world) {
+			this.world = world;
+
+			for(int i = 0; i < stack.length; i++) stack[i] = "";
+		}
+
+		public String readBuffer() {
+			return this.buffer;
+		}
+
+		/** Sets the buffer and imposes length restrictions. Returns true if successful, and false if truncation has taken place. */
+		public boolean writeBuffer(String buffer) {
+
+			if(buffer.length() > Math.max(0, ServerConfig.MAX_BUFFER_LENGTH.get())) {
+				this.buffer = buffer.substring(0, Math.max(0, ServerConfig.MAX_BUFFER_LENGTH.get()));
+				return false;
+			}
+
+			this.buffer = buffer;
+			return true;
+		}
+
+		public boolean push(String line) {
+			if(stackSize >= stack.length) return false;
+			if(line.length() > Math.max(0, ServerConfig.MAX_BUFFER_LENGTH.get())) line = line.substring(0, Math.max(0, ServerConfig.MAX_BUFFER_LENGTH.get()));
+			stack[stackSize] = line;
+			stackSize++;
+			return true;
+		}
+
+		public String pop() {
+			if(stackSize <= 0) return null;
+			if(stackSize > stack.length) stackSize = stack.length;
+			String ret = stack[stackSize - 1];
+			stack[stackSize - 1] = "";
+			stackSize--;
+			return ret;
+		}
+
+		public String peek() {
+			if(stackSize <= 0) return null;
+			if(stackSize > stack.length) stackSize = stack.length;
+			return stack[stackSize - 1];
+		}
+
+		public void turnOff() {
+			this.clockSpeed = 1;
+			this.current = 0;
+			this.buffer = "";
+			if(!this.variables.isEmpty()) this.variables = new NBTTagCompound();
+		}
+
+		// NBT R/W is now in control of the CTX, meaning additions to the AUTOCAL runtime should be a lot easier
+		public void readFromNBT(NBTTagCompound nbt, String[] script, IParse parser) {
+			current = nbt.getInteger("current");
+			clockSpeed = Math.max(1, Math.min(nbt.getInteger("clockSpeed"), Math.max(1, ServerConfig.AUTOCAL_MAX_CLOCK.get())));
+			writeBuffer(nbt.getString("buffer"));
+			splitString = nbt.hasKey("splitString") ? nbt.getString("splitString") : ";";
+			variables = nbt.getCompoundTag("variables");
+
+			stackSize = Math.max(0, Math.min(nbt.getInteger("stackSize"), stack.length));
+			jmp.clear();
+			for(int i = 0; i < stack.length; i++) stack[i] = nbt.getString("st" + i);
+			for(int i = 0; i < script.length; i++) parser.generateJumpPoints(this, script[i], i);
+		}
+
+		public void writeToNBT(NBTTagCompound nbt) {
+			nbt.setInteger("current", current);
+			nbt.setInteger("clockSpeed", clockSpeed);
+			nbt.setString("buffer", buffer);
+			nbt.setString("splitString", splitString);
+			nbt.setTag("variables", variables);
+
+			nbt.setInteger("stackSize", stackSize);
+			for(int i = 0; i < stack.length; i++) nbt.setString("st" + i, stack[i]);
+		}
+	}
+
+	public static enum EnumStatementReturn {
+		/** The command executed correctly (more or less) */
+		OK(false),
+		/** The command hasn't been recognized */
+		UNRECOGNIZED_COMMAND(true),
+		/** Requests the AUTOCAL unit to end the tick, regardless of how many clock cycles are left */
+		END_TICK(false),
+		/** Requests an AUTOCAL shutdown */
+		SHUTDOWN(false),
+		/** Skips the instruction, doesn't use up a clock cycle */
+		SKIP(false),
+		/** General undefined behavior */
+		UNDEFINED(true),
+		/** Stack ran full */
+		STACK_EXCEEDED(true),
+		/** Parameters expected but not supplied */
+		PARAMETER_MISSING(true),
+		/** Parameters not within expected numeric range */
+		PARAMETER_OOB(true),
+		/** Parameters not in expected format */
+		PARAMETER_PARSE_ERROR(true),
+		/** Jump to undefined destination */
+		NO_DESTINATION(true),
+		/** Calculation has failed, likely to values not being numbers or malformed statements */
+		ARITHMETIC_EXCEPTION(true),
+		/** Buffer contents are required, but not present */
+		BUFFER_EMPTY(true);
+
+		public final boolean error;
+
+		private EnumStatementReturn(boolean error) {
+			this.error = error;
+		}
+	}
+}

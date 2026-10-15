@@ -9046,3 +9046,5 @@ pump.maximum=Maximum: 10,000 mB/t
 pump.buffered=%s mB buffered
 pump.fluid_changed=Fluid set to %s.
 power_net_tool.flow=Last flow: %s HE/t
+
+tile.radio_autocal.name=AUTOCAL Automatic Calculator
