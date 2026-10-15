@@ -35,18 +35,26 @@ public class RenderTurretBrandon extends RenderTurretBase<TileEntityTurretBrando
 
     bindTexture(ResourceManager.turret_base_tex);
     ResourceManager.turret_chekhov.renderPart("Base");
+    double yaw = -Math.toDegrees(turret.lastRotationYaw
+        + (turret.rotationYaw - turret.lastRotationYaw) * partialTicks) - 90;
     double pitch =
         Math.toDegrees(
             turret.lastRotationPitch
                 + (turret.rotationPitch - turret.lastRotationPitch) * partialTicks);
 
+    GL11.glRotated(yaw, 0, 1, 0);
     GL11.glTranslated(0, 1.5, 0);
     GL11.glRotated(pitch, 0, 0, 1);
     GL11.glTranslated(0, -1.5, 0);
+    double reload = Math.max(0, turret.getReloadTicks() - partialTicks);
+    GL11.glTranslated(-0.15 * Math.max(0, (reload - 72) / 8), 0, 0);
     bindTexture(ResourceManager.turret_brandon_tex);
     ResourceManager.turret_brandon.renderPart("Launcher");
-    bindTexture(ResourceManager.brandon_explosive);
-    ResourceManager.turret_brandon.renderPart("Barrel");
+    if (turret.hasLoadedBarrel()) {
+      GL11.glTranslated(0, -0.5 * Math.min(1, reload / 20), 0);
+      bindTexture(ResourceManager.brandon_explosive);
+      ResourceManager.turret_brandon.renderPart("Barrel");
+    }
 
     GlStateManager.shadeModel(GL11.GL_FLAT);
     GL11.glPopMatrix();
