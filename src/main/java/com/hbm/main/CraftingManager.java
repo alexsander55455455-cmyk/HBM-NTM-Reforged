@@ -651,6 +651,7 @@ public class CraftingManager {
 		addRecipeAuto(new ItemStack(ModBlocks.fluid_switch, 1), "S", "W", 'S', REDSTONE.dust(), 'W', ModBlocks.fluid_duct_paintable );
 		addRecipeAuto(new ItemStack(ModBlocks.fluid_counter_valve, 1), "S", "W", 'S', DictFrame.fromOne(ModItems.circuit, EnumCircuitType.CHIP), 'W', ModBlocks.fluid_switch);
 		addRecipeAuto(new ItemStack(ModBlocks.fluid_pump, 1), " S ", "PGP", "IMI", 'S', STEEL.shell(), 'P', STEEL.pipe(), 'G', GRAPHITE.ingot(), 'I', STEEL.ingot(), 'M', ModItems.motor );
+		addRecipeAuto(new ItemStack(ModBlocks.flow_control_pump, 1), " G ", "SMS", " G ", 'S', STEEL.shell(), 'G', GRAPHITE.ingot(), 'M', ModItems.motor );
 		addRecipeAuto(new ItemStack(ModBlocks.pneumatic_tube, 8), "CRC", 'C', CU.plateCast(), 'R', ANY_RUBBER.ingot() );
 		addRecipeAuto(new ItemStack(ModBlocks.pneumatic_tube, 24), "CRC", 'C', CU.plateWelded(), 'R', ANY_RUBBER.ingot() );
 		addRecipeAuto(new ItemStack(ModBlocks.pneumatic_tube_paintable, 4), "SAS", "A A", "SAS", 'S', STEEL.plate(), 'A', ModBlocks.pneumatic_tube);

@@ -9038,3 +9038,10 @@ separator.priority.2=Обычный
 separator.priority.3=Высокий
 separator.priority.4=Максимальный
 separator.redstone=Отключён редстоуном
+
+tile.flow_control_pump.name=Регулируемый насос
+pump.throughput=Расход:
+pump.pressure=Давление:
+pump.maximum=Максимум: 10 000 мБ/т
+pump.buffered=В буфере: %s мБ
+pump.fluid_changed=Выбрана жидкость: %s.

@@ -9036,3 +9036,10 @@ separator.priority.2=Normal
 separator.priority.3=High
 separator.priority.4=Highest
 separator.redstone=Disabled by redstone
+
+tile.flow_control_pump.name=Flow Control Pump
+pump.throughput=Flow (mB/t):
+pump.pressure=Pressure:
+pump.maximum=Maximum: 10,000 mB/t
+pump.buffered=%s mB buffered
+pump.fluid_changed=Fluid set to %s.
