@@ -1,5 +1,6 @@
 package com.hbm.blocks.network;
 
+import com.google.common.math.LongMath;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.hbm.Tags;
@@ -224,14 +225,12 @@ public class FluidDuctGauge extends FluidDuctBase implements ILookOverlay, ITool
             super.update();
 
             if (!world.isRemote) {
-                if (node != null && node.net != null && getType() != Fluids.NONE) {
-                    deltaTick = node.net.fluidTracker;
-                    if (world.getTotalWorldTime() % 20L == 0) {
-                        secondEMA.next(this.lastSecond = this.deltaSecond);
-                        deltaSecond = 0;
-                    }
-                    deltaSecond += deltaTick;
+                deltaTick = node != null && node.hasValidNet() && getType() != Fluids.NONE ? node.net.fluidTracker : 0;
+                if (world.getTotalWorldTime() % 20L == 0) {
+                    secondEMA.next(this.lastSecond = this.deltaSecond);
+                    deltaSecond = 0;
                 }
+                deltaSecond = LongMath.saturatedAdd(deltaSecond, deltaTick);
                 networkPackNT(25);
             }
         }

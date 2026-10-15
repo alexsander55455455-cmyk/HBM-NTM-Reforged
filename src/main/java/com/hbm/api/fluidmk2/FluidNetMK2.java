@@ -1,5 +1,6 @@
 package com.hbm.api.fluidmk2;
 
+import com.google.common.math.LongMath;
 import com.hbm.api.energymk2.IEnergyReceiverMK2.ConnectionPriority;
 import com.hbm.api.energymk2.PowerNetMK2;
 import com.hbm.inventory.fluid.FluidType;
@@ -129,12 +130,16 @@ public class FluidNetMK2 extends NodeNet<IFluidReceiverMK2, IFluidProviderMK2, F
                         continue;
                     }
 
+                    IFluidProviderMK2 buffer = providerEntries.containsKey(entry.getKey()) ? (IFluidProviderMK2) entry.getKey() : null;
+                    long supplyBefore = buffer == null ? 0 : buffer.getFluidAvailable(type, p);
                     long accepted = toSend - entry.getKey().transferFluid(type, p, toSend);
                     if(accepted > 0) {
                         long accounted = Math.min(accepted, toSend);
                         sentThisPriority += accounted;
                         received[p] += accounted;
-                        fluidTracker += accounted;
+                        // Only fluid returned to the provider's actual sending stock is circulation.
+                        long buffered = buffer == null ? 0 : Math.max(0, buffer.getFluidAvailable(type, p) - supplyBefore);
+                        fluidTracker = LongMath.saturatedAdd(fluidTracker, accounted - Math.min(accounted, buffered));
                     }
                     remainingDemand -= receiverDemand;
                 }

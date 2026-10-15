@@ -70,6 +70,12 @@ public class PowerNetMK2 extends NodeNet<IEnergyReceiverMK2, IEnergyProviderMK2,
         return size <= 0 ? 0 : Math.floorMod(cursor, size);
     }
 
+    private boolean isBuffer(IEnergyReceiverMK2 receiver, long timestamp) {
+        if (!(receiver instanceof IEnergyProviderMK2)) return false;
+        IEnergyProviderMK2 provider = (IEnergyProviderMK2) receiver;
+        return providerEntries.containsKey(provider) && !providerExpired(provider, providerEntries.getLong(provider), timestamp, timeout);
+    }
+
     @Override
     public void update() {
 
@@ -122,6 +128,7 @@ public class PowerNetMK2 extends NodeNet<IEnergyReceiverMK2, IEnergyProviderMK2,
 
         long toTransfer = Math.min(powerAvailable, totalDemand);
         long energyUsed = 0;
+        long measuredFlow = 0;
 
         // add power to receivers, ordered by priority
         for(int i = IEnergyReceiverMK2.ConnectionPriority.VALUES.length - 1; i >= 0; i--) {
@@ -156,7 +163,10 @@ public class PowerNetMK2 extends NodeNet<IEnergyReceiverMK2, IEnergyProviderMK2,
 
                 long accepted = toSend - entry.getKey().transferPower(toSend, false);
                 if (accepted > 0) {
-                    priorityUsed += Math.min(accepted, toSend);
+                    long accounted = Math.min(accepted, toSend);
+                    priorityUsed += accounted;
+                    // Refilling another provider is circulation within the network's supply.
+                    if (!isBuffer(entry.getKey(), timestamp)) measuredFlow += accounted;
                 }
                 remainingDemand -= receiverDemand;
             }
@@ -167,7 +177,7 @@ public class PowerNetMK2 extends NodeNet<IEnergyReceiverMK2, IEnergyProviderMK2,
             toTransfer -= priorityUsed;
         }
 
-        this.energyTracker += energyUsed;
+        this.energyTracker = LongMath.saturatedAdd(this.energyTracker, measuredFlow);
         long remainingToDebit = energyUsed;
         long remainingSupply = powerAvailable;
 
@@ -225,6 +235,7 @@ public class PowerNetMK2 extends NodeNet<IEnergyReceiverMK2, IEnergyProviderMK2,
 
         long toTransfer = Math.min(power, totalDemand);
         long energyUsed = 0;
+        long measuredFlow = 0;
 
         for(int i = IEnergyReceiverMK2.ConnectionPriority.VALUES.length - 1; i >= 0; i--) {
             var list = receivers[i];
@@ -257,7 +268,9 @@ public class PowerNetMK2 extends NodeNet<IEnergyReceiverMK2, IEnergyProviderMK2,
 
                 long accepted = toSend - entry.getKey().transferPower(toSend, simulate);
                 if (accepted > 0) {
-                    priorityUsed += Math.min(accepted, toSend);
+                    long accounted = Math.min(accepted, toSend);
+                    priorityUsed += accounted;
+                    if (!isBuffer(entry.getKey(), timestamp)) measuredFlow += accounted;
                 }
                 remainingDemand -= receiverDemand;
             }
@@ -267,7 +280,7 @@ public class PowerNetMK2 extends NodeNet<IEnergyReceiverMK2, IEnergyProviderMK2,
             toTransfer -= priorityUsed;
         }
 
-        if (!simulate) this.energyTracker += energyUsed;
+        if (!simulate) this.energyTracker = LongMath.saturatedAdd(this.energyTracker, measuredFlow);
 
         return power - energyUsed;
     }
@@ -334,7 +347,7 @@ public class PowerNetMK2 extends NodeNet<IEnergyReceiverMK2, IEnergyProviderMK2,
         if (!simulate && providerCount > 0) diodeProviderRemainderCursor = (providerStart + 1) % providerCount;
 
         if (!simulate) {
-            this.energyTracker += totalExtracted;
+            this.energyTracker = LongMath.saturatedAdd(this.energyTracker, totalExtracted);
         }
 
         return totalExtracted;

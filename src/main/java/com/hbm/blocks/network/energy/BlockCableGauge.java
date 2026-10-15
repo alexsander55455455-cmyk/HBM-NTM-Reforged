@@ -1,6 +1,6 @@
 package com.hbm.blocks.network.energy;
 
-import com.hbm.api.energymk2.PowerNetMK2;
+import com.google.common.math.LongMath;
 import com.hbm.api.redstoneoverradio.IRORValueProvider;
 import com.hbm.blocks.ILookOverlay;
 import com.hbm.blocks.ITooltipProvider;
@@ -117,7 +117,7 @@ public class BlockCableGauge extends BlockContainer implements ILookOverlay, ITo
     @AutoRegister
     public static class TileEntityCableGauge extends TileEntityCableBaseNT implements SimpleComponent, IRORValueProvider {
 
-        private long deltaTick = 10;
+        private long deltaTick = 0;
         private long deltaSecond = 0;
         public long deltaLastSecond = 0;
         private AxisAlignedBB bb;
@@ -128,17 +128,12 @@ public class BlockCableGauge extends BlockContainer implements ILookOverlay, ITo
 
             if (!world.isRemote) {
 
-                if (this.node != null && this.node.net != null) {
-
-                    PowerNetMK2 net = this.node.net;
-
-                    this.deltaTick = net.energyTracker;
-                    if (world.getTotalWorldTime() % 20 == 0) {
-                        this.deltaLastSecond = this.deltaSecond;
-                        this.deltaSecond = 0;
-                    }
-                    this.deltaSecond += deltaTick;
+                this.deltaTick = this.node != null && this.node.hasValidNet() ? this.node.net.energyTracker : 0;
+                if (world.getTotalWorldTime() % 20 == 0) {
+                    this.deltaLastSecond = this.deltaSecond;
+                    this.deltaSecond = 0;
                 }
+                this.deltaSecond = LongMath.saturatedAdd(this.deltaSecond, deltaTick);
 
                 networkPackNT(25);
             }

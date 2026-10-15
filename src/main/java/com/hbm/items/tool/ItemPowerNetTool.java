@@ -8,6 +8,7 @@ import com.hbm.handler.threading.PacketThreading;
 import com.hbm.items.ItemBakedBase;
 import com.hbm.packet.toclient.AuxParticlePacketNT;
 import com.hbm.util.ChatBuilder;
+import com.hbm.util.BobMathUtil;
 import net.minecraft.block.Block;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
@@ -66,6 +67,7 @@ public class ItemPowerNetTool extends ItemBakedBase {
                 player.sendMessage(ChatBuilder.start("Links: " + net.links.size()).color(TextFormatting.YELLOW).flush());
                 player.sendMessage(ChatBuilder.start("Providers: " + net.providerEntries.size()).color(TextFormatting.YELLOW).flush());
                 player.sendMessage(ChatBuilder.start("Receivers: " + net.receiverEntries.size()).color(TextFormatting.YELLOW).flush());
+                player.sendMessage(ChatBuilder.startTranslation("power_net_tool.flow", BobMathUtil.format(net.energyTracker)).color(TextFormatting.YELLOW).flush());
                 player.sendMessage(ChatBuilder.start("End of diagnostic for network " + id).color(TextFormatting.GOLD).flush());
 
                 for (Nodespace.PowerNode link : net.links) {
