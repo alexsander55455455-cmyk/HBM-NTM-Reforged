@@ -656,6 +656,8 @@ public class CraftingManager {
 		addRecipeAuto(new ItemStack(ModBlocks.pneumatic_tube, 24), "CRC", 'C', CU.plateWelded(), 'R', ANY_RUBBER.ingot() );
 		addRecipeAuto(new ItemStack(ModBlocks.pneumatic_tube_paintable, 4), "SAS", "A A", "SAS", 'S', STEEL.plate(), 'A', ModBlocks.pneumatic_tube);
         addRecipeAuto(new ItemStack(ModBlocks.pipe_anchor, 2), "P", "P", "S", 'P', STEEL.pipe(), 'S', STEEL.ingot());
+        addRecipeAuto(new ItemStack(ModBlocks.pipe_anchor_exhaust, 2), "P", "P", "S", 'P', IRON.pipe(), 'S', ModItems.plate_polymer);
+        addRecipeAuto(new ItemStack(ModBlocks.pipe_anchor_pneumatic, 2), "P", "P", "S", 'P', CU.plateWelded(), 'S', ANY_RUBBER.ingot());
 
 		addRecipeAuto(new ItemStack(ModItems.template_folder, 1), "LPL", "BPB", "LPL", 'P', Items.PAPER, 'L', "dye", 'B', "dye" );
 		addRecipeAuto(new ItemStack(ModItems.pellet_antimatter, 1), "###", "###", "###", '#', new ItemStack(ModItems.cell, 1, Fluids.AMAT.getID()) );

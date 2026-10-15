@@ -725,6 +725,8 @@ public class ResourceManager {
     public static final ResourceLocation wire_greyscale_tex = new ResourceLocation(Tags.MODID, "textures/models/network/wire_greyscale.png");
     //Pipes
     public static final ResourceLocation pipe_anchor_tex = new ResourceLocation(Tags.MODID, "textures/models/network/pipe_anchor.png");
+    public static final ResourceLocation pipe_anchor_exhaust_tex = new ResourceLocation(Tags.MODID, "textures/models/network/pipe_anchor_exhaust.png");
+    public static final ResourceLocation pipe_anchor_pneumatic_tex = new ResourceLocation(Tags.MODID, "textures/models/network/pipe_anchor_pneumatic.png");
 
     public static final ResourceLocation pylon_medium_tex = new ResourceLocation(Tags.MODID, "textures/models/network/pylon_medium.png");
     public static final ResourceLocation pylon_medium_steel_tex = new ResourceLocation(Tags.MODID, "textures/models/network/pylon_medium_steel.png");

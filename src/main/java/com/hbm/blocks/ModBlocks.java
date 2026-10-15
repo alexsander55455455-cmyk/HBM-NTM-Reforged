@@ -1489,6 +1489,8 @@ public class ModBlocks {
     public static final Block fluid_duct_exhaust = new FluidDuctBoxExhaust("fluid_duct_exhaust").setHardness(5.0F).setResistance(10.0F).setCreativeTab(MainRegistry.machineTab);
     public static final Block fluid_duct_paintable_block_exhaust = new FluidDuctPaintableBlockExhaust("fluid_duct_paintable_block_exhaust").setHardness(5.0F).setResistance(10.0F).setCreativeTab(MainRegistry.machineTab);
     public static final Block pipe_anchor = new FluidPipeAnchor("pipe_anchor").setSoundType(ModSoundTypes.pipe).setHardness(5.0F).setResistance(10.0F).setCreativeTab(MainRegistry.machineTab);
+    public static final Block pipe_anchor_exhaust = new NetworkPipeAnchor("pipe_anchor_exhaust", false).setHardness(5.0F).setResistance(10.0F).setCreativeTab(MainRegistry.machineTab);
+    public static final Block pipe_anchor_pneumatic = new NetworkPipeAnchor("pipe_anchor_pneumatic", true).setHardness(5.0F).setResistance(10.0F).setCreativeTab(MainRegistry.machineTab);
     // 1.12.2 Exclusive solid pipes below. DO NOT REMOVE.
     public static final Block fluid_duct_solid = new BlockFluidPipeSolid(Material.IRON, "fluid_duct_solid").setHardness(5.0F).setResistance(10.0F).setCreativeTab(MainRegistry.templateTab);
     public static final Block fluid_duct_solid_sealed = new BlockFluidPipeSolidRadResistant(Material.IRON, "fluid_duct_solid_sealed").setHardness(15.0F).setResistance(10000.0F).setCreativeTab(MainRegistry.templateTab);

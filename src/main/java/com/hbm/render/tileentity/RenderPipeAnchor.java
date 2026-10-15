@@ -5,11 +5,13 @@ import com.hbm.interfaces.AutoRegister;
 import com.hbm.main.ResourceManager;
 import com.hbm.render.item.ItemRenderBase;
 import com.hbm.tileentity.network.TileEntityPipeAnchor;
+import com.hbm.tileentity.network.TileEntityPipelineBase.NetworkType;
 import com.hbm.util.ColorUtil;
 import com.hbm.util.Compat;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.item.Item;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
@@ -34,14 +36,15 @@ public class RenderPipeAnchor extends TileEntitySpecialRenderer<TileEntityPipeAn
         }
 
         GlStateManager.translate(0, -0.5F, 0);
-        bindTexture(ResourceManager.pipe_anchor_tex);
+        bindTexture(getTexture(anchor.getNetworkType()));
         ResourceManager.pipe_anchor.renderPart("Anchor");
         GlStateManager.popMatrix();
 
         for(int[] pos : anchor.getConnected()) {
             TileEntity tile = Compat.getTileStandard(anchor.getWorld(), pos[0], pos[1], pos[2]);
             if(tile instanceof TileEntityPipeAnchor other) {
-                if(anchor.getType() != other.getType()) continue;
+                if(anchor.getNetworkType() != other.getNetworkType()) continue;
+                if(anchor.getNetworkType() == NetworkType.FLUID && anchor.getType() != other.getType()) continue;
                 Vec3d anchorPoint = anchor.getConnectionPoint();
                 Vec3d connectionPoint = other.getConnectionPoint();
 
@@ -62,7 +65,7 @@ public class RenderPipeAnchor extends TileEntitySpecialRenderer<TileEntityPipeAn
                     GlStateManager.pushMatrix();
                     GlStateManager.scale(1, length, 1);
                     GlStateManager.translate(0, -0.5, 0);
-                    int color = ColorUtil.lightenColor(anchor.getType().getColor(), 0.25D);
+                    int color = anchor.getNetworkType() == NetworkType.FLUID ? ColorUtil.lightenColor(anchor.getType().getColor(), 0.25D) : 0xffffff;
                     GlStateManager.color(ColorUtil.fr(color), ColorUtil.fg(color), ColorUtil.fb(color));
                     ResourceManager.pipe_anchor.renderPart("Pipe");
                     GlStateManager.color(1F, 1F, 1F);
@@ -97,7 +100,20 @@ public class RenderPipeAnchor extends TileEntitySpecialRenderer<TileEntityPipeAn
     }
 
     @Override
+    public Item[] getItemsForRenderer() {
+        return new Item[]{getItemForRenderer(), Item.getItemFromBlock(ModBlocks.pipe_anchor_exhaust), Item.getItemFromBlock(ModBlocks.pipe_anchor_pneumatic)};
+    }
+
+    private static ResourceLocation getTexture(NetworkType networkType) {
+        if (networkType == NetworkType.EXHAUST) return ResourceManager.pipe_anchor_exhaust_tex;
+        if (networkType == NetworkType.PNEUMATIC) return ResourceManager.pipe_anchor_pneumatic_tex;
+        return ResourceManager.pipe_anchor_tex;
+    }
+
+    @Override
     public ItemRenderBase getRenderer(Item item) {
+        final ResourceLocation texture = getTexture(item == Item.getItemFromBlock(ModBlocks.pipe_anchor_exhaust) ? NetworkType.EXHAUST
+                : item == Item.getItemFromBlock(ModBlocks.pipe_anchor_pneumatic) ? NetworkType.PNEUMATIC : NetworkType.FLUID);
         return new ItemRenderBase() {
             public void renderInventory() {
                 GlStateManager.translate(0, -3.5, 0);
@@ -106,7 +122,7 @@ public class RenderPipeAnchor extends TileEntitySpecialRenderer<TileEntityPipeAn
             }
             public void renderCommon() {
                 GlStateManager.shadeModel(GL11.GL_SMOOTH);
-                bindTexture(ResourceManager.pipe_anchor_tex);
+                bindTexture(texture);
                 ResourceManager.pipe_anchor.renderPart("Anchor");
                 GlStateManager.shadeModel(GL11.GL_FLAT);
             }};

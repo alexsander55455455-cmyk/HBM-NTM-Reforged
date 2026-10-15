@@ -35,8 +35,23 @@ public abstract class TileEntityPipelineBase extends TileEntityPipeBaseNT {
 
     public void addConnection(int x, int y, int z) {
 
+        for (int[] link : connected) {
+            if (link[0] == x && link[1] == y && link[2] == z) return;
+        }
         connected.add(new int[] {x, y, z});
         this.bb = null;
+
+        addNodeConnection(x, y, z);
+        this.markDirty();
+
+        if (world instanceof WorldServer) {
+            IBlockState state = world.getBlockState(pos);
+            world.notifyBlockUpdate(pos, state, state, 3);
+            world.markBlockRangeForRenderUpdate(pos, pos);
+        }
+    }
+
+    protected void addNodeConnection(int x, int y, int z) {
 
         if(this.node == null || this.node.expired) {
             if(this.shouldCreateNode()) {
@@ -51,16 +66,30 @@ public abstract class TileEntityPipelineBase extends TileEntityPipeBaseNT {
         this.node.recentlyChanged = true;
         this.node.addConnection(new DirPos(x, y, z, ForgeDirection.UNKNOWN));
 
-        this.markDirty();
+    }
 
-        if (world instanceof WorldServer) {
-            IBlockState state = world.getBlockState(pos);
-            world.notifyBlockUpdate(pos, state, state, 3);
-            world.markBlockRangeForRenderUpdate(pos, pos);
-        }
+    protected void destroyNode(BlockPos position) {
+        UniNodespace.destroyNode(world, position, this.type.getNetworkProvider());
+    }
+
+    public NetworkType getNetworkType() {
+        return NetworkType.FLUID;
+    }
+
+    // Keep the existing fluid superclass and public contracts for addon compatibility.
+    @Override
+    public boolean shouldCreateNode() {
+        return getNetworkType() == NetworkType.FLUID;
+    }
+
+    @Override
+    public void setType(FluidType type) {
+        if (getNetworkType() == NetworkType.FLUID) super.setType(type);
     }
 
     public void disconnectAll() {
+
+        if (world == null || world.isRemote) return;
 
         for(int[] pos : connected) {
             BlockPos idfkPos = new BlockPos(pos[0], pos[1], pos[2]);
@@ -68,7 +97,7 @@ public abstract class TileEntityPipelineBase extends TileEntityPipeBaseNT {
             if(te == this) continue;
 
             if(te instanceof TileEntityPipelineBase pipeline) {
-                UniNodespace.destroyNode(world, idfkPos, this.type.getNetworkProvider());
+                pipeline.destroyNode(idfkPos);
 
                 for(int i = 0; i < pipeline.connected.size(); i++) {
                     int[] conPos = pipeline.connected.get(i);
@@ -90,7 +119,9 @@ public abstract class TileEntityPipelineBase extends TileEntityPipeBaseNT {
             }
         }
 
-        UniNodespace.destroyNode(world, pos, this.type.getNetworkProvider());
+        connected.clear();
+        this.bb = null;
+        destroyNode(pos);
     }
 
     @Override
@@ -109,14 +140,17 @@ public abstract class TileEntityPipelineBase extends TileEntityPipeBaseNT {
      */
     public static int canConnect(TileEntityPipelineBase first, TileEntityPipelineBase second) {
 
+        if(first.getNetworkType() != second.getNetworkType()) return 1;
         if(first.getConnectionType() != second.getConnectionType()) return 1;
         if(first == second) return 2;
 
-        // connect with NONE type anchors
-        if(first.type == Fluids.NONE && second.type != first.type) first.setType(second.type);
-        if(second.type == Fluids.NONE && first.type != second.type) second.setType(first.type);
+        if (first.getNetworkType() == NetworkType.FLUID) {
+            // connect with NONE type anchors
+            if(first.type == Fluids.NONE && second.type != first.type) first.setType(second.type);
+            if(second.type == Fluids.NONE && first.type != second.type) second.setType(first.type);
 
-        if(first.type != second.type) return 4;
+            if(first.type != second.type) return 4;
+        }
 
         double len = Math.min(first.getMaxPipeLength(), second.getMaxPipeLength());
 
@@ -171,6 +205,10 @@ public abstract class TileEntityPipelineBase extends TileEntityPipeBaseNT {
 
     public enum ConnectionType {
         SMALL
+    }
+
+    public enum NetworkType {
+        FLUID, EXHAUST, PNEUMATIC
     }
 
     @Override
