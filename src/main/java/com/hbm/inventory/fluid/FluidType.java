@@ -2,6 +2,7 @@ package com.hbm.inventory.fluid;
 
 import com.hbm.Tags;
 import com.hbm.api.fluidmk2.FluidNetMK2;
+import com.hbm.api.fluidmk2.FluidNode;
 import com.hbm.config.GeneralConfig;
 import com.hbm.inventory.fluid.tank.FluidTankNTM;
 import com.hbm.inventory.fluid.trait.FT_Corrosive;
@@ -14,6 +15,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fml.relauncher.Side;
@@ -215,7 +217,10 @@ public class FluidType {
         return prefix + quantity + this.stringId.replace("_", "").toLowerCase(Locale.US);
     }
 
-    protected INetworkProvider<FluidNetMK2> NETWORK_PROVIDER = () -> new FluidNetMK2(this);
+    protected INetworkProvider<FluidNetMK2> NETWORK_PROVIDER = new INetworkProvider<FluidNetMK2>() {
+        @Override public FluidNetMK2 get() { return new FluidNetMK2(FluidType.this); }
+        @Override public FluidNode provideNode(BlockPos... positions) { return new FluidNode(this, positions); }
+    };
 
     public INetworkProvider<FluidNetMK2> getNetworkProvider() {
         return NETWORK_PROVIDER;

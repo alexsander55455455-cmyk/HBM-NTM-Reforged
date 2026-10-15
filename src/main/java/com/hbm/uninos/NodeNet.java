@@ -21,17 +21,20 @@ public abstract class NodeNet<R, P, L extends GenNode<N>, N extends NodeNet<R, P
     private final Object2IntOpenHashMap<P> providerPorts = new Object2IntOpenHashMap<>();
     private long membershipVersion;
 
+    // Addon overwrites can still check the public timestamp maps without calling *Expired.
+    private static final long PORT_SUBSCRIPTION = Long.MAX_VALUE;
+
     public NodeNet() {
     }
 
     /// SUBSCRIBER HANDLING ///
     public boolean isSubscribed(R receiver) { return this.receiverEntries.containsKey(receiver); }
-    public void addReceiver(R receiver) { this.receiverEntries.put(receiver, System.currentTimeMillis()); }
+    public void addReceiver(R receiver) { this.receiverEntries.put(receiver, receiverPorts.containsKey(receiver) ? PORT_SUBSCRIPTION : System.currentTimeMillis()); }
     public void removeReceiver(R receiver) { this.receiverEntries.removeLong(receiver); }
 
     /// PROVIDER HANDLING ///
     public boolean isProvider(P provider) { return this.providerEntries.containsKey(provider); }
-    public void addProvider(P provider) { this.providerEntries.put(provider, System.currentTimeMillis()); }
+    public void addProvider(P provider) { this.providerEntries.put(provider, providerPorts.containsKey(provider) ? PORT_SUBSCRIPTION : System.currentTimeMillis()); }
     public void removeProvider(P provider) { this.providerEntries.removeLong(provider); }
 
     /** Port subscriptions live until explicitly detached; legacy subscriptions still time out. */
