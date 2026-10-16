@@ -1,5 +1,6 @@
 package com.hbm.tileentity.machine;
 
+import com.hbm.api.redstoneoverradio.IRORInteractive;
 import com.hbm.blocks.BlockDummyable;
 import com.hbm.blocks.ModBlocks;
 import com.hbm.interfaces.AutoRegister;
@@ -17,7 +18,7 @@ import net.minecraft.util.math.MathHelper;
 import java.util.List;
 
 @AutoRegister
-public class TileEntityCargoElevator extends TileEntityLoadedBase implements ITickable {
+public class TileEntityCargoElevator extends TileEntityLoadedBase implements ITickable, IRORInteractive {
 
     public int height;
 
@@ -26,7 +27,7 @@ public class TileEntityCargoElevator extends TileEntityLoadedBase implements ITi
     public double syncExtension;
     private int sync;
 
-    public boolean isExtending;
+    public int targetExtension;
     public static final double speed = 2D / 20D;
     public boolean renderPlatform;
 
@@ -57,12 +58,12 @@ public class TileEntityCargoElevator extends TileEntityLoadedBase implements ITi
                 }
             }
 
-            if (this.isExtending && this.extension < this.height) {
+            if (this.extension < this.targetExtension) {
                 this.extension += speed;
-            }
-
-            if (!this.isExtending && this.extension > 0) {
+                this.extension = MathHelper.clamp(this.extension, 0D, this.targetExtension);
+            } else if (this.extension > this.targetExtension) {
                 this.extension -= speed;
+                this.extension = MathHelper.clamp(this.extension, this.targetExtension, this.height);
             }
 
             this.extension = MathHelper.clamp(this.extension, 0D, this.height);
@@ -95,12 +96,7 @@ public class TileEntityCargoElevator extends TileEntityLoadedBase implements ITi
     }
 
     public void toggleElevator() {
-        if (this.extension >= this.height) {
-            this.isExtending = false;
-        }
-        if (this.extension <= 0) {
-            this.isExtending = true;
-        }
+        this.targetExtension = this.targetExtension == 0 ? this.height : 0;
         this.markDirty();
         this.markChanged();
     }
@@ -128,18 +124,33 @@ public class TileEntityCargoElevator extends TileEntityLoadedBase implements ITi
     public void readFromNBT(NBTTagCompound nbt) {
         super.readFromNBT(nbt);
         this.extension = nbt.getDouble("extension");
-        this.isExtending = nbt.getBoolean("isExtending");
         this.height = nbt.getInteger("height");
+        this.targetExtension = nbt.hasKey("targetExtension") ? nbt.getInteger("targetExtension") : nbt.getBoolean("isExtending") ? this.height : 0;
         this.renderPlatform = nbt.getBoolean("renderPlatform");
     }
 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
         nbt.setDouble("extension", this.extension);
-        nbt.setBoolean("isExtending", this.isExtending);
+        nbt.setInteger("targetExtension", this.targetExtension);
         nbt.setInteger("height", this.height);
         nbt.setBoolean("renderPlatform", this.renderPlatform);
         return super.writeToNBT(nbt);
+    }
+
+    @Override
+    public String runRORFunction(String name, String[] params) {
+        if ((PREFIX_FUNCTION + "setextension").equals(name) && params.length > 0) {
+            this.targetExtension = IRORInteractive.parseInt(params[0], 0, this.height);
+            this.markDirty();
+            this.markChanged();
+        }
+        return null;
+    }
+
+    @Override
+    public String[] getFunctionInfo() {
+        return new String[] {PREFIX_FUNCTION + "setextension" + NAME_SEPARATOR + "amount"};
     }
 
     @Override
