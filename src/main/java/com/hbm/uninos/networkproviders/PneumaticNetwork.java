@@ -198,6 +198,7 @@ public class PneumaticNetwork extends NodeNet<PneumaticNetwork.ReceiverTarget, T
             ReceiverCandidate chosen = candidates.get((receiverStart + receiverAttempt) % candidates.size());
 
         TileEntity destTile = chosen.tile;
+        if (destTile == sourceTile) continue;
 
         // range check (only if both are TEs — always true here)
         int dx = sourceTile.getPos().getX() - destTile.getPos().getX();

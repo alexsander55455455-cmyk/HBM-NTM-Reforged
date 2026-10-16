@@ -158,9 +158,14 @@ public class ContainerPneumoStorageAccess extends Container {
         if (action == PneumoAccessActionPacket.SHIFT_CLICK) {
             ItemStack result = cacheSlot.displayStack.copy();
             result.setCount((int) Math.min(Math.min((long) result.getMaxStackSize(), cacheSlot.stacksize), Integer.MAX_VALUE));
-            ItemStack remainder = ItemHandlerHelper.insertItemStacked(new InvWrapper(player.inventory), result, false);
-            int inserted = result.getCount() - (remainder.isEmpty() ? 0 : remainder.getCount());
-            if (inserted > 0) access.cache.consumeItemsAndReturnQuantity(result, inserted);
+            InvWrapper inventory = new InvWrapper(player.inventory);
+            ItemStack remainder = ItemHandlerHelper.insertItemStacked(inventory, result, true);
+            int capacity = result.getCount() - (remainder.isEmpty() ? 0 : remainder.getCount());
+            long grabbed = access.cache.consumeItemsAndReturnQuantity(result, capacity);
+            if (grabbed > 0) {
+                result.setCount((int) grabbed);
+                ItemHandlerHelper.insertItemStacked(inventory, result, false);
+            }
             finishAction(player);
         }
     }

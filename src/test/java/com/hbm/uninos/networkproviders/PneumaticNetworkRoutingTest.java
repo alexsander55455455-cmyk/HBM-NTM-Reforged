@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PneumaticNetworkRoutingTest {
@@ -92,6 +93,34 @@ class PneumaticNetworkRoutingTest {
                 PneumaticNetwork.RECEIVE_ROBIN, 10, 1));
         assertEquals(0, first.getStackInSlot(0).getCount());
         assertEquals(4, second.getStackInSlot(0).getCount());
+    }
+
+    @Test
+    void sourceInventoryMustNeverBeItsOwnDestination() {
+        TestWorld world = new TestWorld();
+        HandlerTile source = tile(world, new BlockPos(0, 0, 0), 64);
+        TileEntityPneumoTube tube = tube(world, new BlockPos(1, 0, 0));
+        source.setInventorySlotContents(0, new ItemStack(Items.STICK, 10));
+        PneumaticNetwork network = networkWithReceivers(tube, source);
+
+        assertFalse(network.send(source, tube, ForgeDirection.EAST, PneumaticNetwork.SEND_FIRST,
+                PneumaticNetwork.RECEIVE_ROBIN, 10, 0));
+        assertEquals(10, source.getStackInSlot(0).getCount());
+    }
+
+    @Test
+    void selfDestinationMustNotStarveARealReceiver() {
+        TestWorld world = new TestWorld();
+        HandlerTile source = tile(world, new BlockPos(0, 0, 0), 64);
+        TileEntityPneumoTube tube = tube(world, new BlockPos(1, 0, 0));
+        HandlerTile receiver = tile(world, new BlockPos(3, 0, 0), 64);
+        source.setInventorySlotContents(0, new ItemStack(Items.STICK, 10));
+        PneumaticNetwork network = networkWithReceivers(tube, source, receiver);
+
+        assertTrue(network.send(source, tube, ForgeDirection.EAST, PneumaticNetwork.SEND_FIRST,
+                PneumaticNetwork.RECEIVE_ROBIN, 10, 0));
+        assertEquals(0, source.getStackInSlot(0).getCount());
+        assertEquals(10, receiver.getStackInSlot(0).getCount());
     }
 
     private static PneumaticNetwork networkWithReceivers(TileEntityPneumoTube tube, HandlerTile... receivers) {
