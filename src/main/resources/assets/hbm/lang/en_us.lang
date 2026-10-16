@@ -9051,3 +9051,9 @@ tile.radio_autocal.name=AUTOCAL Automatic Calculator
 
 item.rtty_card.name=RTTY Card (Tier 2)
 item.rtty_card.desc=Allows sending and receiving of RoR signals.
+
+item.rtty_designator.name=Redstone-over-Radio Designator
+container.rttyDesignator=RoR Designator
+desc.rttyDesignator.noChannel=No channel set!
+desc.rttyDesignator.channel=Channel: %s
+desc.rttyDesignator.configure=Sneak + right-click to set the channel.

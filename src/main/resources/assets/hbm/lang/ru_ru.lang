@@ -9053,3 +9053,9 @@ tile.radio_autocal.name=Автоматический калькулятор AUTO
 
 item.rtty_card.name=Карта RTTY (Тир 2)
 item.rtty_card.desc=Позволяет отправлять и принимать сигналы РпР.
+
+item.rtty_designator.name=Целеуказатель RoR
+container.rttyDesignator=Целеуказатель RoR
+desc.rttyDesignator.noChannel=Канал не задан!
+desc.rttyDesignator.channel=Канал: %s
+desc.rttyDesignator.configure=Shift + ПКМ: настроить канал.
