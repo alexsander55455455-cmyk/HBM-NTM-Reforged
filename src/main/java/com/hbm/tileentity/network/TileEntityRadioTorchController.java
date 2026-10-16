@@ -27,10 +27,13 @@ public class TileEntityRadioTorchController extends TileEntityLoadedBase impleme
     public String channel = "";
     public String prev;
     public boolean polling = true;
+    private boolean receiving;
+    private boolean firstTick = true;
 
     @Override
     public void update() {
         if (!world.isRemote) {
+            boolean receiving = false;
 
             if (channel != null && !channel.isEmpty()) {
                 EnumFacing dir = this.getTorchFacing().getOpposite();
@@ -51,18 +54,33 @@ public class TileEntityRadioTorchController extends TileEntityLoadedBase impleme
                             vnt.explode();
                             return;
                         }
-                        if ((this.polling && chan.timeStamp >= world.getTotalWorldTime() - 1) || !rec.equals(prev)) {
-                            try {
-                                if (!rec.isEmpty())
-                                    ror.runRORFunction(IRORInteractive.resolveFunctionName(ror, rec), IRORInteractive.getParams(rec));
-                            } catch (RORFunctionException _) {
+                        if (chan.timeStamp >= world.getTotalWorldTime() - 1 && chan.timeStamp != -1) {
+                            receiving = true;
+                            boolean changed = !rec.equals(prev);
+                            if (this.polling || !this.receiving || changed) {
+                                try {
+                                    if (!rec.isEmpty())
+                                        ror.runRORFunction(IRORInteractive.resolveFunctionName(ror, rec), IRORInteractive.getParams(rec));
+                                } catch (RORFunctionException _) {
+                                }
                             }
-                            prev = rec;
+                            if (changed) {
+                                prev = rec;
+                                this.markDirty();
+                            }
                         }
                     }
                 }
             }
 
+            // The broadcast queue is empty for the first tick after loading.
+            if (!this.firstTick || receiving) {
+                if (this.receiving != receiving) {
+                    this.receiving = receiving;
+                    this.markDirty();
+                }
+            }
+            this.firstTick = false;
             networkPackNT(50);
         }
     }
@@ -85,6 +103,7 @@ public class TileEntityRadioTorchController extends TileEntityLoadedBase impleme
         this.polling = nbt.getBoolean("polling");
         channel = nbt.getString("channel");
         this.prev = nbt.getString("prev");
+        this.receiving = nbt.hasKey("receiving") ? nbt.getBoolean("receiving") : !this.prev.isEmpty();
     }
 
     @Override
@@ -93,13 +112,21 @@ public class TileEntityRadioTorchController extends TileEntityLoadedBase impleme
         nbt.setBoolean("polling", polling);
         nbt.setString("channel", channel);
         if (prev != null) nbt.setString("prev", prev);
+        nbt.setBoolean("receiving", receiving);
         return nbt;
     }
 
     @Override
     public void receiveControl(NBTTagCompound data) {
         if (data.hasKey("polling")) this.polling = data.getBoolean("polling");
-        if (data.hasKey("channel")) channel = data.getString("channel");
+        if (data.hasKey("channel")) {
+            String channel = data.getString("channel");
+            if (!channel.equals(this.channel)) {
+                this.channel = channel;
+                this.prev = null;
+                this.receiving = false;
+            }
+        }
 
         this.markDirty();
     }

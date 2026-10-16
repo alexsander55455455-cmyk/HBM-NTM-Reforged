@@ -26,12 +26,14 @@ public class TileEntityRadioTorchReader extends TileEntityLoadedBase implements 
     public String[] channels = new String[MAPPING_SIZE];
     public String[] names = new String[MAPPING_SIZE];
     public String[] prev = new String[MAPPING_SIZE];
+    private boolean[] forceUpdate = new boolean[MAPPING_SIZE];
     public boolean polling = false;
 
     public TileEntityRadioTorchReader() {
         Arrays.fill(channels, "");
         Arrays.fill(names, "");
         Arrays.fill(prev, "");
+        Arrays.fill(forceUpdate, true);
     }
 
     @Override
@@ -55,9 +57,10 @@ public class TileEntityRadioTorchReader extends TileEntityLoadedBase implements 
                     String value = prov.provideRORValue(IRORValueProvider.resolveValueName(prov, name));
                     if (value == null) continue;
 
-                    if (polling || !value.equals(previous)) {
+                    if (polling || forceUpdate[i] || !value.equals(previous)) {
                         RTTYSystem.broadcast(world, channel, value);
                         this.prev[i] = value;
+                        this.forceUpdate[i] = false;
                     }
                 }
             }
@@ -102,9 +105,24 @@ public class TileEntityRadioTorchReader extends TileEntityLoadedBase implements 
     @Override
     public void receiveControl(NBTTagCompound data) {
         if (data.hasKey("polling")) this.polling = data.getBoolean("polling");
-        for (int i = 0; i < channels.length; i++)
-            if (data.hasKey("channels" + i)) channels[i] = data.getString("channels" + i);
-        for (int i = 0; i < names.length; i++) if (data.hasKey("names" + i)) names[i] = data.getString("names" + i);
+        for (int i = 0; i < channels.length; i++) {
+            if (data.hasKey("channels" + i)) {
+                String channel = data.getString("channels" + i);
+                if (!channel.equals(channels[i])) {
+                    channels[i] = channel;
+                    forceUpdate[i] = true;
+                }
+            }
+        }
+        for (int i = 0; i < names.length; i++) {
+            if (data.hasKey("names" + i)) {
+                String name = data.getString("names" + i);
+                if (!name.equals(names[i])) {
+                    names[i] = name;
+                    forceUpdate[i] = true;
+                }
+            }
+        }
 
         this.markDirty();
     }

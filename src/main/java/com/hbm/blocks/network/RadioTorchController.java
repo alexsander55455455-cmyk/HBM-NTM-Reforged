@@ -1,6 +1,6 @@
 package com.hbm.blocks.network;
 
-import com.hbm.api.redstoneoverradio.IRORValueProvider;
+import com.hbm.api.redstoneoverradio.IRORInteractive;
 import com.hbm.blocks.ILookOverlay;
 import com.hbm.blocks.ModBlocks;
 import com.hbm.inventory.gui.GUIScreenRadioTorchController;
@@ -52,7 +52,7 @@ public class RadioTorchController extends RadioTorchBase implements IGUIProvider
 
     public boolean canBlockStay(World world, EnumFacing dir, Block b, BlockPos checkPos, IBlockState checkState) {
         TileEntity te = Compat.getTileStandard(world, checkPos.getX(), checkPos.getY(), checkPos.getZ());
-        return te instanceof IRORValueProvider;
+        return te instanceof IRORInteractive;
     }
 
     @Override
