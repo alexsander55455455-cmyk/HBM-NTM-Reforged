@@ -20,6 +20,8 @@ import static com.hbm.util.SoundUtil.playClickSound;
 
 public class GUIScreenRadioTorch extends GuiScreen {
 
+	public static final int MAX_CHAN_LENGTH = 15;
+
 	protected ResourceLocation texture;
 	protected static final ResourceLocation textureSender = new ResourceLocation(Tags.MODID + ":textures/gui/machine/gui_rtty_sender.png");
 	protected static final ResourceLocation textureReceiver = new ResourceLocation(Tags.MODID + ":textures/gui/machine/gui_rtty_receiver.png");
@@ -60,7 +62,7 @@ public class GUIScreenRadioTorch extends GuiScreen {
 		this.frequency.setTextColor(TEXT_COLOR);
 		this.frequency.setDisabledTextColour(DISABLED_TEXT_COLOR);
 		this.frequency.setEnableBackgroundDrawing(false);
-		this.frequency.setMaxStringLength(10);
+		this.frequency.setMaxStringLength(MAX_CHAN_LENGTH);
 		this.frequency.setText(radio.channel == null ? "" : radio.channel);
 		
 		this.remap = new GuiTextField[MAPPING_SIZE];

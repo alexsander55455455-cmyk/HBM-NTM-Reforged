@@ -55,7 +55,7 @@ public class GUIScreenRadioTorchLogic extends GuiScreen {
         this.frequency.setTextColor(TEXT_COLOR);
         this.frequency.setDisabledTextColour(DISABLED_TEXT_COLOR);
         this.frequency.setEnableBackgroundDrawing(false);
-        this.frequency.setMaxStringLength(10);
+        this.frequency.setMaxStringLength(GUIScreenRadioTorch.MAX_CHAN_LENGTH);
         this.frequency.setText(logic.channel == null ? "" : logic.channel);
 
         this.map = new GuiTextField[MAPPING_SIZE];

@@ -602,7 +602,7 @@ public class TileEntityPWRController extends TileEntityMachineBase implements IT
     public String runRORFunction(String name, String[] params) {
 
         if ((PREFIX_FUNCTION + "setrods").equals(name) && params.length > 0) {
-            this.rodTarget = IRORInteractive.parseInt(params[0], 0, 100);
+            this.rodTarget = 100 - IRORInteractive.parseInt(params[0], 0, 100);
             this.markChanged();
             return null;
         }

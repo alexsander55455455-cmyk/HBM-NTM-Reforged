@@ -50,7 +50,7 @@ public class GUIScreenPager extends GuiScreen {
 		int oY = 4;
 
 		chan = new GuiTextField(0, this.fontRenderer, guiLeft + 27 + oX, guiTop + 19 + oY, 90 - oX * 2, 14);
-		GUIScreenRBMKKeyPad.setupTextFieldStandard(chan, 10, startingChannel);
+		GUIScreenRBMKKeyPad.setupTextFieldStandard(chan, GUIScreenRadioTorch.MAX_CHAN_LENGTH, startingChannel);
 	}
 
 	@Override

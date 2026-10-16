@@ -71,6 +71,7 @@ public class TileEntityReactorZirnox extends TileEntityMachineBase implements IT
     private AxisAlignedBB bb;
     public static final int maxHeat = 100000;
     private boolean redstonePowered = false;
+    private int rorSlot = 0;
     public static final int maxPressure = 100000;
     public static final HashMap<RecipesCommon.ComparableStack, ItemStack> fuelMap = new HashMap<>();
     private static final int[] slots_io = new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23};
@@ -622,6 +623,10 @@ public class TileEntityReactorZirnox extends TileEntityMachineBase implements IT
                 PREFIX_VALUE + "steam",
                 PREFIX_VALUE + "co2",
                 PREFIX_VALUE + "state",
+                PREFIX_VALUE + "slottype",
+                PREFIX_VALUE + "slotdep",
+                PREFIX_VALUE + "slotmaxdep",
+                PREFIX_FUNCTION + "setslot" + NAME_SEPARATOR + "id (0 to 23)",
                 PREFIX_FUNCTION + "setstate" + NAME_SEPARATOR + "active (0 or 1)",
                 PREFIX_FUNCTION + "ventco2"
         };
@@ -635,11 +640,31 @@ public class TileEntityReactorZirnox extends TileEntityMachineBase implements IT
         if ((PREFIX_VALUE + "steam").equals(name))    return "" + steam.getFill();
         if ((PREFIX_VALUE + "co2").equals(name))      return "" + carbonDioxide.getFill();
         if ((PREFIX_VALUE + "state").equals(name))    return isOn ? "1" : "0";
+        if ((PREFIX_VALUE + "slottype").equals(name)) {
+            if (hasFuelRod(rorSlot)) {
+                return EnumUtil.grabEnumSafely(EnumZirnoxType.VALUES, inventory.getStackInSlot(rorSlot).getItemDamage()).name();
+            }
+            return "";
+        }
+        if ((PREFIX_VALUE + "slotmaxdep").equals(name) && hasFuelRod(rorSlot)) {
+            return "" + EnumUtil.grabEnumSafely(EnumZirnoxType.VALUES, inventory.getStackInSlot(rorSlot).getItemDamage()).maxLife;
+        }
+        if ((PREFIX_VALUE + "slotdep").equals(name) && hasFuelRod(rorSlot)) {
+            return "" + ItemZirnoxRod.getLifeTime(inventory.getStackInSlot(rorSlot));
+        }
         return null;
     }
 
     @Override
     public String runRORFunction(String name, String[] params) {
+        if((PREFIX_FUNCTION + "setslot").equalsIgnoreCase(name) && params.length > 0) {
+            if(redstonePowered) return null;
+            try {
+                int slot = Integer.parseInt(params[0]);
+                if (slot >= 0 && slot < 24) this.rorSlot = slot;
+            } catch(NumberFormatException ignored) { }
+            return null;
+        }
         if((PREFIX_FUNCTION + "setstate").equalsIgnoreCase(name) && params.length > 0) {
             if(redstonePowered) return null;
             this.isOn = IRORInteractive.parseInt(params[0], 0, 1) == 1;
