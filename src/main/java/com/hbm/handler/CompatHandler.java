@@ -5,6 +5,9 @@ import com.hbm.blocks.ModBlocks;
 import com.hbm.inventory.fluid.FluidType;
 import com.hbm.inventory.fluid.Fluids;
 import com.hbm.main.MainRegistry;
+import com.hbm.items.ModItems;
+import com.hbm.items.machine.ItemRTTYCard;
+import li.cil.oc.api.Driver;
 import com.hbm.util.ItemStackUtil;
 import li.cil.oc.api.Items;
 import li.cil.oc.api.fs.FileSystem;
@@ -187,6 +190,7 @@ public class CompatHandler {
      */
     public static void init() {
         if(Loader.isModLoaded("opencomputers")) {
+            initRTTYCard();
             /*
             For anyone wanting to add their own floppy disks,
             read the README found in assets.hbm.disks.
@@ -237,6 +241,11 @@ public class CompatHandler {
             // boom, OC disks loaded
             logger.info("OpenComputers disks loaded.");
         }
+    }
+
+    @Optional.Method(modid = "opencomputers")
+    private static void initRTTYCard() {
+        Driver.add(new ItemRTTYCard.Driver(ModItems.rtty_card));
     }
 
     // Null component name, default to this if broken to avoid NullPointerExceptions.

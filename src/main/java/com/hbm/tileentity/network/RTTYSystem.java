@@ -23,7 +23,7 @@ public class RTTYSystem {
 	public static HashMap<Pair<World, String>, Object> newMessages = new HashMap();
 
 	/** Pushes a new signal to be used next tick. Only the last signal pushed will be used, unless both the existing and new signal parse as numbers, in which case they are summed. */
-	public static void broadcast(World world, String channelName, Object signal) {
+	public static synchronized void broadcast(World world, String channelName, Object signal) {
 		Pair identifier = new Pair(world, channelName);
 
 		if(NumberUtils.isNumber("" + signal) && newMessages.containsKey(identifier)) {
@@ -42,13 +42,13 @@ public class RTTYSystem {
 	}
 
 	/** Returns the RTTY channel with that name, or null */
-	public static RTTYChannel listen(World world, String channelName) {
+	public static synchronized RTTYChannel listen(World world, String channelName) {
 		RTTYChannel channel = broadcast.get(new Pair(world, channelName));
 		return channel;
 	}
 
 	/** Moves all new messages to the broadcast map, adding the appropriate timestamp and clearing the new message queue */
-	public static void updateBroadcastQueue() {
+	public static synchronized void updateBroadcastQueue() {
 
 		for(Entry<Pair<World, String>, Object> worldEntry : newMessages.entrySet()) {
 			Pair<World, String> identifier = worldEntry.getKey();

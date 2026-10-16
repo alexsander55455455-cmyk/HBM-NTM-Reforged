@@ -9048,3 +9048,6 @@ pump.fluid_changed=Fluid set to %s.
 power_net_tool.flow=Last flow: %s HE/t
 
 tile.radio_autocal.name=AUTOCAL Automatic Calculator
+
+item.rtty_card.name=RTTY Card (Tier 2)
+item.rtty_card.desc=Allows sending and receiving of RoR signals.

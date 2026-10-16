@@ -9050,3 +9050,6 @@ pump.fluid_changed=Выбрана жидкость: %s.
 power_net_tool.flow=Текущий поток: %s HE/т
 
 tile.radio_autocal.name=Автоматический калькулятор AUTOCAL
+
+item.rtty_card.name=Карта RTTY (Тир 2)
+item.rtty_card.desc=Позволяет отправлять и принимать сигналы РпР.

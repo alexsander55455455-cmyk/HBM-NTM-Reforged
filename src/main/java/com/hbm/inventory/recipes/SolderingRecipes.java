@@ -13,6 +13,9 @@ import com.hbm.inventory.recipes.loader.SerializableRecipe;
 import com.hbm.items.ItemEnums.EnumCircuitType;
 import com.hbm.items.ModItems;
 import com.hbm.items.machine.ItemFluidIcon;
+import com.hbm.blocks.ModBlocks;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.Optional;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
@@ -288,6 +291,17 @@ public class SolderingRecipes extends SerializableRecipe {
     addSecondUpgrade(ModItems.upgrade_fortune_2, ModItems.upgrade_fortune_3);
     addFirstUpgrade(ModItems.upgrade_afterburn_1, ModItems.upgrade_afterburn_2);
     addSecondUpgrade(ModItems.upgrade_afterburn_2, ModItems.upgrade_afterburn_3);
+    if (Loader.isModLoaded("opencomputers")) addRTTYCardRecipe();
+  }
+
+  @Optional.Method(modid = "opencomputers")
+  private static void addRTTYCardRecipe() {
+    recipes.add(new SolderingRecipe(new ItemStack(ModItems.rtty_card), 100, 1_000,
+        new AStack[] {new ComparableStack(ModBlocks.radio_torch_receiver),
+            new ComparableStack(ModBlocks.radio_torch_sender),
+            new ComparableStack(li.cil.oc.api.Items.get("chip2").createItemStack(1))},
+        new AStack[] {new ComparableStack(li.cil.oc.api.Items.get("card").createItemStack(1))},
+        new AStack[] {new OreDictStack(PB.wireFine(), 4)}));
   }
 
   public static void addFirstUpgrade(Item lower, Item higher) {
