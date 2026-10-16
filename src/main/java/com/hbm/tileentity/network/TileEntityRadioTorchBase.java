@@ -9,6 +9,7 @@ import io.netty.buffer.ByteBuf;
 import li.cil.oc.api.machine.Arguments;
 import li.cil.oc.api.machine.Callback;
 import li.cil.oc.api.machine.Context;
+import li.cil.oc.api.network.SimpleComponent;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -23,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 
 @Optional.InterfaceList({@Optional.Interface(iface = "li.cil.oc.api.network.SimpleComponent", modid = "opencomputers")})
-public class TileEntityRadioTorchBase extends TileEntityLoadedBase implements ITickable, IControlReceiver, CompatHandler.OCComponent {
+public class TileEntityRadioTorchBase extends TileEntityLoadedBase implements ITickable, IControlReceiver, SimpleComponent, CompatHandler.OCComponent {
     private static final int MAPPING_SIZE = 16;
 
     /**
@@ -169,21 +170,42 @@ public class TileEntityRadioTorchBase extends TileEntityLoadedBase implements IT
     @Optional.Method(modid = "opencomputers")
     public Object[] setChannel(Context context, Arguments args) {
         channel = args.checkString(0);
+        this.markDirty();
         return new Object[]{};
+    }
+
+    @Callback(direct = true, doc = "function():string -- Gets current channel the torch is listening/broadcasting to")
+    @Optional.Method(modid = "opencomputers")
+    public Object[] getChannel(Context context, Arguments args) {
+        return new Object[] { channel };
     }
 
     @Callback(direct = true, limit = 4, doc = "setPolling(value: boolean) -- Switches state change mode to tick-based polling")
     @Optional.Method(modid = "opencomputers")
     public Object[] setPolling(Context context, Arguments args) {
         polling = args.checkBoolean(0);
+        this.markDirty();
         return new Object[]{};
+    }
+
+    @Callback(direct = true, doc = "function():boolean -- Whenever the torch is set to tick-based polling")
+    @Optional.Method(modid = "opencomputers")
+    public Object[] getPolling(Context context, Arguments args) {
+        return new Object[] { polling };
     }
 
     @Callback(direct = true, limit = 4, doc = "setCustomMap(value: boolean) -- Switches redstone passthrough to custom signal mapping")
     @Optional.Method(modid = "opencomputers")
     public Object[] setCustomMap(Context context, Arguments args) {
         customMap = args.checkBoolean(0);
+        this.markDirty();
         return new Object[]{};
+    }
+
+    @Callback(direct = true, doc = "function():boolean -- Whenever the torch is set to custom signal mapping")
+    @Optional.Method(modid = "opencomputers")
+    public Object[] getCustomMap(Context context, Arguments args) {
+        return new Object[] { customMap };
     }
 
     @Callback(direct = true, limit = 4, doc = "setCustomMapValues(value: table) -- Sets the custom signal mapping values with a table with indices corresponding to the redstone value (1-16)")
@@ -197,6 +219,13 @@ public class TileEntityRadioTorchBase extends TileEntityLoadedBase implements IT
             }
         }
 
+        this.markDirty();
         return new Object[]{};
+    }
+
+    @Callback(direct = true, doc = "function():table -- Gets the custom signal mapping values as a table")
+    @Optional.Method(modid = "opencomputers")
+    public Object[] getCustomMapValues(Context context, Arguments args) {
+        return new Object[] { mapping };
     }
 }

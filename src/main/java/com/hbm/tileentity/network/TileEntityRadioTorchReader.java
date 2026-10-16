@@ -2,12 +2,18 @@ package com.hbm.tileentity.network;
 
 import com.hbm.api.redstoneoverradio.IRORValueProvider;
 import com.hbm.blocks.network.RadioTorchBase;
+import com.hbm.handler.CompatHandler;
 import com.hbm.interfaces.AutoRegister;
 import com.hbm.interfaces.IControlReceiver;
 import com.hbm.tileentity.TileEntityLoadedBase;
 import com.hbm.util.BufferUtil;
 import com.hbm.util.Compat;
 import io.netty.buffer.ByteBuf;
+import li.cil.oc.api.machine.Arguments;
+import li.cil.oc.api.machine.Callback;
+import li.cil.oc.api.machine.Context;
+import li.cil.oc.api.network.SimpleComponent;
+import net.minecraftforge.fml.common.Optional;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -19,7 +25,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 
 @AutoRegister
-public class TileEntityRadioTorchReader extends TileEntityLoadedBase implements IControlReceiver, ITickable {
+@Optional.Interface(iface = "li.cil.oc.api.network.SimpleComponent", modid = "opencomputers")
+public class TileEntityRadioTorchReader extends TileEntityLoadedBase implements IControlReceiver, ITickable, SimpleComponent, CompatHandler.OCComponent {
 
     public static final int MAPPING_SIZE = 8;
 
@@ -105,24 +112,8 @@ public class TileEntityRadioTorchReader extends TileEntityLoadedBase implements 
     @Override
     public void receiveControl(NBTTagCompound data) {
         if (data.hasKey("polling")) this.polling = data.getBoolean("polling");
-        for (int i = 0; i < channels.length; i++) {
-            if (data.hasKey("channels" + i)) {
-                String channel = data.getString("channels" + i);
-                if (!channel.equals(channels[i])) {
-                    channels[i] = channel;
-                    forceUpdate[i] = true;
-                }
-            }
-        }
-        for (int i = 0; i < names.length; i++) {
-            if (data.hasKey("names" + i)) {
-                String name = data.getString("names" + i);
-                if (!name.equals(names[i])) {
-                    names[i] = name;
-                    forceUpdate[i] = true;
-                }
-            }
-        }
+        for (int i = 0; i < channels.length; i++) if (data.hasKey("channels" + i)) this.setChannel(i, data.getString("channels" + i));
+        for (int i = 0; i < names.length; i++) if (data.hasKey("names" + i)) this.setName(i, data.getString("names" + i));
 
         this.markDirty();
     }
@@ -143,5 +134,81 @@ public class TileEntityRadioTorchReader extends TileEntityLoadedBase implements 
             meta >>= 1;
         }
         return EnumFacing.byIndex(meta);
+    }
+
+    private void setChannel(int index, String channel) {
+        if (!channel.equals(this.channels[index])) {
+            this.channels[index] = channel;
+            this.forceUpdate[index] = true;
+            this.markDirty();
+        }
+    }
+
+    private void setName(int index, String name) {
+        if (!name.equals(this.names[index])) {
+            this.names[index] = name;
+            this.forceUpdate[index] = true;
+            this.markDirty();
+        }
+    }
+
+    @Override
+    @Optional.Method(modid = "opencomputers")
+    public String getComponentName() {
+        return "radio_reader";
+    }
+
+    @Callback(direct = true, limit = 4, doc = "function(index: number, channel: string) -- Sets channel name at a index")
+    @Optional.Method(modid = "opencomputers")
+    public Object[] setChannel(Context context, Arguments args) {
+        int index = args.checkInteger(0);
+        if (index >= 0 && index < channels.length) this.setChannel(index, args.checkString(1));
+        return new Object[] {};
+    }
+
+    @Callback(direct = true, doc = "function(index: number):string -- Gets channel name at a index")
+    @Optional.Method(modid = "opencomputers")
+    public Object[] getChannel(Context context, Arguments args) {
+        int index = args.checkInteger(0);
+        if (index >= 0 && index < channels.length) return new Object[] { channels[index] };
+        else return new Object[] {};
+    }
+
+    @Callback(direct = true, limit = 4, doc = "function(index: number, channel: string) -- Sets function at a index")
+    @Optional.Method(modid = "opencomputers")
+    public Object[] setName(Context context, Arguments args) {
+        int index = args.checkInteger(0);
+        if (index >= 0 && index < names.length) this.setName(index, args.checkString(1));
+        return new Object[] {};
+    }
+
+    @Callback(direct = true, doc = "function(index: number):string -- Gets function at a index")
+    @Optional.Method(modid = "opencomputers")
+    public Object[] getName(Context context, Arguments args) {
+        int index = args.checkInteger(0);
+        if (index >= 0 && index < names.length) return new Object[] { names[index] };
+        else return new Object[] {};
+    }
+
+    @Callback(direct = true, limit = 4, doc = "function(value: boolean) -- Switches state change mode to tick-based polling")
+    @Optional.Method(modid = "opencomputers")
+    public Object[] setPolling(Context context, Arguments args) {
+        polling = args.checkBoolean(0);
+        this.markDirty();
+        return new Object[] {};
+    }
+
+    @Callback(direct = true, doc = "function():boolean -- Whenever the torch is set to tick-based polling")
+    @Optional.Method(modid = "opencomputers")
+    public Object[] getPolling(Context context, Arguments args) {
+        return new Object[] { polling };
+    }
+
+    @Callback(direct = true, doc = "function(index: number):string -- Gets last received value at a index")
+    @Optional.Method(modid = "opencomputers")
+    public Object[] read(Context context, Arguments args) {
+        int index = args.checkInteger(0);
+        if (index >= 0 && index < channels.length) return new Object[] { prev[index] };
+        else return new Object[] {};
     }
 }

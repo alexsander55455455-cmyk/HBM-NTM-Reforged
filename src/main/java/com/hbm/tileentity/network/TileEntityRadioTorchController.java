@@ -7,12 +7,18 @@ import com.hbm.explosion.vanillant.ExplosionVNT;
 import com.hbm.explosion.vanillant.standard.EntityProcessorCrossSmooth;
 import com.hbm.explosion.vanillant.standard.ExplosionEffectWeapon;
 import com.hbm.explosion.vanillant.standard.PlayerProcessorStandard;
+import com.hbm.handler.CompatHandler;
 import com.hbm.interfaces.AutoRegister;
 import com.hbm.interfaces.IControlReceiver;
 import com.hbm.tileentity.TileEntityLoadedBase;
 import com.hbm.util.BufferUtil;
 import com.hbm.util.Compat;
 import io.netty.buffer.ByteBuf;
+import li.cil.oc.api.machine.Arguments;
+import li.cil.oc.api.machine.Callback;
+import li.cil.oc.api.machine.Context;
+import li.cil.oc.api.network.SimpleComponent;
+import net.minecraftforge.fml.common.Optional;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -22,7 +28,8 @@ import net.minecraft.util.ITickable;
 import org.jetbrains.annotations.NotNull;
 
 @AutoRegister
-public class TileEntityRadioTorchController extends TileEntityLoadedBase implements ITickable, IControlReceiver {
+@Optional.Interface(iface = "li.cil.oc.api.network.SimpleComponent", modid = "opencomputers")
+public class TileEntityRadioTorchController extends TileEntityLoadedBase implements ITickable, IControlReceiver, SimpleComponent, CompatHandler.OCComponent {
 
     public String channel = "";
     public String prev;
@@ -119,14 +126,7 @@ public class TileEntityRadioTorchController extends TileEntityLoadedBase impleme
     @Override
     public void receiveControl(NBTTagCompound data) {
         if (data.hasKey("polling")) this.polling = data.getBoolean("polling");
-        if (data.hasKey("channel")) {
-            String channel = data.getString("channel");
-            if (!channel.equals(this.channel)) {
-                this.channel = channel;
-                this.prev = null;
-                this.receiving = false;
-            }
-        }
+        if (data.hasKey("channel")) this.setChannelName(data.getString("channel"));
 
         this.markDirty();
     }
@@ -147,5 +147,56 @@ public class TileEntityRadioTorchController extends TileEntityLoadedBase impleme
             meta >>= 1;
         }
         return EnumFacing.byIndex(meta);
+    }
+
+    private void setChannelName(String channel) {
+        if (!channel.equals(this.channel)) {
+            this.channel = channel;
+            this.prev = null;
+            this.receiving = false;
+            this.markDirty();
+        }
+    }
+
+    @Override
+    @Optional.Method(modid = "opencomputers")
+    public String getComponentName() {
+        return "radio_controller";
+    }
+
+    @Callback(direct = true, limit = 4, doc = "function(channel: string) -- Set the channel the torch is broadcasting to")
+    @Optional.Method(modid = "opencomputers")
+    public Object[] setChannel(Context context, Arguments args) {
+        this.setChannelName(args.checkString(0));
+        return new Object[] {};
+    }
+
+    @Callback(direct = true, doc = "function():string -- Gets current channel the torch is broadcasting to")
+    @Optional.Method(modid = "opencomputers")
+    public Object[] getChannel(Context context, Arguments args) {
+        return new Object[] { channel };
+    }
+
+    @Callback(direct = true, limit = 4, doc = "function(value: boolean) -- Switches state change mode to tick-based polling")
+    @Optional.Method(modid = "opencomputers")
+    public Object[] setPolling(Context context, Arguments args) {
+        polling = args.checkBoolean(0);
+        this.markDirty();
+        return new Object[] {};
+    }
+
+    @Callback(direct = true, doc = "function():boolean -- Whenever the torch is set to tick-based polling")
+    @Optional.Method(modid = "opencomputers")
+    public Object[] getPolling(Context context, Arguments args) {
+        return new Object[] { polling };
+    }
+
+    @Callback(direct = true, limit = 4, doc = "function(command: string) -- Sends a command")
+    @Optional.Method(modid = "opencomputers")
+    public Object[] send(Context context, Arguments args) {
+        String cmd = args.checkString(0);
+        if (channel != null && !channel.isEmpty() && cmd != null && !cmd.isEmpty())
+            RTTYSystem.broadcast(world, channel, cmd);
+        return new Object[] {};
     }
 }
