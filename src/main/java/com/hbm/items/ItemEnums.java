@@ -140,7 +140,8 @@ public class ItemEnums {
         CHIP_QUANTUM,
         CONTROLLER_QUANTUM,
         ATOMIC_CLOCK,
-        NUMITRON;
+        NUMITRON,
+        CRYSTAL;
 
         public static final EnumCircuitType[] VALUES = values();
     }

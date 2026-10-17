@@ -3651,6 +3651,8 @@ public class ModItems {
             .setCreativeTab(null);
     @Deprecated
     public static final Item wire = wire_fine;
+    public static final Item orbital_assembly = new ItemOrbitalAssembly("orbital_assembly").setCreativeTab(MainRegistry.missileTab);
+
     public static void registerItems() {
         GunFactory.init();
         excludeNEI.add(item_secret);

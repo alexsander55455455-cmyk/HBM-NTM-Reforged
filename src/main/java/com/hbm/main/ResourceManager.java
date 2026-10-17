@@ -1239,6 +1239,8 @@ public class ResourceManager {
     public static final ResourceLocation missileMicro_tex = new ResourceLocation(Tags.MODID, "textures/models/missiles/missile_micro.png");
     public static final ResourceLocation missileCarrier_tex = new ResourceLocation(Tags.MODID, "textures/models/missiles/missileCarrier.png");
     public static final ResourceLocation missileBooster_tex = new ResourceLocation(Tags.MODID, "textures/models/missiles/missileBooster.png");
+    public static final WaveFrontObjectVAO dropship = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/dropship.obj")).asVBO();
+    public static final ResourceLocation dropship_tex = new ResourceLocation(Tags.MODID, "textures/entity/dropship.png");
     public static final ResourceLocation minerRocket_tex = new ResourceLocation(Tags.MODID, "textures/models/missiles/minerRocket.png");
     public static final ResourceLocation minerRocketGerald_tex = new ResourceLocation(Tags.MODID, "textures/models/missiles/minerRocket_gerald.png");
     public static final ResourceLocation bobmazon_tex = new ResourceLocation(Tags.MODID, "textures/models/missiles/bobmazon.png");

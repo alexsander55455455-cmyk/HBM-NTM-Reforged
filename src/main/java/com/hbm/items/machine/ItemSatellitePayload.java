@@ -47,14 +47,15 @@ public class ItemSatellitePayload extends ItemEnumMulti<ItemSatellitePayload.Enu
         DETECTOR,
         RAY_SCAN,
         SCIENCE,
-        SCIENCE_SENSOR
+        SCIENCE_SENSOR,
+        SCIENCE_ASSEMBLER
     }
 
     @Override
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
         ItemStack stack = player.getHeldItem(hand);
         SatelliteTypeRegistry.Descriptor descriptor = SatelliteTypeRegistry.byItem(stack);
-        boolean sensor = SatelliteScience.isSensor(stack);
+        boolean sensor = SatelliteScience.isModule(stack);
         if(descriptor == null && !sensor) return new ActionResult<>(EnumActionResult.PASS, stack);
 
         if(player.isSneaking()) {
@@ -83,8 +84,8 @@ public class ItemSatellitePayload extends ItemEnumMulti<ItemSatellitePayload.Enu
     public void addInformation(ItemStack stack, @Nullable World world, List<String> tooltip, ITooltipFlag flag) {
         tooltip.add(I18nUtil.resolveKey("desc.satellitefr", getFreq(stack)));
         SatelliteTypeRegistry.Descriptor descriptor = SatelliteTypeRegistry.byItem(stack);
-        if(SatelliteScience.isSensor(stack)) {
-            tooltip.add(TextFormatting.GRAY + I18nUtil.resolveKey("desc.satellite.science_sensor"));
+        if(SatelliteScience.isModule(stack)) {
+            tooltip.add(TextFormatting.GRAY + I18nUtil.resolveKey(SatelliteScience.isSensor(stack) ? "desc.satellite.science_sensor" : "desc.satellite.science_assembler"));
             tooltip.add(TextFormatting.DARK_GRAY + "Mass: " + SatelliteTypeRegistry.getPayloadMass(stack) + " kg");
             tooltip.add(TextFormatting.GOLD + I18nUtil.resolveKey("item.sat.desc.launch_by_hand"));
         }

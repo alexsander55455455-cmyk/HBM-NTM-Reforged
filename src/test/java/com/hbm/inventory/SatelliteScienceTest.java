@@ -25,7 +25,7 @@ class SatelliteScienceTest {
         SatelliteTypeRegistry.registerSpaceExtensions();
     }
     @Test void preservesAllOldPayloadMetadataAndAppendsScienceAtEleven() {
-        assertArrayEquals(new String[]{"SPY","SCANNER","RADAR","MINER_ASTRO","MINER_LUNAR","PRECISION_LASER","DEATH_RAY","XENIUM_RESONATOR","RELAY","DETECTOR","RAY_SCAN","SCIENCE","SCIENCE_SENSOR"}, Arrays.stream(EnumSatelliteType.values()).map(Enum::name).toArray(String[]::new));
+        assertArrayEquals(new String[]{"SPY","SCANNER","RADAR","MINER_ASTRO","MINER_LUNAR","PRECISION_LASER","DEATH_RAY","XENIUM_RESONATOR","RELAY","DETECTOR","RAY_SCAN","SCIENCE","SCIENCE_SENSOR", "SCIENCE_ASSEMBLER"}, Arrays.stream(EnumSatelliteType.values()).map(Enum::name).toArray(String[]::new));
         assertEquals(11, EnumSatelliteType.SCIENCE.ordinal());
     }
     @Test void scienceUsesThirteenAndNeverReplacesDysonTwelve() {

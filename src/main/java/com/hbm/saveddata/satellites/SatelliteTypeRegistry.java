@@ -141,11 +141,11 @@ public final class SatelliteTypeRegistry {
 
     /** Launchable parts are payloads, but must never create a satellite on their own. */
     public static boolean isPayload(ItemStack stack) {
-        return SatelliteScience.isSensor(stack) || byItem(stack) != null;
+        return SatelliteScience.isDeliveryPayload(stack) || byItem(stack) != null;
     }
 
     public static int getPayloadMass(ItemStack stack) {
-        if(SatelliteScience.isSensor(stack)) return 16_000;
+        if(SatelliteScience.isDeliveryPayload(stack)) return 16_000;
         Descriptor descriptor = byItem(stack);
         return descriptor == null ? 0 : descriptor.getMass();
     }
@@ -205,7 +205,7 @@ public final class SatelliteTypeRegistry {
         }
 
         Descriptor descriptor = byItem(payload);
-        if(descriptor == null && !SatelliteScience.isSensor(payload)) return SatelliteLaunchResult.INVALID_PAYLOAD;
+        if(descriptor == null && !SatelliteScience.isDeliveryPayload(payload)) return SatelliteLaunchResult.INVALID_PAYLOAD;
 
         SatelliteHandle handle = new SatelliteHandle(targetOrbit, frequency);
         SatelliteOperationContext context = SatelliteOperationContext.create(contextWorld, handle);
@@ -222,7 +222,7 @@ public final class SatelliteTypeRegistry {
                 if(existing != null) {
                     World deliveryWorld = context.getSurfaceWorld();
                     // A laboratory module does not need its planet's surface to be loaded.
-                    if(deliveryWorld == null && SatelliteScience.isSensor(payload)) deliveryWorld = contextWorld;
+                    if(deliveryWorld == null && SatelliteScience.isDeliveryPayload(payload)) deliveryWorld = contextWorld;
                     if(deliveryWorld == null) return SatelliteLaunchResult.FREQ_OCCUPIED;
                     if(existing.onPartDelivered(deliveryWorld, payload.copy())) {
                         data.markSatelliteDirty();
@@ -248,7 +248,7 @@ public final class SatelliteTypeRegistry {
                 data.putSatellite(frequency, satellite);
             }
         } catch(Throwable error) {
-            MainRegistry.logger.error("Could not store satellite {} at {}", descriptor == null ? "science_sensor" : descriptor.getKey(), handle, error);
+            MainRegistry.logger.error("Could not store satellite {} at {}", descriptor == null ? "science_part" : descriptor.getKey(), handle, error);
             return SatelliteLaunchResult.STORAGE_ERROR;
         }
 

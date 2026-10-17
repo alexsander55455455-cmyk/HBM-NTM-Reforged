@@ -141,6 +141,18 @@ public class PrecAssRecipes extends GenericRecipes<GenericRecipe> {
         int min = 1_200;
 
         // all hail the pufferfish, driver of all innovation
+        registerPair(new GenericRecipe("precass.crystalcircuit").setup(600, 20_000)
+                        .inputItems(new ComparableStack(ModItems.circuit, 4, EnumCircuitType.CHIP_QUANTUM),
+                                new ComparableStack(ModItems.ingot_cft, 4),
+                                new ComparableStack(ModItems.circuit, 16, EnumCircuitType.PCB),
+                                new OreDictStack(GOLD.wireFine(), 32))
+                        .inputItemsEx(new ComparableStack(ModItems.circuit, 8, EnumCircuitType.CHIP_QUANTUM),
+                                new ComparableStack(ModItems.circuit, 16, EnumCircuitType.CAPACITOR_TANTALIUM),
+                                new ComparableStack(ModItems.ingot_cft, 4),
+                                new ComparableStack(ModItems.circuit, 16, EnumCircuitType.PCB),
+                                new OreDictStack(BSCCO.wireDense(), 4)),
+                new ItemStack(ModItems.orbital_assembly), GeneralConfig.enableExpensiveMode ? 25 : 50, 100);
+
         this.register(new GenericRecipe("precass.blueprints").setup(5 * min, 20_000L)
                 .inputItems(new ComparableStack(Items.PAPER, 16),
                         new OreDictStack(KEY_BLUE, 16),

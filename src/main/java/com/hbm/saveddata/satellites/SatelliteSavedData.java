@@ -147,7 +147,7 @@ public class SatelliteSavedData extends WorldSavedData {
         boolean changed = false;
         for(Int2ObjectOpenHashMap<Satellite> body : root().satellitesByBody.values()) {
             for(Satellite satellite : body.values()) {
-                if(satellite instanceof SatelliteScience) changed |= ((SatelliteScience) satellite).tickSensors();
+                if(satellite instanceof SatelliteScience) changed |= ((SatelliteScience) satellite).tickLaboratory();
             }
         }
         if(changed) markSatelliteDirty();

@@ -134,6 +134,7 @@ public class JEIConfig implements IModPlugin {
     public static final String ZIRNOX = "hbm.zirnox";
     static final String PUREX = "hbm.purex";
     static final String ROCK_MILL = "hbm.rock_mill";
+    static final String SPACE_ASSEMBLER = "hbm.space_assembler";
     static final String SUPER_COMPUTER = "hbm.super_computer";
     private AmmoPressHandler ammoPressHandler;
     private AnnihilatorHandler annihilatorHandler;
@@ -187,6 +188,7 @@ public class JEIConfig implements IModPlugin {
     private ZirnoxRecipeHandler zirnoxHandler;
     private PUREXRecipeHandler purexHandler;
     private RockMillRecipeHandler rockMillHandler;
+    private SpaceAssemblerRecipeHandler spaceAssemblerHandler;
     private SuperComputerRecipeHandler superComputerHandler;
     private final FluidIconRecipeRegistryPlugin fluidIconRecipeRegistryPlugin = new FluidIconRecipeRegistryPlugin();
     private static IModRegistry modRegistry;
@@ -296,6 +298,7 @@ public class JEIConfig implements IModPlugin {
         registry.addRecipeCatalyst(new ItemStack(ModBlocks.furnace_combination), COMBINATION);
         registry.addRecipeCatalyst(new ItemStack(ModBlocks.machine_purex), PUREX);
         registry.addRecipeCatalyst(new ItemStack(ModBlocks.machine_rockmill), ROCK_MILL);
+        registry.addRecipeCatalyst(new ItemStack(ModItems.satellite, 1, com.hbm.items.machine.ItemSatellitePayload.EnumSatelliteType.SCIENCE_ASSEMBLER.ordinal()), SPACE_ASSEMBLER);
         registry.addRecipeCatalyst(new ItemStack(ModBlocks.machine_supercomputer), SUPER_COMPUTER);
         registry.addRecipeCatalyst(new ItemStack(ModBlocks.pwr_controller), PWR);
 
@@ -375,6 +378,7 @@ public class JEIConfig implements IModPlugin {
         registry.addRecipes(combinationHandler.getRecipes(), COMBINATION);
         registry.addRecipes(purexHandler.getRecipes(), PUREX);
         registry.addRecipes(rockMillHandler.getRecipes(), ROCK_MILL);
+        registry.addRecipes(spaceAssemblerHandler.getRecipes(), SPACE_ASSEMBLER);
         registry.addRecipes(superComputerHandler.getRecipes(), SUPER_COMPUTER);
         registry.addRecipes(pwrHandler.getRecipes(), PWR);
 
@@ -705,6 +709,7 @@ public class JEIConfig implements IModPlugin {
                 zirnoxHandler = new ZirnoxRecipeHandler(help),
                 purexHandler = new PUREXRecipeHandler(help),
                 rockMillHandler = new RockMillRecipeHandler(help),
+                spaceAssemblerHandler = new SpaceAssemblerRecipeHandler(help),
                 superComputerHandler = new SuperComputerRecipeHandler(help),
                 new GasCentrifugeRecipeHandler(help),
                 new BreederRecipeHandler(help),

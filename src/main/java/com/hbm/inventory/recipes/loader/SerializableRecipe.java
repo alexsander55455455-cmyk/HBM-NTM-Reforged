@@ -86,6 +86,7 @@ public abstract class SerializableRecipe {
         recipeHandlers.add(PlasmaForgeRecipes.INSTANCE);
         recipeHandlers.add(PrecAssRecipes.INSTANCE);
         recipeHandlers.add(BlastFurnaceRecipesNT.INSTANCE);
+        recipeHandlers.add(SpaceAssemblerRecipes.INSTANCE);
     }
 
     public static void initialize() {

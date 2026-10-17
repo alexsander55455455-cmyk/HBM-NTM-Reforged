@@ -9089,3 +9089,10 @@ tile.machine_tape_drive.name=Стойка дата-накопителей
 item.satellite.science.name=Космическая лаборатория
 item.satellite.science_sensor.name=Космическая лаборатория - Сенсорное реле
 desc.satellite.science_sensor=Доставьте на существующую космическую лабораторию с той же частотой.
+
+item.satellite.science_assembler.name=Модуль сборщика 0G
+item.orbital_assembly.crystal_circuit.name=Рабочий пакет кристальной схемы
+desc.satellite.science_assembler=Доставьте в космическую лабораторию на той же частоте. Ускоряет орбитальную сборку.
+desc.orbital_assembly=Доставьте в космическую лабораторию со сборщиком 0G. Готовую схему заберите через спутниковый док.
+radar.target.dropship=Орбитальная грузовая капсула
+item.circuit.crystal.name=Кристальная схема

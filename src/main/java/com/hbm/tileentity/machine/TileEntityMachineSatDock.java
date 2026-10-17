@@ -12,6 +12,7 @@ import com.hbm.lib.Library;
 import com.hbm.saveddata.satellites.Satellite;
 import com.hbm.saveddata.satellites.SatelliteHorizons;
 import com.hbm.saveddata.satellites.SatelliteMiner;
+import com.hbm.saveddata.satellites.SatelliteScience;
 import com.hbm.saveddata.satellites.SatelliteSavedData;
 import com.hbm.saveddata.satellites.SatelliteResolver;
 import com.hbm.tileentity.IGUIProvider;
@@ -70,6 +71,11 @@ public class TileEntityMachineSatDock extends TileEntityMachineBase implements I
 				SatelliteResolver.Result resolution = SatelliteResolver.resolve(world, pos.getX(), pos.getZ(), chip, true);
 				data = resolution.getData();
 				Satellite sat = resolution.getSatellite();
+
+                if(sat instanceof SatelliteScience && world.getTotalWorldTime() % 20 == 0
+                        && ((SatelliteScience) sat).tryRequestItems(world, pos.getX(), pos.getY(), pos.getZ())) {
+                    data.markSatelliteDirty();
+                }
 
 				int delay = 10 * 60 * 1000; //10min
 

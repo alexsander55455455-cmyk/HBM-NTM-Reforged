@@ -9087,3 +9087,10 @@ tile.machine_tape_drive.name=Drive Enclosure
 item.satellite.science.name=Space Laboratory
 item.satellite.science_sensor.name=Space Laboratory - Sensor Relay
 desc.satellite.science_sensor=Deliver to an existing space laboratory on the same frequency.
+
+item.satellite.science_assembler.name=0G Assembler Module
+item.orbital_assembly.crystal_circuit.name=Crystal Circuit Work Package
+desc.satellite.science_assembler=Deliver to a Space Laboratory on the same frequency. Accelerates orbital assembly.
+desc.orbital_assembly=Deliver to a Space Laboratory with a 0G Assembler. Collect the finished circuit at a Satellite Dock.
+radar.target.dropship=Orbital Cargo Pod
+item.circuit.crystal.name=Crystal Circuit
