@@ -542,6 +542,7 @@ public class OreDictManager {
         MALACHITE.ingot(DictFrame.fromOne(chunk_ore, EnumChunkType.MALACHITE)).ore(fromOne(stone_resource, EnumStoneType.MALACHITE));
         LIMESTONE.dust(powder_limestone).ore(fromOne(stone_resource, EnumStoneType.LIMESTONE));
         BAUXITE.gem(fromOne(stone_resource, EnumStoneType.BAUXITE));
+        BAUXITE.ore(fromOne(stone_resource, EnumStoneType.BAUXITE));
         CRYOLITE.crystal(fromOne(chunk_ore, EnumChunkType.CRYOLITE));
         OreDictionary.registerOre("oreTrixite", ore_tikite);
         OreDictionary.registerOre("crystalTrixite", crystal_trixite);

@@ -9057,3 +9057,9 @@ container.rttyDesignator=RoR Designator
 desc.rttyDesignator.noChannel=No channel set!
 desc.rttyDesignator.channel=Channel: %s
 desc.rttyDesignator.configure=Sneak + right-click to set the channel.
+
+# Original X5846 rock mill
+autoswitch.crushing=Rock Crushing
+container.machineRockMill=Rock Mill
+rock.crushing=Crushing of %s
+tile.machine_rockmill.name=Rock Mill

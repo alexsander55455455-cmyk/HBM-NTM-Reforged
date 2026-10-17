@@ -9059,3 +9059,9 @@ container.rttyDesignator=Целеуказатель RoR
 desc.rttyDesignator.noChannel=Канал не задан!
 desc.rttyDesignator.channel=Канал: %s
 desc.rttyDesignator.configure=Shift + ПКМ: настроить канал.
+
+# Original X5846 rock mill
+autoswitch.crushing=Дробление камня
+container.machineRockMill=Жерновая мельница
+rock.crushing=Дробление %s
+tile.machine_rockmill.name=Жерновая мельница

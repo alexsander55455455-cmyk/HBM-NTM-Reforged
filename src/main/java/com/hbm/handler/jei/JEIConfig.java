@@ -133,6 +133,7 @@ public class JEIConfig implements IModPlugin {
     public static final String VACUUM = "hbm.vacuum";
     public static final String ZIRNOX = "hbm.zirnox";
     static final String PUREX = "hbm.purex";
+    static final String ROCK_MILL = "hbm.rock_mill";
     private AmmoPressHandler ammoPressHandler;
     private AnnihilatorHandler annihilatorHandler;
     private AnvilRecipeHandler anvilRecipeHandler;
@@ -184,6 +185,7 @@ public class JEIConfig implements IModPlugin {
     private VacuumRecipeHandler vacuumHandler;
     private ZirnoxRecipeHandler zirnoxHandler;
     private PUREXRecipeHandler purexHandler;
+    private RockMillRecipeHandler rockMillHandler;
     private final FluidIconRecipeRegistryPlugin fluidIconRecipeRegistryPlugin = new FluidIconRecipeRegistryPlugin();
     private static IModRegistry modRegistry;
 
@@ -291,6 +293,7 @@ public class JEIConfig implements IModPlugin {
         registry.addRecipeCatalyst(new ItemStack(ModBlocks.machine_radiolysis), RADIOLYSIS);
         registry.addRecipeCatalyst(new ItemStack(ModBlocks.furnace_combination), COMBINATION);
         registry.addRecipeCatalyst(new ItemStack(ModBlocks.machine_purex), PUREX);
+        registry.addRecipeCatalyst(new ItemStack(ModBlocks.machine_rockmill), ROCK_MILL);
         registry.addRecipeCatalyst(new ItemStack(ModBlocks.pwr_controller), PWR);
 
         registry.addRecipes(assemblyMachineRecipeHandler.getRecipes(), ASSEMBLY_MACHINE);
@@ -368,6 +371,7 @@ public class JEIConfig implements IModPlugin {
         registry.addRecipes(JeiRecipes.getRadiolysisRecipes(), RADIOLYSIS);
         registry.addRecipes(combinationHandler.getRecipes(), COMBINATION);
         registry.addRecipes(purexHandler.getRecipes(), PUREX);
+        registry.addRecipes(rockMillHandler.getRecipes(), ROCK_MILL);
         registry.addRecipes(pwrHandler.getRecipes(), PWR);
 
         registry.addRecipeClickArea(GUIMachineCoker.class, 60, 22, 32, 18, COKER);
@@ -377,6 +381,7 @@ public class JEIConfig implements IModPlugin {
         registry.addRecipeClickArea(GUIMachineHydrotreater.class, 85, 82, 24, 24, HYDROTREATING);
         registry.addRecipeClickArea(GUIMachinePUREX.class, 62, 25, 47, 9, PUREX);
         registry.addRecipeClickArea(GUIMachinePUREX.class, 62, 90, 47, 9, PUREX);
+        registry.addRecipeClickArea(GUIMachineRockMill.class, 62, 90, 70, 16, ROCK_MILL);
         registry.addRecipeClickArea(GUILiquefactor.class, 42, 18, 41, 16, LIQUEFACTION);
         registry.addRecipeClickArea(GUILiquefactor.class, 42, 34, 2, 18, LIQUEFACTION);
         registry.addRecipeClickArea(GUIFurnaceBrick.class, 86, 35, 22, 15, VanillaRecipeCategoryUid.SMELTING);
@@ -459,6 +464,7 @@ public class JEIConfig implements IModPlugin {
         HbmTransferInfo.register(t, ContainerMachinePress.class,            PRESS,              range(1, 2),  range(13, 36));
         HbmTransferInfo.register(t, ContainerMachineEPress.class,           PRESS,              range(1, 2),  range(5, 36));
         HbmTransferInfo.register(t, ContainerMachinePUREX.class,            PUREX,              range(4, 3),  range(13, 36));
+        HbmTransferInfo.register(t, ContainerMachineRockMill.class,         ROCK_MILL,          range(2, 3),  range(8, 36));
         HbmTransferInfo.register(t, ContainerPyroOven.class,                PYROLYSIS,          new int[]{1},                 range(6, 36));
         HbmTransferInfo.register(t, ContainerRBMKOutgasser.class,           RBMKOUTGASSER,      new int[]{0},                 range(2, 36));
         HbmTransferInfo.register(t, ContainerMachineRotaryFurnace.class,    ROTARY_FURNACE,     range(0, 3),  range(5, 36));
@@ -692,6 +698,7 @@ public class JEIConfig implements IModPlugin {
                 vacuumHandler = new VacuumRecipeHandler(help),
                 zirnoxHandler = new ZirnoxRecipeHandler(help),
                 purexHandler = new PUREXRecipeHandler(help),
+                rockMillHandler = new RockMillRecipeHandler(help),
                 new GasCentrifugeRecipeHandler(help),
                 new BreederRecipeHandler(help),
                 new CyclotronRecipeHandler(help),
