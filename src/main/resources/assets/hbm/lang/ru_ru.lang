@@ -9065,3 +9065,6 @@ autoswitch.crushing=Дробление камня
 container.machineRockMill=Жерновая мельница
 rock.crushing=Дробление %s
 tile.machine_rockmill.name=Жерновая мельница
+tile.machine_thresher.name=Автоматическая молотилка
+tile.machine_thresher.desc=Сбор урожая и повторная посадка культур.$Принимает:$-Древесное масло$-Этанол$-Рыбное масло$-Тяжёлую нефть$-Креозот из угольной смолы
+tile.machine_thresher.suspended=Приостановлена

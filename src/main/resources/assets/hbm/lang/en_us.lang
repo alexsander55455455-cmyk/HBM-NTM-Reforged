@@ -9063,3 +9063,6 @@ autoswitch.crushing=Rock Crushing
 container.machineRockMill=Rock Mill
 rock.crushing=Crushing of %s
 tile.machine_rockmill.name=Rock Mill
+tile.machine_thresher.name=Automatic Thresher
+tile.machine_thresher.desc=Harvests and re-plants crops.$Accepts:$-Wood oil$-Ethanol$-Fish oil$-Heavy oil$-Coal Tar Creosote
+tile.machine_thresher.suspended=Suspended
