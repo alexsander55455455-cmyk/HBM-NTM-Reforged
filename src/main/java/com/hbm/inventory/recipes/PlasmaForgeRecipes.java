@@ -19,6 +19,7 @@ import com.hbm.items.ItemEnums.EnumPartType;
 import com.hbm.items.ModItems;
 import com.hbm.items.machine.ItemBatteryPack.EnumBatteryPack;
 import com.hbm.items.machine.ItemFluidIcon;
+import com.hbm.items.machine.ItemDrive.EnumDriveType;
 import net.minecraft.item.ItemStack;
 
 import java.io.IOException;
@@ -223,6 +224,32 @@ public class PlasmaForgeRecipes extends GenericRecipes<PlasmaForgeRecipe> {
                         new ComparableStack(ModItems.circuit, 64, EnumCircuitType.CONTROLLER_QUANTUM),
                         new ComparableStack(ModItems.item_expensive, 64, EnumExpensiveType.COMPUTER),
                         new ComparableStack(ModItems.coin_ufo, 1))
+                .setPools(POOL_PREFIX_DISCOVER + "gerald"));
+
+        this.register((PlasmaForgeRecipe) new PlasmaForgeRecipe("plsm.gerald_data").setInputEnergy(25_000_000).setup(12_000, 50_000_000).outputItems(new ItemStack(ModItems.sat_gerald, 1))
+                .inputItems(new OreDictStack(SBD.plateCast(), 64),
+                        new OreDictStack(SBD.plateCast(), 64),
+                        new OreDictStack(BSCCO.wireDense(), 64),
+                        new OreDictStack(BSCCO.wireDense(), 64),
+                        new ComparableStack(ModBlocks.det_nuke, 64),
+                        new ComparableStack(ModItems.heavy_duty_element, 64),
+                        new ComparableStack(ModItems.heavy_duty_element, 64),
+                        new ComparableStack(ModItems.heavy_duty_element, 64),
+                        new ComparableStack(ModItems.heavy_duty_element, 64),
+                        new ComparableStack(ModItems.circuit, 64, EnumCircuitType.CONTROLLER_QUANTUM),
+                        new ComparableStack(ModItems.drive, 16, EnumDriveType.DISK_ORBITDATA_PROCESSED))
+                .inputItemsEx(new OreDictStack(SBD.plateCast(), 64),
+                        new OreDictStack(BSCCO.wireDense(), 64),
+                        new ComparableStack(ModBlocks.det_nuke, 64),
+                        new ComparableStack(ModItems.item_expensive, 64, EnumExpensiveType.BRONZE_TUBES),
+                        new ComparableStack(ModItems.item_expensive, 64, EnumExpensiveType.BRONZE_TUBES),
+                        new ComparableStack(ModItems.item_expensive, 64, EnumExpensiveType.BRONZE_TUBES),
+                        new ComparableStack(ModItems.heavy_duty_element, 64),
+                        new ComparableStack(ModItems.heavy_duty_element, 64),
+                        new ComparableStack(ModItems.heavy_duty_element, 64),
+                        new ComparableStack(ModItems.circuit, 64, EnumCircuitType.CONTROLLER_QUANTUM),
+                        new ComparableStack(ModItems.item_expensive, 64, EnumExpensiveType.COMPUTER),
+                        new ComparableStack(ModItems.drive, 64, EnumDriveType.DISK_ORBITDATA_PROCESSED))
                 .setPools(POOL_PREFIX_DISCOVER + "gerald"));
 
         this.register((PlasmaForgeRecipe) new PlasmaForgeRecipe("plsm.dfccore").setInputEnergy(50_000_000).setup(12_000, 100_000_000).outputItems(new ItemStack(ModBlocks.dfc_core)).inputFluids(new FluidStack(Fluids.STELLAR_FLUX, 12_000))

@@ -15,6 +15,7 @@ import com.hbm.items.ItemEnums.EnumCircuitType;
 import com.hbm.items.ModItems;
 import com.hbm.items.machine.IItemFluidIdentifier;
 import com.hbm.items.machine.ItemBlueprints;
+import com.hbm.items.machine.ItemDrive.EnumDriveType;
 import com.hbm.items.machine.ItemFluidIcon;
 import com.hbm.items.weapon.sedna.factory.GunFactory.EnumAmmo;
 import com.hbm.util.ItemStackUtil;
@@ -72,6 +73,7 @@ public class AnnihilatorRecipes extends SerializableRecipe {
             recipes.put(ANY_RESISTANTALLOY.ingot(),		new AnnihilatorRecipe(new Pair<>(new BigInteger("1024"), ItemBlueprints.make(GenericRecipes.POOL_PREFIX_528 + "tcalloy"))));
             recipes.put(ModItems.powder_chlorophyte,	new AnnihilatorRecipe(new Pair<>(new BigInteger("1024"), ItemBlueprints.make(GenericRecipes.POOL_PREFIX_528 + "chlorophyte"))));
 
+            recipes.put(new ComparableStack(ModItems.drive, 1, EnumDriveType.FLASH_FLIGHTSIM), new AnnihilatorRecipe(new Pair<>(new BigInteger("64"), ItemBlueprints.make(GenericRecipes.POOL_PREFIX_DISCOVER + "soyuz"))));
             recipes.put(new ComparableStack(ModItems.ammo_standard, 1, EnumAmmo.BMG50_FMJ),		new AnnihilatorRecipe(new Pair<>(new BigInteger("256"), ItemBlueprints.make(GenericRecipes.POOL_PREFIX_528 + "bmg"))));
             recipes.put(new ComparableStack(ModItems.ammo_arty, 1, 0),							new AnnihilatorRecipe(new Pair<>(new BigInteger("128"), ItemBlueprints.make(GenericRecipes.POOL_PREFIX_528 + "arty"))));
             recipes.put(new ComparableStack(ModItems.circuit, 1, EnumCircuitType.CONTROLLER),	new AnnihilatorRecipe(new Pair<>(new BigInteger("128"), ItemBlueprints.make(GenericRecipes.POOL_PREFIX_528 + "controller"))));

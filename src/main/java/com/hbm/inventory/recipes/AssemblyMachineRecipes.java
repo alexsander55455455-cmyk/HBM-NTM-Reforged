@@ -586,6 +586,11 @@ public class AssemblyMachineRecipes extends GenericRecipes<GenericRecipe> {
                 .inputItems(new OreDictStack(ANY_RESISTANTALLOY.plateWelded(), 8), new OreDictStack(ANY_HARDPLASTIC.ingot(), 32), new ComparableStack(ModItems.circuit, 8, EnumCircuitType.BISMOID))
                 .inputItemsEx(new ComparableStack(ModItems.item_expensive, 8, EnumExpensiveType.FERRO_PLATING), new ComparableStack(ModItems.item_expensive, 8, EnumExpensiveType.PLASTIC), new ComparableStack(ModItems.circuit, 16, EnumCircuitType.BISMOID))
                 .setPools528(GenericRecipes.POOL_PREFIX_528 + "tcalloy"));
+
+        this.register(new GenericRecipe("ass.fusioncore_data").setup(600, 100).outputItems(new ItemStack(ModBlocks.struct_torus_core, 1))
+                .inputItems(new OreDictStack(ANY_RESISTANTALLOY.plateWelded(), 8), new OreDictStack(ANY_HARDPLASTIC.ingot(), 32), new ComparableStack(ModItems.circuit, 8, EnumCircuitType.BISMOID), new ComparableStack(ModItems.drive, 4, EnumDriveType.FLASH_PARTICLESIM))
+                .inputItemsEx(new ComparableStack(ModItems.item_expensive, 8, EnumExpensiveType.FERRO_PLATING), new ComparableStack(ModItems.item_expensive, 8, EnumExpensiveType.PLASTIC), new ComparableStack(ModItems.circuit, 16, EnumCircuitType.BISMOID), new ComparableStack(ModItems.drive, 16, EnumDriveType.FLASH_PARTICLESIM))
+                .setPools528(GenericRecipes.POOL_PREFIX_528 + "tcalloy"));
         this.register(new GenericRecipe("ass.fusionbscco").setup(100, 100).outputItems(new ItemStack(ModBlocks.fusion_component, 2, 0))
                 .inputItems(new OreDictStack(BSCCO.wireDense(), 1), new OreDictStack(CU.pipe(), 1), new OreDictStack(ANY_RESISTANTALLOY.ingot(), 1), new OreDictStack(ANY_PLASTIC.ingot(), 4))
                 .inputItemsEx(new OreDictStack(BSCCO.wireDense(), 4), new ComparableStack(ModItems.item_expensive, 1, EnumExpensiveType.FERRO_PLATING), new ComparableStack(ModItems.item_expensive, 1, EnumExpensiveType.PLASTIC))
@@ -1045,6 +1050,16 @@ public class AssemblyMachineRecipes extends GenericRecipes<GenericRecipe> {
                         new ComparableStack(ModItems.thruster_medium, 12),
                         new ComparableStack(ModItems.circuit, 4, EnumCircuitType.CONTROLLER),
                         new ComparableStack(ModItems.part_generic, 32, EnumPartType.LDE)).setPools(GenericRecipes.POOL_PREFIX_DISCOVER + "soyuz"));
+
+        this.register(new GenericRecipe("ass.soyuz_data").setup(6_000, 100).outputItems(new ItemStack(ModItems.missile_soyuz, 1))
+                .inputItems(new OreDictStack(TI.shell(), 32),
+                        new OreDictStack(RUBBER.ingot(), 64),
+                        new ComparableStack(ModItems.rocket_fuel, 64),
+                        new ComparableStack(ModItems.thruster_small, 12),
+                        new ComparableStack(ModItems.thruster_medium, 12),
+                        new ComparableStack(ModItems.circuit, 4, EnumCircuitType.CONTROLLER),
+                        new ComparableStack(ModItems.part_generic, 32, EnumPartType.LDE),
+                        new ComparableStack(ModItems.drive, 4, EnumDriveType.FLASH_FLIGHTSIM)).setPools(GenericRecipes.POOL_PREFIX_DISCOVER + "soyuz"));
         this.register(new GenericRecipe("ass.lander").setup(2_400, 100).outputItems(new ItemStack(ModItems.missile_soyuz_lander, 1))
                 .inputItems(new OreDictStack(AL.shell(), 4),
                         new OreDictStack(RUBBER.ingot(), 16),
@@ -1052,6 +1067,15 @@ public class AssemblyMachineRecipes extends GenericRecipes<GenericRecipe> {
                         new ComparableStack(ModItems.thruster_small, 3),
                         new ComparableStack(ModItems.circuit, 3, EnumCircuitType.CONTROLLER_ADVANCED),
                         new ComparableStack(ModItems.part_generic, 12, EnumPartType.LDE)).setPools(GenericRecipes.POOL_PREFIX_DISCOVER + "soyuz"));
+
+        this.register(new GenericRecipe("ass.lander_data").setup(2_400, 100).outputItems(new ItemStack(ModItems.missile_soyuz_lander, 1))
+                .inputItems(new OreDictStack(AL.shell(), 4),
+                        new OreDictStack(RUBBER.ingot(), 16),
+                        new ComparableStack(ModItems.rocket_fuel, 16),
+                        new ComparableStack(ModItems.thruster_small, 3),
+                        new ComparableStack(ModItems.circuit, 3, EnumCircuitType.CONTROLLER_ADVANCED),
+                        new ComparableStack(ModItems.part_generic, 12, EnumPartType.LDE),
+                        new ComparableStack(ModItems.drive, 8, EnumDriveType.FLASH_FLIGHTSIM)).setPools(GenericRecipes.POOL_PREFIX_DISCOVER + "soyuz"));
         this.register(new GenericRecipe("ass.satellitebase").setup(600, 100).outputItems(new ItemStack(ModItems.sat_base, 1))
                 .inputItems(new OreDictStack(RUBBER.ingot(), 12),
                         new OreDictStack(TI.shell(), 3),
