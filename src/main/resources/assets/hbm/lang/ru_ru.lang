@@ -9082,3 +9082,6 @@ item.drive.flash_flightsim.name=Дата-флешка (Данные симуля
 item.drive.flash_particlesim.name=Дата-флешка (Данные симуляции частиц)
 item.drive.klaus.name=Клаус
 tile.machine_supercomputer.name=Суперкомпьютер
+
+container.machineTapeDrive=Стойка дата-накопителей
+tile.machine_tape_drive.name=Стойка дата-накопителей

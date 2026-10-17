@@ -1080,6 +1080,7 @@ public class ModBlocks {
     public static final Block machine_chemical_factory = new MachineChemicalFactory(Material.IRON, "machine_chemical_factory").setHardness(5.0F).setResistance(30.0F).setCreativeTab(MainRegistry.machineTab);
     public static final Block machine_purex = new MachinePUREX(Material.IRON, "machine_purex").setHardness(5.0F).setResistance(30.0F).setCreativeTab(MainRegistry.machineTab);
     public static final Block machine_supercomputer = new MachineSuperComputer("machine_supercomputer").setHardness(5.0F).setResistance(30.0F).setCreativeTab(MainRegistry.machineTab);
+    public static final Block machine_tape_drive = new MachineTapeDrive("machine_tape_drive").setHardness(5.0F).setResistance(10.0F).setCreativeTab(MainRegistry.missileTab);
     public static final Block machine_rockmill = new MachineRockMill("machine_rockmill").setHardness(5.0F).setResistance(100.0F).setCreativeTab(MainRegistry.machineTab);
 
     public static final Block machine_strand_caster = new MachineStrandCaster(Material.IRON, "machine_strand_caster").setHardness(5.0F).setResistance(10.0F).setCreativeTab(MainRegistry.machineTab);

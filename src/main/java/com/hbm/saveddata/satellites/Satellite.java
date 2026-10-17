@@ -1,6 +1,7 @@
 package com.hbm.saveddata.satellites;
 
 import com.hbm.items.ModItems;
+import com.hbm.items.machine.ItemDrive.EnumDriveType;
 import com.hbm.tileentity.network.RTTYSystem;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
@@ -49,6 +50,8 @@ public abstract class Satellite {
 	protected int targetZ;
 	protected String tx = "";
 	private OrbitSettings orbitSettings;
+	public EnumDriveType driveInput;
+	public EnumDriveType driveOutput;
 	
 	public static void register() {
 		SatelliteTypeRegistry.registerDefaults();
@@ -99,13 +102,22 @@ public abstract class Satellite {
 		nbt.setInteger("targetX", targetX);
 		nbt.setInteger("targetZ", targetZ);
 		nbt.setString("tx", tx);
+		if(driveInput != null) nbt.setInteger("driveInput", driveInput.ordinal());
+		if(driveOutput != null) nbt.setInteger("driveOutput", driveOutput.ordinal());
 	}
 	
 	public void readFromNBT(NBTTagCompound nbt) {
 		targetX = nbt.getInteger("targetX");
 		targetZ = nbt.getInteger("targetZ");
 		tx = nbt.getString("tx");
+		driveInput = nbt.hasKey("driveInput") ? com.hbm.util.EnumUtil.grabEnumSafely(EnumDriveType.values(), nbt.getInteger("driveInput")) : null;
+		driveOutput = nbt.hasKey("driveOutput") ? com.hbm.util.EnumUtil.grabEnumSafely(EnumDriveType.values(), nbt.getInteger("driveOutput")) : null;
 	}
+
+	public boolean hasData(World world) { return driveInput != null && driveOutput != null; }
+	public EnumDriveType getOutputData(EnumDriveType input) { return input == driveInput ? driveOutput : null; }
+	public void produceData(EnumDriveType input, EnumDriveType output) { driveInput = input; driveOutput = output; }
+	public void consumeData() { driveInput = null; driveOutput = null; }
 	
 	/**
 	 * Called when the satellite reaches space, used to trigger achievements and other funny stuff.

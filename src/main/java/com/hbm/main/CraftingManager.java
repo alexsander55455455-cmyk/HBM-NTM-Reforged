@@ -144,6 +144,7 @@ public class CraftingManager {
 		addRecipeAuto(new ItemStack(ModItems.plate_polymer, 16), "DD", 'D', ASBESTOS.ingot());
 		addRecipeAuto(new ItemStack(ModItems.plate_polymer, 4), "SWS", 'S', Items.STRING, 'W', Blocks.WOOL );
 		addRecipeAuto(new ItemStack(ModItems.plate_polymer, 4), "BB", 'B', "ingotBrick" );
+		addRecipeAuto(new ItemStack(ModBlocks.machine_tape_drive), "PPP", "CCC", "PPP", 'P', ANY_PLASTIC.ingot(), 'C', DictFrame.fromOne(ModItems.circuit, EnumCircuitType.PCB));
 		addRecipeAuto(new ItemStack(ModItems.plate_polymer, 4), "BB", 'B', "ingotNetherBrick" );
 
 		addRecipeAuto(DictFrame.fromOne(ModItems.circuit, EnumCircuitType.VACUUM_TUBE), "G", "W", "I", 'G', KEY_ANYPANE, 'W', W.wireFine(), 'I', ModItems.plate_polymer );

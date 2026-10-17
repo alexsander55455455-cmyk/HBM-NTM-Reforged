@@ -9080,3 +9080,6 @@ item.drive.flash_flightsim.name=Flash Drive (Flight Simulation Data)
 item.drive.flash_particlesim.name=Flash Drive (Particle Simulation Data)
 item.drive.klaus.name=Klaus
 tile.machine_supercomputer.name=Supercomputer
+
+container.machineTapeDrive=Drive Enclosure
+tile.machine_tape_drive.name=Drive Enclosure

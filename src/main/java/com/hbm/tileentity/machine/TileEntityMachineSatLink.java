@@ -154,7 +154,7 @@ public class TileEntityMachineSatLink extends TileEntityTickingBase implements I
     @Override
     public String getInventoryName() { return "container.machineSatLink"; }
 
-    private SatelliteSavedData getSatelliteData() {
+    public SatelliteSavedData getSatelliteData() {
         OrbitKey local = OrbitKey.fromWorld(world, pos.getX(), pos.getZ());
         return orbitKey == null || orbitKey.equals(local)
                 ? TESpaceUtil.getData(world, pos.getX(), pos.getZ())
