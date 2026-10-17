@@ -61,6 +61,7 @@ public final class SatelliteTypeRegistry {
         register(9, "precision_laser", SatellitePrecisionLaser::new, () -> canonical(EnumSatelliteType.PRECISION_LASER), 48_000, false);
         register(10, "detector", SatelliteDetector::new, () -> canonical(EnumSatelliteType.DETECTOR), 16_000, true);
         register(11, "ray_scan", SatelliteRayScan::new, () -> canonical(EnumSatelliteType.RAY_SCAN), 16_000, true);
+        register(13, "science", SatelliteScience::new, () -> canonical(EnumSatelliteType.SCIENCE), 16_000, true);
     }
 
     public static synchronized void registerSpaceExtensions() {

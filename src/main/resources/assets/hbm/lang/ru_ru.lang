@@ -9085,3 +9085,5 @@ tile.machine_supercomputer.name=Суперкомпьютер
 
 container.machineTapeDrive=Стойка дата-накопителей
 tile.machine_tape_drive.name=Стойка дата-накопителей
+
+item.satellite.science.name=Космическая лаборатория

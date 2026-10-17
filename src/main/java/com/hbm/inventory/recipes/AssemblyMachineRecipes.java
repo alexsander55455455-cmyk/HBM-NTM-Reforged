@@ -1076,6 +1076,13 @@ public class AssemblyMachineRecipes extends GenericRecipes<GenericRecipe> {
                         new ComparableStack(ModItems.circuit, 3, EnumCircuitType.CONTROLLER_ADVANCED),
                         new ComparableStack(ModItems.part_generic, 12, EnumPartType.LDE),
                         new ComparableStack(ModItems.drive, 8, EnumDriveType.FLASH_FLIGHTSIM)).setPools(GenericRecipes.POOL_PREFIX_DISCOVER + "soyuz"));
+        this.register(new GenericRecipe("ass.spacelab").setup(1_200, 25_000).outputItems(new ItemStack(ModItems.satellite, 1, EnumSatelliteType.SCIENCE.ordinal()))
+                .inputItems(new OreDictStack(AL.shell(), 16),
+                        new ComparableStack(ModItems.photo_panel, 32),
+                        new ComparableStack(ModItems.circuit, 16, EnumCircuitType.BASIC),
+                        new ComparableStack(ModItems.circuit, 4, EnumCircuitType.ATOMIC_CLOCK),
+                        new ComparableStack(ModItems.part_generic, 16, EnumPartType.LDE),
+                        new ComparableStack(ModItems.circuit, 1, EnumCircuitType.CONTROLLER)));
         this.register(new GenericRecipe("ass.satellitebase").setup(600, 100).outputItems(new ItemStack(ModItems.sat_base, 1))
                 .inputItems(new OreDictStack(RUBBER.ingot(), 12),
                         new OreDictStack(TI.shell(), 3),

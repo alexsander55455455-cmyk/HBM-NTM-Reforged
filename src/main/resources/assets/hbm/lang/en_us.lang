@@ -9083,3 +9083,5 @@ tile.machine_supercomputer.name=Supercomputer
 
 container.machineTapeDrive=Drive Enclosure
 tile.machine_tape_drive.name=Drive Enclosure
+
+item.satellite.science.name=Space Laboratory

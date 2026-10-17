@@ -44,7 +44,8 @@ public class ItemSatellitePayload extends ItemEnumMulti<ItemSatellitePayload.Enu
         XENIUM_RESONATOR,
         RELAY,
         DETECTOR,
-        RAY_SCAN
+        RAY_SCAN,
+        SCIENCE
     }
 
     @Override
