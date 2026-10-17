@@ -203,6 +203,9 @@ public class ShredderRecipes extends SerializableRecipe {
 
     @Override
     public void registerDefaults() {
+        setRecipe(new ItemStack(ModItems.drive, 1, com.hbm.items.machine.ItemDrive.EnumDriveType.FLASH_BROKEN.ordinal()), new ItemStack(ModItems.powder_polymer, 2));
+        setRecipe(new ItemStack(ModItems.drive, 1, com.hbm.items.machine.ItemDrive.EnumDriveType.DISK_BROKEN.ordinal()), new ItemStack(ModItems.powder_polymer, 4));
+
 
         /* Primary recipes */
         ShredderRecipes.setRecipe(ModItems.scrap, new ItemStack(ModItems.dust));

@@ -81,6 +81,7 @@ public abstract class SerializableRecipe {
         recipeHandlers.add(ChemicalPlantRecipes.INSTANCE);
         recipeHandlers.add(PUREXRecipes.INSTANCE);
         recipeHandlers.add(RockMillRecipes.INSTANCE);
+        recipeHandlers.add(SuperComputerRecipes.INSTANCE);
         recipeHandlers.add(FusionRecipes.INSTANCE);
         recipeHandlers.add(PlasmaForgeRecipes.INSTANCE);
         recipeHandlers.add(PrecAssRecipes.INSTANCE);
