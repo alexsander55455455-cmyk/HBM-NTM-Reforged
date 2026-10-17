@@ -1083,6 +1083,14 @@ public class AssemblyMachineRecipes extends GenericRecipes<GenericRecipe> {
                         new ComparableStack(ModItems.circuit, 4, EnumCircuitType.ATOMIC_CLOCK),
                         new ComparableStack(ModItems.part_generic, 16, EnumPartType.LDE),
                         new ComparableStack(ModItems.circuit, 1, EnumCircuitType.CONTROLLER)));
+        this.register(new GenericRecipe("ass.sensorrelay").setup(600, 25_000).outputItems(new ItemStack(ModItems.satellite, 1, EnumSatelliteType.SCIENCE_SENSOR.ordinal()))
+                .inputItems(new OreDictStack(AL.shell(), 1),
+                        new ComparableStack(ModItems.coil_gold, 4),
+                        new ComparableStack(ModItems.circuit, 1, EnumCircuitType.QUANTUM),
+                        new ComparableStack(ModItems.part_generic, 1, EnumPartType.LDE))
+                .inputItemsEx(new ComparableStack(ModItems.item_expensive, 1, EnumExpensiveType.BRONZE_TUBES),
+                        new ComparableStack(ModItems.circuit, 1, EnumCircuitType.QUANTUM),
+                        new ComparableStack(ModItems.part_generic, 1, EnumPartType.LDE)));
         this.register(new GenericRecipe("ass.satellitebase").setup(600, 100).outputItems(new ItemStack(ModItems.sat_base, 1))
                 .inputItems(new OreDictStack(RUBBER.ingot(), 12),
                         new OreDictStack(TI.shell(), 3),

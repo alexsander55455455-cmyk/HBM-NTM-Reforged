@@ -9087,3 +9087,5 @@ container.machineTapeDrive=Стойка дата-накопителей
 tile.machine_tape_drive.name=Стойка дата-накопителей
 
 item.satellite.science.name=Космическая лаборатория
+item.satellite.science_sensor.name=Космическая лаборатория - Сенсорное реле
+desc.satellite.science_sensor=Доставьте на существующую космическую лабораторию с той же частотой.

@@ -74,7 +74,7 @@ public class RocketStruct {
         }
         if(stack.getItem() instanceof ItemMissile) {
             capsule = (ItemMissile) stack.getItem();
-        } else if(SatelliteTypeRegistry.byItem(stack) != null) {
+        } else if(SatelliteTypeRegistry.isPayload(stack)) {
             // Rendering still uses the add-on's standard satellite fairing. The
             // complete HBM payload stack remains in capsuleStack and reaches orbit.
             capsule = (ItemMissile) ModItemsSpace.sat_dyson_relay;
@@ -300,8 +300,7 @@ public class RocketStruct {
     private int getMass(int stageNum, boolean wet) {
         int mass = 0;
 
-        SatelliteTypeRegistry.Descriptor payload = SatelliteTypeRegistry.byItem(capsuleStack);
-        if(payload != null) mass += payload.getMass();
+        if(SatelliteTypeRegistry.isPayload(capsuleStack)) mass += SatelliteTypeRegistry.getPayloadMass(capsuleStack);
         else if(capsule != null) mass += capsule.mass;
 
         for(int i = stageNum; i < stages.size(); i++) {
@@ -484,7 +483,7 @@ public class RocketStruct {
         rocket.capsule = missileById(capId);
         ItemStack capsuleStack = RocketPayloadCodec.readFromByteBuffer(buf);
         if(!capsuleStack.isEmpty() && (capsuleStack.getItem() instanceof ItemMissile
-                || SatelliteTypeRegistry.byItem(capsuleStack) != null)) {
+                || SatelliteTypeRegistry.isPayload(capsuleStack))) {
             rocket.setCapsuleStack(capsuleStack);
         } else if(rocket.capsule != null) {
             rocket.capsuleStack = new ItemStack(rocket.capsule);
@@ -545,7 +544,7 @@ public class RocketStruct {
         rocket.legacySatFreq = nbt.getInteger("freq");
         ItemStack capsuleStack = RocketPayloadCodec.readFromNBT(nbt);
         if(!capsuleStack.isEmpty() && (capsuleStack.getItem() instanceof ItemMissile
-                || SatelliteTypeRegistry.byItem(capsuleStack) != null)) {
+                || SatelliteTypeRegistry.isPayload(capsuleStack))) {
             rocket.setCapsuleStack(capsuleStack);
         }
         if(rocket.capsuleStack.isEmpty() && rocket.capsule != null) {

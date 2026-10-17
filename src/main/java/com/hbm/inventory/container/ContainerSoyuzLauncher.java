@@ -23,7 +23,7 @@ public class ContainerSoyuzLauncher extends Container {
     private final TransferStrategy transferStrategy = TransferStrategy.builder(27)
                                                                       .rule(0, 1, s -> s.getItem() instanceof ItemSoyuz)
                                                                       .rule(1, 2, s -> s.getItem() instanceof IDesignatorItem)
-                                                                      .rule(2, 3, s -> SatelliteTypeRegistry.byItem(s) != null)
+                                                                      .rule(2, 3, s -> SatelliteTypeRegistry.isPayload(s))
                                                                       .rule(3, 4, s -> s.getItem() == ModItems.missile_soyuz_lander)
                                                                       .rule(4, 6, s -> Library.isStackDrainableForTank(s, launcher.tanks[0]))
                                                                       .rule(6, 8, s -> Library.isStackDrainableForTank(s, launcher.tanks[1]))
@@ -43,7 +43,7 @@ public class ContainerSoyuzLauncher extends Container {
 		this.addSlotToContainer(new SlotItemHandler(tedf.inventory, 2, 116, 18) {
 			@Override
 			public boolean isItemValid(ItemStack stack) {
-				return SatelliteTypeRegistry.byItem(stack) != null;
+				return SatelliteTypeRegistry.isPayload(stack);
 			}
 		});
 		//Landing module

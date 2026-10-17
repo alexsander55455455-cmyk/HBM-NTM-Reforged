@@ -936,7 +936,7 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
         RocketStruct rocket = new RocketStruct();
         ItemStack capsuleStack = this.dataManager.get(DP_ROCKET_CAPSULE_STACK);
         if(!capsuleStack.isEmpty() && (capsuleStack.getItem() instanceof ItemMissile
-                || SatelliteTypeRegistry.byItem(capsuleStack) != null)) {
+                || SatelliteTypeRegistry.isPayload(capsuleStack))) {
             rocket.setCapsuleStack(capsuleStack);
         } else {
             rocket.capsule = (ItemMissile) ItemMissile.getItemById(this.dataManager.get(DP_ROCKET_CAPSULE));

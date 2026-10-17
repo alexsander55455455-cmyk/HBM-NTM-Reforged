@@ -45,6 +45,7 @@ import com.hbm.items.tool.ItemBlackBoxBackpack;
 import com.hbm.items.tool.ItemDigammaDiagnostic;
 import com.hbm.saveddata.satellites.SatelliteDetector;
 import com.hbm.saveddata.satellites.SatelliteRayScan;
+import com.hbm.saveddata.satellites.SatelliteSavedData;
 import com.hbm.items.tool.ItemSapperBackpack;
 import com.hbm.items.tool.ItemSmugglerBackpack;
 import com.hbm.handler.BackpackHandler;
@@ -688,6 +689,7 @@ public class ModEventHandler {
             PacketThreading.createSendToDimensionThreadedPacket(new SurveyPacket(cur), dim);
         }
         BossSpawnHandler.rollTheDice(event.world);
+        if(dim == 0) SatelliteSavedData.getData(event.world).tickScience(event.world);
         SatelliteDetector.updateSystem(event.world);
         if (event.world.getTotalWorldTime() % 20 == 10) {
             SatelliteRayScan.updateSystem(event.world);

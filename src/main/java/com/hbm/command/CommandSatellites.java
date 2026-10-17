@@ -53,7 +53,7 @@ public class CommandSatellites extends CommandBase {
     private void orbit(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
         EntityPlayerMP player = getCommandSenderAsPlayer(sender);
         ItemStack held = player.getHeldItemMainhand();
-        if(SatelliteTypeRegistry.byItem(held) == null) throw new CommandException("Held item is not a registered satellite payload");
+        if(!SatelliteTypeRegistry.isPayload(held)) throw new CommandException("Held item is not a registered satellite payload");
 
         OrbitKey target = resolveOrbitKey(player.getServerWorld(), player.getPosition(), args.length >= 2 ? args[1] : null);
         int frequency = ISatChip.getFreqS(held);

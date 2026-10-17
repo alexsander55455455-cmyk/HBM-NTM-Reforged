@@ -9085,3 +9085,5 @@ container.machineTapeDrive=Drive Enclosure
 tile.machine_tape_drive.name=Drive Enclosure
 
 item.satellite.science.name=Space Laboratory
+item.satellite.science_sensor.name=Space Laboratory - Sensor Relay
+desc.satellite.science_sensor=Deliver to an existing space laboratory on the same frequency.

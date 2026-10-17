@@ -3,6 +3,7 @@ package com.hbm.items.machine;
 import com.hbm.items.ISatChip;
 import com.hbm.items.ItemEnumMulti;
 import com.hbm.saveddata.satellites.SatelliteLaunchResult;
+import com.hbm.saveddata.satellites.SatelliteScience;
 import com.hbm.saveddata.satellites.SatelliteTypeRegistry;
 import com.hbm.util.I18nUtil;
 import com.hbm.main.MainRegistry;
@@ -23,8 +24,8 @@ import java.util.List;
 /**
  * Consolidated satellite payload item used by the current satellite registry.
  *
- * <p>The metadata order intentionally matches the official 1.7.10 item. Do not
- * reorder these values: recipes, old worlds and rocket payload NBT depend on it.</p>
+ * <p>Append new payloads without reordering existing values: recipes, old worlds
+ * and rocket payload NBT depend on their metadata.</p>
  */
 public class ItemSatellitePayload extends ItemEnumMulti<ItemSatellitePayload.EnumSatelliteType> implements ISatChip {
 
@@ -45,21 +46,24 @@ public class ItemSatellitePayload extends ItemEnumMulti<ItemSatellitePayload.Enu
         RELAY,
         DETECTOR,
         RAY_SCAN,
-        SCIENCE
+        SCIENCE,
+        SCIENCE_SENSOR
     }
 
     @Override
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
         ItemStack stack = player.getHeldItem(hand);
         SatelliteTypeRegistry.Descriptor descriptor = SatelliteTypeRegistry.byItem(stack);
-        if(descriptor == null) return new ActionResult<>(EnumActionResult.PASS, stack);
+        boolean sensor = SatelliteScience.isSensor(stack);
+        if(descriptor == null && !sensor) return new ActionResult<>(EnumActionResult.PASS, stack);
 
         if(player.isSneaking()) {
+            if(descriptor == null) return new ActionResult<>(EnumActionResult.PASS, stack);
             if(world.isRemote) MainRegistry.proxy.openSatelliteOrbitSettings(hand);
             return new ActionResult<>(EnumActionResult.SUCCESS, stack);
         }
 
-        if(!descriptor.canHandLaunch() || !CelestialBody.inOrbit(world)) {
+        if((!sensor && !descriptor.canHandLaunch()) || !CelestialBody.inOrbit(world)) {
             return new ActionResult<>(EnumActionResult.PASS, stack);
         }
         if(world.isRemote) return new ActionResult<>(EnumActionResult.SUCCESS, stack);
@@ -79,6 +83,11 @@ public class ItemSatellitePayload extends ItemEnumMulti<ItemSatellitePayload.Enu
     public void addInformation(ItemStack stack, @Nullable World world, List<String> tooltip, ITooltipFlag flag) {
         tooltip.add(I18nUtil.resolveKey("desc.satellitefr", getFreq(stack)));
         SatelliteTypeRegistry.Descriptor descriptor = SatelliteTypeRegistry.byItem(stack);
+        if(SatelliteScience.isSensor(stack)) {
+            tooltip.add(TextFormatting.GRAY + I18nUtil.resolveKey("desc.satellite.science_sensor"));
+            tooltip.add(TextFormatting.DARK_GRAY + "Mass: " + SatelliteTypeRegistry.getPayloadMass(stack) + " kg");
+            tooltip.add(TextFormatting.GOLD + I18nUtil.resolveKey("item.sat.desc.launch_by_hand"));
+        }
         if(descriptor != null) {
             tooltip.add(TextFormatting.GRAY + I18nUtil.resolveKey("desc.satellite.configure"));
             tooltip.add(TextFormatting.DARK_GRAY + "Mass: " + descriptor.getMass() + " kg");

@@ -51,7 +51,7 @@ public class SlotRocket extends SlotItemHandler {
         @Override
         public boolean isItemValid(ItemStack stack) {
             if (stack.isEmpty()) return false;
-            if (SatelliteTypeRegistry.byItem(stack) != null) return true;
+            if (SatelliteTypeRegistry.isPayload(stack)) return true;
             if (stack.getItem() == ModItemsSpace.sat_war) return false;
             if (!(stack.getItem() instanceof ItemMissile item)) return false;
 

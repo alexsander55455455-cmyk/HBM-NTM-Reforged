@@ -339,7 +339,7 @@ public class TileEntitySoyuzLauncher extends TileEntityMachineBase implements IT
         if (mode == 1)
             return 0;
 
-        if (SatelliteTypeRegistry.byItem(inventory.getStackInSlot(2)) != null) {
+        if (SatelliteTypeRegistry.isPayload(inventory.getStackInSlot(2))) {
             return 2;
         }
         return 1;

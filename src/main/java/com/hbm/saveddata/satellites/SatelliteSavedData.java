@@ -141,6 +141,18 @@ public class SatelliteSavedData extends WorldSavedData {
         return removed;
     }
 
+    /** Advances every stored laboratory, including bodies whose surface is unloaded. */
+    public void tickScience(World world) {
+        if(world.isRemote) return;
+        boolean changed = false;
+        for(Int2ObjectOpenHashMap<Satellite> body : root().satellitesByBody.values()) {
+            for(Satellite satellite : body.values()) {
+                if(satellite instanceof SatelliteScience) changed |= ((SatelliteScience) satellite).tickSensors();
+            }
+        }
+        if(changed) markSatelliteDirty();
+    }
+
     public void markSatelliteDirty() {
         SatelliteSavedData actualRoot = root();
         actualRoot.revision++;
