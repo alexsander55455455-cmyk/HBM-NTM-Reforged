@@ -230,6 +230,8 @@ public class TileEntityRBMKBoiler extends TileEntityRBMKSlottedBase implements I
     // mlbv: why is it named cyceCompressor?
     public void cyceCompressor() {
 
+        if(this.heat > 50 && this.feed.getFill() > 0) return;
+
         FluidType type = steam.getTankType();
         if(type == Fluids.STEAM) {			steam.setTankType(Fluids.HOTSTEAM);			steam.setFill(steam.getFill() / 10); }
         if(type == Fluids.HOTSTEAM) {		steam.setTankType(Fluids.SUPERHOTSTEAM);	steam.setFill(steam.getFill() / 10); }
@@ -378,9 +380,10 @@ public class TileEntityRBMKBoiler extends TileEntityRBMKSlottedBase implements I
         return CompatHandler.steamTypeToInt(steam.getTankType());
     }
 
-    @Callback(direct = true, limit = 4)
+    @Callback(limit = 4, doc = "function(type:number):boolean -- Selects steam type unless the filled column is hotter than 50 C")
     @Optional.Method(modid = "opencomputers")
     public Object[] setSteamType(Context context, Arguments args) {
+        if(this.heat > 50 && this.feed.getFill() > 0) return new Object[] {false};
         int type = args.checkInteger(0);
         steam.setTankType(CompatHandler.intToSteamType(type));
         return new Object[] {true};
