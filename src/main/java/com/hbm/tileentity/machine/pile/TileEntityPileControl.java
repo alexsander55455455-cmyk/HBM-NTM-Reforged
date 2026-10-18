@@ -5,15 +5,25 @@ import com.hbm.blocks.ModBlocks;
 import com.hbm.blocks.generic.BlockMeta;
 import com.hbm.blocks.machine.pile.BlockPile;
 import com.hbm.interfaces.AutoRegister;
+import com.hbm.handler.CompatHandler;
 import io.netty.buffer.ByteBuf;
+import li.cil.oc.api.machine.Arguments;
+import li.cil.oc.api.machine.Callback;
+import li.cil.oc.api.machine.Context;
+import li.cil.oc.api.network.SimpleComponent;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraftforge.fml.common.Optional;
 
 @AutoRegister(name = "tileentity_pile_control")
-public class TileEntityPileControl extends TileEntityPileDeviceBase implements IRORInteractive {
+@Optional.InterfaceList({
+        @Optional.Interface(iface = "li.cil.oc.api.network.SimpleComponent", modid = "opencomputers"),
+        @Optional.Interface(iface = "com.hbm.handler.CompatHandler.OCComponent", modid = "opencomputers")
+})
+public class TileEntityPileControl extends TileEntityPileDeviceBase implements IRORInteractive, SimpleComponent, CompatHandler.OCComponent {
 
     public static final double SPEED = 1D / 60D;
 
@@ -132,5 +142,34 @@ public class TileEntityPileControl extends TileEntityPileDeviceBase implements I
             return null;
         }
         return null;
+    }
+
+    @Override
+    @Optional.Method(modid = "opencomputers")
+    public String getComponentName() { return "ntm_pile_control"; }
+
+    @Callback(direct = true, doc = "function():number -- Returns current rod level (0-1)")
+    @Optional.Method(modid = "opencomputers")
+    public Object[] getLevel(Context context, Arguments args) { return new Object[] {level}; }
+
+    @Callback(limit = 4, doc = "function(percent:number) -- Sets target rod level (0-100)")
+    @Optional.Method(modid = "opencomputers")
+    public Object[] setLevel(Context context, Arguments args) {
+        setTarget(args.checkDouble(0) / 100D);
+        return new Object[0];
+    }
+
+    @Override
+    @Optional.Method(modid = "opencomputers")
+    public String[] methods() { return new String[] {"getLevel", "setLevel"}; }
+
+    @Override
+    @Optional.Method(modid = "opencomputers")
+    public Object[] invoke(String method, Context context, Arguments args) throws Exception {
+        switch(method) {
+            case "getLevel": return getLevel(context, args);
+            case "setLevel": return setLevel(context, args);
+            default: throw new NoSuchMethodException(method);
+        }
     }
 }

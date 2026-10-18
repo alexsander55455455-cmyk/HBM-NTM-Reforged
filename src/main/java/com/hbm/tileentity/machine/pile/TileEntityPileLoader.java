@@ -5,10 +5,15 @@ import com.hbm.blocks.ModBlocks;
 import com.hbm.blocks.generic.BlockMeta;
 import com.hbm.blocks.machine.pile.BlockPile;
 import com.hbm.interfaces.AutoRegister;
+import com.hbm.handler.CompatHandler;
 import com.hbm.items.ModItems;
 import com.hbm.items.machine.ItemPileRodMK2;
 import com.hbm.items.machine.ItemPileRodMK2.EnumPileRod;
 import io.netty.buffer.ByteBuf;
+import li.cil.oc.api.machine.Arguments;
+import li.cil.oc.api.machine.Callback;
+import li.cil.oc.api.machine.Context;
+import li.cil.oc.api.network.SimpleComponent;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -18,13 +23,18 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
+import net.minecraftforge.fml.common.Optional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 
 import javax.annotation.Nullable;
 
 @AutoRegister(name = "tileentity_pile_loader")
-public class TileEntityPileLoader extends TileEntityPileDeviceBase implements IRORValueProvider {
+@Optional.InterfaceList({
+        @Optional.Interface(iface = "li.cil.oc.api.network.SimpleComponent", modid = "opencomputers"),
+        @Optional.Interface(iface = "com.hbm.handler.CompatHandler.OCComponent", modid = "opencomputers")
+})
+public class TileEntityPileLoader extends TileEntityPileDeviceBase implements IRORValueProvider, SimpleComponent, CompatHandler.OCComponent {
 
     public static final double SPEED = 1D / 7D;
 
@@ -239,5 +249,62 @@ public class TileEntityPileLoader extends TileEntityPileDeviceBase implements IR
             return Integer.toString((int) Math.round(channelTemp));
         }
         return null;
+    }
+
+    @Override
+    @Optional.Method(modid = "opencomputers")
+    public String getComponentName() { return "ntm_pile_loader"; }
+
+    @Callback(direct = true, doc = "function():number -- Returns channel temperature")
+    @Optional.Method(modid = "opencomputers")
+    public Object[] getTemp(Context context, Arguments args) { return new Object[] {channelTemp}; }
+
+    @Callback(direct = true, doc = "function():number -- Returns fuel depletion percentage")
+    @Optional.Method(modid = "opencomputers")
+    public Object[] getDepletion(Context context, Arguments args) { return new Object[] {channelStack.isEmpty() ? 0D : channelDepletion}; }
+
+    @Callback(direct = true, doc = "function():number -- Returns fuel lifetime")
+    @Optional.Method(modid = "opencomputers")
+    public Object[] getLifetime(Context context, Arguments args) { return new Object[] {channelStack.isEmpty() ? 0D : ItemPileRodMK2.getRod(channelStack).life}; }
+
+    @Callback(direct = true, doc = "function():number -- Returns fuel metadata, or -1")
+    @Optional.Method(modid = "opencomputers")
+    public Object[] getType(Context context, Arguments args) { return new Object[] {channelStack.isEmpty() ? -1 : channelStack.getMetadata()}; }
+
+    @Callback(direct = true, doc = "function():number -- Returns loading fuel metadata, or -1")
+    @Optional.Method(modid = "opencomputers")
+    public Object[] getLoadingType(Context context, Arguments args) { return new Object[] {getStack().isEmpty() ? -1 : getStack().getMetadata()}; }
+
+    @Callback(direct = true, doc = "function():boolean -- Returns fuel loading state")
+    @Optional.Method(modid = "opencomputers")
+    public Object[] isLoading(Context context, Arguments args) { return new Object[] {loading}; }
+
+    @Callback(limit = 4, doc = "function() -- Starts loading when the loader is retracted and ready")
+    @Optional.Method(modid = "opencomputers")
+    public Object[] load(Context context, Arguments args) {
+        if(delay <= 0 && level <= 0D) {
+            loading = true;
+            markDirty();
+        }
+        return new Object[0];
+    }
+
+    @Override
+    @Optional.Method(modid = "opencomputers")
+    public String[] methods() { return new String[] {"getTemp", "getDepletion", "getLifetime", "getType", "getLoadingType", "isLoading", "load"}; }
+
+    @Override
+    @Optional.Method(modid = "opencomputers")
+    public Object[] invoke(String method, Context context, Arguments args) throws Exception {
+        switch(method) {
+            case "getTemp": return getTemp(context, args);
+            case "getDepletion": return getDepletion(context, args);
+            case "getLifetime": return getLifetime(context, args);
+            case "getType": return getType(context, args);
+            case "getLoadingType": return getLoadingType(context, args);
+            case "isLoading": return isLoading(context, args);
+            case "load": return load(context, args);
+            default: throw new NoSuchMethodException(method);
+        }
     }
 }

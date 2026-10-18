@@ -9127,3 +9127,8 @@ container.launchpadSoyuz=Soyuz Launch Pad
 desc.gui.soyuz.cargo=Cargo Mode$Drops cargo via parachute$over the designator's coordinates.$The Soyuz can be reused.
 desc.gui.soyuz.satellite=Satellite Mode$Launches a satellite into orbit.
 desc.gui.soyuz.fueling=Fueling
+
+item.pile_rod.thorium.name=Chicago Pile Natural Thorium Rod
+item.pile_rod.thorium.desc=Basic breeding target for making thorium fuel.
+item.pile_rod.thorium_fuel.name=Chicago Pile Thorium Fuel Rod
+item.pile_rod.thorium_fuel.desc=Thorium Fuel bred from natural Thorium.

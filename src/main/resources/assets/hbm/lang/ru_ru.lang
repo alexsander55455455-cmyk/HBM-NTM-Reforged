@@ -9129,3 +9129,8 @@ container.launchpadSoyuz=Стартовая площадка «Союз»
 desc.gui.soyuz.cargo=Доставка груза$Капсула доставляет груз по координатам$целеуказателя. Ракету можно использовать повторно.
 desc.gui.soyuz.satellite=Запуск спутника$Выводит спутник на орбиту.
 desc.gui.soyuz.fueling=Заправка
+
+item.pile_rod.thorium.name=Ториевый стержень Чикагской поленницы
+item.pile_rod.thorium.desc=Базовая мишень для наработки ториевого топлива.
+item.pile_rod.thorium_fuel.name=Стержень ториевого топлива Чикагской поленницы
+item.pile_rod.thorium_fuel.desc=Ториевое топливо, полученное облучением природного тория.

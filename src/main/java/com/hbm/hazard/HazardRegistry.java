@@ -515,6 +515,8 @@ public class HazardRegistry {
 		HazardSystem.register(new ItemStack(ModItems.pile_rod, 1, EnumPileRod.PU239.ordinal()), makeData(RADIATION, pu239 * billet * 3));
 		HazardSystem.register(new ItemStack(ModItems.pile_rod, 1, EnumPileRod.RGP.ordinal()), makeData(RADIATION, purg * billet * 3));
 		HazardSystem.register(new ItemStack(ModItems.pile_rod, 1, EnumPileRod.WASTE.ordinal()), makeData(RADIATION, wst * billet * 3));
+		HazardSystem.register(new ItemStack(ModItems.pile_rod, 1, EnumPileRod.THORIUM.ordinal()), makeData(RADIATION, th232 * billet * 3));
+		HazardSystem.register(new ItemStack(ModItems.pile_rod, 1, EnumPileRod.THORIUM_FUEL.ordinal()), makeData(RADIATION, thf * billet * 3));
 
 		HazardSystem.register(pile_rod_uranium, makeData(RADIATION, u * billet * 3));
 		HazardSystem.register(pile_rod_pu239, makeData(RADIATION, !GeneralConfig.enable528 ? purg * billet + pu239 * billet + u * billet : purg * billet + pu239 * billet + wst * billet));

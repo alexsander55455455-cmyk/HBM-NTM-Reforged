@@ -160,6 +160,9 @@ public class AssemblyMachineRecipes extends GenericRecipes<GenericRecipe> {
         this.register(new GenericRecipe("ass.pilenu").setup(40, 200)
                 .outputItems(new ItemStack(ModItems.pile_rod, 1, EnumPileRod.NU.ordinal()))
                 .inputItems(new OreDictStack(U.billet(), 3)).setGroup(autoPileRod, this));
+        this.register(new GenericRecipe("ass.pilethorium").setup(40, 200)
+                .outputItems(new ItemStack(ModItems.pile_rod, 1, EnumPileRod.THORIUM.ordinal()))
+                .inputItems(new OreDictStack(TH232.billet(), 3)).setGroup(autoPileRod, this));
 
         // powders
         this.register(new GenericRecipe("ass.partlith").setup(40, 100).outputItems(new ItemStack(ModItems.part_lithium, 8))
