@@ -1091,6 +1091,17 @@ public class AssemblyMachineRecipes extends GenericRecipes<GenericRecipe> {
                 .inputItemsEx(new ComparableStack(ModItems.item_expensive, 1, EnumExpensiveType.BRONZE_TUBES),
                         new ComparableStack(ModItems.circuit, 1, EnumCircuitType.QUANTUM),
                         new ComparableStack(ModItems.part_generic, 1, EnumPartType.LDE)));
+        this.register(new GenericRecipe("ass.launchpadlambda").setup(1_200, 5_000).outputItems(new ItemStack(ModBlocks.launchpad_lambda))
+                .inputItems(new ComparableStack(ModBlocks.concrete_rebar, 64), new OreDictStack(STEEL.plateWelded(), 24), new ComparableStack(ModItems.motor_bismuth, 4), new ComparableStack(ModItems.circuit, 1, EnumCircuitType.CONTROLLER_ADVANCED), new ComparableStack(ModItems.drive, 1, EnumDriveType.DISK_FLIGHTDATA_PROCESSED))
+                .inputItemsEx(new ComparableStack(ModBlocks.concrete_rebar, 64), new ComparableStack(ModItems.item_expensive, 8, EnumExpensiveType.BRONZE_TUBES), new ComparableStack(ModItems.circuit, 3, EnumCircuitType.CONTROLLER_ADVANCED), new ComparableStack(ModItems.drive, 16, EnumDriveType.DISK_FLIGHTDATA_PROCESSED)));
+        this.register(new GenericRecipe("ass.alclad").setup(200, 50_000).outputItems(new ItemStack(ModItems.part_generic, 1, EnumPartType.ALCLAD.ordinal()))
+                .inputItems(new OreDictStack(AL.dust(), 8), new OreDictStack(CU.plate(), 2)));
+        this.register(new GenericRecipe("ass.titaniumconstruction").setup(600, 1_000).outputItems(new ItemStack(ModItems.part_generic, 1, EnumPartType.ALCLAD.ordinal()))
+                .inputItems(new OreDictStack(TI.plate(), 4), new OreDictStack(ANY_PLASTIC.ingot(), 8)));
+        this.register(new GenericRecipe("ass.lambdarocket").setup(1_200, 50_000).outputItems(new ItemStack(ModItems.missile_lambda))
+                .inputItems(new ComparableStack(ModItems.part_generic, 32, EnumPartType.ALCLAD), new ComparableStack(ModItems.ingot_tungsten_carbide, 12), new ComparableStack(ModItems.rocket_fuel, 64), new ComparableStack(ModItems.circuit, 24, EnumCircuitType.BASIC), new ComparableStack(ModItems.drive, 1, EnumDriveType.DISK_FLIGHTDATA_PROCESSED))
+                .setPools(GenericRecipes.POOL_PREFIX_DISCOVER + "soyuz"));
+
         this.register(new GenericRecipe("ass.0gassembler").setup(600, 25_000).outputItems(new ItemStack(ModItems.satellite, 1, EnumSatelliteType.SCIENCE_ASSEMBLER.ordinal()))
                 .inputItems(new OreDictStack(AL.shell(), 4),
                         new OreDictStack(ANY_BISMOIDBRONZE.plateCast(), 4),

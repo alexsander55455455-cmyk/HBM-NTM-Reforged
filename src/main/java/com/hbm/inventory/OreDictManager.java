@@ -411,6 +411,7 @@ public class OreDictManager {
      */
     public static final DictFrame ANY_BISMOID = new DictFrame("AnyBismoid");
     public static final DictFrame ANY_ASH = new DictFrame("Ash");
+    public static final DictFrame WC = new DictFrame("TungstenCarbide");
     /**
      * Alternate, additional names for ore dict registration. Used mostly for DictGroups
      */
@@ -475,6 +476,7 @@ public class OreDictManager {
         W.ingot(ingot_tungsten).dust(powder_tungsten).crystal(crystal_tungsten).block(block_tungsten).ore(ore_tungsten, ore_nether_tungsten).oreNether(ore_nether_tungsten);
         AL.ingot(ingot_aluminium).dust(powder_aluminium).crystal(crystal_aluminium).plate(plate_aluminium).block(block_aluminium).ore(ore_aluminium);
         STEEL.ingot(ingot_steel).dustSmall(powder_steel_tiny).dust(powder_steel).plate(plate_steel).block(block_steel);
+        WC.ingot(ingot_tungsten_carbide);
         TCALLOY.rad(HazardRegistry.tcalloy).ingot(ingot_tcalloy).dust(powder_tcalloy).block(block_tcalloy);
         CDALLOY.ingot(ingot_cdalloy).block(block_cdalloy);
         BBRONZE.ingot(ingot_bismuth_bronze);

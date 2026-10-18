@@ -72,6 +72,9 @@ public class PyroOvenRecipes extends SerializableRecipe {
             recipes.add(new PyroOvenRecipe(10).in(new RecipesCommon.ComparableStack(ItemBedrockOreNew.make(ItemBedrockOreNew.BedrockOreGrade.RAD_BYPRODUCT, type))).out(new FluidStack(Fluids.VITRIOL, 50)).out(ItemBedrockOreNew.make(ItemBedrockOreNew.BedrockOreGrade.RAD_ROASTED, type)));
         }
 
+        recipes.add(new PyroOvenRecipe(300).in(new FluidStack(Fluids.SYNGAS, 2_000)).in(new RecipesCommon.OreDictStack(W.dust()))
+                .out(new FluidStack(Fluids.SPENTSTEAM, 1_000)).out(new ItemStack(ModItems.ingot_tungsten_carbide)));
+
         //syngas from coal
         recipes.add(new PyroOvenRecipe(100)
                 .in(new FluidStack(Fluids.STEAM, 500)).in(new RecipesCommon.OreDictStack(COAL.gem()))

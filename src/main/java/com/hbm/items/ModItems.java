@@ -2987,6 +2987,8 @@ public class ModItems {
     public static final Item memory = new ItemBattery(Long.MAX_VALUE / 100L, 100000000000000L, 100000000000000L, "memory").setMaxStackSize(1).setCreativeTab(null);
     public static final Item conveyor_wand = new ItemConveyorWand("conveyor_wand").setFull3D().setCreativeTab(MainRegistry.machineTab);
 
+    public static final Item ingot_tungsten_carbide = new ItemBakedBase("ingot_tungsten_carbide").setCreativeTab(MainRegistry.partsTab);
+    public static final Item missile_lambda = new ItemBakedBase("missile_lambda").setMaxStackSize(1).setCreativeTab(MainRegistry.missileTab);
     public static final Item part_generic = new ItemEnumMulti<>("part_generic", EnumPartType.VALUES, true, true).setCreativeTab(MainRegistry.partsTab);
     public static final Item item_secret = new ItemEnumMulti<>("item_secret", EnumSecretType.VALUES, true, true).setCreativeTab(null);
     public static final Item item_expensive = new ItemEnumMulti<>("item_expensive", EnumExpensiveType.VALUES, true, true).setCreativeTab(MainRegistry.partsTab);

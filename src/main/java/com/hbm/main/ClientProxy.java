@@ -954,6 +954,16 @@ public class ClientProxy extends ServerProxy {
                             }
                         }
                     }
+                    case "lambda" -> {
+                        if(new Vec3d(player.posX - x, player.posY - y, player.posZ - z).length() > 350) return;
+                        int count = Math.max(1, data.getInteger("count"));
+                        double width = data.getDouble("width");
+                        for(int i = 0; i < count; i++) {
+                            ParticleRocketFlame fx = new ParticleRocketFlame(world, x + rand.nextGaussian() * width, y, z + rand.nextGaussian() * width).setScale(1.5F);
+                            fx.setMotionY(-1 + rand.nextDouble() * .25);
+                            Minecraft.getMinecraft().effectRenderer.addEffect(fx);
+                        }
+                    }
                     case "meteor" -> {
                         if (new Vec3d(player.posX - x, player.posY - y, player.posZ - z).length() > 350)
                             return;

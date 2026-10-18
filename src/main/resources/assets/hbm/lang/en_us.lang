@@ -9110,3 +9110,14 @@ satellite.frequency=Frequency: %s
 satellite.connected=Connected: %s
 satellite.yes=Yes
 satellite.no=No
+
+tile.launchpad_lambda.name=Lambda-98 Launch Pad
+container.launchpadLambda=Lambda-98 Launch Pad
+item.missile_lambda.name=Lambda-98 Rocket
+item.part_generic.alclad.name=Alclad
+desc.gui.lambda.manual=Manual launch mode$Start the countdown after the rocket is ready.
+desc.gui.lambda.auto=Automatic launch mode$Launch when the rocket and payload are ready.
+desc.gui.soyuz.idle=Idle
+desc.gui.soyuz.loading=Loading
+desc.gui.soyuz.ready=Ready
+item.ingot_tungsten_carbide.name=Tungsten Carbide Ingot

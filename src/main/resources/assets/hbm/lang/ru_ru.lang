@@ -9112,3 +9112,14 @@ satellite.frequency=Частота: %s
 satellite.connected=Соединение: %s
 satellite.yes=Да
 satellite.no=Нет
+
+tile.launchpad_lambda.name=Стартовая площадка Lambda-98
+container.launchpadLambda=Стартовая площадка Lambda-98
+item.missile_lambda.name=Ракета Lambda-98
+item.part_generic.alclad.name=Алюминиевый композит
+desc.gui.lambda.manual=Ручной запуск$Начните отсчёт после подготовки ракеты.
+desc.gui.lambda.auto=Автоматический запуск$Запуск после подготовки ракеты и полезной нагрузки.
+desc.gui.soyuz.idle=Ожидание
+desc.gui.soyuz.loading=Загрузка
+desc.gui.soyuz.ready=Готово
+item.ingot_tungsten_carbide.name=Слиток карбида вольфрама
