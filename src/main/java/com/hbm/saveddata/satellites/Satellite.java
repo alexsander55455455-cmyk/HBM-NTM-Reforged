@@ -8,6 +8,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -139,6 +142,54 @@ public abstract class Satellite {
 	 * @return true only when the existing satellite actually accepted the part
 	 */
 	public boolean onPartDelivered(World world, ItemStack part) { return false; }
+
+    /** Stable telemetry names; existing registry keys and numeric IDs are unchanged. */
+    public String getType() {
+        switch(getID()) {
+            case 0: return "NOT_A_SPY_SATELLITE_:)";
+            case 1: return "DEPTH_SCANNER";
+            case 2: return "LEO_RADAR";
+            case 3: return "ORBITAL_FUN_PLATFORM_:)";
+            case 4: return "XEN_RELAY";
+            case 5: return "DIMENSIONAL_RELAY";
+            case 6: return "ASTEROID_MINER";
+            case 7: return "LUNAR_MINER";
+            case 8: return "PAYLOAD_UNKNOWN";
+            case 9: return "ORBITAL_TATOO_REMOVER";
+            case 10: return "UWB_EMISSION_DETECTOR";
+            case 11: return "NB_RAY_SCANNER";
+            case 12: return "DYSON_RELAY";
+            case 13: return "SCIENCE_PROBE";
+            default: return "UNKNOWN";
+        }
+    }
+
+    public ITextComponent[] getInfo(SatelliteOperationContext context) {
+        SatelliteTypeRegistry.Descriptor descriptor = SatelliteTypeRegistry.bySatellite(this);
+        if(descriptor == null) return new ITextComponent[] { new TextComponentString(getType()) };
+        ItemStack stack = descriptor.getCanonicalStack();
+        return new ITextComponent[] { new TextComponentTranslation(stack.getTranslationKey() + ".name") };
+    }
+
+    /** Commands with world effects need the actual target surface, never the caller's planet. */
+    public boolean sendCommand(SatelliteOperationContext context, String... command) {
+        if(context == null || context.getContextWorld().isRemote || !context.isTargetKnown() || command == null || command.length == 0) return false;
+        World surface = context.getSurfaceWorld();
+        if(surface != null) {
+            onCommand(surface, command);
+            return true;
+        }
+        switch(command[0]) {
+            case CMD_SETTARGET:
+            case CMD_GETTARGET:
+            case CMD_GETTARGETX:
+            case CMD_GETTARGETZ:
+                onCommandTarget(command);
+                return true;
+            default:
+                return false;
+        }
+    }
 
 	public void onCommand(World world, String... command) {
 		onCommandTarget(command);

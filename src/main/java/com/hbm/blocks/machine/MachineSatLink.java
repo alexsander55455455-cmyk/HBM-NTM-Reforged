@@ -18,6 +18,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.Style;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
@@ -78,8 +79,10 @@ public class MachineSatLink extends BlockDummyable implements ILookOverlay {
         if(!(tile instanceof TileEntityMachineSatLink)) return;
         TileEntityMachineSatLink link = (TileEntityMachineSatLink) tile;
         List<String> text = new ArrayList<>();
-        text.add("Freq: " + link.getFrequency());
-        text.add("Connected: " + (link.connected ? TextFormatting.GREEN + "Yes" : TextFormatting.RED + "No"));
+        text.add(I18nUtil.resolveKey("satellite.frequency", link.getFrequency()));
+        text.add(I18nUtil.resolveKey("satellite.connected", (link.connected ? TextFormatting.GREEN : TextFormatting.RED)
+                + I18nUtil.resolveKey(link.connected ? "satellite.yes" : "satellite.no")));
+        for(ITextComponent line : link.info) text.add(line.getFormattedText());
         ILookOverlay.printGeneric(event, I18nUtil.resolveKey(getTranslationKey() + ".name"),
                 0xffff00, 0x404000, text);
     }

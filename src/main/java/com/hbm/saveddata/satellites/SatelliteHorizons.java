@@ -1,5 +1,8 @@
 package com.hbm.saveddata.satellites;
 
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
+
 import com.hbm.entity.projectile.EntityTom;
 import com.hbm.main.AdvancementManager;
 import net.minecraft.entity.player.EntityPlayer;
@@ -81,6 +84,11 @@ public class SatelliteHorizons extends Satellite {
 		}
 		return true;
 	}
+
+    @Override
+    public ITextComponent[] getInfo(SatelliteOperationContext context) {
+        return new ITextComponent[] { super.getInfo(context)[0], new TextComponentTranslation(used ? "satellite.spent" : "satellite.ready") };
+    }
 
 	@Override
 	public float[] getColor() {

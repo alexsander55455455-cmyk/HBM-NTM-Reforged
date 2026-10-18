@@ -1,5 +1,8 @@
 package com.hbm.saveddata.satellites;
 
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
+
 import com.hbm.entity.logic.EntityDeathBlast;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
@@ -60,6 +63,15 @@ public class SatelliteLaser extends Satellite {
 		blast.detonator = player;
 		world.spawnEntity(blast);
 	}
+
+    @Override
+    public ITextComponent[] getInfo(SatelliteOperationContext context) {
+        World surface = context.getSurfaceWorld();
+        ITextComponent status = surface == null ? new TextComponentTranslation("satellite.surface_unloaded")
+                : canFire(surface) ? new TextComponentTranslation("satellite.ready")
+                : new TextComponentTranslation("satellite.cooldown", Math.max(0, (lastShot + CHARGE_TIME - surface.getTotalWorldTime()) / 20) + "s");
+        return new ITextComponent[] { super.getInfo(context)[0], status };
+    }
 
 	@Override
 	public float[] getColor() {

@@ -5,6 +5,9 @@ import com.hbm.entity.missile.EntitySatellitePod;
 import com.hbm.inventory.recipes.SpaceAssemblerRecipes;
 import com.hbm.inventory.recipes.loader.GenericRecipe;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
+import com.hbm.util.BobMathUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -158,6 +161,29 @@ public class SatelliteScience extends Satellite {
             int slot = item.getByte("slot") & 255;
             if(slot < requestableSlots.length) requestableSlots[slot] = new ItemStack(item);
         }
+    }
+
+    @Override
+    public ITextComponent[] getInfo(SatelliteOperationContext context) {
+        List<ITextComponent> lines = new ArrayList<>();
+        lines.add(super.getInfo(context)[0]);
+        // Tape drives request science data using their station world's clock.
+        long remaining = Math.max(0, lastScience + COOLDOWN - context.getContextWorld().getTotalWorldTime());
+        long seconds = remaining / 20;
+        lines.add(remaining == 0 ? new TextComponentTranslation("satellite.ready")
+                : new TextComponentTranslation("satellite.cooldown", seconds / 60 + "m" + seconds % 60 + "s"));
+        if(sensorCount > 0) {
+            lines.add(new TextComponentTranslation("satellite.sensors", sensorCount));
+            lines.add(new TextComponentTranslation("satellite.pending", BobMathUtil.format(SENSOR_DURATION - sensorProgress)));
+        }
+        if(driveOutput != null) lines.add(new TextComponentTranslation("satellite.data"));
+        if(assemblerCount > 0) {
+            lines.add(new TextComponentTranslation("satellite.assemblers", assemblerCount));
+            lines.add(new TextComponentTranslation("satellite.progress", Math.round(assemblerProgress * 100) + "%"));
+            lines.add(new TextComponentTranslation("satellite.queue", assemblerTasks.size()));
+        }
+        if(requestableSlots.length > 0) lines.add(new TextComponentTranslation("satellite.cargo"));
+        return lines.toArray(new ITextComponent[0]);
     }
 
     @Override

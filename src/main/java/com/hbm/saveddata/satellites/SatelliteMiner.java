@@ -1,5 +1,8 @@
 package com.hbm.saveddata.satellites;
 
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
+
 import com.hbm.itempool.ItemPoolsSatellite;
 import com.hbm.util.WeightedRandomObject;
 import net.minecraft.nbt.NBTTagCompound;
@@ -48,6 +51,14 @@ public class SatelliteMiner extends Satellite {
 	static {
 		registerCargo(SatelliteMiner.class, ItemPoolsSatellite.POOL_SAT_MINER);
 	}
+
+    @Override
+    public ITextComponent[] getInfo(SatelliteOperationContext context) {
+        long remaining = Math.max(0, lastOp + 10 * 60 * 1000L - System.currentTimeMillis());
+        return new ITextComponent[] { super.getInfo(context)[0], remaining == 0
+                ? new TextComponentTranslation("satellite.ready")
+                : new TextComponentTranslation("satellite.cooldown", (remaining + 999) / 1000 + "s") };
+    }
 
 	@Override
 	public float[] getColor() {
