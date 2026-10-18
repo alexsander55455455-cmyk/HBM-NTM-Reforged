@@ -157,6 +157,7 @@ public class EEAmmoPressRecipes {
         recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.ammo_50bmg_phosphorus, 8), new ComparableStack(ModItems.ammo_50bmg), new ComparableStack(ModItems.ammo_50bmg), new ComparableStack(ModItems.ammo_50bmg), new ComparableStack(ModItems.ammo_50bmg), new OreDictStack(P_WHITE.ingot()), new ComparableStack(ModItems.ammo_50bmg), new ComparableStack(ModItems.ammo_50bmg), new ComparableStack(ModItems.ammo_50bmg), new ComparableStack(ModItems.ammo_50bmg)));
         recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.ammo_rocket_phosphorus, 1), null, new OreDictStack(P_WHITE.ingot()), null, null, new ComparableStack(ModItems.ammo_rocket), null, null, null, null));
         recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.ammo_grenade_phosphorus, 2), new ComparableStack(ModItems.ammo_grenade), new OreDictStack(P_WHITE.ingot()), new ComparableStack(ModItems.ammo_grenade), null, null, null, null, null, null));
+        recipes.add(new AmmoPressRecipe(new ItemStack(ModItems.ammo_dgk, 1), null, new OreDictStack(STEEL.ingot(), 5), null, null, new OreDictStack(ANY_SMOKELESS.dust(), 5), null, null, new OreDictStack(GUNMETAL.ingot(), 5), null));
 
     }
 }

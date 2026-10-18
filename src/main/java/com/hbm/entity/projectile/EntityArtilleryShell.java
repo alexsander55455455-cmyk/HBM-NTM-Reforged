@@ -12,6 +12,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
@@ -53,6 +54,7 @@ public class EntityArtilleryShell extends EntityThrowableNT implements IChunkLoa
 
     private ItemStack cargo = null;
     private boolean awaitingTicketRestore;
+    public int health = 50;
 
     private static final DataParameter<Integer> TYPE = EntityDataManager.createKey(EntityArtilleryShell.class, DataSerializers.VARINT);
 
@@ -60,6 +62,16 @@ public class EntityArtilleryShell extends EntityThrowableNT implements IChunkLoa
         super(world);
         this.ignoreFrustumCheck = true;
         this.setSize(0.5F, 0.5F);
+    }
+
+    @Override
+    public boolean attackEntityFrom(DamageSource source, float amount) {
+        if(this.isEntityInvulnerable(source)) return false;
+        if(this.health > 0 && !this.world.isRemote) {
+            this.health -= (int) amount;
+            if(this.health <= 0) this.setDead();
+        }
+        return true;
     }
 
     @Override
@@ -296,6 +308,7 @@ public class EntityArtilleryShell extends EntityThrowableNT implements IChunkLoa
     @Override
     public void writeEntityToNBT(NBTTagCompound nbt) {
         super.writeEntityToNBT(nbt);
+        nbt.setInteger("health", this.health);
 
         nbt.setInteger("type", this.dataManager.get(TYPE));
         nbt.setBoolean("shouldWhistle", this.shouldWhistle);
@@ -311,6 +324,7 @@ public class EntityArtilleryShell extends EntityThrowableNT implements IChunkLoa
     @Override
     public void readEntityFromNBT(NBTTagCompound nbt) {
         super.readEntityFromNBT(nbt);
+        if(nbt.hasKey("health")) this.health = nbt.getInteger("health");
         awaitingTicketRestore = true;
 
         this.dataManager.set(TYPE, nbt.getInteger("type"));

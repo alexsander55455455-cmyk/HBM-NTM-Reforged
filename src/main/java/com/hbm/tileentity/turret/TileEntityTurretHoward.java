@@ -15,6 +15,8 @@ import com.hbm.packet.toclient.AuxParticlePacketNT;
 import com.hbm.particle.SpentCasing;
 import com.hbm.render.amlfrom1710.Vec3;
 import com.hbm.tileentity.IGUIProvider;
+import com.hbm.tileentity.IRadarCommandReceiver;
+import net.minecraft.entity.Entity;
 import com.hbm.util.EntityDamageUtil;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
@@ -32,7 +34,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @AutoRegister
-public class TileEntityTurretHoward extends TileEntityTurretBaseNT implements IGUIProvider {
+public class TileEntityTurretHoward extends TileEntityTurretBaseNT implements IGUIProvider, IRadarCommandReceiver {
+	private Entity radarTarget;
 	static List<Integer> configs = new ArrayList<>();
 
 	static {
@@ -128,11 +131,50 @@ public class TileEntityTurretHoward extends TileEntityTurretBaseNT implements IG
 				if(conf != null) {
 					this.consumeAmmo(conf.ammo);
 					this.world.playSound(null, pos.getX(), pos.getY(), pos.getZ(), HBMSoundHandler.howard_reload, SoundCategory.BLOCKS, 4.0F, 1F);
-					loaded = 200;
+					loaded = 100;
 				}
 			}
 		}
+		if(!world.isRemote && this.target != this.radarTarget) this.radarTarget = null;
 		super.update();
+		if(!world.isRemote && this.target != this.radarTarget) this.radarTarget = null;
+	}
+
+	@Override
+	protected boolean canTargetArtillery() {
+		return true;
+	}
+
+	@Override
+	protected double getTargetTrackingRange(Entity entity) {
+		return entity == this.radarTarget ? Double.MAX_VALUE : super.getTargetTrackingRange(entity);
+	}
+
+	@Override
+	public boolean sendCommandEntity(Entity entity) {
+		if(this.target != null || !this.isOn || entity == null || !entity.isEntityAlive()) return false;
+		if(!this.entityAcceptableTarget(entity)) return false;
+
+		this.radarTarget = entity;
+		if(!this.entityInLOS(entity)) {
+			this.radarTarget = null;
+			return false;
+		}
+		Vec3d position = this.getEntityPos(entity);
+		if(this.getTurretPos().distanceTo(position) > this.getDecetorRange() * 4) {
+			this.turnTowards(position);
+			this.radarTarget = null;
+			return true;
+		}
+		this.target = entity;
+		return true;
+	}
+
+	@Override
+	public boolean sendCommandPosition(int x, int y, int z) {
+		if(!this.isOn) return false;
+		this.turnTowards(new Vec3d(x, y, z));
+		return true;
 	}
 
 	@Override

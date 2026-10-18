@@ -9,6 +9,7 @@ import com.hbm.entity.logic.EntityBomber;
 import com.hbm.entity.missile.EntityMissileBaseNT;
 import com.hbm.entity.missile.EntityMissileCustom;
 import com.hbm.entity.projectile.EntityArtilleryShell;
+import com.hbm.entity.projectile.EntityArtilleryRocket;
 import com.hbm.entity.projectile.EntityBulletBaseMK4;
 import com.hbm.handler.CasingEjector;
 import com.hbm.handler.CompatHandler;
@@ -470,7 +471,7 @@ public abstract class TileEntityTurretBaseNT extends TileEntityMachineBase imple
 
 		List<Entity> entities = new ArrayList<>(allEntities.size()); // Pre-size the list to avoid resizes
 		for (Entity e : allEntities) {
-			if (!(e instanceof EntityArtilleryShell)) {
+			if (!(e instanceof EntityArtilleryShell) || this.canTargetArtillery()) {
 				entities.add(e);
 			}
 		}
@@ -587,6 +588,14 @@ public abstract class TileEntityTurretBaseNT extends TileEntityMachineBase imple
 	 * Checks line of sight to the passed entity along with whether the angle falls within swivel range
 	 * @return
 	 */
+	protected double getTargetTrackingRange(Entity entity) {
+		return this.getDecetorRange() * 1.1;
+	}
+
+	protected boolean canTargetArtillery() {
+		return false;
+	}
+
 	public boolean entityInLOS(Entity e) {
 
 		if(e.isDead || !e.isEntityAlive())
@@ -600,7 +609,7 @@ public abstract class TileEntityTurretBaseNT extends TileEntityMachineBase imple
 		Vec3d delta = new Vec3d(ent.x - pos.x, ent.y - pos.y, ent.z - pos.z);
 		double length = delta.length();
 
-		if(length < this.getDecetorGrace() || length > this.getDecetorRange() * 1.1) //the latter statement is only relevant for entities that have already been detected
+		if(length < this.getDecetorGrace() || length > this.getTargetTrackingRange(e)) //the latter statement is only relevant for entities that have already been detected
 			return false;
 
 		delta = delta.normalize();
@@ -679,6 +688,7 @@ public abstract class TileEntityTurretBaseNT extends TileEntityMachineBase imple
 			if(e instanceof EntityMinecart) return true;
 			//if(e instanceof EntityRailCarBase) return true; //TODO
 			if(e instanceof EntityBomber) return true;
+			if(this.canTargetArtillery() && (e instanceof EntityArtilleryShell || e instanceof EntityArtilleryRocket)) return true;
 			for(Class c : CompatExternal.turretTargetMachine) if(c.isAssignableFrom(e.getClass())) return true;
 
 		}

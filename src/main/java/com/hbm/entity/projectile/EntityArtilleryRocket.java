@@ -14,6 +14,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -37,6 +38,7 @@ public class EntityArtilleryRocket extends EntityThrowableNT
   public IRocketTargetingBehavior targeting;
   public IRocketSteeringBehavior steering;
   private boolean awaitingTicketRestore;
+  public int health = 100;
 
   private static final DataParameter<Integer> TYPE =
       EntityDataManager.createKey(EntityArtilleryRocket.class, DataSerializers.VARINT);
@@ -47,6 +49,16 @@ public class EntityArtilleryRocket extends EntityThrowableNT
 
     this.targeting = new RocketTargetingPredictive();
     this.steering = new RocketSteeringBallisticArc();
+  }
+
+  @Override
+  public boolean attackEntityFrom(DamageSource source, float amount) {
+    if(this.isEntityInvulnerable(source)) return false;
+    if(this.health > 0 && !this.world.isRemote) {
+      this.health -= (int) amount;
+      if(this.health <= 0) this.setDead();
+    }
+    return true;
   }
 
   @Override
@@ -216,6 +228,7 @@ public class EntityArtilleryRocket extends EntityThrowableNT
   @Override
   public void writeEntityToNBT(NBTTagCompound nbt) {
     super.writeEntityToNBT(nbt);
+    nbt.setInteger("health", this.health);
 
     if(this.lastTargetPos == null) {
       this.lastTargetPos = new Vec3d(posX, posY, posZ);
@@ -231,6 +244,7 @@ public class EntityArtilleryRocket extends EntityThrowableNT
   @Override
   public void readEntityFromNBT(NBTTagCompound nbt) {
     super.readEntityFromNBT(nbt);
+    if(nbt.hasKey("health")) this.health = nbt.getInteger("health");
     awaitingTicketRestore = true;
 
     this.lastTargetPos = new Vec3d(nbt.getDouble("targetX"), nbt.getDouble("targetY"), nbt.getDouble("targetZ"));
