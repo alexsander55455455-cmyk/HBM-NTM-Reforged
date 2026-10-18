@@ -1,0 +1,152 @@
+package com.hbm.inventory.gui;
+
+import org.lwjgl.opengl.GL11;
+
+import com.hbm.inventory.container.ContainerLaunchpadSoyuz;
+import com.hbm.Tags;
+import com.hbm.packet.PacketDispatcher;
+import com.hbm.packet.toserver.NBTControlPacket;
+import com.hbm.tileentity.machine.TileEntityLaunchpadSoyuz;
+import com.hbm.tileentity.machine.TileEntityLaunchpadSoyuz.SoyuzStatus;
+import com.hbm.util.I18nUtil;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+
+public class GUILaunchpadSoyuz extends GuiInfoContainer {
+
+	private static ResourceLocation texture = new ResourceLocation(Tags.MODID + ":textures/gui/machine/gui_launchpad_soyuz.png");
+	private TileEntityLaunchpadSoyuz launcher;
+	
+	public GUILaunchpadSoyuz(InventoryPlayer invPlayer, TileEntityLaunchpadSoyuz tedf) {
+		super(new ContainerLaunchpadSoyuz(invPlayer, tedf));
+		launcher = tedf;
+		
+		this.xSize = 194;
+		this.ySize = 244;
+	}
+	
+	@Override
+	public void drawScreen(int mouseX, int mouseY, float f) {
+		super.drawScreen(mouseX, mouseY, f);
+
+		launcher.tanks[0].renderTankInfo(this, mouseX, mouseY, guiLeft + 152, guiTop + 44, 16, 52);
+		launcher.tanks[1].renderTankInfo(this, mouseX, mouseY, guiLeft + 170, guiTop + 44, 16, 52);
+		this.drawElectricityInfo(this, mouseX, mouseY, guiLeft + 134, guiTop + 44, 16, 52, launcher.power, launcher.maxPower);
+		
+		this.drawCustomInfoStat(mouseX, mouseY, guiLeft + 79, guiTop + 52, 18, 18, mouseX, mouseY, I18nUtil.resolveKeyArray("desc.gui.soyuz.cargo"));
+		this.drawCustomInfoStat(mouseX, mouseY, guiLeft + 97, guiTop + 52, 18, 18, mouseX, mouseY, I18nUtil.resolveKeyArray("desc.gui.soyuz.satellite"));
+	}
+
+	@Override
+	protected void mouseClicked(int x, int y, int i) throws java.io.IOException {
+		super.mouseClicked(x, y, i);
+		
+		NBTTagCompound data = null;
+
+		if(guiLeft + 79 <= x && guiLeft + 79 + 18 > x && guiTop + 52 < y && guiTop + 52 + 18 >= y) {
+			data = new NBTTagCompound();
+			data.setBoolean("cargo", true);
+		}
+
+		if(guiLeft + 97 <= x && guiLeft + 97 + 18 > x && guiTop + 52 < y && guiTop + 52 + 18 >= y) {
+			data = new NBTTagCompound();
+			data.setBoolean("cargo", false);
+		}
+
+		if(guiLeft + 88 <= x && guiLeft + 88 + 18 > x && guiTop + 97 < y && guiTop + 97 + 18 >= y && launcher.soyuzStatus == SoyuzStatus.READY) {
+			data = new NBTTagCompound();
+			data.setBoolean("launch", true);
+		}
+		
+		if(data != null) {
+			mc.player.playSound(net.minecraft.init.SoundEvents.UI_BUTTON_CLICK, 1F, 1F);
+			PacketDispatcher.wrapper.sendToServer(new NBTControlPacket(data, launcher.getPos()));
+		}
+	}
+
+	@Override
+	protected void drawGuiContainerForegroundLayer( int i, int j) {
+		String name = I18n.format(launcher.getDefaultName());
+		
+		this.fontRenderer.drawString(name, this.xSize / 2 - this.fontRenderer.getStringWidth(name) / 2, 4, 0xffffff);
+		this.fontRenderer.drawString(I18n.format("container.inventory"), 17, this.ySize - 96 + 2, 4210752);
+		
+		if(launcher.soyuzStatus == SoyuzStatus.LAUNCHING) {
+			
+			int countdown = launcher.countdown;
+			
+			String secs = "" + countdown / 20;
+			String cents = "" + (countdown % 20) * 5;
+			if(secs.length() == 1) secs = "0" + secs;
+			if(cents.length() == 1) cents += "0";
+			
+			float scale = 1;
+			GL11.glScalef(scale, scale, 1);
+			this.fontRenderer.drawString(secs + ":" + cents, (int)(85 / scale), (int)(121 / scale), 0xff0000);
+			GL11.glScalef(1 / scale, 1 / scale, 1);
+			
+		} else if(launcher.soyuzStatus == SoyuzStatus.ABSENT) {
+			drawStatus("desc.gui.soyuz.idle", 0xff0000);
+		} else if(launcher.soyuzStatus == SoyuzStatus.LOADING) {
+			drawStatus("desc.gui.soyuz.loading", 0xff8000);
+		} else if(launcher.soyuzStatus == SoyuzStatus.FUELING) {
+			drawStatus("desc.gui.soyuz.fueling", 0xffff00);
+		} else if(launcher.soyuzStatus == SoyuzStatus.READY) {
+			drawStatus("desc.gui.soyuz.ready", 0x00ff00);
+		}
+	}
+	
+	@Override
+	protected void drawGuiContainerBackgroundLayer(float interp, int x, int y) {
+		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+		Minecraft.getMinecraft().getTextureManager().bindTexture(texture);
+		drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
+		
+		int power = (int) (launcher.power * 52 / launcher.maxPower);
+		drawTexturedModalRect(guiLeft + 134, guiTop + 96 - power, 194, 52 - power, 16, power);
+		
+		drawTexturedModalRect(guiLeft + 97 - (launcher.cargoMode ? 18 : 0), guiTop + 52, 228 - (launcher.cargoMode ? 18 : 0), 26, 18, 18);
+		
+		drawTexturedModalRect(guiLeft + 157, guiTop + 31, launcher.hasJetFuel() ? 210 : 216, 0, 6, 8);
+		drawTexturedModalRect(guiLeft + 175, guiTop + 31, launcher.hasOxidizer() ? 210 : 216, 0, 6, 8);
+		drawTexturedModalRect(guiLeft + 139, guiTop + 31, launcher.power >= launcher.CONSUMPTION ? 210 : 216, 0, 6, 8);
+		
+		int l = launcher.orbital();
+		if(l > 0) drawTexturedModalRect(guiLeft + 79, guiTop + 25, 210 + (l - 1) * 18, 8, 18, 18);
+		
+		if(launcher.loadedType == -1)
+			drawTexturedModalRect(guiLeft + 97, guiTop + 79, 210, 8, 18, 18);
+		else
+			drawTexturedModalRect(guiLeft + 97, guiTop + 79, 228, 8, 18, 18);
+		
+		if(!launcher.cargoMode) {
+			if(launcher.inventory.getStackInSlot(2).isEmpty())
+				drawTexturedModalRect(guiLeft + 97, guiTop + 25, 210, 8, 18, 18);
+			else
+				drawTexturedModalRect(guiLeft + 97, guiTop + 25, 228, 8, 18, 18);
+		} else {
+			if(launcher.inventory.getStackInSlot(1).isEmpty())
+				drawTexturedModalRect(guiLeft + 79, guiTop + 79, 210, 8, 18, 18);
+			else
+				drawTexturedModalRect(guiLeft + 79, guiTop + 79, 228, 8, 18, 18);
+		}
+		
+		if(launcher.soyuzStatus == SoyuzStatus.LAUNCHING)
+			drawTexturedModalRect(guiLeft + 88, guiTop + 97, 210, 44, 18, 18);
+		
+		launcher.tanks[0].renderTank(guiLeft + 152, guiTop + 96, this.zLevel, 16, 52);
+		launcher.tanks[1].renderTank(guiLeft + 170, guiTop + 96, this.zLevel, 16, 52);
+	}
+    private void drawStatus(String key, int color) {
+        String text = I18n.format(key);
+        float scale = Math.min(1F, 48F / Math.max(1, fontRenderer.getStringWidth(text)));
+        GL11.glPushMatrix();
+        GL11.glTranslatef(97, 125, 0); GL11.glScalef(scale, scale, 1);
+        fontRenderer.drawString(text, -fontRenderer.getStringWidth(text) / 2, -4, color);
+        GL11.glPopMatrix();
+    }
+}

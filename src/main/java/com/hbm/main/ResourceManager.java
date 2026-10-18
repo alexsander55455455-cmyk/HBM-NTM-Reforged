@@ -1297,6 +1297,8 @@ public class ResourceManager {
     public static final ResourceLocation soyuz_launcher_support_base_tex = new ResourceLocation(Tags.MODID, "textures/models/soyuz_launcher/launcher_support_base.png");
     public static final ResourceLocation soyuz_launcher_support_tex = new ResourceLocation(Tags.MODID, "textures/models/soyuz_launcher/launcher_support.png");
     //Missile Parts
+    public static final HFRWavefrontObject launchpad_soyuz = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/machines/launchpad_soyuz.obj"));
+    public static final ResourceLocation launchpad_soyuz_tex = new ResourceLocation(Tags.MODID, "textures/models/machines/launchpad_soyuz.png");
     public static final HFRWavefrontObject launchpad_lambda = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/machines/launchpad_lambda.obj"));
     public static final HFRWavefrontObject lambda_rocket = new HFRWavefrontObject(new ResourceLocation(Tags.MODID, "models/lambda_rocket.obj"));
     public static final ResourceLocation launchpad_lambda_tex = new ResourceLocation(Tags.MODID, "textures/models/machines/launchpad_lambda.png");

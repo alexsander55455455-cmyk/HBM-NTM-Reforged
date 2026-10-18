@@ -9121,3 +9121,9 @@ desc.gui.soyuz.idle=Idle
 desc.gui.soyuz.loading=Loading
 desc.gui.soyuz.ready=Ready
 item.ingot_tungsten_carbide.name=Tungsten Carbide Ingot
+
+tile.launchpad_soyuz.name=Soyuz Launch Pad
+container.launchpadSoyuz=Soyuz Launch Pad
+desc.gui.soyuz.cargo=Cargo Mode$Drops cargo via parachute$over the designator's coordinates.$The Soyuz can be reused.
+desc.gui.soyuz.satellite=Satellite Mode$Launches a satellite into orbit.
+desc.gui.soyuz.fueling=Fueling
