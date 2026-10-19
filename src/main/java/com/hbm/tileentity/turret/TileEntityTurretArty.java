@@ -1,5 +1,6 @@
 package com.hbm.tileentity.turret;
 
+import com.hbm.api.redstoneoverradio.IRORInteractive;
 import com.hbm.entity.projectile.EntityArtilleryShell;
 import com.hbm.handler.CasingEjector;
 import com.hbm.handler.threading.PacketThreading;
@@ -36,6 +37,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @AutoRegister
@@ -463,6 +465,24 @@ public class TileEntityTurretArty extends TileEntityTurretBaseArtillery implemen
             return new Object[]{false};
         targetQueue.add(new Vec3d(args.checkDouble(0), args.checkDouble(1), args.checkDouble(2)));
         return new Object[]{true};
+    }
+
+    @Override
+    public String[] getFunctionInfo() {
+        String[] inherited = super.getFunctionInfo();
+        String[] functions = Arrays.copyOf(inherited, inherited.length + 1);
+        functions[inherited.length] = PREFIX_FUNCTION + "setmode" + NAME_SEPARATOR + "mode";
+        return functions;
+    }
+
+    @Override
+    public String runRORFunction(String name, String[] params) {
+        super.runRORFunction(name, params);
+        if ((PREFIX_FUNCTION + "setmode").equals(name) && params.length == 1) {
+            this.mode = (short) IRORInteractive.parseInt(params[0], MODE_ARTILLERY, MODE_MANUAL);
+            this.markChanged();
+        }
+        return null;
     }
 
     @Override
