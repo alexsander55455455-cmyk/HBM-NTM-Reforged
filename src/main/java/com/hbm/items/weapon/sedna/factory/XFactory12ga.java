@@ -173,7 +173,7 @@ public class XFactory12ga {
 
     public static BulletConfig makeShredderSubmunition(BulletConfig original) {
         BulletConfig cfg = original.clone();
-        cfg.setRicochetAngle(90).setRicochetCount(3).setVel(0.5F).setLife(50).setupDamageClass(DamageResistanceHandler.DamageClass.LASER).setOnRicochet(LAMBDA_SHREDDER_RICOCHET);
+        cfg.setRicochetAngle(90).setRicochetCount(3).setVel(0.5F).setLife(50).setupDamageClass(DamageResistanceHandler.DamageClass.PLASMA).setOnRicochet(LAMBDA_SHREDDER_RICOCHET);
         return cfg;
     }
 
@@ -205,7 +205,7 @@ public class XFactory12ga {
                 spawnPulse(bullet.world, mop, bullet.rotationYaw, bullet.rotationPitch);
 
                 List<Entity> blast = bullet.world.getEntitiesWithinAABBExcludingEntity(bullet, new AxisAlignedBB(bullet.posX, bullet.posY, bullet.posZ, bullet.posX, bullet.posY, bullet.posZ).expand(0.5, 0.5, 0.5));
-                DamageSource source = BulletConfig.getDamage(bullet, bullet.getThrower(), DamageResistanceHandler.DamageClass.LASER);
+                DamageSource source = BulletConfig.getDamage(bullet, bullet.getThrower(), DamageResistanceHandler.DamageClass.PLASMA);
 
                 for(Entity e : blast) {
                     if(!e.isEntityAlive()) continue;
