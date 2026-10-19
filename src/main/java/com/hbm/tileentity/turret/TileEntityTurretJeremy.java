@@ -100,7 +100,7 @@ public class TileEntityTurretJeremy extends TileEntityTurretBaseNT implements IG
 
             if (conf != null) {
                 this.cachedCasingConfig = conf.casing;
-                this.spawnBullet(conf, 50F);
+                this.spawnBullet(conf, this.getBaseDamage());
                 this.consumeAmmo(conf.ammo);
                 this.world.playSound(null, pos.getX(), pos.getY(), pos.getZ(), HBMSoundHandler.jeremy_fire, SoundCategory.BLOCKS, 4.0F, 1.0F);
 
@@ -178,4 +178,5 @@ public class TileEntityTurretJeremy extends TileEntityTurretBaseNT implements IG
     }
 
 
+    public float getBaseDamage() { return XFactoryTurret.TURRET_JEREMY_DAMAGE.get(); }
 }

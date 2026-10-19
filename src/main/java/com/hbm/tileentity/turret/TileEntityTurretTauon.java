@@ -1,5 +1,7 @@
 package com.hbm.tileentity.turret;
 
+import com.hbm.items.weapon.sedna.factory.XFactoryTurret;
+
 import com.hbm.handler.threading.PacketThreading;
 import com.hbm.interfaces.AutoRegister;
 import com.hbm.inventory.container.ContainerTurretBase;
@@ -132,7 +134,7 @@ public class TileEntityTurretTauon extends TileEntityTurretBaseNT implements IGU
 			BulletConfig conf = this.getFirstConfigLoaded();
 			
 			if(conf != null && this.target != null) {
-				this.target.attackEntityFrom(ModDamageSource.electricity, 30F + world.rand.nextInt(11));
+				this.target.attackEntityFrom(ModDamageSource.electricity, this.getBaseDamage() + world.rand.nextInt(11));
 				this.consumeAmmo(conf.ammo);
 				this.world.playSound(null, pos.getX(), pos.getY(), pos.getZ(), HBMSoundHandler.tauShoot, SoundCategory.BLOCKS, 4.0F, 0.9F + world.rand.nextFloat() * 0.3F);
 				this.shot = true;
@@ -182,4 +184,5 @@ public class TileEntityTurretTauon extends TileEntityTurretBaseNT implements IGU
 	public GuiScreen provideGUI(int ID, EntityPlayer player, World world, int x, int y, int z) {
 		return new GUITurretTauon(player.inventory, this);
 	}
+	public float getBaseDamage() { return XFactoryTurret.TURRET_TAUON_DAMAGE.get(); }
 }

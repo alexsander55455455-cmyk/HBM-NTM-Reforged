@@ -1,5 +1,8 @@
 package com.hbm.items.weapon.sedna.factory;
 
+import com.hbm.config.RunningConfig.ConfigWrapper;
+import com.hbm.config.ServerConfig;
+
 import com.hbm.entity.effect.EntityNukeTorex;
 import com.hbm.entity.logic.EntityNukeExplosionMK5;
 import com.hbm.entity.projectile.EntityBulletBaseMK4;
@@ -39,6 +42,13 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 public class XFactoryFolly {
+
+    public static ConfigWrapper<Float> GUN_FOLLY_DAMAGE = new ConfigWrapper<>(1_000F);
+
+    public static void initConfig() {
+        ServerConfig.configMap.put("GUN_FOLLY_DAMAGE", GUN_FOLLY_DAMAGE);
+    }
+
     public static BulletConfig folly_sm;
     public static BulletConfig folly_nuke;
 
@@ -103,7 +113,7 @@ public class XFactoryFolly {
         ModItems.gun_folly = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.SECRET, "gun_folly", new GunConfig()
                 .dura(0).draw(40).crosshair(Crosshair.NONE)
                 .rec(new Receiver(0)
-                        .dmg(1_000F).delay(26).dryfire(false).reload(160).jam(0).sound(HBMSoundHandler.loudestNoiseOnEarth, 100.0F, 1.0F)
+                        .dmg(GUN_FOLLY_DAMAGE).delay(26).dryfire(false).reload(160).jam(0).sound(HBMSoundHandler.loudestNoiseOnEarth, 100.0F, 1.0F)
                         .mag(new MagazineSingleReload(0, 1).addConfigs(folly_sm, folly_nuke))
                         .offset(0.75, -0.0625, -0.1875D).offsetScoped(0.75, -0.0625, -0.125D)
                         .canFire(LAMBDA_CAN_FIRE).fire(LAMBDA_FIRE).recoil(LAMBDA_RECOIL_FOLLY))

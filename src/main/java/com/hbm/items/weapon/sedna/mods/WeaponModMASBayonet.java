@@ -51,7 +51,7 @@ public class WeaponModMASBayonet extends WeaponModBase {
 				RayTraceResult mop = EntityDamageUtil.getMouseOver(ctx.getPlayer(), 3.0D);
 				if(mop != null) {
 					if(mop.typeOfHit == mop.typeOfHit.ENTITY) {
-						float damage = 15F;
+						float damage = XFactory762mm.GUN_SOUTH_STAR_BAYONET_DAMAGE.get();
 						mop.entityHit.attackEntityFrom(DamageSource.causePlayerDamage(ctx.getPlayer()), damage);
 						mop.entityHit.motionX *= 2;
 						mop.entityHit.motionZ *= 2;

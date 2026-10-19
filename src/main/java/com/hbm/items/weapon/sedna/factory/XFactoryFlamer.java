@@ -1,5 +1,8 @@
 package com.hbm.items.weapon.sedna.factory;
 
+import com.hbm.config.RunningConfig.ConfigWrapper;
+import com.hbm.config.ServerConfig;
+
 import com.hbm.capability.HbmLivingCapability;
 import com.hbm.capability.HbmLivingProps;
 import com.hbm.entity.effect.EntityFireLingering;
@@ -39,6 +42,17 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 public class XFactoryFlamer {
+
+    public static ConfigWrapper<Float> GUN_FLAMER_DAMAGE = new ConfigWrapper<>(1F);
+    public static ConfigWrapper<Float> GUN_TOPAZ_DAMAGE = new ConfigWrapper<>(1.5F);
+    public static ConfigWrapper<Float> GUN_DAYBREAKER_DAMAGE = new ConfigWrapper<>(25F);
+
+    public static void initConfig() {
+        ServerConfig.configMap.put("GUN_FLAMER_DAMAGE", GUN_FLAMER_DAMAGE);
+        ServerConfig.configMap.put("GUN_TOPAZ_DAMAGE", GUN_TOPAZ_DAMAGE);
+        ServerConfig.configMap.put("GUN_DAYBREAKER_DAMAGE", GUN_DAYBREAKER_DAMAGE);
+    }
+
     public static BulletConfig flame_nograv;
 
     public static BulletConfig flame_diesel;
@@ -146,7 +160,7 @@ public class XFactoryFlamer {
         ModItems.gun_flamer_sedna = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.A_SIDE, "gun_flamer_sedna", new GunConfig()
                 .dura(20_000).draw(10).inspect(17).crosshair(Crosshair.L_CIRCLE)
                 .rec(new Receiver(0)
-                        .dmg(1F).spreadHipfire(0F).delay(1).auto(true).reload(90).jam(17)
+                        .dmg(GUN_FLAMER_DAMAGE).spreadHipfire(0F).delay(1).auto(true).reload(90).jam(17)
                         .mag(new MagazineFullReload(0, 300).addConfigs(flame_diesel, flame_gas, flame_napalm, flame_balefire))
                         .offset(0.75, -0.0625, -0.25D)
                         .setupStandardFire())
@@ -156,7 +170,7 @@ public class XFactoryFlamer {
         ModItems.gun_flamer_topaz = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.B_SIDE, "gun_flamer_topaz", new GunConfig()
                 .dura(20_000).draw(10).inspect(17).crosshair(Crosshair.L_CIRCLE)
                 .rec(new Receiver(0)
-                        .dmg(1.5F).spreadHipfire(0F).delay(1).auto(true).reload(90).jam(17)
+                        .dmg(GUN_TOPAZ_DAMAGE).spreadHipfire(0F).delay(1).auto(true).reload(90).jam(17)
                         .mag(new MagazineFullReload(0, 500).addConfigs(flame_topaz_diesel, flame_topaz_gas, flame_topaz_napalm, flame_topaz_balefire))
                         .offset(0.75, -0.0625, -0.25D)
                         .setupStandardFire())
@@ -166,7 +180,7 @@ public class XFactoryFlamer {
         ModItems.gun_flamer_daybreaker = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.LEGENDARY, "gun_flamer_daybreaker", new GunConfig()
                 .dura(20_000).draw(10).inspect(17).crosshair(Crosshair.L_CIRCLE)
                 .rec(new Receiver(0)
-                        .dmg(25F).spreadHipfire(0F).delay(10).auto(true).reload(90).jam(17).sound(HBMSoundHandler.fireBlackPowder, 1.0F, 1.0F)
+                        .dmg(GUN_DAYBREAKER_DAMAGE).spreadHipfire(0F).delay(10).auto(true).reload(90).jam(17).sound(HBMSoundHandler.fireBlackPowder, 1.0F, 1.0F)
                         .mag(new MagazineFullReload(0, 50).addConfigs(flame_daybreaker_diesel, flame_daybreaker_gas, flame_daybreaker_napalm, flame_daybreaker_balefire))
                         .offset(0.75, -0.0625, -0.25D)
                         .setupStandardFire())

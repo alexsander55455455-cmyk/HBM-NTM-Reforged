@@ -27,8 +27,8 @@ public class RunningConfig {
 
     public static void readConfig(File config, HashMap<String, ConfigWrapper> configMap) {
 
-        try {
-            JsonObject json = gson.fromJson(new FileReader(config), JsonObject.class);
+        try(FileReader reader = new FileReader(config)) {
+            JsonObject json = gson.fromJson(reader, JsonObject.class);
 
             for(Entry<String, ConfigWrapper> line : configMap.entrySet()) {
 

@@ -1,5 +1,7 @@
 package com.hbm.tileentity.turret;
 
+import com.hbm.items.weapon.sedna.factory.XFactoryTurret;
+
 import com.hbm.handler.threading.PacketThreading;
 import com.hbm.interfaces.AutoRegister;
 import com.hbm.inventory.container.ContainerTurretBase;
@@ -81,7 +83,7 @@ public class TileEntityTurretChekhov extends TileEntityTurretBaseNT implements I
 
 			if(conf != null) {
 				this.cachedCasingConfig = conf.casing;
-				this.spawnBullet(conf, 10F);
+				this.spawnBullet(conf, this.getBaseDamage());
 				this.consumeAmmo(conf.ammo);
 				this.world.playSound(null, pos.getX(), pos.getY(), pos.getZ(), HBMSoundHandler.chekhov_fire, SoundCategory.BLOCKS, 2.0F, 1.0F);
 				
@@ -160,4 +162,5 @@ public class TileEntityTurretChekhov extends TileEntityTurretBaseNT implements I
 		return new GUITurretChekhov(player.inventory, this);
 	}
 
+	public float getBaseDamage() { return XFactoryTurret.TURRET_CHEKHOV_DAMAGE.get(); }
 }

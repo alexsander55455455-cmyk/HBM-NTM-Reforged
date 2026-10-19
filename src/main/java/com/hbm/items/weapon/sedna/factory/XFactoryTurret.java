@@ -1,5 +1,8 @@
 package com.hbm.items.weapon.sedna.factory;
 
+import com.hbm.config.RunningConfig.ConfigWrapper;
+import com.hbm.config.ServerConfig;
+
 import com.hbm.explosion.vanillant.ExplosionVNT;
 import com.hbm.explosion.vanillant.standard.*;
 import com.hbm.items.ItemAmmoEnums;
@@ -9,6 +12,33 @@ import com.hbm.particle.SpentCasing;
 import net.minecraft.item.ItemStack;
 
 public class XFactoryTurret {
+
+    public static ConfigWrapper<Float> TURRET_CHEKHOV_DAMAGE = new ConfigWrapper<>(10F);
+    public static ConfigWrapper<Float> TURRET_FRIENDLY_DAMAGE = new ConfigWrapper<>(10F);
+    public static ConfigWrapper<Float> TURRET_FRITZ_DAMAGE = new ConfigWrapper<>(1F);
+    public static ConfigWrapper<Float> TURRET_HOWARD_DAMAGE = new ConfigWrapper<>(2F);
+    public static ConfigWrapper<Float> TURRET_METHUSALEM_DAMAGE = new ConfigWrapper<>(2F);
+    public static ConfigWrapper<Float> TURRET_JEREMY_DAMAGE = new ConfigWrapper<>(50F);
+    public static ConfigWrapper<Float> TURRET_MAXWELL_DAMAGE = new ConfigWrapper<>(0.25F);
+    public static ConfigWrapper<Float> TURRET_RICHARD_DAMAGE = new ConfigWrapper<>(30F);
+    public static ConfigWrapper<Float> TURRET_BROWN_DAMAGE = new ConfigWrapper<>(5F);
+    public static ConfigWrapper<Float> TURRET_EDWIN_DAMAGE = new ConfigWrapper<>(5F);
+    public static ConfigWrapper<Float> TURRET_TAUON_DAMAGE = new ConfigWrapper<>(30F);
+
+    public static void initConfig() {
+        ServerConfig.configMap.put("TURRET_CHEKHOV_DAMAGE", TURRET_CHEKHOV_DAMAGE);
+        ServerConfig.configMap.put("TURRET_FRIENDLY_DAMAGE", TURRET_FRIENDLY_DAMAGE);
+        ServerConfig.configMap.put("TURRET_FRITZ_DAMAGE", TURRET_FRITZ_DAMAGE);
+        ServerConfig.configMap.put("TURRET_HOWARD_DAMAGE", TURRET_HOWARD_DAMAGE);
+        ServerConfig.configMap.put("TURRET_METHUSALEM_DAMAGE", TURRET_METHUSALEM_DAMAGE);
+        ServerConfig.configMap.put("TURRET_JEREMY_DAMAGE", TURRET_JEREMY_DAMAGE);
+        ServerConfig.configMap.put("TURRET_MAXWELL_DAMAGE", TURRET_MAXWELL_DAMAGE);
+        ServerConfig.configMap.put("TURRET_RICHARD_DAMAGE", TURRET_RICHARD_DAMAGE);
+        ServerConfig.configMap.put("TURRET_BROWN_DAMAGE", TURRET_BROWN_DAMAGE);
+        ServerConfig.configMap.put("TURRET_EDWIN_DAMAGE", TURRET_EDWIN_DAMAGE);
+        ServerConfig.configMap.put("TURRET_TAUON_DAMAGE", TURRET_TAUON_DAMAGE);
+    }
+
     public static BulletConfig dgk_normal;
 
     public static SpentCasing CASINNG240MM = new SpentCasing(SpentCasing.CasingType.BOTTLENECK).setScale(7.5F).setBounceMotion(0.02F, 0.05F).setColor(SpentCasing.COLOR_CASE_BRASS).setupSmoke(1F, 0.5D, 60, 20);

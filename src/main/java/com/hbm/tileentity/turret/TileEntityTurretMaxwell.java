@@ -1,5 +1,7 @@
 package com.hbm.tileentity.turret;
 
+import com.hbm.items.weapon.sedna.factory.XFactoryTurret;
+
 import com.hbm.blocks.ModBlocks;
 import com.hbm.handler.threading.PacketThreading;
 import com.hbm.interfaces.AutoRegister;
@@ -264,7 +266,7 @@ public class TileEntityTurretMaxwell extends TileEntityTurretBaseNT
         EntityDamageUtil.attackEntityFromIgnoreIFrame(
             this.target,
             ModDamageSource.microwave,
-            (this.blackLevel * 10 + this.redLevel + 1F) * 0.25F);
+            (this.blackLevel * 10 + this.redLevel + 1F) * this.getBaseDamage());
       }
 
       if (pinkLevel > 0) this.target.setFire(this.pinkLevel * 3);
@@ -352,4 +354,5 @@ public class TileEntityTurretMaxwell extends TileEntityTurretBaseNT
   public GuiScreen provideGUI(int ID, EntityPlayer player, World world, int x, int y, int z) {
     return new GUITurretMaxwell(player.inventory, this);
   }
+    public float getBaseDamage() { return XFactoryTurret.TURRET_MAXWELL_DAMAGE.get(); }
 }

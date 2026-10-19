@@ -1,5 +1,8 @@
 package com.hbm.items.weapon.sedna.factory;
 
+import com.hbm.config.RunningConfig.ConfigWrapper;
+import com.hbm.config.ServerConfig;
+
 import com.hbm.items.ItemEnums;
 import com.hbm.items.ModItems;
 import com.hbm.items.weapon.sedna.BulletConfig;
@@ -24,6 +27,21 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class XFactory9mm {
+
+    public static ConfigWrapper<Float> GUN_GREASEGUN_DAMAGE = new ConfigWrapper<>(3F);
+    public static ConfigWrapper<Float> GUN_LONG_PISTOL_DAMAGE = new ConfigWrapper<>(25F);
+    public static ConfigWrapper<Float> GUN_UZI_DAMAGE = new ConfigWrapper<>(3F);
+    public static ConfigWrapper<Float> GUN_UZI_AKIMBO_LEFT_DAMAGE = new ConfigWrapper<>(3F);
+    public static ConfigWrapper<Float> GUN_UZI_AKIMBO_RIGHT_DAMAGE = new ConfigWrapper<>(3F);
+
+    public static void initConfig() {
+        ServerConfig.configMap.put("GUN_GREASEGUN_DAMAGE", GUN_GREASEGUN_DAMAGE);
+        ServerConfig.configMap.put("GUN_LONG_PISTOL_DAMAGE", GUN_LONG_PISTOL_DAMAGE);
+        ServerConfig.configMap.put("GUN_UZI_DAMAGE", GUN_UZI_DAMAGE);
+        ServerConfig.configMap.put("GUN_UZI_AKIMBO_LEFT_DAMAGE", GUN_UZI_AKIMBO_LEFT_DAMAGE);
+        ServerConfig.configMap.put("GUN_UZI_AKIMBO_RIGHT_DAMAGE", GUN_UZI_AKIMBO_RIGHT_DAMAGE);
+    }
+
     public static BulletConfig p9_sp;
     public static BulletConfig p9_fmj;
     public static BulletConfig p9_jhp;
@@ -43,7 +61,7 @@ public class XFactory9mm {
         ModItems.gun_greasegun = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.A_SIDE, "gun_greasegun", new GunConfig()
                 .dura(3_000).draw(20).inspect(31).crosshair(RenderScreenOverlay.Crosshair.L_CIRCLE).smoke(LAMBDA_SMOKE)
                 .rec(new Receiver(0)
-                        .dmg(3F).delay(4).dry(40).auto(true).spread(0.015F).reload(60).jam(55).sound(HBMSoundHandler.fireGreaseGun, 1.0F, 1.0F)
+                        .dmg(GUN_GREASEGUN_DAMAGE).delay(4).dry(40).auto(true).spread(0.015F).reload(60).jam(55).sound(HBMSoundHandler.fireGreaseGun, 1.0F, 1.0F)
                         .mag(new MagazineFullReload(0, 30).addConfigs(p9_sp, p9_fmj, p9_jhp, p9_ap))
                         .offset(1, -0.0625 * 2.5, -0.25D)
                         .setupStandardFire().recoil(LAMBDA_RECOIL_GREASEGUN))
@@ -54,7 +72,7 @@ public class XFactory9mm {
         ModItems.gun_lag = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.A_SIDE, "gun_lag", new GunConfig()
                 .dura(1_700).draw(7).inspect(31).crosshair(RenderScreenOverlay.Crosshair.CIRCLE).smoke(LAMBDA_SMOKE)
                 .rec(new Receiver(0)
-                        .dmg(25F).delay(4).dry(10).spread(0.005F).reload(53).jam(44).sound(HBMSoundHandler.firePistol, 1.0F, 1.0F)
+                        .dmg(GUN_LONG_PISTOL_DAMAGE).delay(4).dry(10).spread(0.005F).reload(53).jam(44).sound(HBMSoundHandler.firePistol, 1.0F, 1.0F)
                         .mag(new MagazineFullReload(0, 17).addConfigs(p9_sp, p9_fmj, p9_jhp, p9_ap))
                         .offset(1, -0.0625 * 2.5, -0.25D)
                         .setupStandardFire().recoil(LAMBDA_RECOIL_LAG))
@@ -65,7 +83,7 @@ public class XFactory9mm {
         ModItems.gun_uzi_sedna = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.A_SIDE, "gun_uzi_sedna", new GunConfig()
                 .dura(3_000).draw(15).inspect(31).crosshair(RenderScreenOverlay.Crosshair.CIRCLE).smoke(LAMBDA_SMOKE)
                 .rec(new Receiver(0)
-                        .dmg(3F).delay(2).dry(25).auto(true).spread(0.005F).reload(55).jam(50).sound(HBMSoundHandler.fireUzi, 1.0F, 1.0F)
+                        .dmg(GUN_UZI_DAMAGE).delay(2).dry(25).auto(true).spread(0.005F).reload(55).jam(50).sound(HBMSoundHandler.fireUzi, 1.0F, 1.0F)
                         .mag(new MagazineFullReload(0, 30).addConfigs(p9_sp, p9_fmj, p9_jhp, p9_ap))
                         .offset(1, -0.0625 * 2.5, -0.25D)
                         .setupStandardFire().recoil(LAMBDA_RECOIL_UZI))
@@ -75,7 +93,7 @@ public class XFactory9mm {
         ModItems.gun_uzi_akimbo = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.B_SIDE, "gun_uzi_akimbo",
                 new GunConfig().dura(3_000).draw(15).inspect(31).crosshair(RenderScreenOverlay.Crosshair.CIRCLE).smoke(LAMBDA_SMOKE)
                         .rec(new Receiver(0)
-                                .dmg(3F).spreadHipfire(0F).delay(2).dry(25).auto(true).spread(0.005F).reload(55).jam(50).sound(HBMSoundHandler.fireUzi, 1.0F, 1.0F)
+                                .dmg(GUN_UZI_AKIMBO_LEFT_DAMAGE).spreadHipfire(0F).delay(2).dry(25).auto(true).spread(0.005F).reload(55).jam(50).sound(HBMSoundHandler.fireUzi, 1.0F, 1.0F)
                                 .mag(new MagazineFullReload(0, 30).addConfigs(p9_sp, p9_fmj, p9_jhp, p9_ap))
                                 .offset(1, -0.0625 * 2.5, 0.375D)
                                 .setupStandardFire().recoil(LAMBDA_RECOIL_UZI))
@@ -84,7 +102,7 @@ public class XFactory9mm {
                         .anim(LAMBDA_UZI_ANIMS).orchestra(Orchestras.ORCHESTRA_UZI_AKIMBO),
                 new GunConfig().dura(3_000).draw(15).inspect(31).crosshair(RenderScreenOverlay.Crosshair.CIRCLE).smoke(LAMBDA_SMOKE)
                         .rec(new Receiver(0)
-                                .dmg(3F).spreadHipfire(0F).delay(2).dry(25).auto(true).spread(0.005F).reload(55).jam(50).sound(HBMSoundHandler.fireUzi, 1.0F, 1.0F)
+                                .dmg(GUN_UZI_AKIMBO_RIGHT_DAMAGE).spreadHipfire(0F).delay(2).dry(25).auto(true).spread(0.005F).reload(55).jam(50).sound(HBMSoundHandler.fireUzi, 1.0F, 1.0F)
                                 .mag(new MagazineFullReload(1, 30).addConfigs(p9_sp, p9_fmj, p9_jhp, p9_ap))
                                 .offset(1, -0.0625 * 2.5, -0.375D)
                                 .setupStandardFire().recoil(LAMBDA_RECOIL_UZI))

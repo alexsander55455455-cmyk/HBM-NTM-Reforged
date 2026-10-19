@@ -1,5 +1,8 @@
 package com.hbm.items.weapon.sedna.factory;
 
+import com.hbm.config.RunningConfig.ConfigWrapper;
+import com.hbm.config.ServerConfig;
+
 import com.hbm.Tags;
 import com.hbm.capability.HbmLivingCapability;
 import com.hbm.capability.HbmLivingProps;
@@ -50,6 +53,21 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
 public class XFactoryEnergy {
+
+    public static ConfigWrapper<Float> GUN_TESLA_CANNON_DAMAGE = new ConfigWrapper<>(35F);
+    public static ConfigWrapper<Float> GUN_LASER_PISTOL_DAMAGE = new ConfigWrapper<>(25F);
+    public static ConfigWrapper<Float> GUN_PEW_PEW_DAMAGE = new ConfigWrapper<>(30F);
+    public static ConfigWrapper<Float> GUN_MORNING_GLORY_DAMAGE = new ConfigWrapper<>(20F);
+    public static ConfigWrapper<Float> GUN_LASER_RIFLE_DAMAGE = new ConfigWrapper<>(50F);
+
+    public static void initConfig() {
+        ServerConfig.configMap.put("GUN_TESLA_CANNON_DAMAGE", GUN_TESLA_CANNON_DAMAGE);
+        ServerConfig.configMap.put("GUN_LASER_PISTOL_DAMAGE", GUN_LASER_PISTOL_DAMAGE);
+        ServerConfig.configMap.put("GUN_PEW_PEW_DAMAGE", GUN_PEW_PEW_DAMAGE);
+        ServerConfig.configMap.put("GUN_MORNING_GLORY_DAMAGE", GUN_MORNING_GLORY_DAMAGE);
+        ServerConfig.configMap.put("GUN_LASER_RIFLE_DAMAGE", GUN_LASER_RIFLE_DAMAGE);
+    }
+
     public static final ResourceLocation scope_luna = new ResourceLocation(Tags.MODID, "textures/misc/scope_luna.png");
 
     public static BulletConfig energy_tesla;
@@ -171,7 +189,7 @@ public class XFactoryEnergy {
         ModItems.gun_tesla_cannon = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.A_SIDE, "gun_tesla_cannon", new GunConfig()
                 .dura(2_000).draw(10).inspect(33).reloadSequential(true).crosshair(Crosshair.CIRCLE)
                 .rec(new Receiver(0)
-                        .dmg(35F).delay(20).reload(44).jam(19).sound(HBMSoundHandler.fireTesla, 1.0F, 1.0F)
+                        .dmg(GUN_TESLA_CANNON_DAMAGE).delay(20).reload(44).jam(19).sound(HBMSoundHandler.fireTesla, 1.0F, 1.0F)
                         .mag(new MagazineBelt().addConfigs(energy_tesla, energy_tesla_overcharge, energy_tesla_ir))
                         .offset(0.75, 0, -0.375).offsetScoped(0.75, 0, -0.25)
                         .setupStandardFire().recoil(LAMBDA_RECOIL_ENERGY))
@@ -182,7 +200,7 @@ public class XFactoryEnergy {
         ModItems.gun_laser_pistol = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.A_SIDE, "gun_laser_pistol", new GunConfig()
                 .dura(500).draw(10).inspect(26).crosshair(Crosshair.CIRCLE)
                 .rec(new Receiver(0)
-                        .dmg(25F).delay(5).spread(1F).spreadHipfire(1F).reload(45).jam(37).sound(HBMSoundHandler.fireLaserPistol, 1.0F, 1.0F)
+                        .dmg(GUN_LASER_PISTOL_DAMAGE).delay(5).spread(1F).spreadHipfire(1F).reload(45).jam(37).sound(HBMSoundHandler.fireLaserPistol, 1.0F, 1.0F)
                         .mag(new MagazineFullReload(0, 30).addConfigs(energy_las, energy_las_overcharge, energy_las_ir))
                         .offset(0.75, -0.0625 * 1.5, -0.1875)
                         .setupStandardFire().recoil(LAMBDA_RECOIL_ENERGY))
@@ -192,7 +210,7 @@ public class XFactoryEnergy {
         ModItems.gun_laser_pistol_pew_pew = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.B_SIDE, "gun_laser_pistol_pew_pew", new GunConfig()
                 .dura(500).draw(10).inspect(26).crosshair(Crosshair.CIRCLE)
                 .rec(new Receiver(0)
-                        .dmg(30F).rounds(5).delay(10).spread(0.25F).spreadHipfire(1F).reload(45).jam(37).sound(HBMSoundHandler.fireLaserPistol, 1.0F, 0.8F)
+                        .dmg(GUN_PEW_PEW_DAMAGE).rounds(5).delay(10).spread(0.25F).spreadHipfire(1F).reload(45).jam(37).sound(HBMSoundHandler.fireLaserPistol, 1.0F, 0.8F)
                         .mag(new MagazineFullReload(0, 10).addConfigs(energy_las, energy_las_overcharge, energy_las_ir))
                         .offset(0.75, -0.0625 * 1.5, -0.1875)
                         .setupStandardFire().recoil(LAMBDA_RECOIL_ENERGY))
@@ -202,7 +220,7 @@ public class XFactoryEnergy {
         ModItems.gun_laser_pistol_morning_glory = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.LEGENDARY, "gun_laser_pistol_morning_glory", new GunConfig()
                 .dura(1_500).draw(10).inspect(26).crosshair(Crosshair.CIRCLE)
                 .rec(new Receiver(0)
-                        .dmg(20F).delay(7).spread(0F).spreadHipfire(0.5F).reload(45).jam(37).sound(HBMSoundHandler.fireLaserPistol, 1.0F, 1.1F)
+                        .dmg(GUN_MORNING_GLORY_DAMAGE).delay(7).spread(0F).spreadHipfire(0.5F).reload(45).jam(37).sound(HBMSoundHandler.fireLaserPistol, 1.0F, 1.1F)
                         .mag(new MagazineFullReload(0, 20).addConfigs(energy_emerald, energy_emerald_overcharge, energy_emerald_ir))
                         .offset(0.75, -0.0625 * 1.5, -0.1875)
                         .setupStandardFire().recoil(LAMBDA_RECOIL_ENERGY))
@@ -213,7 +231,7 @@ public class XFactoryEnergy {
         ModItems.gun_lasrifle = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.A_SIDE, "gun_lasrifle", new GunConfig()
                 .dura(2_000).draw(10).inspect(26).reloadSequential(true).crosshair(Crosshair.CIRCLE).scopeTexture(scope_luna)
                 .rec(new Receiver(0)
-                        .dmg(50F).delay(8).reload(44).jam(36).sound(HBMSoundHandler.fireLaser, 1.0F, 1.0F)
+                        .dmg(GUN_LASER_RIFLE_DAMAGE).delay(8).reload(44).jam(36).sound(HBMSoundHandler.fireLaser, 1.0F, 1.0F)
                         .mag(new MagazineFullReload(0, 24).addConfigs(energy_las, energy_las_overcharge, energy_las_ir))
                         .offset(0.75, -0.0625 * 1.5, -0.1875)
                         .setupStandardFire().recoil(LAMBDA_RECOIL_ENERGY))

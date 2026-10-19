@@ -198,7 +198,7 @@ public class TileEntityTurretHoward extends TileEntityTurretBaseNT implements IG
 				loaded--;
 
 				if(world.rand.nextInt(100) + 1 <= WeaponConfig.ciwsHitrate)
-					EntityDamageUtil.attackEntityFromIgnoreIFrame(this.target, ModDamageSource.shrapnel, 2F + world.rand.nextInt(2));
+					EntityDamageUtil.attackEntityFromIgnoreIFrame(this.target, ModDamageSource.shrapnel, this.getBaseDamage() + world.rand.nextInt(2));
 
 				Vec3 pos = new Vec3(this.getTurretPos());
 				Vec3 vec = Vec3.createVectorHelper(this.getBarrelLength(), 0, 0);
@@ -273,4 +273,5 @@ public class TileEntityTurretHoward extends TileEntityTurretBaseNT implements IG
 	public GuiScreen provideGUI(int ID, EntityPlayer player, World world, int x, int y, int z) {
 		return new GUITurretHoward(player.inventory, this);
 	}
+	public float getBaseDamage() { return XFactoryTurret.TURRET_HOWARD_DAMAGE.get(); }
 }

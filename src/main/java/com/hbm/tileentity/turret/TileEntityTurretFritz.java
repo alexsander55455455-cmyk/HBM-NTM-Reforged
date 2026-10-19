@@ -1,5 +1,7 @@
 package com.hbm.tileentity.turret;
 
+import com.hbm.items.weapon.sedna.factory.XFactoryTurret;
+
 import com.hbm.api.fluid.IFluidStandardReceiver;
 import com.hbm.blocks.BlockDummyable;
 import com.hbm.capability.NTMFluidHandlerWrapper;
@@ -136,7 +138,7 @@ public class TileEntityTurretFritz extends TileEntityTurretBaseNT implements IFl
             EntityBulletBaseMK4 proj = new EntityBulletBaseMK4(
                     world,
                     XFactoryFlamer.flame_nograv,
-                    trait.getHeatEnergy() / 500_000F,
+                    trait.getHeatEnergy() / 500_000F * this.getBaseDamage(),
                     0.05F,
                     (float) rotationYaw,
                     (float) rotationPitch
@@ -287,4 +289,5 @@ public class TileEntityTurretFritz extends TileEntityTurretBaseNT implements IFl
     public GuiScreen provideGUI(int ID, EntityPlayer player, World world, int x, int y, int z) {
         return new GUITurretFritz(player.inventory, this);
     }
+    public float getBaseDamage() { return XFactoryTurret.TURRET_FRITZ_DAMAGE.get(); }
 }

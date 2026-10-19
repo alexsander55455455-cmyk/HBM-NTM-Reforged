@@ -1,5 +1,8 @@
 package com.hbm.items.weapon.sedna.factory;
 
+import com.hbm.config.RunningConfig.ConfigWrapper;
+import com.hbm.config.ServerConfig;
+
 import com.hbm.config.ClientConfig;
 import com.hbm.items.ItemEnums;
 import com.hbm.items.ModItems;
@@ -25,6 +28,15 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class XFactory22lr {
+
+    public static ConfigWrapper<Float> GUN_AM180_DAMAGE = new ConfigWrapper<>(2F);
+    public static ConfigWrapper<Float> GUN_STARF_DAMAGE = new ConfigWrapper<>(12.5F);
+
+    public static void initConfig() {
+        ServerConfig.configMap.put("GUN_AM180_DAMAGE", GUN_AM180_DAMAGE);
+        ServerConfig.configMap.put("GUN_STARF_DAMAGE", GUN_STARF_DAMAGE);
+    }
+
     public static BulletConfig p22_sp;
     public static BulletConfig p22_fmj;
     public static BulletConfig p22_jhp;
@@ -44,7 +56,7 @@ public class XFactory22lr {
         ModItems.gun_am180 = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.A_SIDE, "gun_am180", new GunConfig()
                 .dura(177 * 25).draw(15).inspect(38).crosshair(Crosshair.L_CIRCLE).smoke(LAMBDA_SMOKE)
                 .rec(new Receiver(0)
-                        .dmg(2F).delay(1).dry(10).auto(true).spread(0.02F).reload(66).jam(30).sound(HBMSoundHandler.fireGreaseGun, 1.0F, 1.0F)
+                        .dmg(GUN_AM180_DAMAGE).delay(1).dry(10).auto(true).spread(0.02F).reload(66).jam(30).sound(HBMSoundHandler.fireGreaseGun, 1.0F, 1.0F)
                         .mag(new MagazineFullReload(0, 177).addConfigs(p22_sp, p22_fmj, p22_jhp, p22_ap))
                         .offset(1, -0.0625 * 1.5, -0.1875D)
                         .setupStandardFire().recoil(LAMBDA_RECOIL_AM180))
@@ -55,7 +67,7 @@ public class XFactory22lr {
         ModItems.gun_star_f = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.A_SIDE, "gun_star_f", new GunConfig()
                 .dura(15 * 25).draw(15).inspect(38).crosshair(Crosshair.CIRCLE).smoke(LAMBDA_SMOKE)
                 .rec(new Receiver(0)
-                        .dmg(12.5F).delay(5).dry(17).spread(0.01F).reload(40).jam(32).sound(HBMSoundHandler.firePistolLight, 1.0F, 1.0F)
+                        .dmg(GUN_STARF_DAMAGE).delay(5).dry(17).spread(0.01F).reload(40).jam(32).sound(HBMSoundHandler.firePistolLight, 1.0F, 1.0F)
                         .mag(new MagazineFullReload(0, 15).addConfigs(p22_sp, p22_fmj, p22_jhp, p22_ap))
                         .offset(1, -0.0625 * 1.5, -0.1875D)
                         .setupStandardFire().recoil(LAMBDA_RECOIL_STAR_F))

@@ -39,13 +39,13 @@ public class ArmorNCRPAMelee implements IPAMelee {
 
             if(mop != null && mop.typeOfHit != null) {
                 if(mop.typeOfHit == RayTraceResult.Type.ENTITY && mop.entityHit.isEntityAlive()) {
-                    float damage = swings ? 15F : 35F;
+                    float damage = swings ? XFactoryPA.MELEE_NCRPA_SWINGS_DAMAGE.get() : XFactoryPA.MELEE_NCRPA_SWEEP_DAMAGE.get();
                     float knockback = swings ? 0F : 1.5F;
                     float dt = swings ? 5F : 15F;
                     float pierce = swings ? 0.1F : 0.25F;
 
                     if(mop.entityHit instanceof EntityLivingBase living) {
-                        if(living.getMaxHealth() >= 100) damage *= 2.5F;
+                        if(living.getMaxHealth() >= 100) damage *= XFactoryPA.MELEE_NCRPA_LARGE_MULT.get();
                         EntityDamageUtil.attackEntityFromNT(living, DamageSource.causePlayerDamage(ctx.getPlayer()), damage, true, false, knockback, dt, pierce);
                         if(!living.isEntityAlive()) ConfettiUtil.gib(living);
                     } else {

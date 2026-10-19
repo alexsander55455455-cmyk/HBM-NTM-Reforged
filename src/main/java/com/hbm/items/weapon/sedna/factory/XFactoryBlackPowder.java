@@ -1,5 +1,8 @@
 package com.hbm.items.weapon.sedna.factory;
 
+import com.hbm.config.RunningConfig.ConfigWrapper;
+import com.hbm.config.ServerConfig;
+
 import com.hbm.items.ModItems;
 import com.hbm.items.weapon.sedna.BulletConfig;
 import com.hbm.items.weapon.sedna.GunConfig;
@@ -18,6 +21,13 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
 public class XFactoryBlackPowder {
+
+    public static ConfigWrapper<Float> GUN_PEPPERBOX_DAMAGE = new ConfigWrapper<>(5F);
+
+    public static void initConfig() {
+        ServerConfig.configMap.put("GUN_PEPPERBOX_DAMAGE", GUN_PEPPERBOX_DAMAGE);
+    }
+
     public static BulletConfig stone = new BulletConfig().setItem(GunFactory.EnumAmmo.STONE).setBlackPowder(true).setHeadshot(1F).setSpread(0.025F).setRicochetAngle(15);
     public static BulletConfig flint = new BulletConfig().setItem(GunFactory.EnumAmmo.STONE_AP).setBlackPowder(true).setHeadshot(1F).setSpread(0.01F).setRicochetAngle(5).setDoesPenetrate(true).setDamage(1.5F);
     public static BulletConfig iron = new BulletConfig().setItem(GunFactory.EnumAmmo.STONE_IRON).setBlackPowder(true).setHeadshot(1F).setSpread(0F).setRicochetAngle(90).setRicochetCount(5).setDoesPenetrate(true).setDamageFalloffByPen(false).setDamage(1.5F);
@@ -28,7 +38,7 @@ public class XFactoryBlackPowder {
         ModItems.gun_pepperbox = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.A_SIDE, "gun_pepperbox", new GunConfig()
                 .dura(300).draw(4).inspect(23).crosshair(RenderScreenOverlay.Crosshair.CIRCLE).smoke(Lego.LAMBDA_STANDARD_SMOKE)
                 .rec(new Receiver(0)
-                        .dmg(5F).delay(27).reload(67).jam(58).sound(HBMSoundHandler.fireBlackPowder, 1.0F, 1.0F)
+                        .dmg(GUN_PEPPERBOX_DAMAGE).delay(27).reload(67).jam(58).sound(HBMSoundHandler.fireBlackPowder, 1.0F, 1.0F)
                         .mag(new MagazineFullReload(0, 6).addConfigs(stone, flint, iron, shot))
                         .offset(0.75, -0.0625, -0.1875D)
                         .setupStandardFire().recoil(LAMBDA_RECOIL_PEPPERBOX))

@@ -1,5 +1,7 @@
 package com.hbm.tileentity.turret;
 
+import com.hbm.items.weapon.sedna.factory.XFactoryTurret;
+
 import com.hbm.handler.threading.PacketThreading;
 import com.hbm.interfaces.AutoRegister;
 import com.hbm.items.weapon.sedna.BulletConfig;
@@ -65,7 +67,7 @@ public class TileEntityTurretSentryDamaged extends TileEntityTurretSentry {
       if (shotSide) {
         this.world.playSound(
             null, this.pos, HBMSoundHandler.sentryFire, SoundCategory.BLOCKS, 2.0F, 1.0F);
-        this.spawnBullet(conf, 5F);
+        this.spawnBullet(conf, this.getBaseDamage());
 
         vec = new Vec3d(this.getBarrelLength(), 0, 0);
         vec = Vec3dUtil.rotateRoll(vec, (float) -this.rotationPitch);
@@ -110,4 +112,5 @@ public class TileEntityTurretSentryDamaged extends TileEntityTurretSentry {
     }
     }
   }
+    public float getBaseDamage() { return XFactoryTurret.TURRET_EDWIN_DAMAGE.get(); }
 }

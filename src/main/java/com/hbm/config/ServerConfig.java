@@ -1,5 +1,7 @@
 package com.hbm.config;
 
+import com.hbm.items.weapon.sedna.factory.GunValues;
+
 import java.io.File;
 import java.util.HashMap;
 
@@ -43,6 +45,7 @@ public class ServerConfig extends RunningConfig {
         configMap.put("ITEM_HAZARD_DROP_TICKRATE", ITEM_HAZARD_DROP_TICKRATE);
         configMap.put("ENABLE_MKU", ENABLE_MKU);
         configMap.put("LEGACY_CRUCIBLE_RULES", LEGACY_CRUCIBLE_RULES);
+        GunValues.initDefaults();
     }
 
     /** Initializes defaults, then reads the config file if it exists, then writes the config file. */

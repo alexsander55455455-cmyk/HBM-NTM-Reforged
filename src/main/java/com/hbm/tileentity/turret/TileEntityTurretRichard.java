@@ -1,5 +1,7 @@
 package com.hbm.tileentity.turret;
 
+import com.hbm.items.weapon.sedna.factory.XFactoryTurret;
+
 import com.hbm.entity.projectile.EntityBulletBaseMK4;
 import com.hbm.interfaces.AutoRegister;
 import com.hbm.inventory.container.ContainerTurretBase;
@@ -113,7 +115,7 @@ public class TileEntityTurretRichard extends TileEntityTurretBaseNT implements I
 			BulletConfig conf = this.getFirstConfigLoaded();
 			
 			if(conf != null) {
-				this.spawnBullet(conf, 30F);
+				this.spawnBullet(conf, this.getBaseDamage());
 				this.consumeAmmo(conf.ammo);
 				this.world.playSound(null, pos.getX(), pos.getY(), pos.getZ(), HBMSoundHandler.richard_fire, SoundCategory.BLOCKS, 2.0F, 1.0F);
 				this.loaded--;
@@ -173,4 +175,5 @@ public class TileEntityTurretRichard extends TileEntityTurretBaseNT implements I
 		return new GUITurretRichard(player.inventory, this);
 	}
 
+	public float getBaseDamage() { return XFactoryTurret.TURRET_RICHARD_DAMAGE.get(); }
 }

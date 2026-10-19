@@ -1,5 +1,8 @@
 package com.hbm.items.weapon.sedna.factory;
 
+import com.hbm.config.RunningConfig.ConfigWrapper;
+import com.hbm.config.ServerConfig;
+
 import com.hbm.blocks.ICustomBlockHighlight;
 import com.hbm.inventory.fluid.Fluids;
 import com.hbm.items.ModItems;
@@ -36,6 +39,13 @@ import java.util.function.BiFunction;
 
 public class XFactoryDrill {
 
+    public static ConfigWrapper<Float> GUN_DRILL_DAMAGE = new ConfigWrapper<>(10F);
+
+    public static void initConfig() {
+        ServerConfig.configMap.put("GUN_DRILL_DAMAGE", GUN_DRILL_DAMAGE);
+    }
+
+
     public static final String D_REACH =	"D_REACH";
     public static final String F_DTNEG =	"F_DTNEG";
     public static final String F_PIERCE =	"F_PIERCE";
@@ -47,7 +57,7 @@ public class XFactoryDrill {
         ModItems.gun_drill = new ItemGunDrill(ItemGunBaseNT.WeaponQuality.UTILITY, "gun_drill", new GunConfig()
                 .dura(3_000).draw(10).inspect(55).hideCrosshair(false).crosshair(RenderScreenOverlay.Crosshair.L_CIRCUMFLEX)
                 .rec(new Receiver(0)
-                        .dmg(10F).delay(20).auto(true).jam(0)
+                        .dmg(GUN_DRILL_DAMAGE).delay(20).auto(true).jam(0)
                         .mag(new MagazineFluid(0, 4_000, Fluids.GASOLINE, Fluids.GASOLINE_LEADED, Fluids.COALGAS, Fluids.COALGAS_LEADED))
                         .offset(1, -0.0625 * 2.5, -0.25D)
                         .canFire(Lego.LAMBDA_STANDARD_CAN_FIRE).fire(LAMBDA_DRILL_FIRE))

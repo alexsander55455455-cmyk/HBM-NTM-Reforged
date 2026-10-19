@@ -1,5 +1,7 @@
 package com.hbm.items.armor;
 
+import com.hbm.items.weapon.sedna.factory.XFactoryPA;
+
 import com.hbm.entity.projectile.EntityBulletBaseMK4;
 import com.hbm.items.weapon.sedna.BulletConfig;
 import com.hbm.items.weapon.sedna.ItemGunBaseNT;
@@ -33,7 +35,7 @@ public class ArmorNCRPARanged implements IPARanged {
 
             if(amount > 0) {
                 mag.useUpAmmo(stack, player.inventory, 1);
-                EntityBulletBaseMK4 mk4 = new EntityBulletBaseMK4(player, cfg, 25, 0, 0.25F * (player.getRNG().nextBoolean() ? - 1 : 1), 0, 0);
+                EntityBulletBaseMK4 mk4 = new EntityBulletBaseMK4(player, cfg, XFactoryPA.RANGED_NCRPA_DAMAGE.get(), 0, 0.25F * (player.getRNG().nextBoolean() ? - 1 : 1), 0, 0);
                 player.world.spawnEntity(mk4);
                 ItemGunBaseNT.setState(stack, 0, ItemGunBaseNT.GunState.COOLDOWN);
                 ItemGunBaseNT.setTimer(stack, 0, 10);

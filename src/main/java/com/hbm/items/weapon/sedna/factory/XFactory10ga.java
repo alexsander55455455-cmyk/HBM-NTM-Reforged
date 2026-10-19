@@ -1,5 +1,8 @@
 package com.hbm.items.weapon.sedna.factory;
 
+import com.hbm.config.RunningConfig.ConfigWrapper;
+import com.hbm.config.ServerConfig;
+
 import com.hbm.items.ItemEnums;
 import com.hbm.items.ModItems;
 import com.hbm.items.weapon.sedna.BulletConfig;
@@ -26,6 +29,17 @@ import static com.hbm.items.weapon.sedna.factory.XFactory762mm.LAMBDA_TINY_EXPLO
 
 public class XFactory10ga {
 
+    public static ConfigWrapper<Float> GUN_DOUBLE_BARREL_DAMAGE = new ConfigWrapper<>(30F);
+    public static ConfigWrapper<Float> GUN_SACRED_DRAGON_DAMAGE = new ConfigWrapper<>(45F);
+    public static ConfigWrapper<Float> GUN_HERETIC_DAMAGE = new ConfigWrapper<>(100F);
+
+    public static void initConfig() {
+        ServerConfig.configMap.put("GUN_DOUBLE_BARREL_DAMAGE", GUN_DOUBLE_BARREL_DAMAGE);
+        ServerConfig.configMap.put("GUN_SACRED_DRAGON_DAMAGE", GUN_SACRED_DRAGON_DAMAGE);
+        ServerConfig.configMap.put("GUN_HERETIC_DAMAGE", GUN_HERETIC_DAMAGE);
+    }
+
+
     public static BulletConfig g10;
     public static BulletConfig g10_shrapnel;
     public static BulletConfig g10_du;
@@ -44,7 +58,7 @@ public class XFactory10ga {
         ModItems.gun_double_barrel = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.SPECIAL, "gun_double_barrel", new GunConfig()
                 .dura(1000).draw(10).inspect(39).crosshair(RenderScreenOverlay.Crosshair.L_CIRCLE).smoke(Lego.LAMBDA_STANDARD_SMOKE)
                 .rec(new Receiver(0)
-                        .dmg(30F).rounds(2).delay(10).reload(41).reloadOnEmpty(true).sound(HBMSoundHandler.fireShotgun, 1.0F, 0.9F)
+                        .dmg(GUN_DOUBLE_BARREL_DAMAGE).rounds(2).delay(10).reload(41).reloadOnEmpty(true).sound(HBMSoundHandler.fireShotgun, 1.0F, 0.9F)
                         .mag(new MagazineFullReload(0, 2).addConfigs(g10, g10_shrapnel, g10_du, g10_slug, g10_explosive))
                         .offset(0.75, -0.0625, -0.1875)
                         .setupStandardFire().recoil(LAMBDA_RECOIL_DOUBLE_BARREL))
@@ -54,7 +68,7 @@ public class XFactory10ga {
         ModItems.gun_double_barrel_sacred_dragon = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.B_SIDE, "gun_double_barrel_sacred_dragon", new GunConfig()
                 .dura(6000).draw(10).inspect(39).crosshair(RenderScreenOverlay.Crosshair.L_CIRCLE).smoke(Lego.LAMBDA_STANDARD_SMOKE)
                 .rec(new Receiver(0)
-                        .dmg(45F).spreadAmmo(1.35F).rounds(2).delay(10).reload(41).reloadOnEmpty(true).sound(HBMSoundHandler.fireShotgun, 1.0F, 0.9F)
+                        .dmg(GUN_SACRED_DRAGON_DAMAGE).spreadAmmo(1.35F).rounds(2).delay(10).reload(41).reloadOnEmpty(true).sound(HBMSoundHandler.fireShotgun, 1.0F, 0.9F)
                         .mag(new MagazineFullReload(0, 2).addConfigs(g10, g10_shrapnel, g10_du, g10_slug, g10_explosive))
                         .offset(0.75, -0.0625, -0.1875)
                         .setupStandardFire().recoil(LAMBDA_RECOIL_DOUBLE_BARREL))
@@ -64,7 +78,7 @@ public class XFactory10ga {
         ModItems.gun_autoshotgun_heretic = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.DEBUG, "gun_autoshotgun_heretic", new GunConfig()
                 .draw(20).inspect(65).reloadSequential(true).inspectCancel(false).crosshair(RenderScreenOverlay.Crosshair.L_CIRCLE).hideCrosshair(false).smoke(Lego.LAMBDA_STANDARD_SMOKE)
                 .rec(new Receiver(0)
-                        .dmg(100F).delay(3).auto(true).dryfireAfterAuto(true).reload(110).jam(19).sound(HBMSoundHandler.fireShotgunAuto, 1.0F, 1.0F)
+                        .dmg(GUN_HERETIC_DAMAGE).delay(3).auto(true).dryfireAfterAuto(true).reload(110).jam(19).sound(HBMSoundHandler.fireShotgunAuto, 1.0F, 1.0F)
                         .mag(new MagazineFullReload(0, 250).addConfigs(g10, g10_shrapnel, g10_du, g10_slug, g10_explosive))
                         .offset(0.75, -0.125, -0.25)
                         .canFire(Lego.LAMBDA_STANDARD_CAN_FIRE).fire(Lego.LAMBDA_NOWEAR_FIRE).recoil(XFactory12ga.LAMBDA_RECOIL_SEXY))

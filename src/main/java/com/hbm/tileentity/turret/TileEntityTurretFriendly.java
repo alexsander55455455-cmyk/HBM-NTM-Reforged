@@ -1,5 +1,7 @@
 package com.hbm.tileentity.turret;
 
+import com.hbm.items.weapon.sedna.factory.XFactoryTurret;
+
 import com.hbm.handler.CasingEjector;
 import com.hbm.interfaces.AutoRegister;
 import com.hbm.inventory.container.ContainerTurretBase;
@@ -60,4 +62,5 @@ public class TileEntityTurretFriendly extends TileEntityTurretChekhov implements
 	public GuiScreen provideGUI(int ID, EntityPlayer player, World world, int x, int y, int z) {
 		return new GUITurretFriendly(player.inventory, this);
 	}
+	public float getBaseDamage() { return XFactoryTurret.TURRET_FRIENDLY_DAMAGE.get(); }
 }

@@ -1,5 +1,7 @@
 package com.hbm.tileentity.turret;
 
+import com.hbm.items.weapon.sedna.factory.XFactoryTurret;
+
 import com.hbm.handler.CasingEjector;
 import com.hbm.handler.threading.PacketThreading;
 import com.hbm.interfaces.AutoRegister;
@@ -160,7 +162,7 @@ public class TileEntityTurretSentry extends TileEntityTurretBaseNT implements IG
 
       if (conf != null) {
         this.cachedCasingConfig = conf.casing;
-        this.spawnBullet(conf, 5F);
+        this.spawnBullet(conf, this.getBaseDamage());
         this.consumeAmmo(conf.ammo);
         this.world.playSound(
             null, this.pos, HBMSoundHandler.sentryFire, SoundCategory.BLOCKS, 2.0F, 1.0F);
@@ -263,4 +265,5 @@ public class TileEntityTurretSentry extends TileEntityTurretBaseNT implements IG
       int ID, EntityPlayer player, World world, int x, int y, int z) {
     return new GUITurretSentry(player.inventory, this);
   }
+    public float getBaseDamage() { return XFactoryTurret.TURRET_BROWN_DAMAGE.get(); }
 }

@@ -1,5 +1,8 @@
 package com.hbm.items.weapon.sedna.factory;
 
+import com.hbm.config.RunningConfig.ConfigWrapper;
+import com.hbm.config.ServerConfig;
+
 import com.hbm.entity.projectile.EntityBulletBaseMK4;
 import com.hbm.items.ItemEnums;
 import com.hbm.items.ModItems;
@@ -25,6 +28,27 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
 public class XFactory762mm {
+
+    public static ConfigWrapper<Float> GUN_CARBINE_DAMAGE = new ConfigWrapper<>(15F);
+    public static ConfigWrapper<Float> GUN_CARBINE_BAYONET_DAMAGE = new ConfigWrapper<>(15F);
+    public static ConfigWrapper<Float> GUN_MINIGUN_DAMAGE = new ConfigWrapper<>(6F);
+    public static ConfigWrapper<Float> GUN_LACUNAE_DAMAGE = new ConfigWrapper<>(12F);
+    public static ConfigWrapper<Float> GUN_MINIGUN_DUAL_LEFT_DAMAGE = new ConfigWrapper<>(6F);
+    public static ConfigWrapper<Float> GUN_MINIGUN_DUAL_RIGHT_DAMAGE = new ConfigWrapper<>(6F);
+    public static ConfigWrapper<Float> GUN_SOUTH_STAR_DAMAGE = new ConfigWrapper<>(30F);
+    public static ConfigWrapper<Float> GUN_SOUTH_STAR_BAYONET_DAMAGE = new ConfigWrapper<>(15F);
+
+    public static void initConfig() {
+        ServerConfig.configMap.put("GUN_CARBINE_DAMAGE", GUN_CARBINE_DAMAGE);
+        ServerConfig.configMap.put("GUN_CARBINE_BAYONET_DAMAGE", GUN_CARBINE_BAYONET_DAMAGE);
+        ServerConfig.configMap.put("GUN_MINIGUN_DAMAGE", GUN_MINIGUN_DAMAGE);
+        ServerConfig.configMap.put("GUN_LACUNAE_DAMAGE", GUN_LACUNAE_DAMAGE);
+        ServerConfig.configMap.put("GUN_MINIGUN_DUAL_LEFT_DAMAGE", GUN_MINIGUN_DUAL_LEFT_DAMAGE);
+        ServerConfig.configMap.put("GUN_MINIGUN_DUAL_RIGHT_DAMAGE", GUN_MINIGUN_DUAL_RIGHT_DAMAGE);
+        ServerConfig.configMap.put("GUN_SOUTH_STAR_DAMAGE", GUN_SOUTH_STAR_DAMAGE);
+        ServerConfig.configMap.put("GUN_SOUTH_STAR_BAYONET_DAMAGE", GUN_SOUTH_STAR_BAYONET_DAMAGE);
+    }
+
     public static BulletConfig r762_sp;
     public static BulletConfig r762_fmj;
     public static BulletConfig r762_jhp;
@@ -63,7 +87,7 @@ public class XFactory762mm {
         ModItems.gun_carbine = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.A_SIDE, "gun_carbine", new GunConfig()
                 .dura(3_000).draw(10).inspect(31).reloadSequential(true).crosshair(Crosshair.CIRCLE).smoke(LAMBDA_SMOKE)
                 .rec(new Receiver(0)
-                        .dmg(15F).delay(5).dry(15).spread(0.0F).reload(30, 0, 15, 0).jam(60).sound(HBMSoundHandler.fireBlackPowder, 1.0F, 1.0F)
+                        .dmg(GUN_CARBINE_DAMAGE).delay(5).dry(15).spread(0.0F).reload(30, 0, 15, 0).jam(60).sound(HBMSoundHandler.fireBlackPowder, 1.0F, 1.0F)
                         .mag(new MagazineFullReload(0, 14).addConfigs(r762_sp, r762_fmj, r762_jhp, r762_ap, r762_du, r762_he))
                         .offset(1, -0.0625 * 2.5, -0.25D)
                         .setupStandardFire().recoil(LAMBDA_RECOIL_CARBINE))
@@ -74,7 +98,7 @@ public class XFactory762mm {
         ModItems.gun_minigun_sedna = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.A_SIDE, "gun_minigun_sedna", new GunConfig()
                 .dura(50_000).draw(20).inspect(20).crosshair(Crosshair.L_CIRCLE).smoke(LAMBDA_SMOKE)
                 .rec(new Receiver(0)
-                        .dmg(6F).delay(1).auto(true).dry(15).spread(0.01F).sound(HBMSoundHandler.calShoot, 1.0F, 1.0F)
+                        .dmg(GUN_MINIGUN_DAMAGE).delay(1).auto(true).dry(15).spread(0.01F).sound(HBMSoundHandler.calShoot, 1.0F, 1.0F)
                         .mag(new MagazineBelt().addConfigs(r762_sp, r762_fmj, r762_jhp, r762_ap, r762_du, r762_he))
                         .offset(1, -0.0625 * 2.5, -0.25D)
                         .setupStandardFire().recoil(LAMBDA_RECOIL_MINIGUN))
@@ -84,7 +108,7 @@ public class XFactory762mm {
         ModItems.gun_minigun_lacunae = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.LEGENDARY, "gun_minigun_lacunae", new GunConfig()
                 .dura(50_000).draw(20).inspect(20).crosshair(Crosshair.L_CIRCLE)
                 .rec(new Receiver(0)
-                        .dmg(12F).delay(1).auto(true).dry(15).reload(15).spread(0.01F).sound(HBMSoundHandler.fireLaserGatling, 1.0F, 1.0F)
+                        .dmg(GUN_LACUNAE_DAMAGE).delay(1).auto(true).dry(15).reload(15).spread(0.01F).sound(HBMSoundHandler.fireLaserGatling, 1.0F, 1.0F)
                         .mag(new MagazineFullReload(0, 200).addConfigs(energy_lacunae, energy_lacunae_overcharge, energy_lacunae_ir))
                         .offset(1, -0.0625 * 2.5, -0.25D)
                         .setupStandardFire().recoil(LAMBDA_RECOIL_LACUNAE))
@@ -95,7 +119,7 @@ public class XFactory762mm {
                 new GunConfig()
                         .dura(50_000).draw(20).inspect(20).crosshair(Crosshair.L_CIRCLE).smoke(LAMBDA_SMOKE)
                         .rec(new Receiver(0)
-                                .dmg(6F).delay(1).auto(true).dry(15).spread(0.01F).sound(HBMSoundHandler.calShoot, 1.0F, 1.0F)
+                                .dmg(GUN_MINIGUN_DUAL_LEFT_DAMAGE).delay(1).auto(true).dry(15).spread(0.01F).sound(HBMSoundHandler.calShoot, 1.0F, 1.0F)
                                 .mag(new MagazineBelt().addConfigs(r762_sp, r762_fmj, r762_jhp, r762_ap, r762_du, r762_he))
                                 .offset(1, -0.0625 * 2.5, 0.25D)
                                 .setupStandardFire().recoil(LAMBDA_RECOIL_MINIGUN))
@@ -105,7 +129,7 @@ public class XFactory762mm {
                 new GunConfig()
                         .dura(50_000).draw(20).inspect(20).crosshair(Crosshair.L_CIRCLE).smoke(LAMBDA_SMOKE)
                         .rec(new Receiver(0)
-                                .dmg(6F).delay(1).auto(true).dry(15).spread(0.01F).sound(HBMSoundHandler.calShoot, 1.0F, 1.0F)
+                                .dmg(GUN_MINIGUN_DUAL_RIGHT_DAMAGE).delay(1).auto(true).dry(15).spread(0.01F).sound(HBMSoundHandler.calShoot, 1.0F, 1.0F)
                                 .mag(new MagazineBelt().addConfigs(r762_sp, r762_fmj, r762_jhp, r762_ap, r762_du, r762_he))
                                 .offset(1, -0.0625 * 2.5, -0.25D)
                                 .setupStandardFire().recoil(LAMBDA_RECOIL_MINIGUN))
@@ -117,7 +141,7 @@ public class XFactory762mm {
         ModItems.gun_mas36 = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.LEGENDARY, "gun_mas36", new GunConfig()
                 .dura(5_000).draw(20).inspect(31).reloadSequential(true).crosshair(Crosshair.CIRCLE).smoke(LAMBDA_SMOKE)
                 .rec(new Receiver(0)
-                        .dmg(30F).delay(25).dry(25).spread(0.0F).reload(43).jam(43).sound(HBMSoundHandler.fireRifleHeavy, 1.0F, 1.0F)
+                        .dmg(GUN_SOUTH_STAR_DAMAGE).delay(25).dry(25).spread(0.0F).reload(43).jam(43).sound(HBMSoundHandler.fireRifleHeavy, 1.0F, 1.0F)
                         .mag(new MagazineFullReload(0, 7).addConfigs(r762_sp, r762_fmj, r762_jhp, r762_ap, r762_du, r762_he))
                         .offset(1, -0.0625 * 1.5, -0.25D)
                         .setupStandardFire().recoil(LAMBDA_RECOIL_CARBINE))

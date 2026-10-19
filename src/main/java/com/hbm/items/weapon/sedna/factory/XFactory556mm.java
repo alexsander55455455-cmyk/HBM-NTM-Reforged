@@ -1,5 +1,8 @@
 package com.hbm.items.weapon.sedna.factory;
 
+import com.hbm.config.RunningConfig.ConfigWrapper;
+import com.hbm.config.ServerConfig;
+
 import com.hbm.Tags;
 import com.hbm.capability.HbmLivingCapability;
 import com.hbm.capability.HbmLivingProps;
@@ -32,6 +35,17 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class XFactory556mm {
+
+    public static ConfigWrapper<Float> GUN_ASSAULT_RIFLE_DAMAGE = new ConfigWrapper<>(5F);
+    public static ConfigWrapper<Float> GUN_ZEBRA_DAMAGE = new ConfigWrapper<>(7.5F);
+    public static ConfigWrapper<Float> GUN_STG77_DAMAGE = new ConfigWrapper<>(10F);
+
+    public static void initConfig() {
+        ServerConfig.configMap.put("GUN_ASSAULT_RIFLE_DAMAGE", GUN_ASSAULT_RIFLE_DAMAGE);
+        ServerConfig.configMap.put("GUN_ZEBRA_DAMAGE", GUN_ZEBRA_DAMAGE);
+        ServerConfig.configMap.put("GUN_STG77_DAMAGE", GUN_STG77_DAMAGE);
+    }
+
     public static final ResourceLocation scope = new ResourceLocation(Tags.MODID, "textures/misc/scope_bolt.png");
 
     public static BulletConfig r556_sp;
@@ -72,7 +86,7 @@ public class XFactory556mm {
         ModItems.gun_g3 = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.A_SIDE, "gun_g3", new GunConfig()
                 .dura(3_000).draw(10).inspect(33).crosshair(Crosshair.CIRCLE).smoke(LAMBDA_SMOKE)
                 .rec(new Receiver(0)
-                        .dmg(5F).delay(2).auto(true).dry(15).spread(0.0F).reload(50).jam(47).sound(HBMSoundHandler.fireAssault, 1.0F, 1.0F)
+                        .dmg(GUN_ASSAULT_RIFLE_DAMAGE).delay(2).auto(true).dry(15).spread(0.0F).reload(50).jam(47).sound(HBMSoundHandler.fireAssault, 1.0F, 1.0F)
                         .mag(new MagazineFullReload(0, 30).addConfigs(r556_sp, r556_fmj, r556_jhp, r556_ap))
                         .offset(1, -0.0625 * 2.5, -0.25D)
                         .setupStandardFire().recoil(LAMBDA_RECOIL_G3))
@@ -82,7 +96,7 @@ public class XFactory556mm {
         ModItems.gun_g3_zebra = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.B_SIDE, "gun_g3_zebra", new GunConfig()
                 .dura(6_000).draw(10).inspect(33).crosshair(Crosshair.CIRCLE).smoke(LAMBDA_SMOKE).scopeTexture(scope)
                 .rec(new Receiver(0)
-                        .dmg(7.5F).delay(2).auto(true).dry(15).spreadHipfire(0.01F).reload(50).jam(47).sound(HBMSoundHandler.fireSilenced, 1.0F, 1.0F)
+                        .dmg(GUN_ZEBRA_DAMAGE).delay(2).auto(true).dry(15).spreadHipfire(0.01F).reload(50).jam(47).sound(HBMSoundHandler.fireSilenced, 1.0F, 1.0F)
                         .mag(new MagazineFullReload(0, 30).addConfigs(r556_inc_sp, r556_inc_fmj, r556_inc_jhp, r556_inc_ap))
                         .offset(1, -0.0625 * 2.5, -0.25D)
                         .setupStandardFire().recoil(LAMBDA_RECOIL_ZEBRA))
@@ -93,7 +107,7 @@ public class XFactory556mm {
         ModItems.gun_stg77 = new ItemGunBaseNT(ItemGunBaseNT.WeaponQuality.A_SIDE, "gun_stg77", new GunConfig()
                 .dura(3_000).draw(10).inspect(125).crosshair(Crosshair.CIRCLE).scopeTexture(scope).smoke(LAMBDA_SMOKE)
                 .rec(new Receiver(0)
-                        .dmg(10F).delay(2).dry(15).auto(true).spread(0.0F).reload(46).jam(0).sound(HBMSoundHandler.fireAssault, 1.0F, 1.0F)
+                        .dmg(GUN_STG77_DAMAGE).delay(2).dry(15).auto(true).spread(0.0F).reload(46).jam(0).sound(HBMSoundHandler.fireAssault, 1.0F, 1.0F)
                         .mag(new MagazineFullReload(0, 30).addConfigs(r556_sp, r556_fmj, r556_jhp, r556_ap))
                         .offset(1, -0.0625 * 2.5, -0.25D)
                         .setupStandardFire().recoil(LAMBDA_RECOIL_STG))
