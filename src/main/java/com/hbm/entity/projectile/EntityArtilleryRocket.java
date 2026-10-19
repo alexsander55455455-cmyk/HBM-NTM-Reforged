@@ -101,6 +101,17 @@ public class EntityArtilleryRocket extends EntityThrowableNT
     return this.lastTargetPos;
   }
 
+  public void disableSteering(Vec3d delta, double momentum) {
+    if (this.steering != null || this.targeting != null) {
+      this.steering = null;
+      this.targeting = null;
+      Vec3d motion = delta.normalize().scale(momentum / motionMult());
+      this.motionX = motion.x;
+      this.motionY = motion.y;
+      this.motionZ = motion.z;
+    }
+  }
+
   @Override
   public void onUpdate() {
 
@@ -115,27 +126,18 @@ public class EntityArtilleryRocket extends EntityThrowableNT
     if (!world.isRemote) {
       requestChunkLoaderTicketIfNeeded();
 
-      if (this.targeting == null) {
-        this.targeting = new RocketTargetingPredictive();
+      Vec3d delta = new Vec3d(
+              this.lastTargetPos.x - this.posX,
+              this.lastTargetPos.y - this.posY,
+              this.lastTargetPos.z - this.posZ);
+      double momentum = Math.sqrt(motionX * motionX + motionY * motionY + motionZ * motionZ) * motionMult();
+      if (delta.length() <= momentum * 1.5) {
+        disableSteering(delta, momentum);
+      } else {
+        if (this.targeting != null && this.targetEntity != null)
+          this.targeting.recalculateTargetPosition(this, this.targetEntity);
+        if (this.steering != null) this.steering.adjustCourse(this, 25D, 15D);
       }
-      if (this.steering == null) {
-        this.steering = new RocketSteeringBallisticArc();
-      }
-
-      if (this.targetEntity == null) {
-        Vec3d delta = new Vec3d(
-                this.lastTargetPos.x - this.posX,
-                this.lastTargetPos.y - this.posY,
-                this.lastTargetPos.z - this.posZ);
-        if (delta.length() <= 15D) {
-          this.targeting = null;
-          this.steering = null;
-        }
-      }
-
-      if (this.targeting != null && this.targetEntity != null)
-        this.targeting.recalculateTargetPosition(this, this.targetEntity);
-      if (this.steering != null) this.steering.adjustCourse(this, 25D, 15D);
 
       loadNeighboringChunks((int) Math.floor(posX / 16D), (int) Math.floor(posZ / 16D));
       this.getType().onUpdate(this);

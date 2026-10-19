@@ -402,7 +402,7 @@ public abstract class TileEntityTurretBaseNT extends TileEntityMachineBase imple
 
 	/**
 	 * Reads the namelist from the AI chip in slot 0
-	 * @return null if there is either no chip to be found or if the name list is empty, otherwise it just reads the strings from the chip's NBT
+	 * @return null if no chip is installed, otherwise the names from its NBT, including an empty list
 	 */
 	public List<String> getWhitelist() {
 
@@ -414,7 +414,7 @@ public abstract class TileEntityTurretBaseNT extends TileEntityMachineBase imple
 			String[] array = ItemTurretBiometry.getNames(inventory.getStackInSlot(0));
 
 			if(array == null)
-				return null;
+				return cachedWhitelist = new ArrayList<>();
 
 			return cachedWhitelist = new ArrayList<>(Arrays.asList(array));
 		}
@@ -1198,14 +1198,18 @@ public abstract class TileEntityTurretBaseNT extends TileEntityMachineBase imple
 		if((PREFIX_FUNCTION + "addwhitelist").equalsIgnoreCase(name) && params.length > 0) {
 			String playerName = params[0];
 			List<String> whitelist = this.getWhitelist();
-			if(!whitelist.contains(playerName)) this.addName(playerName);
-			this.markChanged();
+			if(whitelist != null) {
+				if(!whitelist.contains(playerName)) this.addName(playerName);
+				this.markChanged();
+			}
 		}
 		if((PREFIX_FUNCTION + "removewhitelist").equalsIgnoreCase(name) && params.length > 0) {
 			String playerName = params[0];
 			List<String> whitelist = this.getWhitelist();
-			if(whitelist.contains(playerName)) this.removeName(whitelist.indexOf(playerName));
-			this.markChanged();
+			if(whitelist != null) {
+				if(whitelist.contains(playerName)) this.removeName(whitelist.indexOf(playerName));
+				this.markChanged();
+			}
 		}
 
 		return null;
