@@ -40,6 +40,7 @@ public class ItemModLodestone extends ItemArmorMod {
 
 	@Override
 	public void modUpdate(EntityLivingBase entity, ItemStack armor) {
+		if(entity.world.isRemote) return;
 
 		// No magnet if keybind toggled
 		if(entity instanceof EntityPlayer && !HbmCapability.getData((EntityPlayer) entity).isMagnetActive()) return;
@@ -50,12 +51,13 @@ public class ItemModLodestone extends ItemArmorMod {
 			
 			Vec3d vec = new Vec3d(entity.posX - item.posX, entity.posY - item.posY, entity.posZ - item.posZ).normalize();
 
-			item.motionX += vec.x * 0.05;
-			item.motionY += vec.y * 0.05;
-			item.motionZ += vec.z * 0.05;
+			item.motionX += vec.x * 0.075;
+			item.motionY += vec.y * 0.075;
+			item.motionZ += vec.z * 0.075;
 			
 			if(vec.y > 0 && item.motionY < 0.04)
 				item.motionY += 0.2;
+			item.velocityChanged = true;
 		}
 	}
 }

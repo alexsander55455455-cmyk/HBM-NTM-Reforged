@@ -45,7 +45,7 @@ public class DamageResistanceHandler {
     private static final String CATEGORY_EXPLOSION = "EXPL";
     private static final String CATEGORY_FIRE = "FIRE";
     private static final String CATEGORY_PHYSICAL = "PHYS";
-    private static final String CATEGORY_ENERGY = "EN";
+    public static final String CATEGORY_ENERGY = "EN";
     private static final HashMap<Item, ResistanceStats> itemStats = new HashMap<>();
     private static final HashMap<Quartet<Item, Item, Item, Item>, ResistanceStats> setStats = new HashMap<>();
     private static final HashMap<Class<? extends Entity>, ResistanceStats> entityStats = new HashMap<>();
@@ -423,15 +423,15 @@ public class DamageResistanceHandler {
         }
     }
 
-    private static String typeToCategory(DamageSource source) {
+    public static String typeToCategory(DamageSource source) {
         if (source.isExplosion()) return CATEGORY_EXPLOSION;
         if (source.isFireDamage()) return CATEGORY_FIRE;
         if (source.isProjectile()) return CATEGORY_PHYSICAL;
-        if (source.getDamageType().toLowerCase(Locale.US).equals(DamageClass.LASER.name())) return CATEGORY_ENERGY;
-        if (source.getDamageType().toLowerCase(Locale.US).equals(DamageClass.PLASMA.name())) return CATEGORY_ENERGY;
-        if (source.getDamageType().toLowerCase(Locale.US).equals(DamageClass.MICROWAVE.name())) return CATEGORY_ENERGY;
-        if (source.getDamageType().toLowerCase(Locale.US).equals(DamageClass.SUBATOMIC.name())) return CATEGORY_ENERGY;
-        if (source.getDamageType().toLowerCase(Locale.US).equals(DamageClass.ELECTRIC.name())) return CATEGORY_ENERGY;
+        if (source.getDamageType().equalsIgnoreCase(DamageClass.LASER.name())) return CATEGORY_ENERGY;
+        if (source.getDamageType().equalsIgnoreCase(DamageClass.PLASMA.name())) return CATEGORY_ENERGY;
+        if (source.getDamageType().equalsIgnoreCase(DamageClass.MICROWAVE.name())) return CATEGORY_ENERGY;
+        if (source.getDamageType().equalsIgnoreCase(DamageClass.SUBATOMIC.name())) return CATEGORY_ENERGY;
+        if (source.getDamageType().equalsIgnoreCase(DamageClass.ELECTRIC.name())) return CATEGORY_ENERGY;
         if (source == DamageSource.CACTUS) return CATEGORY_PHYSICAL;
         if (source == ModDamageSource.spikes) return CATEGORY_PHYSICAL;
         if (source == ModDamageSource.electricity) return CATEGORY_ENERGY;

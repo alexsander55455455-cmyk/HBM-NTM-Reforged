@@ -1,5 +1,6 @@
 package com.hbm.entity.projectile;
 
+import com.hbm.api.entity.IRadarDetectableNT;
 import com.hbm.blocks.ModBlocks;
 import com.hbm.config.GeneralConfig;
 import com.hbm.explosion.ExplosionLarge;
@@ -7,6 +8,7 @@ import com.hbm.interfaces.AutoRegister;
 import com.hbm.lib.HBMSoundHandler;
 import com.hbm.main.MainRegistry;
 import com.hbm.sound.AudioWrapper;
+import com.hbm.util.DamageResistanceHandler;
 import com.hbm.world.Meteorite;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -15,6 +17,7 @@ import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -25,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @AutoRegister(name = "entity_meteor", trackingRange = 1000)
-public class EntityMeteor extends Entity {
+public class EntityMeteor extends Entity implements IRadarDetectableNT {
 
     public boolean safe = false;
     private AudioWrapper audioFly;
@@ -39,6 +42,14 @@ public class EntityMeteor extends Entity {
 
     @Override
     protected void entityInit() {
+    }
+
+    @Override
+    public boolean attackEntityFrom(DamageSource source, float amount) {
+        if (!world.isRemote && amount >= 250F && DamageResistanceHandler.CATEGORY_ENERGY.equals(DamageResistanceHandler.typeToCategory(source))) {
+            setDead();
+        }
+        return false;
     }
 
     private List<BlockPos> getBlocksInRadius(int x, int y, int z, int radius) {
@@ -226,4 +237,10 @@ public class EntityMeteor extends Entity {
     protected void writeEntityToNBT(NBTTagCompound nbt) {
         nbt.setBoolean("safe", safe);
     }
+
+    @Override public String getTranslationKey() { return "radar.target.meteor"; }
+    @Override public int getBlipLevel() { return IRadarDetectableNT.SPECIAL; }
+    @Override public boolean canBeSeenBy(Object radar) { return true; }
+    @Override public boolean paramsApplicable(RadarScanParams params) { return params.scanMissiles; }
+    @Override public boolean suppliesRedstone(RadarScanParams params) { return params.scanMissiles; }
 }

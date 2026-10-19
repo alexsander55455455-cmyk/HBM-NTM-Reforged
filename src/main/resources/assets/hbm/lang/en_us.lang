@@ -9093,6 +9093,7 @@ item.orbital_assembly.crystal_circuit.name=Crystal Circuit Work Package
 desc.satellite.science_assembler=Deliver to a Space Laboratory on the same frequency. Accelerates orbital assembly.
 desc.orbital_assembly=Deliver to a Space Laboratory with a 0G Assembler. Collect the finished circuit at a Satellite Dock.
 radar.target.dropship=Orbital Cargo Pod
+radar.target.meteor=Meteor
 item.circuit.crystal.name=Crystal Circuit
 
 satellite.assemblers=Assemblers installed: %s

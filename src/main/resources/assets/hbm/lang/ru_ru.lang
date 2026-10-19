@@ -9095,6 +9095,7 @@ item.orbital_assembly.crystal_circuit.name=Рабочий пакет крист�
 desc.satellite.science_assembler=Доставьте в космическую лабораторию на той же частоте. Ускоряет орбитальную сборку.
 desc.orbital_assembly=Доставьте в космическую лабораторию со сборщиком 0G. Готовую схему заберите через спутниковый док.
 radar.target.dropship=Орбитальная грузовая капсула
+radar.target.meteor=Метеор
 item.circuit.crystal.name=Кристальная схема
 
 satellite.assemblers=Установлено сборщиков: %s
