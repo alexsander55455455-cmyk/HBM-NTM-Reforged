@@ -13,12 +13,15 @@ import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import static com.hbm.util.SoundUtil.playClickSound;
@@ -36,6 +39,8 @@ public class GUIScreenFluid extends GuiScreen {
     private FluidType primary = Fluids.NONE;
     private FluidType secondary = Fluids.NONE;
     private FluidType[] searchArray = new FluidType[9];
+    private final List<FluidType> bookmarks = new ArrayList<>();
+    private boolean bookmarksLoaded;
 
     public GUIScreenFluid(EntityPlayer player) {
         this.player = player;
@@ -72,6 +77,11 @@ public class GUIScreenFluid extends GuiScreen {
         if(!player.getHeldItemMainhand().isEmpty() && player.getHeldItemMainhand().getItem() == ModItems.fluid_identifier_multi) {
             this.primary = ItemFluidIDMulti.getType(player.getHeldItemMainhand(), true);
             this.secondary = ItemFluidIDMulti.getType(player.getHeldItemMainhand(), false);
+            if(!bookmarksLoaded) {
+                for(int id : ItemFluidIDMulti.getBookmarks(player.getHeldItemMainhand())) bookmarks.add(Fluids.fromID(id));
+                bookmarksLoaded = true;
+            }
+            if(!bookmarks.isEmpty()) this.searchArray = bookmarks.toArray(new FluidType[9]);
         }
     }
 
@@ -97,6 +107,14 @@ public class GUIScreenFluid extends GuiScreen {
                     NBTTagCompound data = new NBTTagCompound();
                     data.setInteger("secondary", this.secondary.getID());
                     PacketThreading.createSendToServerThreadedPacket(new NBTItemControlPacket(data));
+                } else if(button == 2) {
+                    playClickSound();
+                    FluidType fluid = this.searchArray[k];
+                    if(!bookmarks.remove(fluid)) {
+                        if(bookmarks.size() >= ItemFluidIDMulti.BOOKMARK_LIMIT) bookmarks.remove(0);
+                        bookmarks.add(fluid);
+                    }
+                    if(this.search.getText().trim().isEmpty()) updateSearch();
                 }
             }
         }
@@ -166,6 +184,11 @@ public class GUIScreenFluid extends GuiScreen {
     private void updateSearch() {
         this.searchArray = new FluidType[9];
 
+        if(!bookmarks.isEmpty() && this.search.getText().trim().isEmpty()) {
+            this.searchArray = bookmarks.toArray(this.searchArray);
+            return;
+        }
+
         int next = 0;
         String subs = this.search.getText().toLowerCase(Locale.US);
 
@@ -185,5 +208,10 @@ public class GUIScreenFluid extends GuiScreen {
     @Override
     public void onGuiClosed() {
         Keyboard.enableRepeatEvents(false);
+        if(!player.getHeldItemMainhand().isEmpty() && player.getHeldItemMainhand().getItem() == ModItems.fluid_identifier_multi) {
+            NBTTagCompound data = new NBTTagCompound();
+            data.setIntArray("bookmarks", bookmarks.stream().mapToInt(FluidType::getID).toArray());
+            PacketThreading.createSendToServerThreadedPacket(new NBTItemControlPacket(data, EnumHand.MAIN_HAND));
+        }
     }
 }

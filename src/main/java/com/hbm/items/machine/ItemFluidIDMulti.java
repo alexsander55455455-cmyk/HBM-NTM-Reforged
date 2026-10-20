@@ -43,10 +43,12 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Arrays;
 
 import static com.hbm.items.ItemEnumMulti.ROOT_PATH;
 
 public class ItemFluidIDMulti extends ItemBakedBase implements IItemFluidIdentifier, IItemControlReceiver, IGUIProvider {
+    public static final int BOOKMARK_LIMIT = 9;
     private final ResourceLocation baseTextureLocation;
     private final ResourceLocation overlayTextureLocation;
     private final ModelResourceLocation modelLocation;
@@ -105,6 +107,23 @@ public class ItemFluidIDMulti extends ItemBakedBase implements IItemFluidIdentif
         if(data.hasKey("secondary")) {
             setType(stack, Fluids.fromID(data.getInteger("secondary")), false);
         }
+        if(data.hasKey("bookmarks", 11)) {
+            setBookmarks(stack, data.getIntArray("bookmarks"));
+        }
+    }
+
+    public static int[] getBookmarks(ItemStack stack) {
+        return stack.hasTagCompound() ? normalizeBookmarks(stack.getTagCompound().getIntArray("bookmarks")) : new int[0];
+    }
+
+    public static void setBookmarks(ItemStack stack, int[] ids) {
+        if(!stack.hasTagCompound()) stack.setTagCompound(new NBTTagCompound());
+        stack.getTagCompound().setIntArray("bookmarks", normalizeBookmarks(ids));
+    }
+
+    private static int[] normalizeBookmarks(int[] ids) {
+        return Arrays.stream(ids).filter(id -> Fluids.fromID(id).getID() == id && !Fluids.fromID(id).hasNoID())
+                .distinct().limit(BOOKMARK_LIMIT).toArray();
     }
 
     @Override
