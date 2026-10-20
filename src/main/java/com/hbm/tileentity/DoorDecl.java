@@ -810,6 +810,8 @@ public abstract class DoorDecl {
     };
 	
 	public static final DoorDecl WATER_DOOR = new DoorDecl(){
+
+        @Override public boolean neverDemandRedstone() { return true; }
 		
 		@Override
 		public SoundEvent getOpenSoundEnd() {
@@ -1074,6 +1076,8 @@ public abstract class DoorDecl {
 	public abstract int[] getDimensions();
 
 	public int[][] getExtraDimensions() { return null; }
+
+    public boolean neverDemandRedstone() { return false; }
 	
 	public float getDoorRangeOpenTime(int ticks, int idx){
 		return getNormTime(ticks);

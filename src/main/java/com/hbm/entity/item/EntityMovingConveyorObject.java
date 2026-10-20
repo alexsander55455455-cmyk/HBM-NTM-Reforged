@@ -2,6 +2,9 @@ package com.hbm.entity.item;
 
 import com.hbm.api.conveyor.IConveyorBelt;
 import com.hbm.api.conveyor.IEnterableBlock;
+import com.hbm.config.ServerConfig;
+import com.hbm.explosion.vanillant.ExplosionVNT;
+import com.hbm.explosion.vanillant.standard.ExplosionEffectTiny;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
@@ -12,6 +15,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.List;
 
 public abstract class EntityMovingConveyorObject extends Entity {
     protected int turnProgress;
@@ -71,6 +76,19 @@ public abstract class EntityMovingConveyorObject extends Entity {
 
             if(this.ticksExisted <= 5) {
                 return;
+            }
+
+            if((ticksExisted + this.getEntityId()) % 400 == 0) {
+                List<EntityMovingConveyorObject> objects = world.getEntitiesWithinAABB(EntityMovingConveyorObject.class, this.getEntityBoundingBox().grow(0.125, 0.125, 0.125));
+                if(objects.size() >= ServerConfig.CONVEYOR_CRAM_MAX.get()) {
+                    for(EntityMovingConveyorObject object : objects) object.setDead();
+                    ExplosionVNT explosion = new ExplosionVNT(world, posX, posY + 0.125, posZ, 1, this);
+                    explosion.setSFX(new ExplosionEffectTiny());
+                    explosion.explode();
+                    BlockPos pos = new BlockPos(posX, posY, posZ);
+                    if(world.getBlockState(pos).getBlock() instanceof IConveyorBelt && this.ticksExisted > 400 && ServerConfig.CONVEYOR_CRAM_EXPLODE.get())
+                        world.destroyBlock(pos, false);
+                }
             }
 
             int blockX = (int) Math.floor(posX);

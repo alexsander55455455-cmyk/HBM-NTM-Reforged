@@ -3,6 +3,7 @@ package com.hbm.blocks.generic;
 import com.hbm.api.block.IToolable;
 import com.hbm.api.block.IToolable.ToolType;
 import com.hbm.blocks.BlockDummyable;
+import com.hbm.config.ServerConfig;
 import com.hbm.handler.MultiblockHandlerXR;
 import com.hbm.handler.radiation.RadiationSystemNT;
 import com.hbm.interfaces.IBomb;
@@ -138,6 +139,7 @@ public class BlockDoorGeneric extends BlockDummyable implements IRadResistantBlo
         }
 
         if (door.isRedstoneOnly()) return false;
+        if (ServerConfig.ULTRA_LARP_MODE.get() && !type.neverDemandRedstone()) return false;
 
         if (!player.isSneaking()) {
             if (door.canAccess(player)) {

@@ -24,6 +24,9 @@ public class ServerConfig extends RunningConfig {
     public static ConfigWrapper<Integer> ITEM_HAZARD_DROP_TICKRATE =	new ConfigWrapper<>(2);
     public static ConfigWrapper<Boolean> ENABLE_MKU =					new ConfigWrapper<>(true);
     public static ConfigWrapper<Boolean> LEGACY_CRUCIBLE_RULES =		new ConfigWrapper<>(false);
+    public static ConfigWrapper<Integer> CONVEYOR_CRAM_MAX = new ConfigWrapper<>(25);
+    public static ConfigWrapper<Boolean> CONVEYOR_CRAM_EXPLODE = new ConfigWrapper<>(true);
+    public static ConfigWrapper<Boolean> ULTRA_LARP_MODE = new ConfigWrapper<>(false);
 
     public static ConfigWrapper<Integer> AUTOCAL_MAX_CLOCK = new ConfigWrapper<>(20);
     public static ConfigWrapper<Integer> MAX_BUFFER_LENGTH = new ConfigWrapper<>(256);
@@ -45,6 +48,9 @@ public class ServerConfig extends RunningConfig {
         configMap.put("ITEM_HAZARD_DROP_TICKRATE", ITEM_HAZARD_DROP_TICKRATE);
         configMap.put("ENABLE_MKU", ENABLE_MKU);
         configMap.put("LEGACY_CRUCIBLE_RULES", LEGACY_CRUCIBLE_RULES);
+        configMap.put("CONVEYOR_CRAM_MAX", CONVEYOR_CRAM_MAX);
+        configMap.put("CONVEYOR_CRAM_EXPLODE", CONVEYOR_CRAM_EXPLODE);
+        configMap.put("ULTRA_LARP_MODE", ULTRA_LARP_MODE);
         GunValues.initDefaults();
     }
 
