@@ -598,7 +598,7 @@ public class CraftingManager {
 		addRecipeAuto(new ItemStack(Item.getItemFromBlock(ModBlocks.flame_war), 1), "WHW", "CTP", "WOW", 'W', Item.getItemFromBlock(Blocks.PLANKS), 'T', Item.getItemFromBlock(Blocks.TNT), 'H', ModItems.flame_pony, 'C', ModItems.flame_conspiracy, 'P', ModItems.flame_politics, 'O', ModItems.flame_opinion );
 		addRecipeAuto(new ItemStack(ModBlocks.det_cord, 4), " P ", "PGP", " P ", 'P', Items.PAPER, 'G', Items.GUNPOWDER );
 		addRecipeAuto(new ItemStack(ModBlocks.det_charge, 1), "PDP", "DTD", "PDP", 'P', STEEL.plate(), 'D', ModBlocks.det_cord, 'T', ANY_PLASTICEXPLOSIVE.ingot() );
-		addRecipeAuto(new ItemStack(ModBlocks.det_nuke, 1), "PFP", "DCD", "PFP", 'P', DESH.plateCast(), 'D', ModBlocks.det_charge, 'C', ModItems.man_core, 'F', DictFrame.fromOne(ModItems.circuit, EnumCircuitType.CONTROLLER) );
+		addRecipeAuto(new ItemStack(ModBlocks.det_nuke, 1), "PFP", "DCD", "PFP", 'P', ModItems.neutron_reflector, 'D', ModBlocks.det_charge, 'C', ModItems.man_core, 'F', DictFrame.fromOne(ModItems.circuit, EnumCircuitType.CONTROLLER) );
 		addRecipeAuto(new ItemStack(ModBlocks.det_miner, 4), "FFF", "ITI", "ITI", 'F', Items.FLINT, 'I', IRON.plate(), 'T', ModItems.ball_dynamite );
 		addRecipeAuto(new ItemStack(ModBlocks.det_miner, 12), "FFF", "ITI", "ITI", 'F', Items.FLINT, 'I', STEEL.plate(), 'T', ANY_PLASTICEXPLOSIVE.ingot() );
 		addRecipeAuto(new ItemStack(ModBlocks.emp_bomb, 1), "LML", "LCL", "LML", 'L', PB.plate(), 'M', ModItems.magnetron, 'C', DictFrame.fromOne(ModItems.circuit, EnumCircuitType.ADVANCED) );
@@ -857,7 +857,7 @@ public class CraftingManager {
 		addShapelessAuto(new ItemStack(ModBlocks.barrel_iron, 1), ModBlocks.barrel_corroded, ANY_TAR.any() );
 		addRecipeAuto(new ItemStack(ModBlocks.barrel_steel, 1), "IPI", "ITI", "IPI", 'I', STEEL.plate(), 'P', STEEL.ingot(), 'T', ANY_TAR.any() );
 		addRecipeAuto(new ItemStack(ModBlocks.barrel_tcalloy, 1), "IPI", "I I", "IPI", 'I', "ingotTcAlloy", 'P', TI.plate() );
-		addRecipeAuto(new ItemStack(ModBlocks.barrel_antimatter, 1), "IPI", "I I", "IPI", 'I', BIGMT.plate(), 'P', ModItems.coil_gold_torus);
+		addRecipeAuto(new ItemStack(ModBlocks.barrel_antimatter, 1), "IPI", "I I", "IPI", 'I', BIGMT.plate(), 'P', BSCCO.wireDense());
 		addRecipeAuto(new ItemStack(ModBlocks.tesla, 1), "CCC", "PIP", "WTW", 'C', ModItems.coil_copper, 'I', IRON.ingot(), 'P', ANY_PLASTIC.ingot(), 'T', ModBlocks.machine_transformer, 'W', KEY_PLANKS );
 		addRecipeAuto(new ItemStack(ModBlocks.struct_watz_core, 1), "CBC", "BHB", "CBC", 'C', DictFrame.fromOne(ModItems.circuit, EnumCircuitType.ADVANCED), 'B', ANY_RESISTANTALLOY.plateCast(), 'H', ModBlocks.watz_cooler );
 		addRecipeAuto(new ItemStack(ModBlocks.fwatz_cooler, 2), "III", "IPI", "III", 'I', SBD.ingot(), 'P', ModItems.thermo_unit_endo);

@@ -13,6 +13,7 @@ import com.hbm.inventory.recipes.loader.GenericRecipe;
 import com.hbm.inventory.recipes.loader.GenericRecipes;
 import com.hbm.items.BrokenItem;
 import com.hbm.items.ItemEnums.EnumCircuitType;
+import com.hbm.items.ItemEnums.EnumLegendaryType;
 import com.hbm.items.ModItems;
 
 import net.minecraft.init.Items;
@@ -169,6 +170,32 @@ public class PrecAssRecipes extends GenericRecipes<GenericRecipe> {
                         new ChanceOutput(new ItemStack(ModItems.blueprint_folder, 1, 1), 5),
                         new ChanceOutput(new ItemStack(Items.PAPER, 24, 0), 95))
                 ));
+
+        this.register(new GenericRecipe("precass.rpahelmet").setup(3 * min, 25_000L)
+                .inputItems(new ComparableStack(ModItems.plate_armor_ajr, 12),
+                        new OreDictStack(BIGMT.plateCast(), 4),
+                        new ComparableStack(ModItems.circuit, 4, EnumCircuitType.ADVANCED),
+                        new ComparableStack(ModItems.plate_kevlar, 8))
+                .outputItems(new ItemStack(ModItems.rpa_helmet)).setPools(POOL_PREFIX_DISCOVER + ".rpa"));
+        this.register(new GenericRecipe("precass.rpaplate").setup(3 * min, 25_000L)
+                .inputItems(new ComparableStack(ModItems.plate_armor_ajr, 24),
+                        new OreDictStack(BIGMT.plateCast(), 8),
+                        new OreDictStack(BIGMT.mechanism(), 8),
+                        new ComparableStack(ModItems.motor_desh, 8),
+                        new ComparableStack(ModItems.plate_kevlar, 16),
+                        new ComparableStack(ModItems.parts_legendary, 1, EnumLegendaryType.TIER2))
+                .outputItems(new ItemStack(ModItems.rpa_plate)).setPools(POOL_PREFIX_DISCOVER + ".rpa"));
+        this.register(new GenericRecipe("precass.rpalegs").setup(3 * min, 25_000L)
+                .inputItems(new ComparableStack(ModItems.plate_armor_ajr, 24),
+                        new OreDictStack(BIGMT.plateCast(), 8),
+                        new ComparableStack(ModItems.motor_desh, 8),
+                        new ComparableStack(ModItems.plate_kevlar, 16))
+                .outputItems(new ItemStack(ModItems.rpa_legs)).setPools(POOL_PREFIX_DISCOVER + ".rpa"));
+        this.register(new GenericRecipe("precass.rpaboots").setup(3 * min, 25_000L)
+                .inputItems(new ComparableStack(ModItems.plate_armor_ajr, 12),
+                        new OreDictStack(BIGMT.plateCast(), 4),
+                        new ComparableStack(ModItems.plate_kevlar, 8))
+                .outputItems(new ItemStack(ModItems.rpa_boots)).setPools(POOL_PREFIX_DISCOVER + ".rpa"));
     }
 
     public void addFirstUpgrade(Item lower, Item higher, String name) {
