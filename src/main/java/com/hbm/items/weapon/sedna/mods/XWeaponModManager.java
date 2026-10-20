@@ -76,7 +76,7 @@ public class XWeaponModManager {
                 ModItems.gun_panzerschreck_sedna };
         Item[] wsteelGuns = new Item[] {
                 ModItems.gun_g3, ModItems.gun_g3_zebra,
-                ModItems.gun_stinger,
+                ModItems.gun_stinger, ModItems.gun_mk108,
                 ModItems.gun_chemthrower };
         Item[] ferroGuns = new Item[] {
                 ModItems.gun_amat,
@@ -123,7 +123,7 @@ public class XWeaponModManager {
         new WeaponModDefinition(GunFactory.EnumModSpecial.SLOWDOWN).addMod(new Item[] {ModItems.gun_minigun_sedna, ModItems.gun_minigun_dual}, new WeaponModSlowdown(207));
         new WeaponModDefinition(GunFactory.EnumModSpecial.SPEEDUP)
                 .addMod(new Item[] {ModItems.gun_minigun_sedna, ModItems.gun_minigun_dual}, new WeaponModMinigunSpeedup(ID_MINIGUN_SPEED))
-                .addMod(new Item[] {ModItems.gun_autoshotgun, ModItems.gun_autoshotgun_shredder}, new WeaponModShredderSpeedup(209));
+                .addMod(new Item[] {ModItems.gun_autoshotgun, ModItems.gun_autoshotgun_shredder, ModItems.gun_mk108}, new WeaponModShredderSpeedup(209));
         new WeaponModDefinition(GunFactory.EnumModSpecial.CHOKE).addMod(new Item[] {ModItems.gun_pepperbox, ModItems.gun_maresleg, ModItems.gun_double_barrel, ModItems.gun_liberator, ModItems.gun_spas12, ModItems.gun_autoshotgun_sexy, ModItems.gun_autoshotgun_heretic}, new WeaponModChoke(210));
         new WeaponModDefinition(GunFactory.EnumModSpecial.FURNITURE_GREEN).addMod(ModItems.gun_g3, new WeaponModPolymerFurniture(ID_FURNITURE_GREEN));
         new WeaponModDefinition(GunFactory.EnumModSpecial.FURNITURE_BLACK).addMod(ModItems.gun_g3, new WeaponModPolymerFurniture(ID_FURNITURE_BLACK));
