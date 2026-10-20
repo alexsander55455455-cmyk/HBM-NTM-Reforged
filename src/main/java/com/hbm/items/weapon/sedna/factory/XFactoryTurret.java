@@ -14,7 +14,7 @@ import net.minecraft.item.ItemStack;
 public class XFactoryTurret {
 
     public static ConfigWrapper<Float> TURRET_CHEKHOV_DAMAGE = new ConfigWrapper<>(10F);
-    public static ConfigWrapper<Float> TURRET_FRIENDLY_DAMAGE = new ConfigWrapper<>(10F);
+    public static ConfigWrapper<Float> TURRET_FRIENDLY_DAMAGE = new ConfigWrapper<>(5F);
     public static ConfigWrapper<Float> TURRET_FRITZ_DAMAGE = new ConfigWrapper<>(1F);
     public static ConfigWrapper<Float> TURRET_HOWARD_DAMAGE = new ConfigWrapper<>(2F);
     public static ConfigWrapper<Float> TURRET_METHUSALEM_DAMAGE = new ConfigWrapper<>(2F);

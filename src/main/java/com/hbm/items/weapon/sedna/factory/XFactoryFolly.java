@@ -88,7 +88,7 @@ public class XFactoryFolly {
                 if(iy > 0 && iy < 256) beam.world.setBlockToAir(new BlockPos(ix, iy, iz));
                 AxisAlignedBB aabb = new AxisAlignedBB(ix - 1, iy - 1, iz - 1, ix + 2, iy + 2, iz + 2);
                 for(Entity e : entities) if(e != beam.thrower && e.getEntityBoundingBox().intersects(aabb)) {
-                    if(e instanceof EntityLivingBase) EntityDamageUtil.attackEntityFromNT((EntityLivingBase) e, beam.config.getDamage(beam, beam.thrower, beam.config.dmgClass), beam.damage, true, false, 0D, 100F, 0.99F);
+                    if(e instanceof EntityLivingBase) EntityDamageUtil.attackEntityFromNT((EntityLivingBase) e, beam.config.getDamage(beam, beam.thrower, beam.config.dmgClass), beam.damage, true, false, 0D, 1_000F, 1F);
                     else EntityDamageUtil.attackEntityFromIgnoreIFrame(e, beam.config.getDamage(beam, beam.thrower, beam.config.dmgClass), beam.damage);
                 }
             }

@@ -105,7 +105,7 @@ class GunValuesTest {
     @Test void zeroDamageSurvivesFileReload() throws Exception { Receiver r=receiver(setting("GUN_BOLTER_DAMAGE"));file("{\"GUN_BOLTER_DAMAGE\":0}");ServerConfig.reload();assertEquals(0F,r.getBaseDamage(ItemStack.EMPTY)); }
     @Test void omittedSettingsKeepTheirCurrentValueOnReload() throws Exception { ConfigWrapper<Float> v=setting("GUN_BOLTER_DAMAGE");v.set(23F);file("{}");ServerConfig.reload();assertEquals(23F,v.get()); }
     @Test void refreshPersistsTheCurrentRuntimeValue() throws Exception { setting("GUN_BOLTER_DAMAGE").set(23.75F);ServerConfig.refresh();setting("GUN_BOLTER_DAMAGE").set(1F);ServerConfig.reload();assertEquals(23.75F,setting("GUN_BOLTER_DAMAGE").get()); }
-    @Test void ownFriendlyTurretDefaultRemainsTen() throws Exception { assertEquals(10F,setting("TURRET_FRIENDLY_DAMAGE").get()); }
+    @Test void friendlyTurretDefaultIsFive() throws Exception { assertEquals(5F,setting("TURRET_FRIENDLY_DAMAGE").get()); }
     @Test void additionalAttackSettingsHaveIndependentValues() throws Exception { setting("GUN_TAU_CANNON_CHARGE_DAMAGE").set(7F);assertEquals(25F,setting("GUN_TAU_CANNON_DAMAGE").get());setting("GUN_HANGMAN_SMACK_DAMAGE").set(19F);assertEquals(25F,setting("GUN_HANGMAN_DAMAGE").get()); }
     @Test void allActualGunReceiversReadTheirLiveSetting() throws Exception {
         init();Field config=Receiver.class.getDeclaredField("baseDamageConfig_DNA");config.setAccessible(true);Set<Object> used=Collections.newSetFromMap(new IdentityHashMap<>());
