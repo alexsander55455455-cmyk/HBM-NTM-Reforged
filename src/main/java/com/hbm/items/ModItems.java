@@ -3654,10 +3654,16 @@ public class ModItems {
     @Deprecated
     public static final Item wire = wire_fine;
     public static final Item orbital_assembly = new ItemOrbitalAssembly("orbital_assembly").setCreativeTab(MainRegistry.missileTab);
+    public static final Item coal_eternal = new ItemFuel("coal_eternal", 3200).setMaxStackSize(1).setCreativeTab(null);
+
+    static {
+        coal_eternal.setContainerItem(coal_eternal);
+    }
 
     public static void registerItems() {
         GunFactory.init();
         excludeNEI.add(item_secret);
+        excludeNEI.add(coal_eternal);
         excludeNEI.add(backpack_stalker);
         excludeNEI.add(backpack_black_box);
         excludeNEI.add(backpack_ash);

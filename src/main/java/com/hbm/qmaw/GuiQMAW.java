@@ -49,6 +49,26 @@ public class GuiQMAW extends GuiScreen {
         parseQMAW(qmaw);
     }
 
+    static String compose(String contents, String language) {
+        for(int remaining = 100; remaining > 0; remaining--) {
+            int begin = contents.indexOf("{{");
+            if(begin < 0) break;
+            int end = contents.indexOf("}}", begin + 2);
+            if(end < 0) break;
+            String name = contents.substring(begin + 2, end);
+            QuickManualAndWiki page = QMAWLoader.qmaw.get(name);
+            String replacement = name;
+            if(page != null) {
+                replacement = page.contents.get(language);
+                if(replacement == null) replacement = page.contents.get(EN_US);
+                if(replacement == null) replacement = name;
+            }
+            // Replace one occurrence so recursive templates cannot expand exponentially.
+            contents = contents.substring(0, begin) + replacement + contents.substring(end + 2);
+        }
+        return contents;
+    }
+
     protected void parseQMAW(QuickManualAndWiki qmaw) {
         LanguageManager lang = Minecraft.getMinecraft().getLanguageManager();
 
@@ -61,7 +81,7 @@ public class GuiQMAW extends GuiScreen {
         String toParse = qmaw.contents.get(lang.getCurrentLanguage().getLanguageCode());
         if(toParse == null) toParse = qmaw.contents.get(EN_US);
         if(toParse == null) toParse = "Missing Localization!";
-        toParse = "" + toParse; // strings are reference types, no?
+        toParse = compose(toParse, lang.getCurrentLanguage().getLanguageCode());
 
         int maxLineLength = xSize - 29;
         String prevToParse = "" + toParse;

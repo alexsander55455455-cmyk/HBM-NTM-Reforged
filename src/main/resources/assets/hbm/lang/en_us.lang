@@ -9133,3 +9133,4 @@ item.pile_rod.thorium.name=Chicago Pile Natural Thorium Rod
 item.pile_rod.thorium.desc=Basic breeding target for making thorium fuel.
 item.pile_rod.thorium_fuel.name=Chicago Pile Thorium Fuel Rod
 item.pile_rod.thorium_fuel.desc=Thorium Fuel bred from natural Thorium.
+item.coal_eternal.name=Eternal Coal
